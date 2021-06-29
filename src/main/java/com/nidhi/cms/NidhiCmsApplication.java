@@ -8,6 +8,7 @@ public class NidhiCmsApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(NidhiCmsApplication.class, args); 
+	
 	}
 // dev
 }
