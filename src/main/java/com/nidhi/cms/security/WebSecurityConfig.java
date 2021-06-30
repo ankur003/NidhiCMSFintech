@@ -17,6 +17,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.annotation.Resource;
 
+/**
+ * 
+ *
+ * @author Ankur Bansala
+ */
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -47,12 +53,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable().authorizeRequests()
-				.antMatchers("/api/v1/user/*", "/user/*","/api/v1/getString/*", "/admin/" ).permitAll()
-				.anyRequest().authenticated().and().exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.antMatchers("/api/v1/user/*", "/user/*", "/api/v1/getString/*", "/admin/").permitAll().anyRequest()
+				.authenticated().and().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
 	}
-	
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		web.ignoring().antMatchers("/v2/api-docs/**");

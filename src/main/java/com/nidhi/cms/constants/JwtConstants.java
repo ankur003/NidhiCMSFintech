@@ -2,6 +2,12 @@ package com.nidhi.cms.constants;
 
 public class JwtConstants {
 
+	/**
+	 * 
+	 *
+	 * @author Ankur Bansala
+	 */
+
 	private JwtConstants() {
 		//
 	}

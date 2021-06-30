@@ -20,6 +20,12 @@ import java.io.IOException;
 
 import static com.nidhi.cms.constants.JwtConstants.*;
 
+/**
+ * 
+ *
+ * @author Ankur Bansala
+ */
+
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Autowired
