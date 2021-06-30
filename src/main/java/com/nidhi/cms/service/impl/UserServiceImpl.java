@@ -42,4 +42,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		});
 		return authorities;
 	}
+
+	@Override
+	public void createUser(User user) {
+		userRepository.save(user);
+		
+	}
 }
