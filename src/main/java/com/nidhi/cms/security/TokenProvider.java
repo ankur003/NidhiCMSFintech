@@ -17,12 +17,15 @@ import java.util.stream.Collectors;
 
 import static com.nidhi.cms.constants.JwtConstants.*;
 
+/**
+ * 
+ *
+ * @author Ankur Bansala
+ */
+
 @Component
 public class TokenProvider implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5081743938548074606L;
 
 	public String getUsernameFromToken(String token) {
