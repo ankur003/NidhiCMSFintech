@@ -7,6 +7,13 @@ import java.util.UUID;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.Role;
 
+
+/**
+ * 
+ *
+ * @author Ankur Bansala
+ */
+
 public class Utility {
 
 	private Utility() {

@@ -3,6 +3,7 @@ package com.nidhi.cms.modal.request;
 import java.time.LocalDate;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 
@@ -30,7 +31,7 @@ public class UserCreateModal {
 	@NotBlank(message =  "password : password can not be empty")
 	private String password;
 
-	@NotBlank(message =  "dob : dob can not be empty")
+	@NotNull(message =  "dob : dob can not be empty")
 	private LocalDate dob;
 
 	public String getUsername() {
