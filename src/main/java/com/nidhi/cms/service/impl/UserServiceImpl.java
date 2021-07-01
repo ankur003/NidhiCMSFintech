@@ -8,11 +8,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.UserService;
+import com.nidhi.cms.utils.Utility;
 
 /**
  * 
@@ -25,6 +28,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = userRepository.findByUsernameAndIsBlocked(username, false);
@@ -42,4 +48,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		});
 		return authorities;
 	}
+
+	@Override
+	public Boolean createUser(User user) {
+		user.setUserUuid(Utility.getUniqueUuid());
+		user.setPassword(encoder.encode(user.getPassword()));
+		user.setIsAdmin(false);
+		user.setRoles(Utility.getRole(RoleEum.USER));
+		return userRepository.save(user) != null;
+	}
+
 }

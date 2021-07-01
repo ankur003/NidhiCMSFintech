@@ -1,5 +1,7 @@
 package com.nidhi.cms.service;
 
+import com.nidhi.cms.domain.User;
+
 /**
  * 
  *
@@ -7,5 +9,7 @@ package com.nidhi.cms.service;
  */
 
 public interface UserService {
+
+	Boolean createUser(User user);
 
 }
