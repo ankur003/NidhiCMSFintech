@@ -10,6 +10,6 @@ import com.nidhi.cms.domain.User;
 
 public interface UserService {
 
-	void createUser(User user);
+	Boolean createUser(User user);
 
 }
