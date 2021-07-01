@@ -48,7 +48,7 @@
 			</converter>
 
 			<converter
-				type="com.school.portal.utils.LocalDateToDateConverter">
+				type="com.nidhi.cms.utils.LocalDateToDateConverter">
 				<class-a>java.time.LocalDate</class-a>
 				<class-b>java.util.Date</class-b>
 			</converter>

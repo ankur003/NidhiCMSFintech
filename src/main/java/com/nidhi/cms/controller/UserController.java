@@ -2,7 +2,7 @@ package com.nidhi.cms.controller;
 
 import javax.validation.Valid;
 
-import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +17,7 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.service.UserService;
+import com.nidhi.cms.utils.ResponseHandler;
 
 /**
  * @author Devendra Gread
@@ -32,12 +33,12 @@ public class UserController extends AbstractController {
 	@PostMapping(value = "")
 	public ResponseEntity<Object> createUser(@Valid @RequestBody UserCreateModal userCreateModal) {
 		final User user = beanMapper.map(userCreateModal, User.class);
-		Boolean isCreated = userservice.createUser(user);
-		if (BooleanUtils.isNotTrue(isCreated)) {
+		String userUuid = userservice.createUser(user);
+		if (StringUtils.isBlank(userUuid)) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "please try again in some time or reach to the support");
 			return new ResponseEntity<>(errorResponse, HttpStatus.NOT_MODIFIED);
 		}
-		return new ResponseEntity<>("user is created successfully", HttpStatus.CREATED);
+		return ResponseHandler.getMapResponse("userUuid", userUuid);
 	}
 
 }

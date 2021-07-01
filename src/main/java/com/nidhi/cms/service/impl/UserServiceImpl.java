@@ -50,12 +50,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Boolean createUser(User user) {
+	public String createUser(User user) {
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setPassword(encoder.encode(user.getPassword()));
 		user.setIsAdmin(false);
 		user.setRoles(Utility.getRole(RoleEum.USER));
-		return userRepository.save(user) != null;
+		return userRepository.save(user).getUserUuid();
 	}
 
 }
