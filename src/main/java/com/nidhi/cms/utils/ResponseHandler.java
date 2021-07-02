@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 public class ResponseHandler {
 
 	private ResponseHandler() {
-		// 
+		//
 	}
 
 	public static ResponseEntity<Object> getMapResponse(final String key, final Object value) {
@@ -26,6 +26,13 @@ public class ResponseHandler {
 		final Map<String, Object> responseMap = new HashMap<>();
 		responseMap.put(key, value);
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseMap);
+	}
+
+	public static ResponseEntity<Object> getContentResponse(Object value) {
+		if (value == null || StringUtils.isBlank(String.valueOf(value))) {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}
+		return ResponseEntity.ok(value);
 	}
 
 }

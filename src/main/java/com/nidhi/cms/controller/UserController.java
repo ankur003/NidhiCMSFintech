@@ -71,7 +71,7 @@ public class UserController extends AbstractController {
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
 		final UserDetailModal userDetailModal = beanMapper.map(user, UserDetailModal.class);
-		return ResponseEntity.ok(userDetailModal);
+		return ResponseHandler.getContentResponse(userDetailModal);
 	}
 
 }

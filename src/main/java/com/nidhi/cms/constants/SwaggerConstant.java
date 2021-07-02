@@ -1,5 +1,11 @@
 package com.nidhi.cms.constants;
 
+/**
+ * 
+ *
+ * @author Ankur Bansala
+ */
+
 public final class SwaggerConstant {
 
 	private SwaggerConstant() {
