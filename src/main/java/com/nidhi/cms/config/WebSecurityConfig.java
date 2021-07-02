@@ -56,10 +56,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable().authorizeRequests()
-				.antMatchers("/api/v1/user/*").permitAll().anyRequest()
-				.authenticated().and().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		http.cors().and().csrf().disable().authorizeRequests().anyRequest().authenticated().and().exceptionHandling()
+				.authenticationEntryPoint(unauthorizedHandler).and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
 	}
 
@@ -70,7 +68,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers("/swagger-ui.html");
 		web.ignoring().antMatchers("/webjars/**");
 		web.ignoring().antMatchers("/swagger-resources/**");
-		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/user/**");
+		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/user");
+		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/login");
 	}
 
 	@Bean

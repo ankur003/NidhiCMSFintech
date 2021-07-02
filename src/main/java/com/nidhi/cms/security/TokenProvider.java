@@ -55,7 +55,7 @@ public class TokenProvider implements Serializable {
 				.collect(Collectors.joining(","));
 		return Jwts.builder().setSubject(authentication.getName()).claim(AUTHORITIES_KEY, authorities)
 				.signWith(SignatureAlgorithm.HS256, SIGNING_KEY).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1000)).compact();
+				.setExpiration(new Date(System.currentTimeMillis() + OAUTH_TOKEN_VALIDITY_SECONDS * 1000)).compact();
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails) {

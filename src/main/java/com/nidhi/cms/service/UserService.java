@@ -11,5 +11,9 @@ import com.nidhi.cms.domain.User;
 public interface UserService {
 
 	String createUser(User user);
+	
+	User getUserByUserName(String username, Boolean isBlocked);
+	
+	User getUserByUserUuid(String userUuid);
 
 }
