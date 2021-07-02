@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nidhi.cms.constants.ApiConstants;
+import com.nidhi.cms.constants.SwaggerConstant;
 import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.UserCreateModal;
@@ -26,12 +27,16 @@ import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.ValidUuid;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 
 /**
  * @author Devendra Gread
  *
  */
+@Api(tags = { SwaggerConstant.ApiTag.USER })
 @RestController
 @RequestMapping(value = ApiConstants.API_VERSION + "/user")
 public class UserController extends AbstractController {
@@ -40,7 +45,7 @@ public class UserController extends AbstractController {
 	private UserService userservice;
 
 	@PostMapping(value = "")
-	public ResponseEntity<Object> createUser(@Valid @RequestBody UserCreateModal userCreateModal) {
+	public ResponseEntity<Object> userSignUp(@Valid @RequestBody UserCreateModal userCreateModal) {
 		final User user = beanMapper.map(userCreateModal, User.class);
 		User existingUser = userservice.getUserByUserName(user.getUsername(), false);
 		if(Objects.nonNull(existingUser)) {
@@ -57,8 +62,8 @@ public class UserController extends AbstractController {
 	
 	@GetMapping(value = "/{userUuid}")
 	@PreAuthorize("hasRole('USER')")
+	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"), @Authorization(value = "oauthToken") })
 	public ResponseEntity<Object> getUserDetail(
-			/* @RequestHeader("Authorization") String authorization, */
 			@ApiParam(value = "User Unique uiud", required = true) @ValidUuid(message = "userUuid : usreUuid is missing.") @PathVariable("userUuid") final String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (Objects.isNull(user)) {
