@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	private BCryptPasswordEncoder encoder;
 
 	public UserDetails loadUserByUsername(String username) {
-		User user = userRepository.findByUsernameAndIsBlocked(username, false);
+		User user = getUserByUserName(username, false);
 		if (user == null) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
@@ -56,6 +56,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setIsAdmin(false);
 		user.setRoles(Utility.getRole(RoleEum.USER));
 		return userRepository.save(user).getUserUuid();
+	}
+
+	@Override
+	public User getUserByUserName(String username, Boolean isBlocked) {
+		return userRepository.findByUsernameAndIsBlocked(username, isBlocked);
+	}
+
+	@Override
+	public User getUserByUserUuid(String userUuid) {
+		return userRepository.findByUserUuidAndIsBlocked(userUuid, false);
 	}
 
 }

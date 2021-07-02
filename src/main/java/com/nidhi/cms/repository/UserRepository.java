@@ -15,4 +15,6 @@ import com.nidhi.cms.domain.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	User findByUsernameAndIsBlocked(String username, Boolean isBlocked);
+
+	User findByUserUuidAndIsBlocked(String userUuid, Boolean isBlocked);
 }
