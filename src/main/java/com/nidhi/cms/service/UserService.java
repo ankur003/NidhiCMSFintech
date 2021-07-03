@@ -1,6 +1,9 @@
 package com.nidhi.cms.service;
 
+import org.springframework.data.domain.Page;
+
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.modal.request.UserRequestFilterModel;
 
 /**
  * 
@@ -15,5 +18,7 @@ public interface UserService {
 	User getUserByUserName(String username, Boolean isBlocked);
 	
 	User getUserByUserUuid(String userUuid);
+
+	Page<User> getAllUsers(UserRequestFilterModel userRequestFilterModel);
 
 }

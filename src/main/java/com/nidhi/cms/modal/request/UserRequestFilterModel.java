@@ -2,35 +2,29 @@ package com.nidhi.cms.modal.request;
 
 import java.time.LocalDate;
 
-import javax.validation.constraints.NotBlank;
-
 /**
  * 
  *
  * @author Ankur Bansala
  */
 
-public class UserCreateModal {
+public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 
-	@NotBlank(message = "username : username can not be empty")
 	private String username;
 
-	@NotBlank(message =  "userEmail : userEmail can not be empty")
 	private String userEmail;
 
-	@NotBlank(message =  "firstName : firstName can not be empty")
 	private String firstName;
 
-	@NotBlank(message =  "middleName : middleName can not be empty")
 	private String middleName;
 
-	@NotBlank(message =  "lastName : lastName can not be empty")
 	private String lastName;
 
-	@NotBlank(message =  "password : password can not be empty")
-	private String password;
-
 	private LocalDate dob;
+
+	private Boolean isBlocked;
+
+	private String userUuid;
 
 	public String getUsername() {
 		return username;
@@ -72,20 +66,28 @@ public class UserCreateModal {
 		this.lastName = lastName;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public LocalDate getDob() {
 		return dob;
 	}
 
 	public void setDob(LocalDate dob) {
 		this.dob = dob;
+	}
+
+	public Boolean getIsBlocked() {
+		return isBlocked;
+	}
+
+	public void setIsBlocked(Boolean isBlocked) {
+		this.isBlocked = isBlocked;
+	}
+
+	public String getUserUuid() {
+		return userUuid;
+	}
+
+	public void setUserUuid(String userUuid) {
+		this.userUuid = userUuid;
 	}
 
 }
