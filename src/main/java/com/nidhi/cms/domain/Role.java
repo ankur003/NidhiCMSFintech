@@ -1,7 +1,5 @@
 package com.nidhi.cms.domain;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -19,7 +17,7 @@ import com.nidhi.cms.constants.enums.RoleEum;
  */
 
 @Entity
-public class Role implements Serializable {
+public class Role extends BaseDomain {
 
 	private static final long serialVersionUID = 7189961001551880900L;
 

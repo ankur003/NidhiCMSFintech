@@ -13,12 +13,14 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 
 public interface UserService {
 
-	String createUser(User user);
+	Boolean createUser(User user);
 	
-	User getUserByUserName(String username, Boolean isBlocked);
+	User getUserByUserEmailOrMobileNumber(String email, String mobile);
 	
 	User getUserByUserUuid(String userUuid);
 
 	Page<User> getAllUsers(UserRequestFilterModel userRequestFilterModel);
+	
+	Boolean updateUserIsVerified(User user, Boolean isVerified);
 
 }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 
 /**
@@ -14,9 +15,8 @@ import com.nidhi.cms.domain.User;
  */
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> , PagingAndSortingRepository<User, Long>, JpaSpecificationExecutor<User>{
-	
-	User findByUserEmailOrMobileNumber(String email, String mobile);
+public interface OtpRepository extends JpaRepository<Otp, Long> , PagingAndSortingRepository<Otp, Long>, JpaSpecificationExecutor<User> {
 
-	User findByUserUuidAndIsUserVerified(String userUuid, Boolean isVerified);
+	Otp findByUserId(Long userId);
+	
 }
