@@ -33,14 +33,14 @@ public class NidhiCmsApplication {
 
 	@PostConstruct
 	public void createAdmin() {
-		User admin = userRepository.findByUsernameAndIsBlocked("admin", false);
+		User admin = userRepository.findByUserEmailOrMobileNumber("admin@gmail", "1234"); 
 		if (admin == null) {
-			admin = new User();
-			admin.setUsername("admin");
+			admin = new User(); 
+			admin.setUserEmail("admin@gmail.com");
+			admin.setMobileNumber("1234");
 			admin.setUserUuid(Utility.getUniqueUuid());
 			admin.setPassword(encoder.encode("admin"));
 			admin.setIsAdmin(true);
-			admin.setIsBlocked(false);
 			admin.setRoles(Utility.getRole(RoleEum.ADMIN));
 			userRepository.save(admin);
 		}

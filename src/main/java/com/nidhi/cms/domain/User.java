@@ -1,6 +1,5 @@
 package com.nidhi.cms.domain;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 
 @Entity
-public class User implements Serializable {
+public class User extends BaseDomain {
 
 	private static final long serialVersionUID = -1293783007980955204L;
 
@@ -33,9 +32,13 @@ public class User implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
 
-	private String username;
-
 	private String userEmail;
+
+	private String mobileNumber;
+
+	private String fullName;
+
+	private String referralCode;
 
 	private String firstName;
 
@@ -50,7 +53,7 @@ public class User implements Serializable {
 
 	private Boolean isAdmin;
 
-	private Boolean isBlocked = false;
+	private Boolean isUserVerified = false;
 
 	@Column(unique = true, nullable = false, updatable = false)
 	private String userUuid;
@@ -68,20 +71,36 @@ public class User implements Serializable {
 		this.userId = userId;
 	}
 
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
 	public String getUserEmail() {
 		return userEmail;
 	}
 
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
+	}
+
+	public String getMobileNumber() {
+		return mobileNumber;
+	}
+
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public String getReferralCode() {
+		return referralCode;
+	}
+
+	public void setReferralCode(String referralCode) {
+		this.referralCode = referralCode;
 	}
 
 	public String getFirstName() {
@@ -132,12 +151,12 @@ public class User implements Serializable {
 		this.isAdmin = isAdmin;
 	}
 
-	public Boolean getIsBlocked() {
-		return isBlocked;
+	public Boolean getIsUserVerified() {
+		return isUserVerified;
 	}
 
-	public void setIsBlocked(Boolean isBlocked) {
-		this.isBlocked = isBlocked;
+	public void setIsUserVerified(Boolean isUserVerified) {
+		this.isUserVerified = isUserVerified;
 	}
 
 	public String getUserUuid() {

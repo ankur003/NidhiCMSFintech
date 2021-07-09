@@ -1,12 +1,12 @@
 package com.nidhi.cms.utils;
 
 import java.util.Collections;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.Role;
-
 
 /**
  * 
@@ -22,6 +22,10 @@ public class Utility {
 
 	public static final String getUniqueUuid() {
 		return UUID.randomUUID().toString();
+	}
+
+	public static String getRandomNumberString() {
+		return String.format("%06d", new Random().nextInt(999999));
 	}
 
 	public static Set<Role> getRole(RoleEum roleEum) {

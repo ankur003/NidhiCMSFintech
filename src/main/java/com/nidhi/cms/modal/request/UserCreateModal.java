@@ -1,7 +1,5 @@
 package com.nidhi.cms.modal.request;
 
-import java.time.LocalDate;
-
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -12,33 +10,19 @@ import javax.validation.constraints.NotBlank;
 
 public class UserCreateModal {
 
-	@NotBlank(message = "username : username can not be empty")
-	private String username;
-
 	@NotBlank(message =  "userEmail : userEmail can not be empty")
 	private String userEmail;
-
-	@NotBlank(message =  "firstName : firstName can not be empty")
-	private String firstName;
-
-	@NotBlank(message =  "middleName : middleName can not be empty")
-	private String middleName;
-
-	@NotBlank(message =  "lastName : lastName can not be empty")
-	private String lastName;
+	
+	@NotBlank(message =  "mobileNumber : mobileNumber can not be empty")
+	private String mobileNumber;
 
 	@NotBlank(message =  "password : password can not be empty")
 	private String password;
 
-	private LocalDate dob;
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
+	@NotBlank(message = "fullName : fullName can not be empty")
+	private String fullName;
+	
+	private String referralCode;
 
 	public String getUserEmail() {
 		return userEmail;
@@ -48,28 +32,12 @@ public class UserCreateModal {
 		this.userEmail = userEmail;
 	}
 
-	public String getFirstName() {
-		return firstName;
+	public String getMobileNumber() {
+		return mobileNumber;
 	}
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getMiddleName() {
-		return middleName;
-	}
-
-	public void setMiddleName(String middleName) {
-		this.middleName = middleName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
 	}
 
 	public String getPassword() {
@@ -80,12 +48,20 @@ public class UserCreateModal {
 		this.password = password;
 	}
 
-	public LocalDate getDob() {
-		return dob;
+	public String getFullName() {
+		return fullName;
 	}
 
-	public void setDob(LocalDate dob) {
-		this.dob = dob;
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public String getReferralCode() {
+		return referralCode;
+	}
+
+	public void setReferralCode(String referralCode) {
+		this.referralCode = referralCode;
 	}
 
 }

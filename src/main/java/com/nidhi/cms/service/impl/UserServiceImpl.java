@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.UserRepository;
+import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.Utility;
 
@@ -36,16 +38,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private OtpService otpService;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
 	public UserDetails loadUserByUsername(String username) {
-		User user = getUserByUserName(username, false);
-		if (user == null) {
+		User user = getUserByUserEmailOrMobileNumber(username, username);
+		if (user == null || BooleanUtils.isFalse(user.getIsActive() || BooleanUtils.isFalse(user.getIsUserVerified()))) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+		return new org.springframework.security.core.userdetails.User(user.getUserEmail(), user.getPassword(),
 				getAuthority(user));
 	}
 
@@ -58,22 +63,24 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public String createUser(User user) {
+	public Boolean createUser(User user) {
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setPassword(encoder.encode(user.getPassword()));
 		user.setIsAdmin(false);
+		user.setIsUserVerified(false);
 		user.setRoles(Utility.getRole(RoleEum.USER));
-		return userRepository.save(user).getUserUuid();
+		User savedUser = userRepository.save(user);
+		return otpService.sendingOtp(savedUser);
 	}
 
 	@Override
-	public User getUserByUserName(String username, Boolean isBlocked) {
-		return userRepository.findByUsernameAndIsBlocked(username, isBlocked);
+	public User getUserByUserEmailOrMobileNumber(String email, String mobile) {
+		return userRepository.findByUserEmailOrMobileNumber(email, mobile);
 	}
 
 	@Override
 	public User getUserByUserUuid(String userUuid) {
-		return userRepository.findByUserUuidAndIsBlocked(userUuid, false);
+		return userRepository.findByUserUuidAndIsUserVerified(userUuid, true);
 	}
 
 	@Override
@@ -91,7 +98,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		if (CollectionUtils.isNotEmpty(genericSpesification.getSearchCriteriaList())) {
 			return userRepository.findAll(genericSpesification, PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));
 		}
-		return null;
+		return userRepository.findAll(PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));
+	}
+
+	@Override
+	public Boolean updateUserIsVerified(User user, Boolean isVerified) {
+		user.setIsUserVerified(isVerified);
+		return userRepository.save(user) != null;
 	}
 
 }
