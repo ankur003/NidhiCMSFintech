@@ -6,10 +6,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.modal.response.TextLocalResponseModal;
 import com.nidhi.cms.repository.OtpRepository;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.utils.Utility;
@@ -25,17 +27,18 @@ public class OtpServiceImpl implements OtpService {
 
 	@Autowired
 	private OtpRepository otpRepository;
-	
+
 	@Autowired
 	private ApplicationConfig applicationConfig;
-	
+
 	@Override
 	public Boolean sendingOtp(User existingUser) {
 		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
 		if (BooleanUtils.isFalse(doesOtpExpired(otp))) {
 			return null;
 		}
-		String mobileOtp = sendOtpOnMobile(existingUser);
+		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), 
+				existingUser.getMobileNumber());
 		if (StringUtils.isBlank(mobileOtp)) {
 			return Boolean.FALSE;
 		}
@@ -44,15 +47,6 @@ public class OtpServiceImpl implements OtpService {
 			return Boolean.FALSE;
 		}
 		return saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
-	}
-
-	private String sendOtpOnMobile(User existingUser) {
-		String mobileOtp = Utility.getRandomNumberString();
-		System.out.println(mobileOtp + "  mobile otp");
-		if (mobileOtp != null) {
-			return mobileOtp;
-		}
-		return StringUtils.EMPTY;
 	}
 
 	private String sendOtpOnEmail(User existingUser) {
@@ -78,7 +72,7 @@ public class OtpServiceImpl implements OtpService {
 		existingOtp.setEmailOtp(emailOtp);
 		return otpRepository.save(existingOtp) != null;
 	}
-	
+
 	@Override
 	public Boolean doesOtpExpired(Otp otp) {
 		if (otp == null) {
@@ -92,8 +86,7 @@ public class OtpServiceImpl implements OtpService {
 			return Boolean.FALSE;
 		}
 		return Boolean.TRUE;
-		
-		
+
 	}
 
 	@Override

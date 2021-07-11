@@ -1,6 +1,7 @@
 package com.nidhi.cms.modal.request;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 /**
  * 
@@ -14,6 +15,7 @@ public class UserCreateModal {
 	private String userEmail;
 	
 	@NotBlank(message =  "mobileNumber : mobileNumber can not be empty")
+	@Pattern(regexp = "^[0-9]{10}$", message = "Only numbers allowed with length 10")
 	private String mobileNumber;
 
 	@NotBlank(message =  "password : password can not be empty")
