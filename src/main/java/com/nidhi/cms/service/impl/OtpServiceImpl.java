@@ -1,9 +1,13 @@
 package com.nidhi.cms.service.impl;
 
+import java.time.LocalDateTime;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.repository.OtpRepository;
@@ -22,9 +26,15 @@ public class OtpServiceImpl implements OtpService {
 	@Autowired
 	private OtpRepository otpRepository;
 	
+	@Autowired
+	private ApplicationConfig applicationConfig;
+	
 	@Override
 	public Boolean sendingOtp(User existingUser) {
 		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
+		if (BooleanUtils.isFalse(doesOtpExpired(otp))) {
+			return null;
+		}
 		String mobileOtp = sendOtpOnMobile(existingUser);
 		if (StringUtils.isBlank(mobileOtp)) {
 			return Boolean.FALSE;
@@ -38,6 +48,7 @@ public class OtpServiceImpl implements OtpService {
 
 	private String sendOtpOnMobile(User existingUser) {
 		String mobileOtp = Utility.getRandomNumberString();
+		System.out.println(mobileOtp + "  mobile otp");
 		if (mobileOtp != null) {
 			return mobileOtp;
 		}
@@ -46,6 +57,7 @@ public class OtpServiceImpl implements OtpService {
 
 	private String sendOtpOnEmail(User existingUser) {
 		String emailOtp = Utility.getRandomNumberString();
+		System.out.println(emailOtp + "  email otp");
 		if (emailOtp != null) {
 			return emailOtp;
 		}
@@ -65,6 +77,28 @@ public class OtpServiceImpl implements OtpService {
 		existingOtp.setMobileOtp(mobileOtp);
 		existingOtp.setEmailOtp(emailOtp);
 		return otpRepository.save(existingOtp) != null;
+	}
+	
+	@Override
+	public Boolean doesOtpExpired(Otp otp) {
+		if (otp == null) {
+			return Boolean.TRUE;
+		}
+		String expireMin = applicationConfig.getOtpExpireMinutes();
+		if (StringUtils.isBlank(expireMin)) {
+			expireMin = "30";
+		}
+		if (otp.getUpdatedAt().plusMinutes(Long.valueOf(expireMin)).isAfter(LocalDateTime.now())) {
+			return Boolean.FALSE;
+		}
+		return Boolean.TRUE;
+		
+		
+	}
+
+	@Override
+	public Otp getOtpDetails(String mobileOtp, String emailOtp) {
+		return otpRepository.findByMobileOtpAndEmailOtp(mobileOtp, emailOtp);
 	}
 
 }

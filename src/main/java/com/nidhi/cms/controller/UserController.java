@@ -68,6 +68,10 @@ public class UserController extends AbstractController {
 			if (BooleanUtils.isTrue(isOtpSent)) {
 				return ResponseHandler.getMapResponse("message", "Otp-Resent, please verify the email & mobile otp");
 			}
+			if (isOtpSent == null) {
+				return ResponseHandler.getMapResponse("message", "Otp-already sent, please verify the email & mobile otp."
+						+ "if you have lost the OTP , please try again in 30 min");
+			}
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, "please try again in some time or reach to the support");
 			return new ResponseEntity<>(errorResponse, HttpStatus.NOT_MODIFIED);
 		}

@@ -1,5 +1,6 @@
 package com.nidhi.cms.service;
 
+import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 
 /**
@@ -11,5 +12,9 @@ import com.nidhi.cms.domain.User;
 public interface OtpService {
 
 	Boolean sendingOtp(User existingUser);
+
+	Boolean doesOtpExpired(Otp otp);
+
+	Otp getOtpDetails(String mobileOtp, String emailOtp);
 
 }
