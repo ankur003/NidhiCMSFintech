@@ -70,6 +70,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers("/swagger-resources/**");
 		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/user");
 		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/login");
+		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/otp/verify");
 	}
 
 	@Bean

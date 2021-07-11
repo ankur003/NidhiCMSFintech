@@ -17,6 +17,8 @@ public final class SwaggerConstant {
 		public static final String LOGIN = "Login";
 
 		public static final String USER = "User";
+		
+		public static final String OTP = "Otp";
 
 		private ApiTag() {
 			// to hide

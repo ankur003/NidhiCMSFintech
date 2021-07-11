@@ -80,7 +80,8 @@ public class SwaggerConfig {
      */
     private Tag[] getApiOrderedTags(int tagOrder) {
         return new Tag[] {
-            new Tag(SwaggerConstant.ApiTag.USER, "", tagOrder++)
+            new Tag(SwaggerConstant.ApiTag.USER, "", tagOrder),
+            new Tag(SwaggerConstant.ApiTag.OTP, "", tagOrder++)
         };
     }
 

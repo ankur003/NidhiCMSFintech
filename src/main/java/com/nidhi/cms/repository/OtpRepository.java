@@ -18,5 +18,7 @@ import com.nidhi.cms.domain.User;
 public interface OtpRepository extends JpaRepository<Otp, Long> , PagingAndSortingRepository<Otp, Long>, JpaSpecificationExecutor<User> {
 
 	Otp findByUserId(Long userId);
+
+	Otp findByMobileOtpAndEmailOtp(String mobileOtp, String emailOtp);
 	
 }
