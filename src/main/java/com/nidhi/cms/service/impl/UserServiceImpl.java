@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.constants.enums.SearchOperation;
+import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
-		if (user == null || BooleanUtils.isFalse(user.getIsActive() || BooleanUtils.isFalse(user.getIsUserVerified()))) {
+		if (user == null || BooleanUtils.isFalse(user.getIsActive()) || BooleanUtils.isFalse(user.getIsUserVerified())) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
 		return new org.springframework.security.core.userdetails.User(user.getUserEmail(), user.getPassword(),
@@ -102,9 +103,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Boolean updateUserIsVerified(User user, Boolean isVerified) {
-		user.setIsUserVerified(isVerified);
-		return userRepository.save(user) != null;
+	public void updateUserIsVerified(Otp otp) {
+		User user = userRepository.getOne(otp.getUserId());
+		user.setIsUserVerified(true);
+		userRepository.save(user);
 	}
 
 }

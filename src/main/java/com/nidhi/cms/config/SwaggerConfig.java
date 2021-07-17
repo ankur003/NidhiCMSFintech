@@ -11,18 +11,22 @@ import javax.servlet.ServletContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.nidhi.cms.constants.SwaggerConstant;
 
 import io.swagger.annotations.Api;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.ResponseMessageBuilder;
+import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.Contact;
 import springfox.documentation.service.GrantType;
 import springfox.documentation.service.OAuth;
+import springfox.documentation.service.ResponseMessage;
 import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.paths.RelativePathProvider;
@@ -71,7 +75,17 @@ public class SwaggerConfig {
             .useDefaultResponseMessages(false)
             .securitySchemes(Arrays.asList(apiKey(), securitySchema()))
             .produces(DEFAULT_PRODUCES_AND_CONSUMES)
+            .globalResponseMessage(RequestMethod.GET, getCustomizedResponseMessages())
+            .globalResponseMessage(RequestMethod.PUT, getCustomizedResponseMessages())
+            .globalResponseMessage(RequestMethod.POST, getCustomizedResponseMessages())
             .tags(new Tag(SwaggerConstant.ApiTag.LOGIN, "", tagOrder), getApiOrderedTags(tagOrder));
+    }
+    
+    private List<ResponseMessage> getCustomizedResponseMessages() {
+        final List<ResponseMessage> responseMessages = new ArrayList<>();
+        responseMessages.add(new ResponseMessageBuilder().code(500).message("Internal Server Error").responseModel(new ModelRef("ErrorResponse")).build());
+        responseMessages.add(new ResponseMessageBuilder().code(403).message("Forbidden").build());
+        return responseMessages;
     }
 
     /**

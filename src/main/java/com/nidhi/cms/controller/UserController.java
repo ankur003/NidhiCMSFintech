@@ -69,16 +69,17 @@ public class UserController extends AbstractController {
 				return ResponseHandler.getMapResponse("message", "Otp-Resent, please verify the email & mobile otp");
 			}
 			if (isOtpSent == null) {
-				return ResponseHandler.getMapResponse("message", "Otp-already sent, please verify the email & mobile otp."
+				ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Otp-already sent, please verify the email & mobile otp."
 						+ "if you have lost the OTP , please try again in 30 min");
+				return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 			}
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, "please try again in some time or reach to the support");
-			return new ResponseEntity<>(errorResponse, HttpStatus.NOT_MODIFIED);
+			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorResponse);
 		}
 		Boolean isCreated = userservice.createUser(user);
 		if (BooleanUtils.isFalse(isCreated)) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, "please try again in some time or reach to the support");
-			return new ResponseEntity<>(errorResponse, HttpStatus.NOT_MODIFIED);
+			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorResponse);
 		}
 		return ResponseHandler.getMapResponse("message", "please verify the email & mobile otp");
 	}

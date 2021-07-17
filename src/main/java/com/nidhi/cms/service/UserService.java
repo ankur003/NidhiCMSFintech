@@ -2,6 +2,7 @@ package com.nidhi.cms.service;
 
 import org.springframework.data.domain.Page;
 
+import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 
@@ -21,6 +22,6 @@ public interface UserService {
 
 	Page<User> getAllUsers(UserRequestFilterModel userRequestFilterModel);
 	
-	Boolean updateUserIsVerified(User user, Boolean isVerified);
+	void updateUserIsVerified(Otp otp);
 
 }
