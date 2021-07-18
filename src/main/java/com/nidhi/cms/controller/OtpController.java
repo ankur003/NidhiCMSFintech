@@ -20,6 +20,7 @@ import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.service.OtpService;
+import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
 
 import io.swagger.annotations.Api;
@@ -36,6 +37,9 @@ public class OtpController extends AbstractController {
 
 	@Autowired
 	private OtpService otpService;
+	
+	@Autowired
+	private UserService userService;
 
 	@PostMapping(value = "/verify")
 	public ResponseEntity<Object> verifyOTP(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) {
@@ -53,6 +57,7 @@ public class OtpController extends AbstractController {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Otp expired, please signUp again.");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
+		userService.updateUserIsVerified(otp);
 		return ResponseHandler.getMapResponse("message", "Otp verified, please proceed with login");
 	}
 

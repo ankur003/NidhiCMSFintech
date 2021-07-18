@@ -1,5 +1,6 @@
 package com.nidhi.cms.service.impl;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,14 +16,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.constants.enums.SearchOperation;
+import com.nidhi.cms.domain.DocType;
+import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.UserRepository;
+import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.Utility;
@@ -38,18 +45,22 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private OtpService otpService;
+
+	@Autowired
+	private DocService docService;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
-		if (user == null || BooleanUtils.isFalse(user.getIsActive() || BooleanUtils.isFalse(user.getIsUserVerified()))) {
+		if (user == null || BooleanUtils.isFalse(user.getIsActive()) || BooleanUtils.isFalse(user.getIsUserVerified())) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
+		ApplicationConfig.loggedInUsers.put(user.getUserEmail(), user.getUserUuid());
 		return new org.springframework.security.core.userdetails.User(user.getUserEmail(), user.getPassword(),
 				getAuthority(user));
 	}
@@ -87,24 +98,36 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public Page<User> getAllUsers(UserRequestFilterModel userRequestFilterModel) {
 		GenericSpesification<User> genericSpesification = new GenericSpesification<>();
 		if (StringUtils.isNotBlank(userRequestFilterModel.getFirstName())) {
-			genericSpesification.add(new SearchCriteria("firstName", userRequestFilterModel.getFirstName(), SearchOperation.EQUAL));
+			genericSpesification
+					.add(new SearchCriteria("firstName", userRequestFilterModel.getFirstName(), SearchOperation.EQUAL));
 		}
 		if (StringUtils.isNotBlank(userRequestFilterModel.getLastName())) {
-			genericSpesification.add(new SearchCriteria("lastName", userRequestFilterModel.getLastName(), SearchOperation.EQUAL));
+			genericSpesification
+					.add(new SearchCriteria("lastName", userRequestFilterModel.getLastName(), SearchOperation.EQUAL));
 		}
 		if (StringUtils.isNotBlank(userRequestFilterModel.getMiddleName())) {
-			genericSpesification.add(new SearchCriteria("middleName", userRequestFilterModel.getMiddleName(), SearchOperation.EQUAL));
+			genericSpesification.add(
+					new SearchCriteria("middleName", userRequestFilterModel.getMiddleName(), SearchOperation.EQUAL));
 		}
 		if (CollectionUtils.isNotEmpty(genericSpesification.getSearchCriteriaList())) {
-			return userRepository.findAll(genericSpesification, PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));
+			return userRepository.findAll(genericSpesification,
+					PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));
 		}
-		return userRepository.findAll(PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));
+		return userRepository
+				.findAll(PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));
 	}
 
 	@Override
-	public Boolean updateUserIsVerified(User user, Boolean isVerified) {
-		user.setIsUserVerified(isVerified);
-		return userRepository.save(user) != null;
+	public void updateUserIsVerified(Otp otp) {
+		User user = userRepository.getOne(otp.getUserId());
+		user.setIsUserVerified(true);
+		userRepository.save(user);
+	}
+
+	@Override
+	public Boolean saveOrUpdateUserDoc(User user, MultipartFile multiipartFile, DocType docType) throws IOException {
+		UserDoc userDoc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
+		return docService.saveOrUpdateUserDoc(userDoc, user.getUserId(), multiipartFile, docType);
 	}
 
 }

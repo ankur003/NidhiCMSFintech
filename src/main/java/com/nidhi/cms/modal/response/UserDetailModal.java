@@ -10,9 +10,13 @@ import java.time.LocalDate;
 
 public class UserDetailModal {
 
-	private String username;
-
 	private String userEmail;
+
+	private String mobileNumber;
+
+	private String fullName;
+
+	private String referralCode;
 
 	private String firstName;
 
@@ -22,17 +26,9 @@ public class UserDetailModal {
 
 	private LocalDate dob;
 
-	private Boolean isBlocked;
+	private Boolean isUserVerified;
 
 	private String userUuid;
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
 
 	public String getUserEmail() {
 		return userEmail;
@@ -40,6 +36,30 @@ public class UserDetailModal {
 
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
+	}
+
+	public String getMobileNumber() {
+		return mobileNumber;
+	}
+
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public String getReferralCode() {
+		return referralCode;
+	}
+
+	public void setReferralCode(String referralCode) {
+		this.referralCode = referralCode;
 	}
 
 	public String getFirstName() {
@@ -74,12 +94,12 @@ public class UserDetailModal {
 		this.dob = dob;
 	}
 
-	public Boolean getIsBlocked() {
-		return isBlocked;
+	public Boolean getIsUserVerified() {
+		return isUserVerified;
 	}
 
-	public void setIsBlocked(Boolean isBlocked) {
-		this.isBlocked = isBlocked;
+	public void setIsUserVerified(Boolean isUserVerified) {
+		this.isUserVerified = isUserVerified;
 	}
 
 	public String getUserUuid() {

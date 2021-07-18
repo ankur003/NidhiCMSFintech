@@ -1,6 +1,7 @@
 package com.nidhi.cms.service;
 
 import com.nidhi.cms.modal.request.LoginRequestModal;
+import com.nidhi.cms.security.AuthToken;
 
 /**
  * 
@@ -10,6 +11,6 @@ import com.nidhi.cms.modal.request.LoginRequestModal;
 
 public interface LoginService {
 
-	String login(LoginRequestModal loginRequestModal);
+	AuthToken login(LoginRequestModal loginRequestModal);
 
 }

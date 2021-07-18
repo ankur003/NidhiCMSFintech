@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nidhi.cms.constants.ApiConstants;
 import com.nidhi.cms.constants.SwaggerConstant;
 import com.nidhi.cms.modal.request.LoginRequestModal;
+import com.nidhi.cms.security.AuthToken;
 import com.nidhi.cms.service.LoginService;
 import com.nidhi.cms.utils.ResponseHandler;
 
@@ -32,8 +33,8 @@ public class LoginController extends AbstractController {
 
 	@PostMapping(value = "")
 	public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestModal loginRequestModal) {
-		String authToken = loginservice.login(loginRequestModal);
-		return ResponseHandler.getMapResponse("authToken", authToken);
+		AuthToken authToken = loginservice.login(loginRequestModal);
+		return ResponseHandler.getContentResponse(authToken);
 	}
 
 }
