@@ -1,11 +1,14 @@
 package com.nidhi.cms.utils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.nidhi.cms.constants.enums.RoleEum;
@@ -57,6 +60,16 @@ public class Utility {
 			return StringUtils.EMPTY;
 		}
 		return StringUtils.EMPTY;
+	}
+
+	public static File convertMultipartFileToFile(MultipartFile profilePic) {
+		 final File convFile = new File(System.getProperty("java.io.tmpdir") + File.separator + profilePic.getOriginalFilename());
+	        try (final FileOutputStream fos = new FileOutputStream(convFile)) {
+	            fos.write(profilePic.getBytes());
+	            return convFile;
+	        } catch (final Exception e) {
+	            return null;
+	        }
 	}
 
 }

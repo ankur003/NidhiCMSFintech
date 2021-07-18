@@ -52,12 +52,12 @@ public class OtpServiceImpl implements OtpService {
 		sendOtpOnEmail(existingUser, emailOtp);
 		if (StringUtils.isBlank(emailOtp)) {
 			return Boolean.FALSE;
-		} 
+		}
 		return saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
 	}
 
-	private void sendOtpOnEmail(User existingUser, String emailOtp) { 
-		CompletableFuture.runAsync(() -> { 
+	private void sendOtpOnEmail(User existingUser, String emailOtp) {
+		CompletableFuture.runAsync(() -> {
 			try {
 				SimpleMailMessage msg = new SimpleMailMessage();
 				msg.setTo(existingUser.getUserEmail());

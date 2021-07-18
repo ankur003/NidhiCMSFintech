@@ -1,5 +1,8 @@
 package com.nidhi.cms.config;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,6 +23,8 @@ public class ApplicationConfig {
 
 	@Value("${text.local.api.sender}")
 	private String textLocalApiSender;
+
+	public static Map<String, String> loggedInUsers = new ConcurrentHashMap<>();
 
 	public String getOtpExpireMinutes() {
 		return otpExpireMinutes;

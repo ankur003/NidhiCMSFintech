@@ -8,17 +8,22 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.fasterxml.classmate.TypeResolver;
 import com.nidhi.cms.constants.SwaggerConstant;
 
 import io.swagger.annotations.Api;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseMessageBuilder;
+import springfox.documentation.schema.ModelProvider;
 import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
@@ -31,6 +36,8 @@ import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.paths.RelativePathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.spring.web.plugins.DocumentationPluginsManager;
+import springfox.documentation.spring.web.scanners.ApiModelReader;
 import springfox.documentation.swagger.web.DocExpansion;
 import springfox.documentation.swagger.web.ModelRendering;
 import springfox.documentation.swagger.web.OperationsSorter;
@@ -133,6 +140,17 @@ public class SwaggerConfig {
             .validatorUrl("")
             .displayRequestDuration(true)
             .build();
+    }
+    
+    @Primary
+    @Component
+    public class CustomApiModelReader extends ApiModelReader {
+
+        public CustomApiModelReader(@Qualifier("cachedModels") final ModelProvider modelProvider, final TypeResolver typeResolver,
+            final DocumentationPluginsManager pluginsManager) {
+            super(modelProvider, typeResolver, pluginsManager);
+        }
+
     }
 
 }

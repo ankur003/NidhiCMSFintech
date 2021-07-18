@@ -41,6 +41,8 @@ public class NidhiCmsApplication {
 			admin.setUserUuid(Utility.getUniqueUuid());
 			admin.setPassword(encoder.encode("admin"));
 			admin.setIsAdmin(true);
+			admin.setIsActive(true);
+			admin.setIsUserVerified(true);
 			admin.setRoles(Utility.getRole(RoleEum.ADMIN));
 			userRepository.save(admin);
 		}
