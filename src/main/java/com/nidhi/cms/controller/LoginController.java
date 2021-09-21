@@ -25,16 +25,17 @@ import io.swagger.annotations.Api;
  */
 @Api(tags = { SwaggerConstant.ApiTag.LOGIN })
 @RestController
-@RequestMapping(value = ApiConstants.API_VERSION + "/login")
+//@RequestMapping(value = ApiConstants.API_VERSION + "/login")
 public class LoginController extends AbstractController {
 
 	@Autowired
 	private LoginService loginservice;
 
-	@PostMapping(value = "")
-	public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestModal loginRequestModal) {
+	//@PostMapping(value = "")
+	public String login(@Valid @RequestBody LoginRequestModal loginRequestModal) {
 		AuthToken authToken = loginservice.login(loginRequestModal);
-		return ResponseHandler.getContentResponse(authToken);
+		//return ResponseHandler.getContentResponse(authToken);
+		return authToken.getToken();
 	}
 
 }

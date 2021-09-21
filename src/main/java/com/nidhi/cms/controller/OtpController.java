@@ -32,7 +32,7 @@ import io.swagger.annotations.Api;
  */
 @Api(tags = { SwaggerConstant.ApiTag.OTP })
 @RestController
-@RequestMapping(value = ApiConstants.API_VERSION + "/otp")
+//@RequestMapping(value = ApiConstants.API_VERSION + "/otp")
 public class OtpController extends AbstractController {
 
 	@Autowired
@@ -41,24 +41,28 @@ public class OtpController extends AbstractController {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping(value = "/verify")
-	public ResponseEntity<Object> verifyOTP(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) {
+//	@PostMapping(value = "/verify")
+	public String verifyOTP(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) {
 		Otp otp  = otpService.getOtpDetails(verifyOtpRequestModal.getMobileOtp(), verifyOtpRequestModal.getEmailOtp());
 		if (Objects.isNull(otp)) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Either email or mobile OTP is incorrect, please try again");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+		//	return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+			return "Either email or mobile OTP is incorrect, please try again.";
 		}
 		if (BooleanUtils.isFalse(otp.getIsActive())) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Otp already verified, please login");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Otp already verified, please login.");
+		//	return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+			return "Otp already verified, please login";
 		}
 		Boolean isExpired = otpService.doesOtpExpired(otp);
 		if (BooleanUtils.isTrue(isExpired)) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Otp expired, please signUp again.");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+		//	return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+			return "Otp expired, please signUp again.";
 		}
 		userService.updateUserIsVerified(otp);
-		return ResponseHandler.getMapResponse("message", "Otp verified, please proceed with login");
+	//	return ResponseHandler.getMapResponse("message", "Otp verified, please proceed with login");
+		return "Otp verified, please proceed with login.";
 	}
 
 }

@@ -5,6 +5,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.nidhi.cms.constants.enums.RoleEum;
@@ -19,7 +21,7 @@ import com.nidhi.cms.utils.Utility;
  */
 
 @SpringBootApplication
-public class NidhiCmsApplication {
+public class NidhiCmsApplication extends SpringBootServletInitializer {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -27,6 +29,12 @@ public class NidhiCmsApplication {
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
+	@Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(NidhiCmsApplication.class);
+    }
+	
+	
 	public static void main(String[] args) {
 		SpringApplication.run(NidhiCmsApplication.class, args);
 	}

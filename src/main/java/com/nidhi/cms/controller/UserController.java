@@ -53,7 +53,7 @@ import io.swagger.annotations.Authorization;
  */
 @Api(tags = { SwaggerConstant.ApiTag.USER })
 @RestController
-@RequestMapping(value = ApiConstants.API_VERSION + "/user")
+//@RequestMapping(value = ApiConstants.API_VERSION + "/user")
 public class UserController extends AbstractController {
 
 	@Autowired
@@ -65,14 +65,15 @@ public class UserController extends AbstractController {
 	@Autowired
 	private OtpService otpService;
 
-	@PostMapping(value = "")
-	public ResponseEntity<Object> userSignUp(@Valid @RequestBody UserCreateModal userCreateModal) {
+//	@PostMapping(value = "")
+	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal) {
 		final User user = beanMapper.map(userCreateModal, User.class);
 		User existingUser = userservice.getUserByUserEmailOrMobileNumber(user.getUserEmail(), user.getMobileNumber());
 		if (Objects.nonNull(existingUser) && BooleanUtils.isTrue(existingUser.getIsUserVerified())) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
 					"username : user already exist by mobile or email.");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+			return "username : user already exist by mobile or email.";
+			//return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
 		// user has not filled the OTP yet and trying again for signUp
 		// in that case - user is available in our system but not veryfied
@@ -80,25 +81,32 @@ public class UserController extends AbstractController {
 		if (Objects.nonNull(existingUser) && BooleanUtils.isFalse(existingUser.getIsUserVerified())) {
 			Boolean isOtpSent = otpService.sendingOtp(existingUser);
 			if (BooleanUtils.isTrue(isOtpSent)) {
-				return ResponseHandler.getMapResponse("message", "Otp-Resent, please verify the email & mobile otp");
+				//return ResponseHandler.getMapResponse("message", "Otp-Resent, please verify the email & mobile otp");
+				return "Otp-Resent, please verify the email & mobile otp";
 			}
 			if (isOtpSent == null) {
 				ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
 						"Otp-already sent, please verify the email & mobile otp."
 								+ "if you have lost the OTP , please try again in 30 min");
-				return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+			//	return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+				return "Otp-already sent, please verify the email & mobile otp."
+				+ "if you have lost the OTP , please try again in 30 min";
 			}
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 					"please try again in some time or reach to the support");
-			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorResponse);
+			//return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorResponse);
+			return "please try again in some time or reach to the support";
 		}
 		Boolean isCreated = userservice.createUser(user);
 		if (BooleanUtils.isFalse(isCreated)) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 					"please try again in some time or reach to the support");
-			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorResponse);
+			//return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorResponse);
+			return "please try again in some time or reach to the support";
 		}
-		return ResponseHandler.getMapResponse("message", "please verify the email & mobile otp");
+		
+		//return ResponseHandler.getMapResponse("message", "please verify the email & mobile otp");
+		return "please verify the email & mobile otp";
 	}
 
 	@GetMapping(value = "/{userUuid}")

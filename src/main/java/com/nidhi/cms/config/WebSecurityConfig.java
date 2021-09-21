@@ -71,7 +71,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/user");
 		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/login");
 		web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/otp/verify");
+		web.ignoring().antMatchers(HttpMethod.GET, "/api/v1/fe/**");
+		
+		web.ignoring().antMatchers(HttpMethod.GET, "/assets/**");
+		
+		
 	}
+	
 
 	@Bean
 	public BCryptPasswordEncoder encoder() {
