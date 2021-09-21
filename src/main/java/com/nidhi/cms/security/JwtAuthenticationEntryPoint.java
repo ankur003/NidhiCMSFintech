@@ -33,7 +33,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		 final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_FAILURE, "username or password incorrect");
+		 final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_FAILURE, "incorrect url or username or password incorrect");
 	        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 	        response.getWriter().append(new ObjectMapper().writeValueAsString(errorResponse));
 	        response.setStatus(HttpStatus.UNAUTHORIZED.value());

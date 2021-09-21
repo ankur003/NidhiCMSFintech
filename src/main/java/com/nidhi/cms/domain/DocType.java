@@ -7,5 +7,5 @@ package com.nidhi.cms.domain;
  */
 
 public enum DocType {
-	PROFILE_PIC, DOCUMENT
+	PROFILE_PIC, DOCUMENT_AADHAR, DOCUMENT_PAN, DOCUMENT_GST
 }

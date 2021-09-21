@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import java.io.IOException;
 
 import static com.nidhi.cms.constants.JwtConstants.*;
@@ -37,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-		String header = req.getHeader(HEADER_STRING);
+		String header = extractAuthToken(req);
 		String username = null;
 		String authToken = null;
 		if (header != null && header.startsWith(TOKEN_PREFIX)) {
@@ -63,5 +66,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 		}
 		chain.doFilter(req, res);
+	}
+
+	private String extractAuthToken(HttpServletRequest req) {
+		String header = req.getHeader(HEADER_STRING);
+		if (StringUtils.isNotBlank(header)) {
+			return header;
+		}
+		 Object token = req.getServletContext().getAttribute(AUTH_TOKEN);
+		if (token != null) {
+			return token.toString();
+		}
+		return StringUtils.EMPTY;
 	}
 }
