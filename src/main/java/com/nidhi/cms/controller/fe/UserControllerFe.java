@@ -66,7 +66,7 @@ public class UserControllerFe {
 		
 		model.addAttribute("msg", respose);
 		if(respose.equalsIgnoreCase("Either email or mobile OTP is incorrect, please try again."))
-			return new ModelAndView("VerifyOtp");
+			return new ModelAndView("login");
 		if(respose.equalsIgnoreCase("Otp already verified, please login"))
 				return new ModelAndView("login");
 		if(respose.equalsIgnoreCase("Otp expired, please signUp again."))
