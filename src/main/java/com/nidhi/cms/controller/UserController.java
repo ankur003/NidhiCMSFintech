@@ -97,13 +97,14 @@ public class UserController extends AbstractController {
 		return "please verify the email & mobile otp";
 	}
 
-	@GetMapping(value = "/{userUuid}")
+	@GetMapping(value = "/user")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public ResponseEntity<Object> getUserDetail(
-			@ApiParam(value = "User Unique uiud", required = true) @ValidUuid(message = "userUuid : usreUuid is missing.") @PathVariable("userUuid") final String userUuid) {
-		User user = userservice.getUserByUserUuid(userUuid);
+	public ResponseEntity<Object> getUserDetail(){
+		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
+		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
+
 		if (Objects.isNull(user)) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
 					"userUuid : no data found against requested userUuid");
