@@ -81,6 +81,7 @@ public class UserControllerFe {
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
 			session.getServletContext().setAttribute(AUTH_TOKEN, authtoken);
+			session.setAttribute(AUTH_TOKEN, authtoken);
 			if (authtoken != null) {
 				return new ModelAndView("Dashboard");
 			}
