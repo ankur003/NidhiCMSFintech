@@ -38,8 +38,7 @@ public class UserDoc extends BaseDomain {
 	
 	private Long fileLength;
 
-	@Lob
-	private byte[] data;
+	private String data;
 
 	public Long getUserDocId() {
 		return userDocId;
@@ -73,11 +72,11 @@ public class UserDoc extends BaseDomain {
 		this.docType = docType;
 	}
 
-	public byte[] getData() {
+	public String getData() {
 		return data;
 	}
 
-	public void setData(byte[] data) {
+	public void setData(String data) {
 		this.data = data;
 	}
 

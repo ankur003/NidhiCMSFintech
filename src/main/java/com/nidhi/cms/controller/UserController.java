@@ -149,9 +149,12 @@ public class UserController extends AbstractController {
 		if (doc == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
+		String base64Image = doc.getData().split(",")[1];
+		byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64Image);
+
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(doc.getContentType()))
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
-				.body(new ByteArrayResource(doc.getData()));
+				.body(imageBytes);
 	}
 	
 	

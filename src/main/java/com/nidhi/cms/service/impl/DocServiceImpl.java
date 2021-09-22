@@ -1,7 +1,9 @@
 package com.nidhi.cms.service.impl;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -41,7 +43,8 @@ public class DocServiceImpl implements DocService {
 		userDoc.setDocType(docType);
 		userDoc.setContentType(multiipartFile.getContentType());
 		userDoc.setFileName(StringUtils.cleanPath(multiipartFile.getOriginalFilename()));
-		userDoc.setData(multiipartFile.getBytes());
+		String base64EncodedImage = new String(Base64.encodeBase64(multiipartFile.getBytes()), StandardCharsets.US_ASCII);
+		userDoc.setData(base64EncodedImage);
 		docRepository.save(userDoc);
 		return Boolean.TRUE;
 	}
