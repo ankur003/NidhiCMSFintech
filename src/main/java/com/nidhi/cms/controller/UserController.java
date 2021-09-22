@@ -1,6 +1,8 @@
 package com.nidhi.cms.controller;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import javax.validation.Valid;
@@ -9,7 +11,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,9 @@ import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
+import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
+import com.nidhi.cms.modal.response.UserDocModal;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserBusnessKycService;
@@ -149,8 +152,7 @@ public class UserController extends AbstractController {
 		if (doc == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
-		String base64Image = doc.getData().split(",")[1];
-		byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64Image);
+		byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(doc.getData());
 
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(doc.getContentType()))
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
@@ -174,6 +176,35 @@ public class UserController extends AbstractController {
 				"Please contact support, unable to persist data");
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	
+	
+	@GetMapping(value = "/get-business-kyc")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public UserBusinessKycModal getUserBusnessKyc() {
+		User user = getLoggedInUserDetails();
+		UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
+		if (userBusinessKyc == null) {
+			return null;
+		}
+		return beanMapper.map(userBusinessKyc, UserBusinessKycModal.class);
+	}
+	
+	@GetMapping(value = "/get-user-all-kyc")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public List<Object> getUserAllKyc() {
+		User user = getLoggedInUserDetails();
+		List<UserDoc> userDoc = docService.getUserAllKyc(user.getUserId());
+		if (userDoc == null) {
+			return Collections.emptyList();
+		}
+		return ResponseHandler.getListResponse(beanMapper, userDoc, UserDocModal.class);
+	}
+	
+	
 	
 	@PutMapping(value = "/change-email-password")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")

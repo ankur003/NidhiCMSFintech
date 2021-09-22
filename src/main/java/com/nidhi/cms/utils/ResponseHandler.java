@@ -1,5 +1,6 @@
 package com.nidhi.cms.utils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,10 @@ public class ResponseHandler {
 		responseMap.put("count", pageData.getTotalElements());
 		responseMap.put("page", pageData.getTotalPages());
 		return ResponseEntity.ok(responseMap);
+	}
+	
+	public static <S> List<Object> getListResponse(Mapper beanMapper, final Collection<S> srcCollection, Class<?> clazz) {
+		return DozerMapperUtil.mapCollection(beanMapper, srcCollection, clazz);
 	}
 
 }

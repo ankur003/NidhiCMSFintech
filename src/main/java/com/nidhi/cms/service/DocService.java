@@ -1,6 +1,7 @@
 package com.nidhi.cms.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,5 +19,7 @@ public interface DocService {
 	UserDoc getUserDocByUserIdAndDocType(Long userId, DocType docType);
 
 	Boolean saveOrUpdateUserDoc(UserDoc userDoc, Long userId, MultipartFile multiipartFile, DocType docType) throws IOException;
+
+	List<UserDoc> getUserAllKyc(Long userId);
 
 }

@@ -2,6 +2,7 @@ package com.nidhi.cms.service.impl;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,11 @@ public class DocServiceImpl implements DocService {
 		userDoc.setData(base64EncodedImage);
 		docRepository.save(userDoc);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public List<UserDoc> getUserAllKyc(Long userId) {
+		return docRepository.findByUserId(userId);
 	}
 
 }

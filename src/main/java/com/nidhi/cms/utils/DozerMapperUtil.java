@@ -26,7 +26,7 @@ public final class DozerMapperUtil {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <S, D> List<D> mapCollection(final Mapper beanMapper, final Collection<S> srcCollection,
+	public static <S, D> List<Object> mapCollection(final Mapper beanMapper, final Collection<S> srcCollection,
 			final Class<D> targetBeanClass) {
 		return mapCollection(beanMapper, srcCollection, ArrayList.class, targetBeanClass, targetBeanClass);
 	}
