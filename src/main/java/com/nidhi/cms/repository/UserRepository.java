@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> , PagingAndSor
 	User findByUserEmailOrMobileNumber(String email, String mobile);
 
 	User findByUserUuidAndIsUserVerified(String userUuid, Boolean isVerified);
+	
+	User findByUserEmail(String email);
 }

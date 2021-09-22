@@ -30,4 +30,6 @@ public interface UserService {
 	
 	Boolean saveOrUpdateUserDoc(User user, MultipartFile multiipartFile, DocType docType) throws IOException;
 
+	Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange);
+
 }

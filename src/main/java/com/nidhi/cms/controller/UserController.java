@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,11 +40,9 @@ import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
-import com.nidhi.cms.utils.ValidUuid;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 /**
@@ -164,11 +161,6 @@ public class UserController extends AbstractController {
 			@Authorization(value = "oauthToken") })
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(@Valid  @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
 		User user = getLoggedInUserDetails();
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
@@ -180,7 +172,17 @@ public class UserController extends AbstractController {
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
-	
-	
+	@PutMapping(value = "/change-email-password")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange, @RequestParam(name = "password", required = false) String passwordToChange) {
+		User user = getLoggedInUserDetails();
+		if (StringUtils.isBlank(emailToChange) && StringUtils.isBlank(passwordToChange)) { 
+			return "please provide either email or password";
+		}
+		Boolean isChanged = userservice.changeEmailOrPassword(user, emailToChange, passwordToChange);
+		return Boolean.TRUE.equals(isChanged) ? "Email Or Password changed" : "Provided email is taken by someone, Please provide unique email";
+	}
 	
 }

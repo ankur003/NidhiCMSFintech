@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 
 import com.nidhi.cms.domain.User;
-import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.LoggedInUserUtil;
 
 import io.swagger.annotations.Api;

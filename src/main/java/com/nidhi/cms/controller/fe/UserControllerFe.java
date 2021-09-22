@@ -3,12 +3,14 @@
  */
 package com.nidhi.cms.controller.fe;
 
-import java.io.IOException;
+import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +24,6 @@ import com.nidhi.cms.controller.UserController;
 import com.nidhi.cms.modal.request.LoginRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-
-import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
 /**
  * @author Devendra Gread
@@ -76,7 +73,7 @@ public class UserControllerFe {
 
 	@PostMapping(value = "/login")
 	public ModelAndView login(@Valid @ModelAttribute LoginRequestModal loginRequestModal, Model model,
-			HttpServletRequest request) throws IOException {
+			HttpServletRequest request) {
 		try {
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
