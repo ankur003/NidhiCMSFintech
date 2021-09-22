@@ -102,14 +102,7 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public ResponseEntity<Object> getUserDetail(){
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
-
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
+		User user = getLoggedInUserDetails();
 		final UserDetailModal userDetailModal = beanMapper.map(user, UserDetailModal.class);
 		return ResponseHandler.getContentResponse(userDetailModal);
 	}
@@ -134,13 +127,7 @@ public class UserController extends AbstractController {
 	public ResponseEntity<Object> saveOrUpdateUserDoc(
 			@RequestParam("file") final MultipartFile multiipartFile,
 			@RequestParam(required = true, name = "docType") final DocType docType) throws IOException {
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
+		User user = getLoggedInUserDetails();
 		if (multiipartFile == null) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
@@ -159,15 +146,8 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public ResponseEntity<Object> getUserDoc(
-			@ApiParam(value = "User Unique uiud", required = true) @ValidUuid(message = "userUuid : usreUuid is missing.") @PathVariable("userUuid") final String userUuid,
 			@RequestParam(required = true, name = "docType") final DocType docType) {
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
+		User user = getLoggedInUserDetails();
 		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
 		if (doc == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -183,13 +163,7 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(@Valid  @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		if (StringUtils.isBlank(userPrincipalName)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
+		User user = getLoggedInUserDetails();
 		if (Objects.isNull(user)) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
 					"userUuid : no data found against requested userUuid");
