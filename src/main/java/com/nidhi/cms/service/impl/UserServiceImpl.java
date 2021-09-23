@@ -130,4 +130,25 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return docService.saveOrUpdateUserDoc(userDoc, user.getUserId(), multiipartFile, docType);
 	}
 
+	@Override
+	public Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange) {
+		if (StringUtils.isNotBlank(emailToChange)) {
+			User emailToChangeUser = userRepository.findByUserEmail(emailToChange);
+			if (emailToChangeUser == null || user.getUserId().equals(emailToChangeUser.getUserId())) {
+				user.setUserEmail(emailToChange);
+				if (StringUtils.isNotBlank(passwordToChange)) { 
+					user.setPassword(encoder.encode(passwordToChange));
+				}
+				userRepository.save(user);
+				return Boolean.TRUE;
+			}
+		} else if (StringUtils.isNotBlank(passwordToChange)) {
+			user.setPassword(encoder.encode(passwordToChange));
+			userRepository.save(user);
+			return Boolean.TRUE;
+		} 
+		
+		return Boolean.FALSE;
+	}
+
 }

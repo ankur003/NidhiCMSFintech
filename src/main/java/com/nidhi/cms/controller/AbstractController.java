@@ -4,6 +4,7 @@ import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.utils.LoggedInUserUtil;
 
 import io.swagger.annotations.Api;
@@ -23,5 +24,9 @@ public class AbstractController {
     
     @Autowired
     public LoggedInUserUtil loggedInUserUtil;
+    
+    public User getLoggedInUserDetails() {
+    	return loggedInUserUtil.getLoggedInUserDetails();
+    }
 
 }

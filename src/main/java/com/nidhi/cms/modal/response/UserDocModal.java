@@ -1,32 +1,14 @@
-package com.nidhi.cms.domain;
+package com.nidhi.cms.modal.response;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 
-/**
- * 
- *
- * @author Ankur Bansala
- */
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nidhi.cms.domain.DocType;
 
-@Entity
-public class UserDoc extends BaseDomain {
-
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long userDocId;
-
-	private Long userId;
-
-	@Column(unique = true, nullable = false, updatable = false)
+public class UserDocModal {
+	
 	private String docUuid;
 
 	@Enumerated(EnumType.STRING)
@@ -38,23 +20,8 @@ public class UserDoc extends BaseDomain {
 	
 	private Long fileLength;
 
+	@JsonIgnore
 	private String data;
-
-	public Long getUserDocId() {
-		return userDocId;
-	}
-
-	public void setUserDocId(Long userDocId) {
-		this.userDocId = userDocId;
-	}
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
 
 	public String getDocUuid() {
 		return docUuid;
@@ -70,14 +37,6 @@ public class UserDoc extends BaseDomain {
 
 	public void setDocType(DocType docType) {
 		this.docType = docType;
-	}
-
-	public String getData() {
-		return data;
-	}
-
-	public void setData(String data) {
-		this.data = data;
 	}
 
 	public String getFileName() {
@@ -102,6 +61,14 @@ public class UserDoc extends BaseDomain {
 
 	public void setFileLength(Long fileLength) {
 		this.fileLength = fileLength;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 	
 }

@@ -1,6 +1,8 @@
 package com.nidhi.cms.controller;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import javax.validation.Valid;
@@ -9,7 +11,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,17 +35,17 @@ import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
+import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
+import com.nidhi.cms.modal.response.UserDocModal;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
-import com.nidhi.cms.utils.ValidUuid;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 /**
@@ -97,21 +97,15 @@ public class UserController extends AbstractController {
 		return "please verify the email & mobile otp";
 	}
 
-	@GetMapping(value = "/user")
+//	@GetMapping(value = "/user")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public ResponseEntity<Object> getUserDetail(){
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
-
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
+	public UserDetailModal getUserDetail(){
+		User user = getLoggedInUserDetails();
 		final UserDetailModal userDetailModal = beanMapper.map(user, UserDetailModal.class);
-		return ResponseHandler.getContentResponse(userDetailModal);
+		//return ResponseHandler.getContentResponse(userDetailModal);
+		return userDetailModal;
 	}
 
 	@GetMapping(value = "")
@@ -134,13 +128,7 @@ public class UserController extends AbstractController {
 	public ResponseEntity<Object> saveOrUpdateUserDoc(
 			@RequestParam("file") final MultipartFile multiipartFile,
 			@RequestParam(required = true, name = "docType") final DocType docType) throws IOException {
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
+		User user = getLoggedInUserDetails();
 		if (multiipartFile == null) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
@@ -154,27 +142,15 @@ public class UserController extends AbstractController {
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	@GetMapping(value = "/doc")
+	//@GetMapping(value = "/doc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public ResponseEntity<Object> getUserDoc(
-			@ApiParam(value = "User Unique uiud", required = true) @ValidUuid(message = "userUuid : usreUuid is missing.") @PathVariable("userUuid") final String userUuid,
+	public UserDoc getUserDoc(
 			@RequestParam(required = true, name = "docType") final DocType docType) {
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
+		User user = getLoggedInUserDetails();
 		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
-		if (doc == null) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-		}
-		return ResponseEntity.ok().contentType(MediaType.parseMediaType(doc.getContentType()))
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
-				.body(new ByteArrayResource(doc.getData()));
+		return doc;
 	}
 	
 	
@@ -183,18 +159,7 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(@Valid  @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
-		String userPrincipalName = loggedInUserUtil.getLoggedInUserName();
-		if (StringUtils.isBlank(userPrincipalName)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
-		User user = userservice.getUserByUserEmailOrMobileNumber(userPrincipalName, userPrincipalName);
-		if (Objects.isNull(user)) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID,
-					"userUuid : no data found against requested userUuid");
-			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
-		}
+		User user = getLoggedInUserDetails();
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
@@ -207,6 +172,45 @@ public class UserController extends AbstractController {
 	}
 	
 	
+	@GetMapping(value = "/get-business-kyc")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public UserBusinessKycModal getUserBusnessKyc() {
+		User user = getLoggedInUserDetails();
+		UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
+		if (userBusinessKyc == null) {
+			return null;
+		}
+		return beanMapper.map(userBusinessKyc, UserBusinessKycModal.class);
+	}
 	
+	@GetMapping(value = "/get-user-all-kyc")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public List<Object> getUserAllKyc() {
+		User user = getLoggedInUserDetails();
+		List<UserDoc> userDoc = docService.getUserAllKyc(user.getUserId());
+		if (userDoc == null) {
+			return Collections.emptyList();
+		}
+		return ResponseHandler.getListResponse(beanMapper, userDoc, UserDocModal.class);
+	}
+	
+	
+	
+	@PutMapping(value = "/change-email-password")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange, @RequestParam(name = "password", required = false) String passwordToChange) {
+		User user = getLoggedInUserDetails();
+		if (StringUtils.isBlank(emailToChange) && StringUtils.isBlank(passwordToChange)) { 
+			return "please provide either email or password";
+		}
+		Boolean isChanged = userservice.changeEmailOrPassword(user, emailToChange, passwordToChange);
+		return Boolean.TRUE.equals(isChanged) ? "Email Or Password changed" : "Provided email is taken by someone, Please provide unique email";
+	}
 	
 }

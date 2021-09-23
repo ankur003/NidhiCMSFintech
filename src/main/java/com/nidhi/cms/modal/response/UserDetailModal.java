@@ -1,6 +1,10 @@
 package com.nidhi.cms.modal.response;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.nidhi.cms.domain.Role;
 
 /**
  * 
@@ -29,6 +33,8 @@ public class UserDetailModal {
 	private Boolean isUserVerified;
 
 	private String userUuid;
+	
+	private Set<Role> roles = new HashSet<>();
 
 	public String getUserEmail() {
 		return userEmail;
@@ -110,15 +116,13 @@ public class UserDetailModal {
 		this.userUuid = userUuid;
 	}
 
-	@Override
-	public String toString() {
-		return "UserDetailModal [userEmail=" + userEmail + ", mobileNumber=" + mobileNumber + ", fullName=" + fullName
-				+ ", referralCode=" + referralCode + ", firstName=" + firstName + ", middleName=" + middleName
-				+ ", lastName=" + lastName + ", dob=" + dob + ", isUserVerified=" + isUserVerified + ", userUuid="
-				+ userUuid + "]";
+
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
-	
-	
-	
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
 }

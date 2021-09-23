@@ -3,19 +3,20 @@
  */
 package com.nidhi.cms.controller.fe;
 
-import java.io.IOException;
+import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nidhi.cms.constants.ApiConstants;
@@ -30,11 +31,7 @@ import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 
-import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
 /**
  * @author Devendra Gread
@@ -84,7 +81,7 @@ public class UserControllerFe {
 
 	@PostMapping(value = "/login")
 	public ModelAndView login(@Valid @ModelAttribute LoginRequestModal loginRequestModal, Model model,
-			HttpServletRequest request) throws IOException {
+			HttpServletRequest request) {
 		try {
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
@@ -96,9 +93,9 @@ public class UserControllerFe {
 			
 			session.setAttribute("userLoginDetails",userLoginDetails);
 			
-			UserDoc userDoc=userController.getUserDoc(userLoginDetails.getUserUuid(), DocType.DOCUMENT_PAN);
-			UserDoc userDocs=userController.getUserDoc(userLoginDetails.getUserUuid(), DocType.DOCUMENT_AADHAR);
-			UserDoc userDocx=userController.getUserDoc(userLoginDetails.getUserUuid(), DocType.DOCUMENT_GST);
+			UserDoc userDoc=userController.getUserDoc(DocType.DOCUMENT_PAN);
+			UserDoc userDocs=userController.getUserDoc(DocType.DOCUMENT_AADHAR);
+			UserDoc userDocx=userController.getUserDoc(DocType.DOCUMENT_GST);
 			
 			session.setAttribute("userDoc",userDoc);
 			session.setAttribute("userDocs",userDocs);
@@ -117,7 +114,7 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/pkycupload")
 	public ModelAndView pkyc(Model model,
-			HttpServletRequest request,@RequestParam MultipartFile[] fileUpload) throws IOException {
+			HttpServletRequest request,@RequestParam MultipartFile[] fileUpload)  {
 		try {
 			if(fileUpload[0]!=null)
 			userController.saveOrUpdateUserDoc(fileUpload[0], DocType.DOCUMENT_PAN);
@@ -133,14 +130,13 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/bkycupload")
 	public ModelAndView bkyc(Model model,
-			HttpServletRequest request,@RequestParam MultipartFile fileUpload,@ModelAttribute UserBusinessKycRequestModal userBusinessKycRequestModal) throws IOException {
+			HttpServletRequest request,@RequestParam MultipartFile fileUpload,@ModelAttribute UserBusinessKycRequestModal userBusinessKycRequestModal) 
+	{
 		try {
 			if(fileUpload!=null)
 			userController.saveOrUpdateUserDoc(fileUpload, DocType.DOCUMENT_GST);
 			
-			
 			userController.saveOrUpdateUserBusnessKyc(userBusinessKycRequestModal);
-			
 			
 			model.addAttribute("msg","Business Details Succesfully Uploaded");
 			return new ModelAndView("Dashboard");
