@@ -101,11 +101,8 @@ public class UserController extends AbstractController {
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public UserDetailModal getUserDetail(){
-		User user = getLoggedInUserDetails();
-		final UserDetailModal userDetailModal = beanMapper.map(user, UserDetailModal.class);
-		//return ResponseHandler.getContentResponse(userDetailModal);
-		return userDetailModal;
+	public User getUserDetail(){
+		return getLoggedInUserDetails();
 	}
 
 	@GetMapping(value = "")

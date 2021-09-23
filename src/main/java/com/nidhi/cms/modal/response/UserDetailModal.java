@@ -34,7 +34,7 @@ public class UserDetailModal {
 
 	private String userUuid;
 	
-	private Set<Role> roles = new HashSet<>();
+	private Set<Role> roles;
 
 	public String getUserEmail() {
 		return userEmail;
