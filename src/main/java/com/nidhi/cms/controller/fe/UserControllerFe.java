@@ -101,6 +101,9 @@ public class UserControllerFe {
 			session.setAttribute("userDocs",userDocs);
 			session.setAttribute("userDocx",userDocx);
 			
+			userLoginDetails.getRoles().forEach(roles->
+			System.out.println(roles.getName().name()));
+			
 			if (authtoken != null) {
 				return new ModelAndView("Dashboard");
 			}

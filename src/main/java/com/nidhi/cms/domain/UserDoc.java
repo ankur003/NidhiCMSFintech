@@ -38,6 +38,7 @@ public class UserDoc extends BaseDomain {
 	
 	private Long fileLength;
 
+	@Lob
 	private String data;
 
 	public Long getUserDocId() {
