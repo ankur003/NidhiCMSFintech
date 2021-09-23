@@ -110,4 +110,15 @@ public class UserDetailModal {
 		this.userUuid = userUuid;
 	}
 
+	@Override
+	public String toString() {
+		return "UserDetailModal [userEmail=" + userEmail + ", mobileNumber=" + mobileNumber + ", fullName=" + fullName
+				+ ", referralCode=" + referralCode + ", firstName=" + firstName + ", middleName=" + middleName
+				+ ", lastName=" + lastName + ", dob=" + dob + ", isUserVerified=" + isUserVerified + ", userUuid="
+				+ userUuid + "]";
+	}
+
+	
+	
+	
 }

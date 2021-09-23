@@ -99,17 +99,13 @@
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
-				<!-- <li ><a href="index">My Profile</a></li> -->
-			     <li><a href="/api/v1/fe/Dashboard">Dashboard </a></li>				
+				<li><a href="#">Hi <b>${userLoginDetails.fullName }</b></a></li>
 				<li class="dropdown active"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="ChangePassword?sid=${st.sid}">Change
-								Password &#128273;</a></li>
 						<li><a href="logout">Logout </a></li>
 					</ul></li>
-				<!-- <li class="active"><a href="Signup">SIGNUP</a></li> -->
 			</ul>
 		</div>
 		<!--/.nav-collapse -->
@@ -210,14 +206,36 @@
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/user" method="post" id="1">
+									<form class="contactform" action="/api/v1/pkycupload" method="post" enctype = "multipart/form-data">
                             
+                            	<c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											</c:otherwise>
+										</c:choose>
+										
 								        <p class="comment-form-author">
 											<label for="author">Upload Personal PAN <span class="mandate">*</span></label>
 											<input type="file" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+												name="fileUpload" id="pan" >
 										</p>
+										<c:if test="${userDoc.docType eq 'DOCUMENT_PAN'}">
+										<p><font color="blue;">${userDoc.fileName }</font>  <font color="green;">Already uploaded</font></p>
+										</c:if>
 										
+										<p class="comment-form-author">
+											<label for="author">Upload Aadhar card <span class="mandate">*</span></label>
+											<input type="file" required="required" size="30" value=""
+												name="fileUpload" id="aadhar" >
+										</p>
+										<c:if test="${userDocs.docType eq 'DOCUMENT_AADHAR'}">
+										<p><font color="blue;">${userDocs.fileName }</font> <font color="green;">Already uploaded</font></p>
+										</c:if>
 										<p class="form-submit">
 											<input type="submit" value="Submit" class="btn btn-success"
 												name="Submit"> <input
@@ -228,7 +246,7 @@
 										</form>
 										
 										
-										<form class="contactform" action="/api/v1/user" method="post" id="2">
+										<%-- <form class="contactform" action="/api/v1/user" method="post" id="2">
                             
 										<p class="comment-form-author">
 											<label for="author">Upload Aadhar card <span class="mandate">*</span></label>
@@ -242,7 +260,7 @@
 												type="button" value="Cancel" class="btn btn-info"
 												name="cancel">
 										</p>
-										</form>
+										</form> --%>
 								</div>
 
 

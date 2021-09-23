@@ -97,23 +97,20 @@
 				src="/assets/img/logo.png"
 				style="height: 150px; width: 300px; margin-top: -15px;" alt="logo"></a>
 		</div>
+		
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
-				<!-- <li ><a href="index">My Profile</a></li> -->
-				<li><a href="/api/v1/fe/Pkyc"><b>KYC </b> Pending</a></li>			
-					
+				<li><a href="#">Hi <b>${userLoginDetails.fullName }</b></a></li>
+					<li><a href="/api/v1/fe/Pkyc"><b>KYC </b> Pending</a></li>
 				<li class="dropdown active"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="ChangePassword?sid=${st.sid}">Change
-								Password &#128273;</a></li>
 						<li><a href="logout">Logout </a></li>
 					</ul></li>
-				<!-- <li class="active"><a href="Signup">SIGNUP</a></li> -->
 			</ul>
 		</div>
-		<!--/.nav-collapse -->
+		
 	</div>
 	</nav> </section>
 	<!-- End menu -->
@@ -256,6 +253,17 @@
 							<div class="col-md-9">
 								<div class="mu-contact-right">
 									<form class="contactform">
+									
+										<c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											</c:otherwise>
+										</c:choose>
                             
 										<div class="col-sm-12">
 											<div class="col-sm-4">

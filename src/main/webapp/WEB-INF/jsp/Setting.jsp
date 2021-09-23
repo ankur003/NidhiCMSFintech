@@ -259,25 +259,26 @@
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform">
+									<form class="contactform" action="/api/v1/updateEmailpass" method="post">
 
-										<p class="comment-form-author">
-											<label for="author">Full Name <span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" maxlength="50">
-										</p>
+
+										<c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											</c:otherwise>
+										</c:choose>
+
 										<p class="comment-form-email">
 											<label for="email">Email <span class="mandate">*</span></label>
 											<input type="email" required="required" aria-required="true"
 												value="" name="userEmail" id="userEmail" maxlength="250">
 										</p>
 
-										<p class="comment-form-comment">
-											<label for="comment">Contact Number<span
-												class="mandate">*</span></label> <input type="text"
-												required="required" aria-required="true" value=""
-												name="mobileNumber" id="mobileNumber" maxlength="10">
-										</p>
 										<p class="comment-form-url">
 											<label for="subject">Password<span class="mandate">*</span></label>
 											<input type="password" name="password" id="password"

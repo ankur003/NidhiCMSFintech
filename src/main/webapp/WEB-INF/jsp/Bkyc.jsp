@@ -208,17 +208,18 @@
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/user" method="post" id="1">
+									<form class="contactform" action="/api/v1/bkycupload"  method="post" enctype = "multipart/form-data">
 									
-								<!-- 	<div class="panel panel-primary">
-											<div class="panel-heading" style="background-color: #002066;"
-												align="center">
-												<strong> <font
-													style="color: white; cursor: pointer;">Business Details</font>
-													
-												</strong>
-											</div>
-										</div> -->
+									<c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											</c:otherwise>
+										</c:choose>
 										
 										 <div class="col-lg-12">
 										<strong> <font
@@ -230,15 +231,15 @@
                                    <div class="col-lg-6">
 								        <p class="comment-form-author">
 											<label for="author">Business Entity Type<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.entityType }"
+												name="entityType" id="entityType" >
 										</p>
 										</div>
 										 <div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">Industry<span class="mandate">*</span></label>
-											<input type="text" required="required"  value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required"  value="${bkyc.industry }"
+												name="industry" id="industry" >
 										</p>
 										</div>
 										</div>
@@ -247,15 +248,15 @@
                                    <div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">register Company Name<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.compnayName }"
+												name="compnayName" id="compnayName" >
 										</p>
 										</div>
                                    <div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">No.of Employees<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.noOfEmp }"
+												name="noOfEmp" id="noOfEmp" >
 										</p>
 										</div>
 										</div>
@@ -264,15 +265,15 @@
                                    <div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">Individual Pan<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.individualPan }"
+												name="individualPan" id="individualPan" >
 										</p>
 										</div>
 										<div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">GST Number<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.gstNo }"
+												name="gstNo" id="gstNo" >
 										</p>
 										</div>
 										</div>
@@ -280,8 +281,8 @@
                                    <div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">Business Website Link<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.websiteLink }"
+												name="websiteLink" id="websiteLink" >
 										</p>
 										</div>
 										<div class="col-lg-6">
@@ -299,8 +300,11 @@
 										 <p class="comment-form-author">
 											<label for="author">GST Certificate<span class="mandate">*</span></label>
 											<input type="file" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+												name="fileUpload" id="fileUpload" >
 										</p>
+										<c:if test="${userDocx.docType eq 'DOCUMENT_GST'}">
+										<p><font color="blue;">${userDocx.fileName }</font> <font color="green;">Already uploaded</font></p>
+										</c:if>
 										</div>
 										 <div class="col-lg-6">
 										 </div>
@@ -318,16 +322,16 @@
 										<div class="col-lg-12">
 										 <p class="comment-form-author">
 											<label for="author">Address Line 1<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.address1 }"
+												name="address1" id="address1" >
 										</p>
 										</div>
 										
 										<div class="col-lg-12">
 										 <p class="comment-form-author">
 											<label for="author">Address Line 2<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.address2 }"
+												name="address2" id="address2" >
 										</p>
 										</div>
 										
@@ -335,15 +339,15 @@
                                        <div class="col-lg-6">
 										 <p class="comment-form-author">
 											<label for="author">Pincode<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.pincode }"
+												name="pincode" id="pincode" >
 										</p>
 										</div>
 										 <div class="col-lg-6">
 										  <p class="comment-form-author">
 											<label for="author">State<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.state }"
+												name="state" id="state" >
 										</p>
 										 </div>
 										 </div>
@@ -352,8 +356,8 @@
                                        <div class="col-lg-6">
 										 <p class="comment-form-author">
 											<label for="author">City<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value=""
-												name="fullName" id="fullName" >
+											<input type="text" required="required" size="30" value="${bkyc.city }"
+												name="city" id="city" >
 										</p>
 										</div>
 										 <div class="col-lg-6">
