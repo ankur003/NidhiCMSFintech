@@ -32,4 +32,6 @@ public interface UserService {
 
 	Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange);
 
+	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType);
+
 }

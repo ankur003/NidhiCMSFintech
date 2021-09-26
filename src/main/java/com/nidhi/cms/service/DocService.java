@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.domain.DocType;
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserDoc;
 
 /**
@@ -21,5 +22,7 @@ public interface DocService {
 	Boolean saveOrUpdateUserDoc(UserDoc userDoc, Long userId, MultipartFile multiipartFile, DocType docType) throws IOException;
 
 	List<UserDoc> getUserAllKyc(Long userId);
+
+	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType);
 
 }
