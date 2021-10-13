@@ -12,17 +12,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
 
-<!-- Favicon -->
 
 
 
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
-</c:if>
+</c:if> 
 <body>
-	<jsp:include page="adminmenu.jsp" />
-
+<jsp:include page="adminmenu.jsp" />
 	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
 	<div class="container">
@@ -31,8 +29,8 @@
 				<div class="mu-page-breadcrumb-area">
 					<h2>My Dashboard</h2>
 					<ol class="breadcrumb">
-						<li><a href="#">Home</a></li>
-						<li class="active">Dashboard</li>
+							<li><a href="#">Client Onboarding </a></li>
+						<li class="active">Pending Client</li>
 					</ol>
 				</div>
 			</div>
@@ -46,22 +44,70 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="mu-contact-area">
-
-
+					<!-- start title -->
+					<!-- <div class="mu-title">
+						<h2>Register Here</h2>
+						</div> -->
+					<!-- end title -->
+					<!-- start contact content -->
+					
+					
+					
+					
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
-							<div class="col-md-9">
+							<!-- <div class="col-md-3">
+								
+							</div> -->
+							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform">
+									<form class="contactform" action="/api/v1/user" method="post">
 
 
-										<div class="col-sm-12"
-											style="margin-left: 25%; margin-top: -5%;">
-											<img src="/assets/img/wc.gif" alt="">
-										</div>
+
+
+
+
+
+										<table width="100%" border="1" >
+												<tr >
+													<td  align="center" width="5%">#</td>
+													<td align="center"  width="15%" ><b>Conatct</b></td>
+													<td align="center"  width="15%"><b>Description</b></td>
+													<td align="center"  width="15%"><b>Doc 1</b></td>
+													<td  align="center"  width="15%"><b>doc 2</b></td>
+													<td  align="center"  width="15%"><b>Action</b></td>
+												</tr>
+												<tr >
+													<td align="center"><b>1</b></th>
+													<td align="center">Mark</td>
+													<td align="center">Otto</td>
+													<td align="center"><img src="data:image/gif;base64,${userDoc.data}" height="25%"	width="20%" /></td>
+													<td align="center"><img src="data:image/gif;base64,${userDoc.data}" height="20%"	width="20%" /></td>
+													<td align="center"><input type="Button" value="Approve" class="btn btn-success"	name="Approve">
+											            <input type="button" value="Reject" class="btn btn-danger"	name="reject"></td>
+												</tr>
+										</table>
+
+
+
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
 									</form>
-								</div>
 
+								</div>
 							</div>
 						</div>
 					</div>
@@ -72,12 +118,12 @@
 	</div>
 	</div>
 	</section>
+	<!-- End contact  -->
 	<!-- lgt box start -->
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"
-		aria-hidden="true">
+	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">

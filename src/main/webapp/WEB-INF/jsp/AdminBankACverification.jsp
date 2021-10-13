@@ -13,15 +13,37 @@
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
 
 <!-- Favicon -->
-
-
-
+<link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+  $( function() {
+    $( "#datepicker" ).datepicker({
+    	 changeMonth: true,
+         changeYear: true,
+         dateFormat: 'dd-mm-yy',
+         endDate: "today",
+         maxDate: "today"
+    });
+  } );
+  
+  $( function() {
+	    $( "#datepicker1" ).datepicker({
+	    	 changeMonth: true,
+	         changeYear: true,
+	         dateFormat: 'dd-mm-yy',
+	         endDate: "today",
+	         maxDate: "today"
+	    });
+	  } );
+  </script>
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
-</c:if>
+</c:if> 
 <body>
-	<jsp:include page="adminmenu.jsp" />
+<jsp:include page="adminmenu.jsp" />
 
 	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
@@ -31,8 +53,8 @@
 				<div class="mu-page-breadcrumb-area">
 					<h2>My Dashboard</h2>
 					<ol class="breadcrumb">
-						<li><a href="#">Home</a></li>
-						<li class="active">Dashboard</li>
+						<li><a href="#">Report</a></li>
+						<li class="active">Bank Account Verification report </li>
 					</ol>
 				</div>
 			</div>
@@ -46,21 +68,93 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="mu-contact-area">
-
-
+					<!-- start title -->
+					<!-- <div class="mu-title">
+						<h2>Register Here</h2>
+						</div> -->
+					<!-- end title -->
+					<!-- start contact content -->
+					
+					
+					
+					
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
-							<div class="col-md-9">
+							<div class="col-md-12">
 								<div class="mu-contact-right">
 									<form class="contactform">
 
 
-										<div class="col-sm-12"
-											style="margin-left: 25%; margin-top: -5%;">
-											<img src="/assets/img/wc.gif" alt="">
+										<div class="col-lg-12">
+										<div class="col-lg-3">
+												<p class="comment-form-author">
+													<label for="author">Client Name<span class="mandate">*</span></label>
+													<input type="text" required="required" value=""
+														name="clientname" id="clientname" autocomplete="off">
+												</p>
+											</div>
+											<div class="col-lg-3">
+												<p class="comment-form-author">
+													<label for="author">From date<span class="mandate">*</span></label>
+													<input type="text" required="required" value=""
+														name="fullName" id="datepicker" autocomplete="off">
+												</p>
+											</div>
+											<div class="col-lg-3">
+												<p class="comment-form-author">
+													<label for="author">To date<span class="mandate">*</span></label>
+													<input type="text" required="required" value=""
+														name="fullName" id="datepicker1" autocomplete="off">
+												</p>
+											</div>
 										</div>
+
+										<p class="form-submit" align="left">
+											<input type="submit" value="Submit" class="btn btn-success"
+												name="Submit"> <input
+												
+												type="button" value="Cancel" class="btn btn-info"
+												name="cancel">
+										</p>
+
+
+
+										<table class="table">
+											<thead class="thead-dark">
+												<tr>
+													<th scope="col">#</th>
+													<th scope="col">Conatct</th>
+													<th scope="col">Description</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<th scope="row">1</th>
+													<td>Mark</td>
+													<td>Otto</td>
+												</tr>
+												<tr>
+													<th scope="row">2</th>
+													<td>Jacob</td>
+													<td>Thornton</td>
+												</tr>
+												<tr>
+													<th scope="row">3</th>
+													<td>Larry</td>
+													<td>the Bird</td>
+												</tr>
+											</tbody>
+										</table>
+
+
+
 									</form>
 								</div>
+
+
+
+
+
 
 							</div>
 						</div>
@@ -72,12 +166,12 @@
 	</div>
 	</div>
 	</section>
+	<!-- End contact  -->
 	<!-- lgt box start -->
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"
-		aria-hidden="true">
+	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">

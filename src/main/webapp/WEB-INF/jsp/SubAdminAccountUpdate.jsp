@@ -10,17 +10,18 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NIDHI CMS | DASHBOARD</title>
+<title>NIDHI CMS | ADMIN DASHBOARD</title>
+
+<!-- Favicon -->
+
 
 
 </head>
-<c:if test="${sessionScope.authtoken eq null}">
+<c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
 <body>
-<jsp:include page="usermenu.jsp" />
-
-
+<jsp:include page="adminmenu.jsp" />
 	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
 	<div class="container">
@@ -29,8 +30,8 @@
 				<div class="mu-page-breadcrumb-area">
 					<h2>My Dashboard</h2>
 					<ol class="breadcrumb">
-						<li><a href="#">Payout</a></li>
-						<li class="active">Access Setting</li>
+						<li><a href="#">Subadmin</a></li>
+						<li class="active">Create</li>
 					</ol>
 				</div>
 			</div>
@@ -38,7 +39,6 @@
 	</div>
 	</section>
 	<!-- End breadcrumb -->
-
 	<!-- Start contact  -->
 	<section id="mu-contact">
 	<div class="container">
@@ -51,74 +51,93 @@
 						</div> -->
 					<!-- end title -->
 					<!-- start contact content -->
-
-
-
-
+					
+					
+					
+					
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
 							<div class="col-md-3">
+								
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/updateEmailpass" method="post">
+									<form class="contactform" action="/api/v1/user" method="post">
+
 
 										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: green;">
+													style="border-style: solid; border-color: red;">
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
-										<label for="email">Geneerate Key pair <span class="mandate">*</span></label>
-									
+										
+										<div class="col-lg-12" style="margin-left: -30px;">
+											<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Search Subadmin<span
+													class="mandate">*</span></label> <input type="text"
+													required="required" value="" name="fullName" id="client">
+											</p>
+										</div>
+										<br>
+										<div class="col-lg-6">
+											<p class="form-submit">
+												<input type="button" value="search" class="btn btn-success"
+													name="Submit">
+											</p>
+										</div>
+										</div>
 
-										<p class="comment-form-email">
-											<label for="email">API <span class="mandate">*</span></label>
-											<input type="text" required="required" aria-required="true"
-												value="" name="" id="userEmail" maxlength="650">
+										<p class="comment-form-author">
+											<label for="author">Full Name <span class="mandate">*</span></label>
+											<input type="text" required="required" size="30" value=""
+												name="fullName" id="fullName" maxlength="50">
 										</p>
-                                     <p class="comment-form-email">
-											<label for="email">Secret Key <span class="mandate">*</span></label>
-											<input type="text" required="required" aria-required="true"
-												value="" name="" id="userEmail" maxlength="100">
+										<p class="comment-form-email">
+											<label for="email">Email <span class="mandate">*</span></label>
+											<input type="email" required="required" aria-required="true"
+												value="" name="userEmail" id="userEmail" maxlength="250">
+										</p>
+										
+										<p class="comment-form-comment">
+											<label for="comment">Contact Number<span
+												class="mandate">*</span></label> <input type="text"
+												required="required" aria-required="true" value=""
+												name="mobileNumber" id="mobileNumber" maxlength="10">
 										</p>
 										<p class="comment-form-url">
-											<label for="subject">IP<span class="mandate">*</span></label>
-											<input type="text" name="password" id="password"
-												minlentg="3" aria-required="true" required="required"
-												maxlength="10">
+											<label for="subject">Password<span class="mandate">*</span></label>
+											<input type="password" name="password" id="password" minlentg="3"
+												aria-required="true" required="required" maxlength="10">
 										</p>
+										
+										<div>
+										<label class="checkbox-inline"><input type="checkbox" value="">Onboarding</label>
+										<label class="checkbox-inline"><input type="checkbox" value="">Product Featuring</label>
+										<label class="checkbox-inline"><input type="checkbox" value="">SubAdmin</label>
+										<label class="checkbox-inline"><input type="checkbox" value="">Report</label>
+										</div>
+										<br>
 										<p class="form-submit">
-											<input type="submit" value="Add" class="btn btn-success"
-												name="updte"> <input type="reset" value="Reset"
-												class="btn btn-warning" name="reset"> <input
+											<input type="submit" value="Update" class="btn btn-success"
+												name="signup">
+												 <input
 												type="button" value="Cancel" class="btn btn-info"
 												name="cancel">
 										</p>
-
-
-
-
-
-
+										
+										
+										
+										
+										
 									</form>
+
 								</div>
-								</div>
-
-
-
-
-
-
-
-
-								
-
-
 							</div>
 						</div>
 					</div>
@@ -134,8 +153,7 @@
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"
-		aria-hidden="true">
+	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -165,22 +183,6 @@
 	<jsp:include page="footer.jsp" />
 	<!-- End footer -->
 
-	<!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="/assets/js/bootstrap.js"></script>
-	<!-- Slick slider -->
-	<script type="text/javascript" src="/assets/js/slick.js"></script>
-	<!-- Counter -->
-	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
-	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
-	<!-- Mixit slider -->
-	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
-	<!-- Add fancyBox -->
-	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
-
-	<!-- Custom js -->
-	<script src="/assets/js/custom.js"></script>
 
 </body>
 </html>

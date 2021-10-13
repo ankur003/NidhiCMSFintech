@@ -5,12 +5,16 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,10 +61,14 @@ public class UserControllerFe {
 			HttpServletRequest request) {
 		String respose = userController.userSignUp(userCreateModal);
 		model.addAttribute("msg", respose);
-		if (respose != null) {
-			return new ModelAndView("VerifyOtp");
+		if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
+			return new ModelAndView("Signup");
 		}
-		return null;
+		else
+		{	return new ModelAndView("VerifyOtp");
+		
+		}
+		
 	}
 
 	@PostMapping(value = "/otp/verify")
@@ -105,6 +113,16 @@ public class UserControllerFe {
 				roleName = roles.getName().name();
 			}
 
+			List<UserDoc> getUserAllKyc=userController.getUserAllKyc();
+			
+			if(!getUserAllKyc.isEmpty() && getUserAllKyc.size()==3 || getUserAllKyc.size()>3)
+			{
+				session.setAttribute("kyc", "Done");
+			}else
+			{
+				session.setAttribute("kyc", "Pending");
+			}
+			
 			if (authtoken != null && roleName.equals(RoleEum.ADMIN.name())) {
 				return new ModelAndView("AdminDashboard");
 			} else {
@@ -112,6 +130,8 @@ public class UserControllerFe {
 			}
 		} catch (Exception e) {
 			model.addAttribute("msg", "Either email or Password is incorrect, please try again.");
+			e.printStackTrace();
+			System.out.println(e);
 			return new ModelAndView("login");
 		}
 	}
@@ -119,6 +139,7 @@ public class UserControllerFe {
 	@PostMapping(value = "/pkycupload")
 	public ModelAndView pkyc(Model model, HttpServletRequest request, @RequestParam MultipartFile[] fileUpload) {
 		try {
+			HttpSession session = request.getSession();
 			if (fileUpload[0] != null) {
 				userController.saveOrUpdateUserDoc(fileUpload[0], DocType.DOCUMENT_PAN);
 			}
@@ -126,6 +147,16 @@ public class UserControllerFe {
 				userController.saveOrUpdateUserDoc(fileUpload[1], DocType.DOCUMENT_AADHAR);
 			}
 			model.addAttribute("msg", "Pan & Aadhar card successfully uploaded");
+			
+			List<UserDoc> getUserAllKyc=userController.getUserAllKyc();
+			if(getUserAllKyc.size()==3 || getUserAllKyc.size()>3)
+			{
+				session.setAttribute("kyc", "Done");
+			}else
+			{
+				session.setAttribute("kyc", "Pending");
+			}
+			
 			return new ModelAndView("Bkyc");
 		} catch (Exception e) {
 			return new ModelAndView("Pkyc");
@@ -139,11 +170,49 @@ public class UserControllerFe {
 			if (fileUpload != null) {
 				userController.saveOrUpdateUserDoc(fileUpload, DocType.DOCUMENT_GST);
 			}
+			HttpSession session = request.getSession();
+			
 			userController.saveOrUpdateUserBusnessKyc(userBusinessKycRequestModal);
+			
+			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN);
+			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR);
+			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST);
+
+			session.setAttribute("userDoc", userDoc);
+			session.setAttribute("userDocs", userDocs);
+			session.setAttribute("userDocx", userDocx);
+			
+			List<UserDoc> getUserAllKyc=userController.getUserAllKyc();
+			if(getUserAllKyc.size()==3 || getUserAllKyc.size()>3)
+			{
+				session.setAttribute("kyc", "Done");
+			}else
+			{
+				session.setAttribute("kyc", "Pending");
+			}
+			
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
 			return new ModelAndView("Dashboard");
 		} catch (Exception e) {
 			return new ModelAndView("Pkyc");
 		}
+	}
+	
+	
+	@PostMapping(value = "/updateEmailpass")
+	public ModelAndView updateEmailpass( Model model,
+			HttpServletRequest request) {
+		String email=request.getParameter("userEmail");
+		String password=request.getParameter("password");
+		String respose = userController.changeEmailOrPassword(email,password);
+		model.addAttribute("msg", respose);
+		if (respose != null && respose.equalsIgnoreCase("Email Or Password changed")) {
+			return new ModelAndView("Setting");
+		}
+		else
+		{	return new ModelAndView("Setting");
+		
+		}
+		
 	}
 }

@@ -224,7 +224,10 @@
 											<input type="file" required="required" size="30" value=""
 												name="fileUpload" id="pan" >
 										</p>
+										
+										
 										<c:if test="${userDoc.docType eq 'DOCUMENT_PAN'}">
+										<img src="data:image/gif;base64,${userDoc.data}" height="30%"	width="30%" />
 										<p><font color="blue;">${userDoc.fileName }</font>  <font color="green;">Already uploaded</font></p>
 										</c:if>
 										
@@ -234,6 +237,7 @@
 												name="fileUpload" id="aadhar" >
 										</p>
 										<c:if test="${userDocs.docType eq 'DOCUMENT_AADHAR'}">
+										<img src="data:image/gif;base64,${userDocs.data}" height="30%"	width="30%" />
 										<p><font color="blue;">${userDocs.fileName }</font> <font color="green;">Already uploaded</font></p>
 										</c:if>
 										<p class="form-submit">

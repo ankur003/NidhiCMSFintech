@@ -10,46 +10,18 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NIDHI CMS | DASHBOARD</title>
+<title>NIDHI CMS | ADMIN DASHBOARD</title>
 
 <!-- Favicon -->
 
-
-<!-- 
-<script>
-function openNav() {
-  document.getElementById("mySidenav").style.width = "250px";
-}
-
-function closeNav() {
-  document.getElementById("mySidenav").style.width = "0";
-}
-</script>
- -->
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
 <body>
+<jsp:include page="adminmenu.jsp" />
 
-<jsp:include page="usermenu.jsp" />
-<!-- <div id="mySidenav" class="sidenav">
-  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-  <a href="#"> <b>Payout</b>
-  <img src="/assets/img/rightbluearrow.png"	align="right" style="width: 7px; height: 13px; margin-right: 15px; margin-top: 6px;" alt="">
-  </a>
-  <a href="/api/v1/fe/PayOutSummary">1. Summary</a>
-  <a href="/api/v1/fe/AccountStatement">2. Account Statement</a>
-  <a href="#">3. Report</a> 
-      <a href="/api/v1/fe/payoutReport" style="margin-left: 25px"> a. Payout</a> 
-      <a href="/api/v1/fe/bankAcVerifyreport" style="margin-left: 25px">b. Bank A/c Verification</a> 
-  <a href="/api/v1/fe/AccessSetting">4. Access Setting</a>
-  <a href="/api/v1/fe/FundAccount">5. Fund Account</a>
-  <a href="/api/v1/fe/Setting">6. Setting</a>
-</div>
-
-			 -->
-
+	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
 	<div class="container">
 		<div class="row">
@@ -57,8 +29,8 @@ function closeNav() {
 				<div class="mu-page-breadcrumb-area">
 					<h2>My Dashboard</h2>
 					<ol class="breadcrumb">
-						<li><a href="#">Home</a></li>
-						<li class="active">Dashboard</li>
+						<li><a href="#">Client Onboarding </a></li>
+						<li class="active">Create</li>
 					</ol>
 				</div>
 			</div>
@@ -66,48 +38,76 @@ function closeNav() {
 	</div>
 	</section>
 	<!-- End breadcrumb -->
-
 	<!-- Start contact  -->
 	<section id="mu-contact">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="mu-contact-area">
+					<!-- start title -->
+					<!-- <div class="mu-title">
+						<h2>Register Here</h2>
+						</div> -->
+					<!-- end title -->
+					<!-- start contact content -->
 					
-							<div class="col-md-12">
+					
+					
+					
+					<div class="mu-contact-content" style="margin-top: -2%">
+						<div class="row">
+							<div class="col-md-3">
+								
+							</div>
+							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform">
-									
+									<form class="contactform" action="/api/v1/user" method="post">
+
+
 										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: green;">
+													style="border-style: solid; border-color: red;">
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
-                            
-                                 <div class="col-sm-12" style="margin-left: 25%;margin-top: -5%;">
-								 <img src="/assets/img/wc.gif"	  alt="">		
-								 </div>
-										</form>
+
+									 <input type="hidden" id="" name="" value="USER"> 
+										<p class="comment-form-author">
+											<label for="author">Full Name <span class="mandate">*</span></label>
+											<input type="text" required="required" size="30" value=""
+												name="fullName" id="fullName" maxlength="50">
+										</p>
+										<p class="comment-form-email">
+											<label for="email">Email <span class="mandate">*</span></label>
+											<input type="email" required="required" aria-required="true"
+												value="" name="userEmail" id="userEmail" maxlength="250">
+										</p>
+										
+										<p class="comment-form-comment">
+											<label for="comment">Contact Number<span
+												class="mandate">*</span></label> <input type="text"
+												required="required" aria-required="true" value=""
+												name="mobileNumber" id="mobileNumber" maxlength="10">
+										</p>
+										<p class="comment-form-url">
+											<label for="subject">Password<span class="mandate">*</span></label>
+											<input type="password" name="password" id="password" minlentg="3"
+												aria-required="true" required="required" maxlength="10">
+										</p>
+										<p class="form-submit">
+											<input type="submit" value="Add" class="btn btn-success"
+												name="signup"> <input type="reset" value="Reset"
+												class="btn btn-warning" name="reset"> <input
+												type="button" value="Cancel" class="btn btn-info"
+												name="cancel">
+										</p>
+									</form>
+
 								</div>
-
-							
-
-								
-
-
-								
-
-								<!-- <div class="container" style="display: none;">
-									<button type="button" id="showalloted"
-										data-target="#allotedmodel" data-toggle="modal">alloted</button>
-								</div> -->
-								
-
 							</div>
 						</div>
 					</div>
@@ -151,7 +151,7 @@ function closeNav() {
 
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />
-	<!-- End footer -->
+	
 
 </body>
 </html>

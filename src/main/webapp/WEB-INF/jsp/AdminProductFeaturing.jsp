@@ -12,8 +12,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
 
-<!-- Favicon -->
-
 
 
 </head>
@@ -22,7 +20,6 @@
 </c:if>
 <body>
 	<jsp:include page="adminmenu.jsp" />
-
 	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
 	<div class="container">
@@ -32,7 +29,7 @@
 					<h2>My Dashboard</h2>
 					<ol class="breadcrumb">
 						<li><a href="#">Home</a></li>
-						<li class="active">Dashboard</li>
+						<li class="active">Product Featuring</li>
 					</ol>
 				</div>
 			</div>
@@ -46,22 +43,79 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="mu-contact-area">
+					<!-- start title -->
+					<!-- <div class="mu-title">
+						<h2>Register Here</h2>
+						</div> -->
+					<!-- end title -->
+					<!-- start contact content -->
+
+
 
 
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
-							<div class="col-md-9">
+							<!-- <div class="col-md-3">
+								
+							</div> -->
+							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform">
+									<form class="contactform" action="/api/v1/user" method="post">
 
 
-										<div class="col-sm-12"
-											style="margin-left: 25%; margin-top: -5%;">
-											<img src="/assets/img/wc.gif" alt="">
+
+
+										<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Search client<span
+													class="mandate">*</span></label> <input type="text"
+													required="required" value="" name="fullName" id="client">
+											</p>
 										</div>
-									</form>
-								</div>
+										<br>
+										<div class="col-lg-6">
+											<p class="form-submit">
+												<input type="button" value="search" class="btn btn-success"
+													name="Submit"> <input type="button" value="Cancel"
+													class="btn btn-info" name="cancel">
+											</p>
+										</div>
 
+										<div class="col-lg-12">
+											<p class="comment-form-author">
+												<label for="author">Product List<span
+													class="mandate">*</span></label> <br> <Select
+													required="required" name="product" id="product"
+													class="col-lg-3">
+													<option value="UPI">UPI</option>
+													<option value="NEFT">NEFT</option>
+													<option value="IMPS">IMPS</option>
+												</Select>
+											</p>
+										</div>
+										<div class="col-lg-12"><br></div>
+										<div class="col-lg-12">
+											<p class="form-submit">
+												<input type="submit" value="Submit" class="btn btn-success"
+													name="Submit"> <input type="button" value="Cancel"
+													class="btn btn-info" name="cancel">
+											</p>
+
+										</div>
+
+
+
+
+
+
+
+
+
+
+
+									</form>
+
+								</div>
 							</div>
 						</div>
 					</div>
@@ -72,6 +126,7 @@
 	</div>
 	</div>
 	</section>
+	<!-- End contact  -->
 	<!-- lgt box start -->
 
 

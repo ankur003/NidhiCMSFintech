@@ -15,41 +15,15 @@
 <!-- Favicon -->
 
 
-<!-- 
-<script>
-function openNav() {
-  document.getElementById("mySidenav").style.width = "250px";
-}
-
-function closeNav() {
-  document.getElementById("mySidenav").style.width = "0";
-}
-</script>
- -->
 </head>
-<c:if test="${sessionScope.userLoginDetails eq null}">
+<c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
 <body>
 
 <jsp:include page="usermenu.jsp" />
-<!-- <div id="mySidenav" class="sidenav">
-  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-  <a href="#"> <b>Payout</b>
-  <img src="/assets/img/rightbluearrow.png"	align="right" style="width: 7px; height: 13px; margin-right: 15px; margin-top: 6px;" alt="">
-  </a>
-  <a href="/api/v1/fe/PayOutSummary">1. Summary</a>
-  <a href="/api/v1/fe/AccountStatement">2. Account Statement</a>
-  <a href="#">3. Report</a> 
-      <a href="/api/v1/fe/payoutReport" style="margin-left: 25px"> a. Payout</a> 
-      <a href="/api/v1/fe/bankAcVerifyreport" style="margin-left: 25px">b. Bank A/c Verification</a> 
-  <a href="/api/v1/fe/AccessSetting">4. Access Setting</a>
-  <a href="/api/v1/fe/FundAccount">5. Fund Account</a>
-  <a href="/api/v1/fe/Setting">6. Setting</a>
-</div>
 
-			 -->
-
+	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
 	<div class="container">
 		<div class="row">
@@ -89,9 +63,36 @@ function closeNav() {
 											</c:otherwise>
 										</c:choose>
                             
-                                 <div class="col-sm-12" style="margin-left: 25%;margin-top: -5%;">
-								 <img src="/assets/img/wc.gif"	  alt="">		
-								 </div>
+                            <div class="col-sm-12">
+											<div class="col-sm-4">
+												<p class="comment-form-comment">
+													<label for="comment">Today Payment Amount </label> 
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="Red">100 &#8377;</font></label> 
+												</p>
+											</div>
+											<div class="col-sm-4">
+												<p class="comment-form-comment">
+													<label for="comment">Today's Payout Count </label> 
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="green">100</font></label> 
+												</p>
+											</div>
+											<div class="col-sm-4">
+												<p class="comment-form-comment">
+													<label for="comment">Available Fund</label>
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="blue">100 &#8377;</font></label> 
+												</p>
+											</div>
+											<!-- <div class="col-sm-2" style="margin-top: 25px;">
+												<input type="button" value="Search" class="btn btn-success"
+													name="Search" onclick="javascript:findstudentlist();">
+											</div> -->
+										</div>
 										</form>
 								</div>
 
@@ -152,6 +153,23 @@ function closeNav() {
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />
 	<!-- End footer -->
+
+	<!-- jQuery library -->
+	<!-- <script src="assets/js/jquery.min.js"></script> -->
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="/assets/js/bootstrap.js"></script>
+	<!-- Slick slider -->
+	<script type="text/javascript" src="/assets/js/slick.js"></script>
+	<!-- Counter -->
+	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
+	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
+	<!-- Mixit slider -->
+	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
+	<!-- Add fancyBox -->
+	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
+
+	<!-- Custom js -->
+	<script src="/assets/js/custom.js"></script>
 
 </body>
 </html>

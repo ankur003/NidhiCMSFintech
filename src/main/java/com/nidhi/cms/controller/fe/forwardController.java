@@ -55,7 +55,11 @@ public class forwardController {
 	public ModelAndView payoutReport(Model model) {
 		return new ModelAndView("payoutReport");
 	}
-
+	@GetMapping(value = "/PayOutSummary")
+	public ModelAndView PayOutSummary(Model model) {
+		return new ModelAndView("PayOutSummary");
+	}
+	
 	@GetMapping(value = "/bankAcVerifyreport")
 	public ModelAndView bankAcVerifyreport(Model model) {
 		return new ModelAndView("bankAcVerifyreport");
@@ -101,16 +105,79 @@ public class forwardController {
 		return new ModelAndView("AdminDashboard");
 	}
 
+	@GetMapping(value = "/AdminCreateNew")
+	public ModelAndView AdminCreateNew(Model model) {
+		return new ModelAndView("AdminCreateNew");
+	}
+	@GetMapping(value = "/AdminPendingClient")
+	public ModelAndView AdminPendingClient(Model model) {
+		return new ModelAndView("AdminPendingClient");
+	}
+	
+	@GetMapping(value = "/AdminmanageClint")
+	public ModelAndView AdminmanageClint(Model model) {
+		return new ModelAndView("AdminmanageClint");
+	}
+	
+	@GetMapping(value = "/AdminProductFeaturing")
+	public ModelAndView AdminProductFeaturing(Model model) {
+		return new ModelAndView("AdminProductFeaturing");
+	}
+	
+	@GetMapping(value = "/SubAdminAccount")
+	public ModelAndView SubAdminAccount(Model model) {
+		return new ModelAndView("SubAdminAccount");
+	}
+	
+	@GetMapping(value = "/AdminTransactionReport")
+	public ModelAndView AdminTransactionReport(Model model) {
+		return new ModelAndView("AdminTransactionReport");
+	}
+	
+	@GetMapping(value = "/AdminBankACverification")
+	public ModelAndView AdminBankACverification(Model model) {
+		return new ModelAndView("AdminBankACverification");
+	}
+	
+	@GetMapping(value = "/AdminBillingReport")
+	public ModelAndView AdminBillingReport(Model model) {
+		return new ModelAndView("AdminBillingReport");
+	}
+	
+	@GetMapping(value = "/AdminTransactionInqReport")
+	public ModelAndView AdminTransactionInqReport(Model model) {
+		return new ModelAndView("AdminTransactionInqReport");
+	}
+	
+	@GetMapping(value = "/AdminACStatement")
+	public ModelAndView AdminACStatement(Model model) {
+		return new ModelAndView("AdminACStatement");
+	}
+	@GetMapping(value = "/AdminSetting")
+	public ModelAndView AdminSetting(Model model) {
+		return new ModelAndView("AdminSetting");
+	}
+	@GetMapping(value = "/SubAdminAccountUpdate")
+	public ModelAndView SubAdminAccountUpdate(Model model) {
+		return new ModelAndView("SubAdminAccountUpdate");
+	}
+	/*
+	 * @GetMapping(value = "/home2") public ModelAndView home2(Model model) { return
+	 * new ModelAndView("home2"); }
+	 */
+	
 	@GetMapping(value = "/logout")
-	public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response) {
 		HttpSession session = request.getSession(false);
 		if (session != null) {
 			response.setHeader("Cache-Control", "no-store");
 			response.setHeader("Pragma", "no-cache");
 			response.setHeader("Expires", "0");
+			session.removeAttribute("userLoginDetails");
+		     session.invalidate();
 
-			session.invalidate();
 		}
-		return "redirect:/";
+		return new ModelAndView("login");
 	}
 }
+

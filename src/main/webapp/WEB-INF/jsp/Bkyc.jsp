@@ -105,8 +105,6 @@
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="ChangePassword?sid=${st.sid}">Change
-								Password &#128273;</a></li>
 						<li><a href="logout">Logout </a></li>
 					</ul></li>
 				<!-- <li class="active"><a href="Signup">SIGNUP</a></li> -->

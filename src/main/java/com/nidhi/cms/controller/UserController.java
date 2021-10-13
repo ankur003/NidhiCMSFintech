@@ -186,18 +186,19 @@ public class UserController extends AbstractController {
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public List<Object> getUserAllKyc() {
+	public List<UserDoc> getUserAllKyc() {
 		User user = getLoggedInUserDetails();
 		List<UserDoc> userDoc = docService.getUserAllKyc(user.getUserId());
-		if (userDoc == null) {
-			return Collections.emptyList();
-		}
-		return ResponseHandler.getListResponse(beanMapper, userDoc, UserDocModal.class);
+//		if (userDoc == null) {
+//			return Collections.emptyList();
+//		}
+		//return ResponseHandler.getListResponse(beanMapper, userDoc, UserDocModal.class);
+		return userDoc;
 	}
 	
 	
 	
-	@PutMapping(value = "/change-email-password")
+	//@PutMapping(value = "/change-email-password")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
