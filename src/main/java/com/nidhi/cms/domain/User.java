@@ -7,6 +7,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nidhi.cms.constants.enums.KycStatus;
 
 /**
  * 
@@ -61,6 +64,9 @@ public class User extends BaseDomain {
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "USER_ROLES", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = { @JoinColumn(name = "ROLE_ID") })
 	private Set<Role> roles = new HashSet<>();
+	
+	@Enumerated(EnumType.STRING)
+	private KycStatus kycStatus = KycStatus.PENDING;
 	
 	public Long getUserId() {
 		return userId;
@@ -174,4 +180,12 @@ public class User extends BaseDomain {
 		this.roles = roles;
 	}
 
+	public KycStatus getKycStatus() {
+		return kycStatus;
+	}
+
+	public void setKycStatus(KycStatus kycStatus) {
+		this.kycStatus = kycStatus;
+	}
+	
 }

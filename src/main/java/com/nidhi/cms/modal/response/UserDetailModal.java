@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.domain.Role;
 
 /**
@@ -35,6 +36,8 @@ public class UserDetailModal {
 	private String userUuid;
 	
 	private Set<Role> roles;
+	
+	private KycStatus kycStatus;
 
 	public String getUserEmail() {
 		return userEmail;
@@ -125,4 +128,12 @@ public class UserDetailModal {
 		this.roles = roles;
 	}
 
+	public KycStatus getKycStatus() {
+		return kycStatus;
+	}
+
+	public void setKycStatus(KycStatus kycStatus) {
+		this.kycStatus = kycStatus;
+	}
+	
 }

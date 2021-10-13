@@ -40,6 +40,8 @@ public class UserDoc extends BaseDomain {
 
 	@Lob
 	private String data;
+	
+	private Boolean isVerifiedByAdmin = Boolean.FALSE;
 
 	public Long getUserDocId() {
 		return userDocId;
@@ -103,6 +105,14 @@ public class UserDoc extends BaseDomain {
 
 	public void setFileLength(Long fileLength) {
 		this.fileLength = fileLength;
+	}
+
+	public Boolean getIsVerifiedByAdmin() {
+		return isVerifiedByAdmin;
+	}
+
+	public void setIsVerifiedByAdmin(Boolean isVerifiedByAdmin) {
+		this.isVerifiedByAdmin = isVerifiedByAdmin;
 	}
 	
 }

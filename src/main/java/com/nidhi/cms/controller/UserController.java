@@ -12,9 +12,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.constants.SwaggerConstant;
 import com.nidhi.cms.constants.enums.ErrorCode;
+import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBusinessKyc;
@@ -200,7 +199,7 @@ public class UserController extends AbstractController {
 	
 	//@PutMapping(value = "/change-email-password")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
+	@ApiOperation(value = "change Email Or Password", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange, @RequestParam(name = "password", required = false) String passwordToChange) {
 		User user = getLoggedInUserDetails();
@@ -209,6 +208,22 @@ public class UserController extends AbstractController {
 		}
 		Boolean isChanged = userservice.changeEmailOrPassword(user, emailToChange, passwordToChange);
 		return Boolean.TRUE.equals(isChanged) ? "Email Or Password changed" : "Provided email is taken by someone, Please provide unique email";
+	}
+	
+	@PutMapping(value = "/kyc-auth")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid, @RequestParam("kycResponse") Boolean kycResponse,
+			@RequestParam(required = true, name = "docType") final DocType docType) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return false;
+		}
+		if (user.getKycStatus().equals(KycStatus.VERIFIED)) {
+			return false;
+		}
+		return userservice.approveOrDisApproveKyc(user, kycResponse, docType);
 	}
 	
 }

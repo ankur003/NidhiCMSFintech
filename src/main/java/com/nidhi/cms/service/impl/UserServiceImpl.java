@@ -19,19 +19,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.config.ApplicationConfig;
+import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.constants.enums.SearchOperation;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserDoc;
+import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.UserRepository;
+import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
+import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -55,9 +59,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
+	@Autowired
+	private UserWalletService userWalletService;
+
+	@Autowired
+	private UserWalletRepository userWalletRepository;
+
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
-		if (user == null || BooleanUtils.isFalse(user.getIsActive()) || BooleanUtils.isFalse(user.getIsUserVerified())) {
+		if (user == null || BooleanUtils.isFalse(user.getIsActive())
+				|| BooleanUtils.isFalse(user.getIsUserVerified())) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
 		ApplicationConfig.loggedInUsers.put(user.getUserEmail(), user.getUserUuid());
@@ -136,7 +147,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			User emailToChangeUser = userRepository.findByUserEmail(emailToChange);
 			if (emailToChangeUser == null || user.getUserId().equals(emailToChangeUser.getUserId())) {
 				user.setUserEmail(emailToChange);
-				if (StringUtils.isNotBlank(passwordToChange)) { 
+				if (StringUtils.isNotBlank(passwordToChange)) {
 					user.setPassword(encoder.encode(passwordToChange));
 				}
 				userRepository.save(user);
@@ -146,9 +157,40 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			user.setPassword(encoder.encode(passwordToChange));
 			userRepository.save(user);
 			return Boolean.TRUE;
-		} 
-		
+		}
+
 		return Boolean.FALSE;
+	}
+
+	@Override
+	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType) {
+		Boolean isDone = docService.approveOrDisApproveKyc(user, kycResponse, docType);
+		if (BooleanUtils.isTrue(isDone)) {
+			if (BooleanUtils.isTrue(kycResponse)) {
+				user.setKycStatus(KycStatus.VERIFIED);
+				userRepository.save(user);
+			}
+			if (BooleanUtils.isFalse(kycResponse)) {
+				user.setKycStatus(KycStatus.REJECTED);
+				userRepository.save(user);
+				return Boolean.TRUE;
+			}
+
+			UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+			if (userWallet == null) {
+				userWallet = new UserWallet();
+				userWallet.setUserId(user.getUserId());
+				userWallet.setAmount(0.0);
+				userWalletRepository.save(userWallet);
+			} else {
+				userWallet.setAmount(0.0);
+				userWalletRepository.save(userWallet);
+			}
+			return Boolean.TRUE;
+
+		}
+		return null;
+
 	}
 
 }

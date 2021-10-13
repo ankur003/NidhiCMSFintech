@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.domain.DocType;
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.repository.DocRepository;
 import com.nidhi.cms.service.DocService;
@@ -53,6 +54,17 @@ public class DocServiceImpl implements DocService {
 	@Override
 	public List<UserDoc> getUserAllKyc(Long userId) {
 		return docRepository.findByUserId(userId);
+	}
+
+	@Override
+	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType) {
+		UserDoc doc = docRepository.findByUserIdAndDocType(user.getUserId(), docType);
+		if (doc == null) {
+			return Boolean.FALSE;
+		}
+		doc.setIsVerifiedByAdmin(kycResponse);
+		docRepository.save(doc);
+		return Boolean.TRUE;
 	}
 
 }
