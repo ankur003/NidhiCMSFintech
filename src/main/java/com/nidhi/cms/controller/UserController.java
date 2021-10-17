@@ -36,6 +36,7 @@ import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
+import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
@@ -116,6 +117,14 @@ public class UserController extends AbstractController {
 		return getLoggedInUserDetails();
 	}
 
+	@GetMapping(value = "/user-by-email-or-mobile")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "Get User Detail by email", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public User getUserByEmailOrMobile(@RequestParam(required = true, name = "emailOrMobile") final String emailOrMobile) {
+		return  userservice.getUserByUserEmailOrMobileNumber(emailOrMobile, emailOrMobile);
+	}
+	
 	@GetMapping(value = "")
 	@PreAuthorize("hasRole('ADMIN')")
 	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
@@ -285,5 +294,17 @@ public class UserController extends AbstractController {
 			return false;
 		}
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
+	}
+	
+	@PutMapping(value = "/user-payment-mode")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "user payment mode", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Boolean userPaymentMode(@RequestBody UserPaymentModeModal userPaymentModeModal) {
+		User user = userservice.getUserByUserUuid(userPaymentModeModal.getUserUuid());
+		if (user == null) {
+			return false;
+		}
+		return userWalletService.updateUserPaymentMode(user, userPaymentModeModal.getPaymentMode());
 	}
 }
