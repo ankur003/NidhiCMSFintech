@@ -5,7 +5,6 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +13,6 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;

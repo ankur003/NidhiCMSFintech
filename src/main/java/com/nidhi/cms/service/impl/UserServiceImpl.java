@@ -2,6 +2,7 @@ package com.nidhi.cms.service.impl;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -30,6 +31,7 @@ import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
+import com.nidhi.cms.repository.DocRepository;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.DocService;
@@ -64,6 +66,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserWalletRepository userWalletRepository;
+	
+	@Autowired
+	private DocRepository docRepository;
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
@@ -167,30 +172,34 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		Boolean isDone = docService.approveOrDisApproveKyc(user, kycResponse, docType);
 		if (BooleanUtils.isTrue(isDone)) {
 			if (BooleanUtils.isTrue(kycResponse)) {
-				user.setKycStatus(KycStatus.VERIFIED);
-				userRepository.save(user);
+				List<UserDoc> doc = docRepository.findByUserIdAndIsVerifiedByAdmin(user.getUserId(), true);
+				if (doc != null && doc.size() >= 3 && user.getKycStatus() != KycStatus.VERIFIED) {
+					user.setKycStatus(KycStatus.VERIFIED);
+					userRepository.save(user);
+					createUserWallet(user);
+				}
 			}
 			if (BooleanUtils.isFalse(kycResponse)) {
 				user.setKycStatus(KycStatus.REJECTED);
 				userRepository.save(user);
 				return Boolean.TRUE;
 			}
-
-			UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
-			if (userWallet == null) {
-				userWallet = new UserWallet();
-				userWallet.setUserId(user.getUserId());
-				userWallet.setAmount(0.0);
-				userWalletRepository.save(userWallet);
-			} else {
-				userWallet.setAmount(0.0);
-				userWalletRepository.save(userWallet);
-			}
+			
 			return Boolean.TRUE;
 
 		}
-		return null;
+		return  Boolean.FALSE;
 
+	}
+
+	private void createUserWallet(User user) {
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			userWallet = new UserWallet();
+			userWallet.setUserId(user.getUserId());
+			userWallet.setAmount(0.0);
+			userWalletRepository.save(userWallet);
+		}
 	}
 
 }

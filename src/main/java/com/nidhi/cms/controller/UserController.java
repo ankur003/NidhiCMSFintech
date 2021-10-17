@@ -1,7 +1,6 @@
 package com.nidhi.cms.controller;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +27,7 @@ import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
@@ -36,12 +36,13 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
-import com.nidhi.cms.modal.response.UserDocModal;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
+import com.nidhi.cms.service.UserAccountStatementService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
+import com.nidhi.cms.utils.Utility;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -64,9 +65,12 @@ public class UserController extends AbstractController {
 
 	@Autowired
 	private OtpService otpService;
-	
+
 	@Autowired
 	private UserBusnessKycService userBusnessKycService;
+
+	@Autowired
+	private UserAccountStatementService userAccountStatementService;
 
 //	@PostMapping(value = "")
 	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal) {
@@ -100,7 +104,7 @@ public class UserController extends AbstractController {
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public User getUserDetail(){
+	public User getUserDetail() {
 		return getLoggedInUserDetails();
 	}
 
@@ -121,8 +125,7 @@ public class UserController extends AbstractController {
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public ResponseEntity<Object> saveOrUpdateUserDoc(
-			@RequestParam("file") final MultipartFile multiipartFile,
+	public ResponseEntity<Object> saveOrUpdateUserDoc(@RequestParam("file") final MultipartFile multiipartFile,
 			@RequestParam(required = true, name = "docType") final DocType docType) throws IOException {
 		User user = getLoggedInUserDetails();
 		if (multiipartFile == null) {
@@ -138,23 +141,22 @@ public class UserController extends AbstractController {
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	//@GetMapping(value = "/doc")
+	// @GetMapping(value = "/doc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public UserDoc getUserDoc(
-			@RequestParam(required = true, name = "docType") final DocType docType) {
+	public UserDoc getUserDoc(@RequestParam(required = true, name = "docType") final DocType docType) {
 		User user = getLoggedInUserDetails();
 		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
 		return doc;
 	}
-	
-	
+
 	@PutMapping(value = "/business-kyc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(@Valid  @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
+	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(
+			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
 		User user = getLoggedInUserDetails();
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());
@@ -166,8 +168,7 @@ public class UserController extends AbstractController {
 				"Please contact support, unable to persist data");
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
-	
+
 	@GetMapping(value = "/get-business-kyc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
@@ -180,7 +181,7 @@ public class UserController extends AbstractController {
 		}
 		return beanMapper.map(userBusinessKyc, UserBusinessKycModal.class);
 	}
-	
+
 	@GetMapping(value = "/get-user-all-kyc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
@@ -191,30 +192,32 @@ public class UserController extends AbstractController {
 //		if (userDoc == null) {
 //			return Collections.emptyList();
 //		}
-		//return ResponseHandler.getListResponse(beanMapper, userDoc, UserDocModal.class);
+		// return ResponseHandler.getListResponse(beanMapper, userDoc,
+		// UserDocModal.class);
 		return userDoc;
 	}
-	
-	
-	
-	//@PutMapping(value = "/change-email-password")
+
+	// @PutMapping(value = "/change-email-password")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "change Email Or Password", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange, @RequestParam(name = "password", required = false) String passwordToChange) {
+	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange,
+			@RequestParam(name = "password", required = false) String passwordToChange) {
 		User user = getLoggedInUserDetails();
-		if (StringUtils.isBlank(emailToChange) && StringUtils.isBlank(passwordToChange)) { 
+		if (StringUtils.isBlank(emailToChange) && StringUtils.isBlank(passwordToChange)) {
 			return "please provide either email or password";
 		}
 		Boolean isChanged = userservice.changeEmailOrPassword(user, emailToChange, passwordToChange);
-		return Boolean.TRUE.equals(isChanged) ? "Email Or Password changed" : "Provided email is taken by someone, Please provide unique email";
+		return Boolean.TRUE.equals(isChanged) ? "Email Or Password changed"
+				: "Provided email is taken by someone, Please provide unique email";
 	}
-	
+
 	@PutMapping(value = "/kyc-auth")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid, @RequestParam("kycResponse") Boolean kycResponse,
+	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid,
+			@RequestParam("kycResponse") Boolean kycResponse,
 			@RequestParam(required = true, name = "docType") final DocType docType) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
@@ -225,5 +228,17 @@ public class UserController extends AbstractController {
 		}
 		return userservice.approveOrDisApproveKyc(user, kycResponse, docType);
 	}
-	
+
+	@GetMapping(value = "/get-user-account-statement")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "get-user-account-statement", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate, @RequestParam("toDate") String toDate) {
+		User user = getLoggedInUserDetails();
+		List<UserAccountStatement> userAccountStatement = userAccountStatementService.getUserAccountStatements(user.getUserId(), Utility.stringToLocalDate(fromDate), Utility.stringToLocalDate(toDate));
+		if (CollectionUtils.isEmpty(userAccountStatement)) {
+			return null;
+		}
+		return userAccountStatement;
+	}
 }

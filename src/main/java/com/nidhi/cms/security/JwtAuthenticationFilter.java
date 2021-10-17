@@ -1,7 +1,15 @@
 package com.nidhi.cms.security;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.SignatureException;
+import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
+import static com.nidhi.cms.constants.JwtConstants.HEADER_STRING;
+import static com.nidhi.cms.constants.JwtConstants.TOKEN_PREFIX;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,15 +21,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import java.io.IOException;
-
-import static com.nidhi.cms.constants.JwtConstants.*;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
 
 /**
  * 

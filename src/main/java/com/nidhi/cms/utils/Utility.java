@@ -2,7 +2,12 @@ package com.nidhi.cms.utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -46,8 +51,7 @@ public class Utility {
 		try {
 			WebClient webClient = WebClient.create("https://api.textlocal.in");
 			WebClient.ResponseSpec responseSpec = webClient.get().uri(uriBuilder -> uriBuilder.path("/send")
-					.queryParam("apikey", textLocalApiKey)
-					.queryParam("sender", textLocalApiSender)
+					.queryParam("apikey", textLocalApiKey).queryParam("sender", textLocalApiSender)
 					.queryParam("numbers", mobileNumber)
 					.queryParam("message", "Use the OTP " + mobileOtp
 							+ " to verify your NidhiCMS account . This is valid for 30 minutes.%nDO NOT SHARE OTP WITH ANYONE. Regards NidhiCms")
@@ -63,13 +67,42 @@ public class Utility {
 	}
 
 	public static File convertMultipartFileToFile(MultipartFile profilePic) {
-		 final File convFile = new File(System.getProperty("java.io.tmpdir") + File.separator + profilePic.getOriginalFilename());
-	        try (final FileOutputStream fos = new FileOutputStream(convFile)) {
-	            fos.write(profilePic.getBytes());
-	            return convFile;
-	        } catch (final Exception e) {
+		final File convFile = new File(
+				System.getProperty("java.io.tmpdir") + File.separator + profilePic.getOriginalFilename());
+		try (final FileOutputStream fos = new FileOutputStream(convFile)) {
+			fos.write(profilePic.getBytes());
+			return convFile;
+		} catch (final Exception e) {
+			return null;
+		}
+	}
+
+	public static LocalDate stringToLocalDate(String localDate) {
+		return asLocalDate(getDateFromString(localDate, "yyyy-MM-dd"));
+	}
+
+	 private static LocalDate asLocalDate(Date dateFromString) {
+		 if (dateFromString == null) {
+			 return null;
+		 }
+		 return dateFromString.toInstant()
+			      .atZone(ZoneId.systemDefault())
+			      .toLocalDate();
+	}
+
+	 public static Date getDateFromString(final String date, final String format) {
+	        if (date == null) {
 	            return null;
 	        }
-	}
+
+	        if (date.length() > 0) {
+	            SimpleDateFormat formatter = new SimpleDateFormat(format);
+	            try {
+	                return formatter.parse(date);
+	            } catch (final ParseException parseEx) {
+	            }
+	        }
+	        return null;
+	    }
 
 }

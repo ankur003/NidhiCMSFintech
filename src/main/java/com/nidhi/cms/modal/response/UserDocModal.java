@@ -1,6 +1,5 @@
 package com.nidhi.cms.modal.response;
 
-import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
