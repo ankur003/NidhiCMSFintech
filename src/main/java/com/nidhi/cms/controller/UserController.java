@@ -32,6 +32,7 @@ import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -270,5 +271,18 @@ public class UserController extends AbstractController {
 			return null;
 		}
 		return userWalletService.findByUserId(user.getUserId());
+	}
+	
+	
+	@PutMapping(value = "/user-account")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "activate - deactivate user account", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Boolean userActivateOrDeactivate(@RequestBody UserAccountActivateModal userAccountActivateModal) {
+		User user = userservice.getUserByUserUuid(userAccountActivateModal.getUserUuid());
+		if (user == null) {
+			return false;
+		}
+		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
 }

@@ -202,4 +202,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		}
 	}
 
+	@Override
+	public Boolean userActivateOrDeactivate(User user, Boolean isActivate) {
+		user.setIsActive(isActivate);
+		userRepository.save(user);
+		return Boolean.TRUE;
+	}
+
 }
