@@ -83,8 +83,7 @@
 							
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform">
-
+                                  <form class="contactform"  method="get" >
                                           <div class="col-sm-12">
                                             <p class="comment-form-comment">
 													<label for="comment">Transaction Details</label>
@@ -97,7 +96,7 @@
 												<p class="comment-form-author">
 													<label for="author">From date<span class="mandate">*</span></label>
 													<input type="text" required="required" value=""
-														name="fullName" id="datepicker" autocomplete="off">
+														name="fromDate" id="datepicker" autocomplete="off">
 												</p>
 											</div>
 											<div class="col-lg-6">
@@ -111,7 +110,7 @@
 
 										<p class="form-submit" align="right">
 											<input type="submit" value="Submit" class="btn btn-success"
-												name="Submit"> <input
+												name="Submit" > <input
 												
 												type="button" value="Cancel" class="btn btn-info"
 												name="cancel">

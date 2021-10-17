@@ -11,9 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,11 +33,16 @@ import com.nidhi.cms.controller.UserController;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Role;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.modal.request.LoginRequestModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
+import com.nidhi.cms.utils.Utility;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 /**
  * @author Devendra Gread
@@ -212,5 +220,16 @@ public class UserControllerFe {
 		
 		}
 		
+	}
+	
+	
+	//*------------------*/
+	@GetMapping(value = "/get-user-account-statement")
+	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate, @RequestParam("toDate") String toDate) {
+		List<UserAccountStatement> userAccountStatement = userController.getUserAccountStatementService( fromDate, toDate);
+		if (CollectionUtils.isEmpty(userAccountStatement)) {
+			return null;
+		}
+		return userAccountStatement;
 	}
 }
