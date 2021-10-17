@@ -19,6 +19,8 @@ public class UserWallet extends BaseDomain {
 	private Long userId;
 	
 	private Double amount;
+	
+	private Double adminAllocatedFund;
 
 	public Long getUserWalletId() {
 		return userWalletId;
@@ -43,6 +45,13 @@ public class UserWallet extends BaseDomain {
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
-	
+
+	public Double getAdminAllocatedFund() {
+		return adminAllocatedFund;
+	}
+
+	public void setAdminAllocatedFund(Double adminAllocatedFund) {
+		this.adminAllocatedFund = adminAllocatedFund;
+	}
 	
 }

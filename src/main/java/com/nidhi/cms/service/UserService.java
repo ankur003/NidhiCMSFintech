@@ -34,4 +34,6 @@ public interface UserService {
 
 	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType);
 
+	Boolean userActivateOrDeactivate(User user, Boolean isActivate);
+
 }

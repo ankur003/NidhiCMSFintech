@@ -6,4 +6,6 @@ public interface UserWalletService {
 
 	UserWallet findByUserId(Long userId);
 
+	Boolean allocateFund(Long userId, Double amount);
+
 }

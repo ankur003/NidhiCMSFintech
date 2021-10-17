@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +31,8 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
+import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -41,6 +44,7 @@ import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserAccountStatementService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
+import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.Utility;
 
@@ -66,6 +70,9 @@ public class UserController extends AbstractController {
 	@Autowired
 	private OtpService otpService;
 
+	@Autowired
+	private UserWalletService userWalletService;
+	
 	@Autowired
 	private UserBusnessKycService userBusnessKycService;
 
@@ -240,5 +247,42 @@ public class UserController extends AbstractController {
 			return null;
 		}
 		return userAccountStatement;
+	}
+	
+	@PostMapping(value = "/allocate-fund")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Boolean allocateFund(@RequestParam("userUuid") String userUuid, @RequestParam(required = true, name = "amount") final Double amount) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return false;
+		}
+		return userWalletService.allocateFund(user.getUserId(), amount);
+	}
+	
+	@GetMapping(value = "/user-wallet")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "get user wallet", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public UserWallet getUserWallet(@RequestParam("userUuid") String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return null;
+		}
+		return userWalletService.findByUserId(user.getUserId());
+	}
+	
+	
+	@PutMapping(value = "/user-account")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "activate - deactivate user account", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Boolean userActivateOrDeactivate(@RequestBody UserAccountActivateModal userAccountActivateModal) {
+		User user = userservice.getUserByUserUuid(userAccountActivateModal.getUserUuid());
+		if (user == null) {
+			return false;
+		}
+		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
 }
