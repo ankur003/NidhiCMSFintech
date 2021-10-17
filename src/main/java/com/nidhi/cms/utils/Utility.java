@@ -78,7 +78,7 @@ public class Utility {
 	}
 
 	public static LocalDate stringToLocalDate(String localDate) {
-		return asLocalDate(getDateFromString(localDate, "yyyy-MM-dd"));
+		return asLocalDate(getDateFromString(localDate, "dd-MM-yyyy"));
 	}
 
 	 private static LocalDate asLocalDate(Date dateFromString) {

@@ -5,6 +5,8 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -83,7 +85,7 @@
 							
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-                                  <form class="contactform"  method="get" >
+                                  <form class="contactform"  method="post" action="/api/v1/get-user-account-statement" >
                                           <div class="col-sm-12">
                                             <p class="comment-form-comment">
 													<label for="comment">Transaction Details</label>
@@ -95,22 +97,22 @@
 											<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">From date<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
+													<input type="text" required="required" value="${fromDate}"
 														name="fromDate" id="datepicker" autocomplete="off">
 												</p>
 											</div>
 											<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">To date<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
-														name="fullName" id="datepicker1" autocomplete="off">
+													<input type="text" required="required" value="${toDate}"
+														name="toDate" id="datepicker1" autocomplete="off">
 												</p>
 											</div>
 										</div>
 
 										<p class="form-submit" align="right">
 											<input type="submit" value="Submit" class="btn btn-success"
-												name="Submit" > <input
+												name="Submit" onclick> <input
 												
 												type="button" value="Cancel" class="btn btn-info"
 												name="cancel">
@@ -122,26 +124,30 @@
 											<thead class="thead-dark">
 												<tr>
 													<th scope="col">#</th>
-													<th scope="col">Conatct</th>
-													<th scope="col">Description</th>
+													<th scope="col">Transaction id</th>
+													<th scope="col">Contact</th>
+													<th scope="col">Desc</th>
+													<th scope="col">Statement Id</th>
+													<th scope="col">Amount</th>
+													<th scope="col">Date</th>
+													<th scope="col">Type</th>
 												</tr>
 											</thead>
 											<tbody>
+											<c:forEach items="${userAccountStatement}" var="us" varStatus="counter">
 												<tr>
-													<th scope="row">1</th>
-													<td>Mark</td>
-													<td>Otto</td>
+													<th scope="row">${counter.count}</th>
+													<td>${us.cmsTxId}</td>
+													<td>${us.contact}</td>
+													<td>${us.description}</td>
+													<td>${us.statementId}</td>
+													<td>${us.txAmount}</td>
+													<td><fmt:parseDate value="${us.txDate}" pattern="yyyy-MM-dd" var="disbDate"/>
+										             <fmt:formatDate value="${disbDate}" pattern="dd-MM-yyyy"/></td>
+													<%-- <td>${us.txDate}</td> --%>
+													<td>${us.txType}</td>
 												</tr>
-												<tr>
-													<th scope="row">2</th>
-													<td>Jacob</td>
-													<td>Thornton</td>
-												</tr>
-												<tr>
-													<th scope="row">3</th>
-													<td>Larry</td>
-													<td>the Bird</td>
-												</tr>
+												</c:forEach>
 											</tbody>
 										</table>
 
