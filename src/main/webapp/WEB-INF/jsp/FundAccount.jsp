@@ -62,8 +62,38 @@
 							<div class="col-md-12">
 								<div class="mu-contact-right">
 									<form class="contactform">
-
-									</form>
+									
+										<c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											</c:otherwise>
+										</c:choose>
+                            
+                            <div class="col-sm-12">
+											<div class="col-sm-6">
+												<p class="comment-form-comment">
+													<label for="comment">Total fund </label> 
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="Green" size="6">${userWallet.amount} &#8377;</font></label> 
+												</p>
+											</div>
+											
+											<div class="col-sm-6">
+												<p class="comment-form-comment">
+													<label for="comment">AdminAllocated Fund</label>
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="blue" size="6">${userWallet.adminAllocatedFund} &#8377;</font></label> 
+												</p>
+											</div>
+										</div>
+										</form>
 								</div>
 
 

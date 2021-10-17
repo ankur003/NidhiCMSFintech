@@ -119,38 +119,39 @@
 										</p>
 
 
-
-										<table class="table">
-											<thead class="thead-dark">
-												<tr>
-													<th scope="col">#</th>
-													<th scope="col">Transaction id</th>
-													<th scope="col">Contact</th>
-													<th scope="col">Desc</th>
-													<th scope="col">Statement Id</th>
-													<th scope="col">Amount</th>
-													<th scope="col">Date</th>
-													<th scope="col">Type</th>
-												</tr>
-											</thead>
-											<tbody>
-											<c:forEach items="${userAccountStatement}" var="us" varStatus="counter">
-												<tr>
-													<th scope="row">${counter.count}</th>
-													<td>${us.cmsTxId}</td>
-													<td>${us.contact}</td>
-													<td>${us.description}</td>
-													<td>${us.statementId}</td>
-													<td>${us.txAmount}</td>
-													<td><fmt:parseDate value="${us.txDate}" pattern="yyyy-MM-dd" var="disbDate"/>
-										             <fmt:formatDate value="${disbDate}" pattern="dd-MM-yyyy"/></td>
-													<%-- <td>${us.txDate}</td> --%>
-													<td>${us.txType}</td>
-												</tr>
-												</c:forEach>
-											</tbody>
-										</table>
-
+										<c:if test="${init }">
+											<table class="table">
+												<thead class="thead-dark">
+													<tr>
+														<th scope="col">#</th>
+														<th scope="col">Transaction id</th>
+														<th scope="col">Contact</th>
+														<th scope="col">Desc</th>
+														<th scope="col">Statement Id</th>
+														<th scope="col">Amount</th>
+														<th scope="col">Date</th>
+														<th scope="col">Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<c:forEach items="${userAccountStatement}" var="us"
+														varStatus="counter">
+														<tr>
+															<th scope="row">${counter.count}</th>
+															<td>${us.cmsTxId}</td>
+															<td>${us.contact}</td>
+															<td>${us.description}</td>
+															<td>${us.statementId}</td>
+															<td>${us.txAmount}</td>
+															<td><fmt:parseDate value="${us.txDate}"
+																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
+																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
+															<td>${us.txType}</td>
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										</c:if>
 
 
 									</form>

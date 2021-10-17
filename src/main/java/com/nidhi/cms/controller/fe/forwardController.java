@@ -161,14 +161,15 @@ public class forwardController {
 	public ModelAndView SubAdminAccountUpdate(Model model) {
 		return new ModelAndView("SubAdminAccountUpdate");
 	}
-	/*
-	 * @GetMapping(value = "/home2") public ModelAndView home2(Model model) { return
-	 * new ModelAndView("home2"); }
-	 */
+	
+	  @GetMapping(value = "/docsView") public ModelAndView docsView(Model model) { return
+	  new ModelAndView("docsView"); }
+	 
 	
 	@GetMapping(value = "/logout")
-	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response) {
-		HttpSession session = request.getSession(false);
+	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response,HttpSession session) {
+		//HttpSession session = request.getSession(false);
+		session.invalidate(); 
 		if (session != null) {
 			response.setHeader("Cache-Control", "no-store");
 			response.setHeader("Pragma", "no-cache");

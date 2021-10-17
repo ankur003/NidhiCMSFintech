@@ -21,7 +21,7 @@ public class PaginatedFilterRequestModel {
 	private Integer page = 1;
 
 	@ApiModelProperty(value = "Records Per Page Limit")
-	@Max(value = 250, message = "limit : Max limit allowed is 250")
+	//@Max(value = 250, message = "limit : Max limit allowed is 250")
 	private Integer limit = 50;
 
 	public String getCreatedSince() {

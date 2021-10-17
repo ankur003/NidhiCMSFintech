@@ -94,7 +94,7 @@
           <span class="link_name">Fund Account </span>
         </a>
         <ul class="sub-menu blank">
-          <li><a class="link_name" href="/api/v1/fe/FundAccount">Fund Account </a></li>
+          <li><a class="link_name" href="/api/v1/user-wallet?userUuid=${userLoginDetails.userUuid}">Fund Account </a></li>
         </ul>
       </li>
     <!--   <li>

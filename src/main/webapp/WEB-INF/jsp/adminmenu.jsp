@@ -30,9 +30,7 @@
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      
-         <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
-  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
   
   
 </head>
@@ -63,7 +61,7 @@
         <ul class="sub-menu">
           <li><a class="link_name" href="#">Onboarding </a></li>
           <li><a href="/api/v1/fe/AdminCreateNew">Create New</a></li>
-          <li><a href="/api/v1/fe/AdminPendingClient">Pending client</a></li>
+          <li><a href="/api/v1/get-all-user">Pending client</a></li>
           <li><a href="/api/v1/fe/AdminmanageClint">Manage Client</a></li>
         </ul>
       </li>

@@ -39,13 +39,14 @@ public class ResponseHandler {
 		return ResponseEntity.ok(value);
 	}
 	
-	public static ResponseEntity<Object> getpaginationResponse(Mapper beanMapper, Page<?> pageData, Class<?> clazz) {
+	public static Map<String, Object> getpaginationResponse(Mapper beanMapper, Page<?> pageData, Class<?> clazz) {
 		List<?> data = DozerMapperUtil.mapCollection(beanMapper, pageData.getContent(), clazz);
 		final Map<String, Object> responseMap = new HashMap<>();
 		responseMap.put("data", data);
 		responseMap.put("count", pageData.getTotalElements());
 		responseMap.put("page", pageData.getTotalPages());
-		return ResponseEntity.ok(responseMap);
+		//return ResponseEntity.ok(responseMap);
+		return responseMap;
 	}
 	
 	public static <S> List<Object> getListResponse(Mapper beanMapper, final Collection<S> srcCollection, Class<?> clazz) {

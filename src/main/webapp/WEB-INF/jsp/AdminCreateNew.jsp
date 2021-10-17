@@ -61,13 +61,13 @@
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/user" method="post">
+									<form class="contactform" action="/api/v1/userbyAdmin" method="post">
 
 
 										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: red;">
+													style="border-style: solid; border-color: Green;">
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>

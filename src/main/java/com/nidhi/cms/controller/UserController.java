@@ -2,6 +2,7 @@ package com.nidhi.cms.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.validation.Valid;
@@ -115,15 +116,15 @@ public class UserController extends AbstractController {
 		return getLoggedInUserDetails();
 	}
 
-	@GetMapping(value = "")
-	@PreAuthorize("hasRole('ADMIN')")
-	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
-	public ResponseEntity<Object> getAllUser(
+//	@GetMapping(value = "")
+//	@PreAuthorize("hasRole('ADMIN')")
+//	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
+	public Map<String, Object> getAllUser(
 			@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
 		Page<User> users = userservice.getAllUsers(userRequestFilterModel);
 		if (users == null || CollectionUtils.isEmpty(users.getContent())) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			return null;
 		}
 		return ResponseHandler.getpaginationResponse(beanMapper, users, UserDetailModal.class);
 	}
@@ -155,6 +156,19 @@ public class UserController extends AbstractController {
 	public UserDoc getUserDoc(@RequestParam(required = true, name = "docType") final DocType docType) {
 		User user = getLoggedInUserDetails();
 		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
+		return doc;
+	}
+	
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public UserDoc getUserDocbyUserId(@RequestParam(required = true, name = "docType") final DocType docType,
+			@RequestParam(required = true, name = "userUuid") final String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
+		if (doc != null) {
+			return doc;
+		}
 		return doc;
 	}
 
@@ -219,10 +233,10 @@ public class UserController extends AbstractController {
 				: "Provided email is taken by someone, Please provide unique email";
 	}
 
-	@PutMapping(value = "/kyc-auth")
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@PutMapping(value = "/kyc-auth")
+//	@PreAuthorize("hasAnyRole('ADMIN')")
+//	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse,
 			@RequestParam(required = true, name = "docType") final DocType docType) {
@@ -261,10 +275,10 @@ public class UserController extends AbstractController {
 		return userWalletService.allocateFund(user.getUserId(), amount);
 	}
 	
-	@GetMapping(value = "/user-wallet")
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "get user wallet", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@GetMapping(value = "/user-wallet")
+//	@PreAuthorize("hasAnyRole('ADMIN')")
+//	@ApiOperation(value = "get user wallet", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public UserWallet getUserWallet(@RequestParam("userUuid") String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {

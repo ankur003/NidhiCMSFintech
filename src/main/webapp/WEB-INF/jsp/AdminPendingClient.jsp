@@ -65,47 +65,81 @@
 
 
 
+<!-- 
+<button type="button" id="showalloted"	data-target="#allotedmodel" data-toggle="modal">alloted</button>
 
+ -->
+										<c:if test="${init }">
+											<table class="table table-striped">
+												<thead class="thead-dark">
+													<tr>
+														<th scope="col">#</th>
+														<th scope="col">Full Name</th>
+														<th scope="col">Email</th>
+														<th scope="col">Mobile</th>
+														<th scope="col">DOB</th>
+														<th scope="col">PAN</th>
+														<th scope="col">AADHAR</th>
+														<th scope="col">GST</th>
+														<th scope="col">Action</th>
+													</tr>
+												</thead>
+												<tbody>
+												
+													<c:forEach items="${userList}" var="ul"		varStatus="counter">
+														<tr>
+															<th scope="row">${counter.count}</th>
+															<td>${ul.fullName}</td>
+															<td>${ul.userEmail}</td>
+															<td>${ul.mobileNumber}</td>
+															<td><fmt:parseDate value="${ul.dob}"
+																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
+																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
+															<%-- <td><a href="/api/v1/get-user-docs?userUuid=${ul.userUuid}&docType=PAN" id="showalloted"	
+															                           data-target="#allotedmodel" data-toggle="modal">PAN</a></td>
+															<td><a href="/api/v1/get-user-docs?userUuid=${ul.userUuid}&docType=AADHAR" id="showalloted"	
+															                           data-target="#allotedmodel" data-toggle="modal">AADHAR</a></td>
+															<td><a href="/api/v1/get-user-docs?userUuid=${ul.userUuid}&docType=GST" id="showalloted"	
+															                           data-target="#allotedmodel" data-toggle="modal">GST</a></td> --%>
+													
+ 
+ 	                                                        <td><a href="/api/v1/get-user-docs?userUuid=${ul.userUuid}&docType=PAN" target="_blank"><font color="blue">PAN</font></a></td>
+															<td><a href="/api/v1/get-user-docs?userUuid=${ul.userUuid}&docType=AADHAR" target="_blank"><font color="blue">AADHAR</font></a></td>
+															<td><a href="/api/v1/get-user-docs?userUuid=${ul.userUuid}&docType=GST" target="_blank"><font color="blue">GST</font></a></td>
+ 	
+														
+															<td>
+															 <c:choose>
+															<c:when test="${!ul.isUserVerified}"> 
+															 <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
+															<input type="Button" value="Approve" class="btn btn-success" name="Approve"></a>
+														 	</c:when>
+														 	<c:otherwise>
+														 	 <a href="#">
+															<input type="Button" value="Approve" class="btn btn-success" name="Approve" disabled="disabled"></a>
+														 	</c:otherwise>
+														 	</c:choose> 
+														 	 
+															 <c:choose>
+														<c:when test="${ul.isUserVerified}"> 
+											            <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=false">
+											            <input type="button" value="Reject" class="btn btn-danger"	name="reject"></a>
+											         </c:when>
+											           <c:otherwise>
+											            <a href="#">
+											            <input type="button" value="Reject" class="btn btn-danger"	name="reject" disabled="disabled"></a>
+															 </c:otherwise>
+															</c:choose> 
+											            
+											            </td>
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										</c:if>
 
-
-
-										<table width="100%" border="1" >
-												<tr >
-													<td  align="center" width="5%">#</td>
-													<td align="center"  width="15%" ><b>Conatct</b></td>
-													<td align="center"  width="15%"><b>Description</b></td>
-													<td align="center"  width="15%"><b>Doc 1</b></td>
-													<td  align="center"  width="15%"><b>doc 2</b></td>
-													<td  align="center"  width="15%"><b>Action</b></td>
-												</tr>
-												<tr >
-													<td align="center"><b>1</b></th>
-													<td align="center">Mark</td>
-													<td align="center">Otto</td>
-													<td align="center"><img src="data:image/gif;base64,${userDoc.data}" height="25%"	width="20%" /></td>
-													<td align="center"><img src="data:image/gif;base64,${userDoc.data}" height="20%"	width="20%" /></td>
-													<td align="center"><input type="Button" value="Approve" class="btn btn-success"	name="Approve">
-											            <input type="button" value="Reject" class="btn btn-danger"	name="reject"></td>
-												</tr>
-										</table>
-
-
-
 										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-									</form>
+									</form> 
 
 								</div>
 							</div>
@@ -129,13 +163,18 @@
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal"
 						aria-hidden="true">×</button>
-					<h1 class="text-center">Alloted Batch Timeings</h1>
+					<h1 class="text-center">Document</h1>
 				</div>
 				<div class="modal-body">
 					<div class="col-md-12">
 						<div class="panel panel-default">
 							<div class="panel-body">
-								<div class="text-center" id="showallotedtiming"></div>
+							
+							
+							<jsp:include page="docsView.jsp" />
+							
+							
+							
 							</div>
 						</div>
 					</div>
@@ -151,10 +190,9 @@
 
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />
-	<!-- End footer -->
-
-	<!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
+	<!-- end footer bottom --> </footer>
+<!-- jQuery library -->
+   <script src="/assets/js/jquery.min.js"></script> 
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script src="/assets/js/bootstrap.js"></script>
 	<!-- Slick slider -->
@@ -169,6 +207,5 @@
 
 	<!-- Custom js -->
 	<script src="/assets/js/custom.js"></script>
-
 </body>
 </html>

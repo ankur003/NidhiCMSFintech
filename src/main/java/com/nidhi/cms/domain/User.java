@@ -187,5 +187,7 @@ public class User extends BaseDomain {
 	public void setKycStatus(KycStatus kycStatus) {
 		this.kycStatus = kycStatus;
 	}
+
+	
 	
 }
