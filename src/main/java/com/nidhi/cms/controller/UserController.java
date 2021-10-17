@@ -237,10 +237,10 @@ public class UserController extends AbstractController {
 		return userservice.approveOrDisApproveKyc(user, kycResponse, docType);
 	}
 
-	@GetMapping(value = "/get-user-account-statement")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "get-user-account-statement", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@GetMapping(value = "/get-user-account-statement")
+//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@ApiOperation(value = "get-user-account-statement", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate, @RequestParam("toDate") String toDate) {
 		User user = getLoggedInUserDetails();
 		List<UserAccountStatement> userAccountStatement = userAccountStatementService.getUserAccountStatements(user.getUserId(), Utility.stringToLocalDate(fromDate), Utility.stringToLocalDate(toDate));

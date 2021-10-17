@@ -224,12 +224,17 @@ public class UserControllerFe {
 	
 	
 	//*------------------*/
-	@GetMapping(value = "/get-user-account-statement")
-	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate, @RequestParam("toDate") String toDate) {
+	@PostMapping(value = "/get-user-account-statement")
+	public ModelAndView getUserAccountStatementService(Model model, HttpServletRequest request) {
+	//	@RequestParam("fromDate") String fromDate, @RequestParam("toDate") String toDate
+		String fromDate=request.getParameter("fromDate");
+		String toDate=request.getParameter("toDate");
 		List<UserAccountStatement> userAccountStatement = userController.getUserAccountStatementService( fromDate, toDate);
-		if (CollectionUtils.isEmpty(userAccountStatement)) {
-			return null;
+		if (!CollectionUtils.isEmpty(userAccountStatement)) {
+			model.addAttribute("fromDate",fromDate);
+			model.addAttribute("toDate",toDate);
+			model.addAttribute("userAccountStatement",userAccountStatement);
 		}
-		return userAccountStatement;
+		return new ModelAndView("AccountStatement");
 	}
 }
