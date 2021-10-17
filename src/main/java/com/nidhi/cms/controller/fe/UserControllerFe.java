@@ -15,8 +15,6 @@ import javax.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -28,13 +26,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nidhi.cms.constants.ApiConstants;
-import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.controller.LoginController;
 import com.nidhi.cms.controller.OtpController;
 import com.nidhi.cms.controller.UserController;
 import com.nidhi.cms.domain.DocType;
-import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.Role;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
@@ -45,13 +41,6 @@ import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
-import com.nidhi.cms.modal.response.UserDetailModal;
-import com.nidhi.cms.service.UserService;
-import com.nidhi.cms.utils.ResponseHandler;
-import com.nidhi.cms.utils.Utility;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
 
 /**
  * @author Devendra Gread
@@ -71,22 +60,19 @@ public class UserControllerFe {
 	@Autowired
 	LoginController loginController;
 
-	@Autowired
-	private UserService userService;
-	
 	@PostMapping(value = "/user")
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
 			HttpServletRequest request) {
+		userCreateModal.setIsCreatedByAdmin(false);
 		String respose = userController.userSignUp(userCreateModal);
 		model.addAttribute("msg", respose);
 		if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
 			return new ModelAndView("Signup");
+		} else {
+			return new ModelAndView("VerifyOtp");
+
 		}
-		else
-		{	return new ModelAndView("VerifyOtp");
-		
-		}
-		
+
 	}
 
 	@PostMapping(value = "/otp/verify")
@@ -131,16 +117,14 @@ public class UserControllerFe {
 				roleName = roles.getName().name();
 			}
 
-			List<UserDoc> getUserAllKyc=userController.getUserAllKyc();
-			
-			if(!getUserAllKyc.isEmpty() && getUserAllKyc.size()==3 || getUserAllKyc.size()>3)
-			{
+			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
+
+			if (!getUserAllKyc.isEmpty() && getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
 				session.setAttribute("kyc", "Done");
-			}else
-			{
+			} else {
 				session.setAttribute("kyc", "Pending");
 			}
-			
+
 			if (authtoken != null && roleName.equals(RoleEum.ADMIN.name())) {
 				return new ModelAndView("AdminDashboard");
 			} else {
@@ -148,8 +132,6 @@ public class UserControllerFe {
 			}
 		} catch (Exception e) {
 			model.addAttribute("msg", "Either email or Password is incorrect, please try again.");
-			e.printStackTrace();
-			System.out.println(e);
 			return new ModelAndView("login");
 		}
 	}
@@ -165,16 +147,14 @@ public class UserControllerFe {
 				userController.saveOrUpdateUserDoc(fileUpload[1], DocType.DOCUMENT_AADHAR);
 			}
 			model.addAttribute("msg", "Pan & Aadhar card successfully uploaded");
-			
-			List<UserDoc> getUserAllKyc=userController.getUserAllKyc();
-			if(getUserAllKyc.size()==3 || getUserAllKyc.size()>3)
-			{
+
+			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
+			if (getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
 				session.setAttribute("kyc", "Done");
-			}else
-			{
+			} else {
 				session.setAttribute("kyc", "Pending");
 			}
-			
+
 			return new ModelAndView("Bkyc");
 		} catch (Exception e) {
 			return new ModelAndView("Pkyc");
@@ -189,9 +169,9 @@ public class UserControllerFe {
 				userController.saveOrUpdateUserDoc(fileUpload, DocType.DOCUMENT_GST);
 			}
 			HttpSession session = request.getSession();
-			
+
 			userController.saveOrUpdateUserBusnessKyc(userBusinessKycRequestModal);
-			
+
 			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN);
 			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR);
 			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST);
@@ -199,92 +179,82 @@ public class UserControllerFe {
 			session.setAttribute("userDoc", userDoc);
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
-			
-			List<UserDoc> getUserAllKyc=userController.getUserAllKyc();
-			if(getUserAllKyc.size()==3 || getUserAllKyc.size()>3)
-			{
+
+			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
+			if (getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
 				session.setAttribute("kyc", "Done");
-			}else
-			{
+			} else {
 				session.setAttribute("kyc", "Pending");
 			}
-			
+
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
 			return new ModelAndView("Dashboard");
 		} catch (Exception e) {
 			return new ModelAndView("Pkyc");
 		}
 	}
-	
-	
+
 	@PostMapping(value = "/updateEmailpass")
-	public ModelAndView updateEmailpass( Model model,
-			HttpServletRequest request) {
-		String email=request.getParameter("userEmail");
-		String password=request.getParameter("password");
-		String respose = userController.changeEmailOrPassword(email,password);
+	public ModelAndView updateEmailpass(Model model, HttpServletRequest request) {
+		String email = request.getParameter("userEmail");
+		String password = request.getParameter("password");
+		String respose = userController.changeEmailOrPassword(email, password);
 		model.addAttribute("msg", respose);
 		if (respose != null && respose.equalsIgnoreCase("Email Or Password changed")) {
 			return new ModelAndView("Setting");
 		}
-		else
-		{	return new ModelAndView("Setting");
-		
-		}
-		
+		return new ModelAndView("Setting");
+
 	}
-	
-	
+
 	@PostMapping(value = "/get-user-account-statement")
 	public ModelAndView getUserAccountStatementService(Model model, HttpServletRequest request) {
-		String fromDate=request.getParameter("fromDate");
-		String toDate=request.getParameter("toDate");
-		List<UserAccountStatement> userAccountStatement = userController.getUserAccountStatementService( fromDate, toDate);
+		String fromDate = request.getParameter("fromDate");
+		String toDate = request.getParameter("toDate");
+		List<UserAccountStatement> userAccountStatement = userController.getUserAccountStatementService(fromDate,
+				toDate);
 		if (!CollectionUtils.isEmpty(userAccountStatement)) {
-			model.addAttribute("fromDate",fromDate);
-			model.addAttribute("toDate",toDate);
-			model.addAttribute("userAccountStatement",userAccountStatement);
-			model.addAttribute("init",true);
-		}
-		else {
-		model.addAttribute("init",false);
+			model.addAttribute("fromDate", fromDate);
+			model.addAttribute("toDate", toDate);
+			model.addAttribute("userAccountStatement", userAccountStatement);
+			model.addAttribute("init", true);
+		} else {
+			model.addAttribute("init", false);
 		}
 		return new ModelAndView("AccountStatement");
 	}
-	
+
 	@GetMapping(value = "/user-wallet")
-	public ModelAndView getUserWalletDetails(@RequestParam("userUuid") String userUuid,Model model) {
+	public ModelAndView getUserWalletDetails(@RequestParam("userUuid") String userUuid, Model model) {
 		UserWallet userWallet = userController.getUserWallet(userUuid);
-		if (null!=userWallet) {
-			model.addAttribute("userWallet",userWallet);
+		if (null != userWallet) {
+			model.addAttribute("userWallet", userWallet);
 			return new ModelAndView("FundAccount");
 		}
 		return new ModelAndView("FundAccount");
 	}
-	
+
 	@GetMapping(value = "/get-all-user")
 	public ModelAndView getAllClint(Model model, HttpServletRequest request) {
-		UserRequestFilterModel userRequestFilterModel =new UserRequestFilterModel();
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
-		  Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
-		if (users != null) 
-		{
-			model.addAttribute("userList",users.get("data"));
-			model.addAttribute("init",true);
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
 			return new ModelAndView("AdminPendingClient");
+		} else {
+			model.addAttribute("init", false);
 		}
-		else {
-			model.addAttribute("init",false);
-			}
-		 return new ModelAndView("AdminPendingClient");
+		return new ModelAndView("AdminPendingClient");
 	}
-	
+
 	@GetMapping(value = "/get-user-docs")
 	public ModelAndView getUserDocs(@RequestParam("userUuid") String userUuid, @RequestParam("docType") String docType,
-			Model model, HttpServletRequest request,HttpSession session) {
+			Model model, HttpServletRequest request, HttpSession session) {
 		UserDoc doc = null;
-	
+
 		if (docType.equalsIgnoreCase("PAN")) {
 			doc = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
 		}
@@ -295,74 +265,65 @@ public class UserControllerFe {
 			doc = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
 		}
 
-		if( doc!=null)
-		session.setAttribute("doc", doc.getData());
+		if (doc != null)
+			session.setAttribute("doc", doc.getData());
 		else
 			session.setAttribute("doc", null);
 		return new ModelAndView("docsView");
 	}
 
 	@GetMapping(value = "/kyc-auth")
-	public ModelAndView approveOrRejectKyc(@RequestParam("userUuid") String userUuid,@RequestParam("kycResponse") Boolean kycResponse,
-			Model model, HttpServletRequest request) {
-		 userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_PAN);
-		 userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_AADHAR);
-		 userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_GST);
-		
-		UserRequestFilterModel userRequestFilterModel =new UserRequestFilterModel();
+	public ModelAndView approveOrRejectKyc(@RequestParam("userUuid") String userUuid,
+			@RequestParam("kycResponse") Boolean kycResponse, Model model, HttpServletRequest request) {
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_PAN);
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_AADHAR);
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_GST);
+
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
-		  Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
-		if (users != null) 
-		{
-			model.addAttribute("msg","same has been verified");
-			model.addAttribute("userList",users.get("data"));
-			model.addAttribute("init",true);
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			model.addAttribute("msg", "same has been verified");
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
 			return new ModelAndView("AdminPendingClient");
+		} else {
+			model.addAttribute("init", false);
 		}
-		else {
-			model.addAttribute("init",false);
-			}
-		 return new ModelAndView("AdminPendingClient");
+		return new ModelAndView("AdminPendingClient");
 	}
 
 	@PostMapping(value = "/userbyAdmin")
 	public ModelAndView userSavebyadmin(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
 			HttpServletRequest request) {
+		userCreateModal.setIsCreatedByAdmin(true);
 		String respose = userController.userSignUp(userCreateModal);
 		model.addAttribute("msg", respose);
 		if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
 			return new ModelAndView("AdminCreateNew");
-		}
-		else
-		{	model.addAttribute("msg","user has been created. Email and otp has sent");
-		Otp otp=new Otp();
-		userCreateModal.getUserEmail();
-		userService.getUserByUserEmailOrMobileNumber(userCreateModal.getUserEmail(), userCreateModal.getUserEmail());
-		otp.setUserId(userService.getUserByUserEmailOrMobileNumber(userCreateModal.getUserEmail(), userCreateModal.getUserEmail()).getUserId());
-		userService.updateUserIsVerified(otp);
+		} else {
+			model.addAttribute("msg", "user has been created. Email and otp has sent");
 			return new ModelAndView("AdminCreateNew");
-		
+
 		}
-		
+
 	}
-	
+
 	@GetMapping(value = "/get-user-")
 	public ModelAndView getAllClints(Model model, HttpServletRequest request) {
-		UserRequestFilterModel userRequestFilterModel =new UserRequestFilterModel();
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
-		  Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
-		if (users != null) 
-		{
-			model.addAttribute("userList",users.get("data"));
-			model.addAttribute("init",true);
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
 			return new ModelAndView("AdminPendingClient");
+		} else {
+			model.addAttribute("init", false);
 		}
-		else {
-			model.addAttribute("init",false);
-			}
-		 return new ModelAndView("AdminPendingClient");
+		return new ModelAndView("AdminPendingClient");
 	}
-	
+
 }

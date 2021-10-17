@@ -25,6 +25,8 @@ public class UserCreateModal {
 	private String fullName;
 	
 	private String referralCode;
+	
+	private Boolean isCreatedByAdmin;
 
 	public String getUserEmail() {
 		return userEmail;
@@ -66,4 +68,12 @@ public class UserCreateModal {
 		this.referralCode = referralCode;
 	}
 
+	public Boolean getIsCreatedByAdmin() {
+		return isCreatedByAdmin;
+	}
+
+	public void setIsCreatedByAdmin(Boolean isCreatedByAdmin) {
+		this.isCreatedByAdmin = isCreatedByAdmin;
+	}
+	
 }

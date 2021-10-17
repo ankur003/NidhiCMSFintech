@@ -103,7 +103,7 @@ public class UserController extends AbstractController {
 			}
 			return "please try again in some time or reach to the support";
 		}
-		Boolean isCreated = userservice.createUser(user);
+		Boolean isCreated = userservice.createUser(user, userCreateModal.getIsCreatedByAdmin());
 		if (BooleanUtils.isFalse(isCreated)) {
 			return "please try again in some time or reach to the support";
 		}

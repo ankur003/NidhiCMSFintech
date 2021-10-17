@@ -18,7 +18,7 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 
 public interface UserService {
 
-	Boolean createUser(User user);
+	Boolean createUser(User user, Boolean isCreatedByAdim);
 	
 	User getUserByUserEmailOrMobileNumber(String email, String mobile);
 	

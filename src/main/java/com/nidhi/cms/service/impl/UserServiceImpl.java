@@ -90,11 +90,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Boolean createUser(User user) {
+	public Boolean createUser(User user, Boolean isCreatedByAdim) {
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setPassword(encoder.encode(user.getPassword()));
 		user.setIsAdmin(false);
-		user.setIsUserVerified(false);
+		user.setIsUserVerified(isCreatedByAdim);
 		user.setRoles(Utility.getRole(RoleEum.USER));
 		User savedUser = userRepository.save(user);
 		return otpService.sendingOtp(savedUser);
