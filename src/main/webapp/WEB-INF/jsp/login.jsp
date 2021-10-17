@@ -93,7 +93,7 @@
 			<!-- IMG BASED LOGO  -->
 			<a class="navbar-brand" href="/api/v1/fe/index"><img
 				src="/assets/img/logo.png"
-				style="height: 150px; width: 300px; margin-top: -15px;" alt="logo"></a>
+				style="height: 80px; width: 300px; margin-top: 0px;" alt="logo"></a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">

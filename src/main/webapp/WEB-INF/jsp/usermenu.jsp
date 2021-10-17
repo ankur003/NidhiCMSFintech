@@ -11,7 +11,10 @@
 <title>Insert title here</title>
 <link rel="shortcut icon" href="/assets/img/favicon.ico"
 	type="image/x-icon">
-<script src="/assets/js/jquery.min.js"></script>
+	
+	
+	
+<!-- <script src="/assets/js/jquery.min.js"></script> -->
 <link href="/assets/css/font-awesome.css" rel="stylesheet">
 <link href="/assets/css/bootstrap.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/assets/css/slick.css">
@@ -25,6 +28,12 @@
  <link rel="stylesheet" type="text/css" href="/assets/css/dev1.css">
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+  
+  
 </head>
 <body>
  <div class="sidebar close">
