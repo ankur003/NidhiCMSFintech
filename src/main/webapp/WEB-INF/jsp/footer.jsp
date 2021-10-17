@@ -91,7 +91,7 @@
 	</div>
 	<!-- end footer bottom --> </footer>
 <!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
+ <!--   <script src="/assets/js/jquery.min.js"></script> -->
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script src="/assets/js/bootstrap.js"></script>
 	<!-- Slick slider -->

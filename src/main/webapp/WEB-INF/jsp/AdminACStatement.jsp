@@ -10,18 +10,41 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NIDHI CMS | ADMIN DASHBOARD</title>
+<title>NIDHI CMS | ACCOUNT Statement</title>
 
-<!-- Favicon -->
-
-
+ <link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $( "#datepicker" ).datepicker({
+    	 changeMonth: true,
+         changeYear: true,
+         dateFormat: 'dd-mm-yy',
+         endDate: "today",
+         maxDate: "today"
+    });
+  } );
+  
+  $( function() {
+	    $( "#datepicker1" ).datepicker({
+	    	 changeMonth: true,
+	         changeYear: true,
+	         dateFormat: 'dd-mm-yy',
+	         endDate: "today",
+	         maxDate: "today"
+	    });
+	  } );
+  </script>
 
 </head>
-<c:if test="${sessionScope.userLoginDetails eq null}">
+<c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
-<body>
+<body >
 <jsp:include page="adminmenu.jsp" />
+	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
 	<div class="container">
 		<div class="row">
@@ -30,7 +53,7 @@
 					<h2>My Dashboard</h2>
 					<ol class="breadcrumb">
 						<li><a href="#">Report</a></li>
-						<li class="active">Account Statement </li>
+						<li class="active">Account Statement</li>
 					</ol>
 				</div>
 			</div>
@@ -38,6 +61,7 @@
 	</div>
 	</section>
 	<!-- End breadcrumb -->
+
 	<!-- Start contact  -->
 	<section id="mu-contact">
 	<div class="container">
@@ -50,16 +74,22 @@
 						</div> -->
 					<!-- end title -->
 					<!-- start contact content -->
-					
-					
-					
-					
+
+
+
+
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
+							
 							<div class="col-md-12">
 								<div class="mu-contact-right">
 									<form class="contactform">
 
+                                          <div class="col-sm-12">
+                                            <p class="comment-form-comment">
+													<label for="comment">Transaction Details</label>
+												</p>
+												</div>
 
 
 										<div class="col-lg-12">
@@ -120,6 +150,12 @@
 
 									</form>
 								</div>
+
+
+
+
+
+
 							</div>
 						</div>
 					</div>
@@ -134,53 +170,12 @@
 	<!-- lgt box start -->
 
 
-	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">×</button>
-					<h1 class="text-center">Alloted Batch Timeings</h1>
-				</div>
-				<div class="modal-body">
-					<div class="col-md-12">
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<div class="text-center" id="showallotedtiming"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<div class="col-md-12">
-						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
+	
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />
 	<!-- End footer -->
 
-	<!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="/assets/js/bootstrap.js"></script>
-	<!-- Slick slider -->
-	<script type="text/javascript" src="/assets/js/slick.js"></script>
-	<!-- Counter -->
-	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
-	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
-	<!-- Mixit slider -->
-	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
-	<!-- Add fancyBox -->
-	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
-
-	<!-- Custom js -->
-	<script src="/assets/js/custom.js"></script>
+	
 
 </body>
 </html>

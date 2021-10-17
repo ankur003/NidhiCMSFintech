@@ -11,11 +11,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NIDHI CMS | ACCOUNT Statement</title>
-
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="/resources/demos/style.css">
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+ <link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+ 
   <script>
   $( function() {
     $( "#datepicker" ).datepicker({
@@ -202,22 +202,7 @@
 	<jsp:include page="footer.jsp" />
 	<!-- End footer -->
 
-	<!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="/assets/js/bootstrap.js"></script>
-	<!-- Slick slider -->
-	<script type="text/javascript" src="/assets/js/slick.js"></script>
-	<!-- Counter -->
-	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
-	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
-	<!-- Mixit slider -->
-	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
-	<!-- Add fancyBox -->
-	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
-
-	<!-- Custom js -->
-	<script src="/assets/js/custom.js"></script>
+	
 
 </body>
 </html>
