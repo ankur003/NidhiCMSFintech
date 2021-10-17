@@ -3,9 +3,13 @@ package com.nidhi.cms.domain;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import com.nidhi.cms.constants.enums.TxType;
 
 @Entity
 public class UserAccountStatement extends BaseDomain {
@@ -29,6 +33,9 @@ public class UserAccountStatement extends BaseDomain {
 	private String contact;
 	
 	private Double txAmount;
+	
+	@Enumerated(EnumType.STRING)
+	private TxType txType;
 
 	public Long getUserAccountStatementId() {
 		return userAccountStatementId;
@@ -92,6 +99,14 @@ public class UserAccountStatement extends BaseDomain {
 
 	public void setTxAmount(Double txAmount) {
 		this.txAmount = txAmount;
+	}
+
+	public TxType getTxType() {
+		return txType;
+	}
+
+	public void setTxType(TxType txType) {
+		this.txType = txType;
 	}
 	
 }
