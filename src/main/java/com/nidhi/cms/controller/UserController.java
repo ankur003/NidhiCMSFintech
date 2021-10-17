@@ -34,8 +34,10 @@ import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
+import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
+import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
@@ -116,11 +118,15 @@ public class UserController extends AbstractController {
 		return getLoggedInUserDetails();
 	}
 
-//	@GetMapping(value = "")
-//	@PreAuthorize("hasRole('ADMIN')")
-//	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
-	public Map<String, Object> getAllUser(
+	public User getUserByEmailOrMobile(@RequestParam(required = true, name = "emailOrMobile") final String emailOrMobile) {
+		return  userservice.getUserByUserEmailOrMobileNumber(emailOrMobile, emailOrMobile);
+	}
+	
+	@GetMapping(value = "")
+	@PreAuthorize("hasRole('ADMIN')")
+	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public  Map<String, Object> getAllUser(
 			@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
 		Page<User> users = userservice.getAllUsers(userRequestFilterModel);
 		if (users == null || CollectionUtils.isEmpty(users.getContent())) {
@@ -267,12 +273,12 @@ public class UserController extends AbstractController {
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Boolean allocateFund(@RequestParam("userUuid") String userUuid, @RequestParam(required = true, name = "amount") final Double amount) {
-		User user = userservice.getUserByUserUuid(userUuid);
+	public Boolean allocateFund(@RequestBody UserAllocateFundModal userAllocateFundModal) {
+		User user = userservice.getUserByUserUuid(userAllocateFundModal.getUserUuid());
 		if (user == null) {
 			return false;
 		}
-		return userWalletService.allocateFund(user.getUserId(), amount);
+		return userWalletService.allocateFund(user.getUserId(), userAllocateFundModal.getAmount());
 	}
 	
 //	@GetMapping(value = "/user-wallet")
@@ -298,5 +304,17 @@ public class UserController extends AbstractController {
 			return false;
 		}
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
+	}
+	
+	@PutMapping(value = "/user-payment-mode")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "user payment mode", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Boolean userPaymentMode(@RequestBody UserPaymentModeModal userPaymentModeModal) {
+		User user = userservice.getUserByUserUuid(userPaymentModeModal.getUserUuid());
+		if (user == null) {
+			return false;
+		}
+		return userWalletService.updateUserPaymentMode(user, userPaymentModeModal.getPaymentMode());
 	}
 }

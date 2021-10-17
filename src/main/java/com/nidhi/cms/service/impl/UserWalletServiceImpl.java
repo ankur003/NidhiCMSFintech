@@ -3,6 +3,8 @@ package com.nidhi.cms.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.nidhi.cms.constants.enums.PaymentMode;
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.UserWalletService;
@@ -21,10 +23,22 @@ public class UserWalletServiceImpl implements UserWalletService {
 	@Override
 	public Boolean allocateFund(Long userId, Double amount) {
 		UserWallet userWallet = findByUserId(userId);
-		if (userWallet == null) {
+		if (userWallet == null || amount == null) {
 			return Boolean.FALSE;
 		}
 		userWallet.setAdminAllocatedFund(Double.sum(userWallet.getAdminAllocatedFund(), amount));
+		userWalletRepo.save(userWallet);
+		return Boolean.TRUE;
+	}
+
+	@Override
+	public Boolean updateUserPaymentMode(User user, PaymentMode paymentMode) {
+		UserWallet userWallet = findByUserId(user.getUserId());
+		if (userWallet == null || paymentMode == null) {
+			return Boolean.FALSE;
+		}
+		userWallet.setPaymentMode(paymentMode);
+		userWalletRepo.save(userWallet);
 		return Boolean.TRUE;
 	}
 
