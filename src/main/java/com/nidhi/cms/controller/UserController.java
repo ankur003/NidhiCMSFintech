@@ -33,6 +33,7 @@ import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
+import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -253,12 +254,12 @@ public class UserController extends AbstractController {
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Boolean allocateFund(@RequestParam("userUuid") String userUuid, @RequestParam(required = true, name = "amount") final Double amount) {
-		User user = userservice.getUserByUserUuid(userUuid);
+	public Boolean allocateFund(@RequestBody UserAllocateFundModal userAllocateFundModal) {
+		User user = userservice.getUserByUserUuid(userAllocateFundModal.getUserUuid());
 		if (user == null) {
 			return false;
 		}
-		return userWalletService.allocateFund(user.getUserId(), amount);
+		return userWalletService.allocateFund(user.getUserId(), userAllocateFundModal.getAmount());
 	}
 	
 	@GetMapping(value = "/user-wallet")
