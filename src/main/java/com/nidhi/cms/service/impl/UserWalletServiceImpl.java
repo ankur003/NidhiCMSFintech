@@ -18,4 +18,14 @@ public class UserWalletServiceImpl implements UserWalletService {
 		return userWalletRepo.findByUserId(userId);
 	}
 
+	@Override
+	public Boolean allocateFund(Long userId, Double amount) {
+		UserWallet userWallet = findByUserId(userId);
+		if (userWallet == null) {
+			return Boolean.FALSE;
+		}
+		userWallet.setAdminAllocatedFund(Double.sum(userWallet.getAdminAllocatedFund(), amount));
+		return Boolean.TRUE;
+	}
+
 }
