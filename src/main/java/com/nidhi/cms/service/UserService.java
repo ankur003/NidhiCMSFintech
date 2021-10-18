@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserBankDetails;
+import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 
 /**
@@ -35,5 +37,9 @@ public interface UserService {
 	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType);
 
 	Boolean userActivateOrDeactivate(User user, Boolean isActivate);
+
+	UserBankDetails saveOrUpdateUserBankDetails(User user, UserBankModal userBankModal);
+
+	UserBankDetails getUserBankDetails(User user);
 
 }

@@ -30,11 +30,13 @@ import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
+import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserAllocateFundModal;
+import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
@@ -317,4 +319,23 @@ public class UserController extends AbstractController {
 		}
 		return userWalletService.updateUserPaymentMode(user, userPaymentModeModal.getPaymentMode());
 	}
+	
+	@PutMapping(value = "/user-bank-account")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "save or update user bank details", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public UserBankDetails saveOrUpdateUserBankDetails(@RequestBody UserBankModal userBankModal) {
+		User user = getLoggedInUserDetails();
+		return userservice.saveOrUpdateUserBankDetails(user, userBankModal);
+	}
+	
+	@GetMapping(value = "/get-user-bank-account")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "get user bank details", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public UserBankDetails getUserBankDetails(@RequestParam("userUuid") String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		return userservice.getUserBankDetails(user);
+	}
+	
 }

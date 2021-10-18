@@ -26,12 +26,15 @@ import com.nidhi.cms.constants.enums.SearchOperation;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.DocRepository;
+import com.nidhi.cms.repository.UserBankDetailsRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.DocService;
@@ -69,6 +72,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	
 	@Autowired
 	private DocRepository docRepository;
+	
+	@Autowired
+	private UserBankDetailsRepo userBankDetailsRepo;
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
@@ -207,6 +213,24 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setIsActive(isActivate);
 		userRepository.save(user);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public UserBankDetails saveOrUpdateUserBankDetails(User user, UserBankModal userBankModal) {
+		UserBankDetails userBankDetails = userBankDetailsRepo.findByUserId(user.getUserId());
+		if (userBankDetails == null) {
+			userBankDetails = new UserBankDetails();
+		}
+		userBankDetails.setAccountNumber(userBankModal.getAccountNumber());
+		userBankDetails.setBankAccHolderName(userBankModal.getBankAccHolderName());
+		userBankDetails.setIfsc(userBankModal.getIfsc());
+		userBankDetails.setUserId(user.getUserId());
+		return userBankDetailsRepo.save(userBankDetails);
+	}
+
+	@Override
+	public UserBankDetails getUserBankDetails(User user) {
+		return userBankDetailsRepo.findByUserId(user.getUserId());
 	}
 
 }
