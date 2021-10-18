@@ -95,7 +95,7 @@
 			<!-- IMG BASED LOGO  -->
 			<a class="navbar-brand" href="/api/v1/fe/index"><img
 				src="/assets/img/logo.png"
-				style="height: 150px; width: 300px; margin-top: -15px;" alt="logo"></a>
+				style="height: 80px; width: 300px; margin-top: 0px;" alt="logo"></a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
@@ -227,17 +227,78 @@
 										
                                    <div class="col-lg-12">
                                    <div class="col-lg-6">
-								        <p class="comment-form-author">
+								        <p class="comment-form-author" >
 											<label for="author">Business Entity Type<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.entityType }"
-												name="entityType" id="entityType" >
+											<Select name="entityType" id="entityType" class="col-lg-12" style="height: 40px;">
+											<option value="Partnership">Partnership</option>
+											<option value="Sole Proprietership">Sole Proprietership</option>
+											<option value="Public / Private Limited Company">Public / Private Limited Company</option>
+											<option value="Trust / NGO / Societies">Trust / NGO / Societies</option>
+											<option value="Company yet to register">Company yet to register</option>
+											</Select>
+											
+											<%-- <input type="text" required="required" size="30" value="${bkyc.entityType }"
+												name="entityType" id="entityType" > --%>
 										</p>
 										</div>
 										 <div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">Industry<span class="mandate">*</span></label>
-											<input type="text" required="required"  value="${bkyc.industry }"
-												name="industry" id="industry" >
+											<Select name="industry" id="industry" class="col-lg-12" style="height: 40px;">
+											<option value="Agriculture"> Agriculture </option>
+											<option value="Architect">Architect</option>
+											<option value="Automobile">Automobile</option>
+											<option value="Builder">Builder</option>
+											<option value="Consultancy">Consultancy</option>
+											<option value="Art">Art</option>
+											<option value="Crowd Funding">Crowd Funding</option>
+											<option value="Dealer">Dealer</option>
+											<option value="Distributors">Distributors</option>
+											<option value="Drop Shipping">Drop Shipping</option>
+											<option value="E-Comm">E-Comm</option>
+											<option value="Education">Education</option>
+											<option value="Electronic/Hardware">Electronic/Hardware</option>
+														<option value="Engineering Services">Engineering Services</option>
+														 <option value="Entertainment">Entertainment</option>
+														 <option value="Event Management">Event Management</option>
+														<option value="Financial Services">Financial Services</option>
+														<option value="Food and Beverages">Food and Beverages</option>
+														<option value="Freelancer">Freelancer</option>
+														<option value="Gambling/Casino">Gambling/Casino</option>
+														 <option value="Health">Health</option>
+														  <option value="Hospitality">Hospitality</option>
+ <option value="IT / Software">IT / Software</option>
+ <option value="Import / Export">Import / Export</option>
+ <option value="Insurance">Insurance</option>
+ <option value="Insurance">Insurance</option>
+ <option value="Live Stock">Live Stock</option>
+ <option value="Manpower / HR">Manpower / HR</option>
+ <option value="Manufacturer">Manufacturer</option>
+ <option value="Marketing Agency">Marketing Agency</option>
+ <option value="Media / Advt">Media / Advt</option>
+ <option value="Miscellaneous">Miscellaneous</option>
+<option value="Mobile / Computer Accessories">Mobile / Computer Accessories</option>
+<option value="Multi Level Marketing">Multi Level Marketing</option>
+<option value="NGO">NGO</option>
+<option value="Online Services">Online Services</option>
+<option value="Pet Shop">Pet Shop</option>
+<option value="Photography / Studio">Photography / Studio</option>
+<option value="Printing">Printing</option>
+<option value="Provisional Store">Provisional Store</option>
+<option value="Real Estate">Real Estate</option>
+<option value="Retailer / Supplier">Retailer / Supplier</option>
+<option value="Saloon / Lifestyle">Saloon / Lifestyle</option>
+<option value="Tobacco">Tobacco</option>
+<option value="Tours And Travels">Tours And Travels</option>
+<option value="Trading">Trading</option>
+<option value="Transportation / Logistics">Transportation / Logistics</option>
+<option value="Unlicensed Finance Services">Unlicensed Finance Services</option>
+<option value="Wholesaler">Wholesaler</option>
+<option value="Wine Shop">Wine Shop</option>
+
+													</Select>
+											<%-- <input type="text" required="required"  value="${bkyc.industry }"
+												name="industry" id="industry" > --%>
 										</p>
 										</div>
 										</div>
@@ -253,8 +314,14 @@
                                    <div class="col-lg-6">
 										<p class="comment-form-author">
 											<label for="author">No.of Employees<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.noOfEmp }"
-												name="noOfEmp" id="noOfEmp" >
+											<Select name="noOfEmp" id="noOfEmp" class="col-lg-12" style="height: 35px;" >
+											<option value="5-20"> 5-20 </option>
+											<option value="20-50"> 20-50 </option>
+											<option value="50-100"> 50-100 </option>
+											<option value="100+">100+ </option>
+											</Select>
+											<%-- <input type="text" required="required" size="30" value="${bkyc.noOfEmp }"
+												name="noOfEmp" id="noOfEmp" > --%>
 										</p>
 										</div>
 										</div>

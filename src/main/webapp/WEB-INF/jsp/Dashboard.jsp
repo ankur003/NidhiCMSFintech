@@ -81,7 +81,7 @@ function closeNav() {
 										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: green;">
+													style="border-style: solid; border-color: green; margin-top: -20px;">
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
@@ -89,7 +89,7 @@ function closeNav() {
 											</c:otherwise>
 										</c:choose>
                             
-                                 <div class="col-sm-12" style="margin-left: 25%;margin-top: -5%;">
+                                 <div class="col-sm-12" style="margin-left: 25%;margin-top: 0%;">
 								 <img src="/assets/img/wc.gif"	  alt="">		
 								 </div>
 										</form>

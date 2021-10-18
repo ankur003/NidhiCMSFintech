@@ -306,10 +306,10 @@ public class UserController extends AbstractController {
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
 	
-	@PutMapping(value = "/user-payment-mode")
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "user payment mode", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@PutMapping(value = "/user-payment-mode")
+//	@PreAuthorize("hasAnyRole('ADMIN')")
+//	@ApiOperation(value = "user payment mode", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public Boolean userPaymentMode(@RequestBody UserPaymentModeModal userPaymentModeModal) {
 		User user = userservice.getUserByUserUuid(userPaymentModeModal.getUserUuid());
 		if (user == null) {

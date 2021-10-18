@@ -56,7 +56,7 @@
 
 
 										<div class="col-sm-12"
-											style="margin-left: 25%; margin-top: -5%;">
+											style="margin-left: 25%; margin-top: 0%;">
 											<img src="/assets/img/wc.gif" alt="">
 										</div>
 									</form>

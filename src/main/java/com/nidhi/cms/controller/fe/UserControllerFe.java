@@ -19,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +40,7 @@ import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.LoginRequestModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
+import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 
@@ -303,27 +305,84 @@ public class UserControllerFe {
 		if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
 			return new ModelAndView("AdminCreateNew");
 		} else {
-			model.addAttribute("msg", "user has been created. Email and otp has sent");
+			model.addAttribute("msg", "user has been created and verified");
 			return new ModelAndView("AdminCreateNew");
 
 		}
 
 	}
 
-	@GetMapping(value = "/get-user-")
-	public ModelAndView getAllClints(Model model, HttpServletRequest request) {
+	@PostMapping(value = "/get-user-search")
+	public ModelAndView getAllClintss(Model model, HttpServletRequest request) {
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
+		
+		
+		String firstName = request.getParameter("firstName");
+		String lastName = request.getParameter("lastName");
+		String userEmail = request.getParameter("userEmail");
+		String username = request.getParameter("username");
+
+	    userRequestFilterModel.setFirstName(firstName);
+	    userRequestFilterModel.setLastName(lastName);
+	    userRequestFilterModel.setUserEmail(userEmail);
+	    userRequestFilterModel.setUsername(username);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
 			model.addAttribute("init", true);
-			return new ModelAndView("AdminPendingClient");
+			
+			model.addAttribute("firstName", firstName);
+			model.addAttribute("lastName", lastName);
+			model.addAttribute("userEmail", userEmail);
+			model.addAttribute("username", username);
+			return new ModelAndView("AdminmanageClint");
 		} else {
 			model.addAttribute("init", false);
 		}
-		return new ModelAndView("AdminPendingClient");
+		return new ModelAndView("AdminmanageClint");
 	}
 
+	
+	
+	@PostMapping(value = "/get-user-productFeature")
+	public ModelAndView productFeaturesearch(Model model, HttpServletRequest request) {
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
+		userRequestFilterModel.setPage(1);
+		
+		
+		String firstName = request.getParameter("firstName");
+		String lastName = request.getParameter("lastName");
+		String userEmail = request.getParameter("userEmail");
+		String username = request.getParameter("username");
+
+	    userRequestFilterModel.setFirstName(firstName);
+	    userRequestFilterModel.setLastName(lastName);
+	    userRequestFilterModel.setUserEmail(userEmail);
+	    userRequestFilterModel.setUsername(username);
+		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
+			
+			model.addAttribute("firstName", firstName);
+			model.addAttribute("lastName", lastName);
+			model.addAttribute("userEmail", userEmail);
+			model.addAttribute("username", username);
+			return new ModelAndView("AdminProductFeaturing");
+		} else {
+			model.addAttribute("init", false);
+		}
+		return new ModelAndView("AdminProductFeaturing");
+	}
+	
+	
+	@PostMapping(value = "/user-payment-mode")
+	public ModelAndView userPaymentModes(@ModelAttribute UserPaymentModeModal userPaymentModeModal,Model model, HttpServletRequest request) {
+		     userController.userPaymentMode(userPaymentModeModal);
+		     model.addAttribute("msg", "payment Mode has been added");
+		return new ModelAndView("AdminProductFeaturing");
+	}
 }

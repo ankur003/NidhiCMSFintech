@@ -42,44 +42,94 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="mu-contact-area">
-					<!-- start title -->
-					<!-- <div class="mu-title">
-						<h2>Register Here</h2>
-						</div> -->
-					<!-- end title -->
-					<!-- start contact content -->
-
-
-
-
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
-							<!-- <div class="col-md-3">
-								
-							</div> -->
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/user" method="post">
+									<form class="contactform" action="/api/v1/get-user-search" method="post">
 
+									<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">First Name</label> <input type="text"
+													 value="${firstName}" name="firstName" id="client">
+											</p>
+										</div>
 										<div class="col-lg-6">
 											<p class="comment-form-author">
-												<label for="author">Search client<span
-													class="mandate">*</span></label> <input type="text"
-													required="required" value="" name="fullName" id="client">
+												<label for="author">Last name
+												</label> <input type="text"
+													value="${lastName}" name="lastName" id="client">
 											</p>
 										</div>
 										<br>
 										<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Email</label> <input type="text"
+													 value="${userEmail}" name="userEmail" id="client">
+											</p>
+										</div>
+										<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Contact Number</label> <input type="text"
+													 value="${username}" name="username" id="client">
+											</p>
+										</div>
+
+                                        <div class="col-lg-12">
 											<p class="form-submit">
-												<input type="button" value="search" class="btn btn-success"
+												<input type="submit" value="search" class="btn btn-success"
 													name="Submit"> <input type="button" value="Cancel"
 													class="btn btn-info" name="cancel">
 											</p>
 										</div>
 
-
+                                        <c:if test="${init }">
+											<table class="table table-striped">
+												<thead class="thead-dark">
+													<tr>
+														<th scope="col">#</th>
+														<th scope="col">Full Name</th>
+														<th scope="col">Email</th>
+														<th scope="col">Mobile</th>
+														<th scope="col">Action</th>
+													</tr>
+												</thead>
+												<tbody>
+												
+													<c:forEach items="${userList}" var="ul"		varStatus="counter">
+														<tr>
+															<th scope="row">${counter.count}</th>
+															<td>${ul.fullName}</td>
+															<td>${ul.userEmail}</td>
+															<td>${ul.mobileNumber}</td>
+ 															<td><a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
+															<input type="Button" value="Select" class="btn btn-success" name="Approve"></a></td>
+															
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										</c:if>
 										<!-- -----------------personal------------------------------ -->
-										<div class="col-lg-12">
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end contact content -->
+				
+				
+				
+				
+				<div class="mu-contact-area">
+					<div class="mu-contact-content" >
+						<div class="row">
+							<div class="col-md-12">
+								<div class="mu-contact-right">
+									<form class="contactform" action="/api/v1/get-user-search" method="post">
+
+									<div class="col-lg-12">
 											<strong> <font style="color: Blue; cursor: pointer;">Personal
 													KYC</font>
 											</strong>
@@ -96,8 +146,7 @@
 											<img src="data:image/gif;base64,${userDoc.data}" height="30%"
 												width="30%" />
 											<p>
-												<font color="blue;">${userDoc.fileName }</font> <font
-													color="green;">Already uploaded</font>
+												<font color="blue;">${userDoc.fileName }</font>
 											</p>
 										</c:if>
 
@@ -111,14 +160,14 @@
 											<img src="data:image/gif;base64,${userDocs.data}"
 												height="30%" width="30%" />
 											<p>
-												<font color="blue;">${userDocs.fileName }</font> <font
-													color="green;">Already uploaded</font>
+												<font color="blue;">${userDocs.fileName }</font> 
 											</p>
 										</c:if>
 
 										<!-- -----------------personal------------------------------ -->
 										<!-- -----------------Business------------------------------ -->
-
+                                
+                                
 										<div class="col-lg-12">
 											<strong> <font style="color: Blue; cursor: pointer;">Business
 													Details</font>
@@ -208,8 +257,7 @@
 												</p>
 												<c:if test="${userDocx.docType eq 'DOCUMENT_GST'}">
 													<p>
-														<font color="blue;">${userDocx.fileName }</font> <font
-															color="green;">Already uploaded</font>
+														<font color="blue;">${userDocx.fileName }</font> 
 													</p>
 												</c:if>
 											</div>
@@ -292,55 +340,20 @@
 												name="Submit"> <input type="button" value="Cancel"
 												class="btn btn-info" name="cancel">
 										</p>
-
-
-
-
-
+										<!-- -----------------personal------------------------------ -->
 									</form>
-
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<!-- end contact content -->
+				
+				
 			</div>
 		</div>
-	</div>
 	</div>
 	</section>
-	<!-- End contact  -->
-	<!-- lgt box start -->
 
-
-	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"
-		aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">×</button>
-					<h1 class="text-center">Alloted Batch Timeings</h1>
-				</div>
-				<div class="modal-body">
-					<div class="col-md-12">
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<div class="text-center" id="showallotedtiming"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<div class="col-md-12">
-						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />

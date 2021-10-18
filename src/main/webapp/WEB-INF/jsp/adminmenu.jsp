@@ -206,7 +206,7 @@
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
 				<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
-				<li><a href="#">Hi <b>${userLoginDetails.fullName }</b></a></li>
+				<li><a href="#">Hi <b>${userLoginDetails.fullName}</b></a></li>
 				
 					
 				<li class="dropdown active"><a href="#" class="dropdown-toggle"
