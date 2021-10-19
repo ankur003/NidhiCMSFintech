@@ -2,6 +2,8 @@ package com.nidhi.cms.modal.response;
 
 public class UserBusinessKycModal {
 
+	private Long userBusinessKycId;
+	
 	private String entityType;
 
 	private String industry;
@@ -25,6 +27,16 @@ public class UserBusinessKycModal {
 	private String state;
 
 	private String city;
+
+	
+	
+	public Long getUserBusinessKycId() {
+		return userBusinessKycId;
+	}
+
+	public void setUserBusinessKycId(Long userBusinessKycId) {
+		this.userBusinessKycId = userBusinessKycId;
+	}
 
 	public String getEntityType() {
 		return entityType;

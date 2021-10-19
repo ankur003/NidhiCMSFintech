@@ -184,11 +184,11 @@
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
 				<li><a href="#">Hi <b>${userLoginDetails.fullName }</b></a></li>
 				
-				<c:if test="${kyc eq 'Done' }">
-				<li><a href="#"><b>KYC  <font color="Green">${kyc }</b></font></a></li>
+				<c:if test="${userLoginDetails.kycStatus eq 'VERIFIED' }">
+				<li><a href="#"><b>KYC  <font color="Green">${userLoginDetails.kycStatus}</b></font></a></li>
 				</c:if>
-				<c:if test="${kyc eq 'Pending' }">
-				<li><a href="/api/v1/fe/Pkyc"><b>KYC </b> <font color="red">${kyc }</font></a></li>
+				<c:if test="${userLoginDetails.kycStatus eq 'PENDING' }">
+				<li><a href="/api/v1/fe/Pkyc"><b>KYC </b> <font color="red">${userLoginDetails.kycStatus }</font></a></li>
 				</c:if>
 					
 					

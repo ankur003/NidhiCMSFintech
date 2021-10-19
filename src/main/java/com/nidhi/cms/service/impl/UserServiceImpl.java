@@ -225,6 +225,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		userBankDetails.setBankAccHolderName(userBankModal.getBankAccHolderName());
 		userBankDetails.setIfsc(userBankModal.getIfsc());
 		userBankDetails.setUserId(user.getUserId());
+		userBankDetails.setBankName(userBankModal.getBankName());
 		return userBankDetailsRepo.save(userBankDetails);
 	}
 
