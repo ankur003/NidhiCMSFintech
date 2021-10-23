@@ -19,8 +19,10 @@
 <link href="/assets/css/font-awesome.css" rel="stylesheet">
 <link href="/assets/css/bootstrap.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/assets/css/slick.css">
-<link rel="stylesheet" href="/assets/css/jquery.fancybox.css" type="text/css" media="screen" />
-<link id="switcher" href="/assets/css/theme-color/default-theme.css" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/jquery.fancybox.css"
+	type="text/css" media="screen" />
+<link id="switcher" href="/assets/css/theme-color/default-theme.css"
+	rel="stylesheet">
 
 
 <link href="/assets/css/style.css" rel="stylesheet">
@@ -31,9 +33,9 @@
 </head>
 <c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
-</c:if> 
+</c:if>
 <body>
-<!-- //https://bbbootstrap.com/snippets/bootstrap-5-sidebar-menu-toggle-button-34132202 -->
+	<!-- //https://bbbootstrap.com/snippets/bootstrap-5-sidebar-menu-toggle-button-34132202 -->
 	<!--START SCROLL TOP BUTTON -->
 	<a class="scrollToTop" href="#"> <i class="fa fa-angle-up"></i>
 	</a>
@@ -83,9 +85,9 @@
 			<!-- FOR MOBILE VIEW COLLAPSED BUTTON -->
 			<button type="button" class="navbar-toggle collapsed"
 				data-toggle="collapse" data-target="#navbar" aria-expanded="false"
-				aria-controls="navbar"style="background-color: transparent;border: 0;">
-				&#9776;
-				<span class="sr-only">Toggle navigation</span> <span
+				aria-controls="navbar"
+				style="background-color: transparent; border: 0;">
+				&#9776; <span class="sr-only">Toggle navigation</span> <span
 					class="icon-bar"></span> <span class="icon-bar"></span> <span
 					class="icon-bar"></span>
 			</button>
@@ -100,7 +102,7 @@
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
 				<!-- <li ><a href="index">My Profile</a></li> -->
-			     <li><a href="/api/v1/fe/Dashboard">Dashboard </a></li>				
+				<li><a href="/api/v1/fe/Dashboard">Dashboard </a></li>
 				<li class="dropdown active"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
@@ -163,10 +165,10 @@
 						</div> -->
 					<!-- end title -->
 					<!-- start contact content -->
-					
-					
-					
-					
+
+
+
+
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
 							<div class="col-md-3">
@@ -177,22 +179,26 @@
 										<div class="panel panel-primary">
 											<div class="panel-heading" style="background-color: #60b51a;"
 												align="center">
-												<strong> <font	style="color: white; cursor: pointer;">Lets Get Started</font>
+												<strong> <font
+													style="color: white; cursor: pointer;">Lets Get
+														Started</font>
 												</strong>
 											</div>
 										</div>
 										<div style="margin-top: -20px;">
 											<div class="panel-heading"
 												style="background-color: #002066; margin: 1px 0 1px 0px; border-radius: 0px;">
-												<strong> <a href="/api/v1/fe/Pkyc"> <font	style="color: white; cursor: pointer;">1. Personal KYC</font>
-                                                 
+												<strong> <a href="/api/v1/fe/Pkyc"> <font
+														style="color: white; cursor: pointer;">1. Personal
+															KYC</font>
+
 												</a>
 												</strong>
 											</div>
 										</div>
 										<div class="panel-heading"
 											style="background-color: #002066; margin: 1px 0 1px 0px; border-radius: 0px;">
-											<strong> <a href="tobeOpr?flag=true"> <font
+											<strong> <a href=""> <font
 													style="color: white; cursor: pointer;">2. Business
 														KYC </font> <img src="/assets/img/rightbluearrow.png"
 													align="right"
@@ -201,14 +207,24 @@
 											</a>
 											</strong>
 										</div>
+										
+										<div class="panel-heading"
+											style="background-color: #002066; margin: 1px 0 1px 0px; border-radius: 0px;">
+											<strong> <a href="/api/v1/fe/UserBank"> <font
+													style="color: white; cursor: pointer;">3. Bank Details </font>
+
+											</a>
+											</strong>
+										</div>
 									</div>
 								</div>
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/bkycupload"  method="post" enctype = "multipart/form-data">
-									
-									<c:choose>
+									<form class="contactform" action="/api/v1/bkycupload"
+										method="post" enctype="multipart/form-data">
+
+										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
 													style="border-style: solid; border-color: green;">
@@ -218,228 +234,256 @@
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
-										
-										 <div class="col-lg-12">
-										<strong> <font
-													style="color: Blue; cursor: pointer;">Business Details</font>
-												</strong>
-												</div>
-										
-                                   <div class="col-lg-12">
-                                   <div class="col-lg-6">
-								        <p class="comment-form-author" >
-											<label for="author">Business Entity Type<span class="mandate">*</span></label>
-											<Select name="entityType" id="entityType" class="col-lg-12" style="height: 40px;">
-											<option value="Partnership">Partnership</option>
-											<option value="Sole Proprietership">Sole Proprietership</option>
-											<option value="Public / Private Limited Company">Public / Private Limited Company</option>
-											<option value="Trust / NGO / Societies">Trust / NGO / Societies</option>
-											<option value="Company yet to register">Company yet to register</option>
-											</Select>
-											
-											<%-- <input type="text" required="required" size="30" value="${bkyc.entityType }"
-												name="entityType" id="entityType" > --%>
-										</p>
+
+										<div class="col-lg-12">
+											<strong> <font style="color: Blue; cursor: pointer;">Business
+													Details</font>
+											</strong>
 										</div>
-										 <div class="col-lg-6">
-										<p class="comment-form-author">
-											<label for="author">Industry<span class="mandate">*</span></label>
-											<Select name="industry" id="industry" class="col-lg-12" style="height: 40px;">
-											<option value="Agriculture"> Agriculture </option>
-											<option value="Architect">Architect</option>
-											<option value="Automobile">Automobile</option>
-											<option value="Builder">Builder</option>
-											<option value="Consultancy">Consultancy</option>
-											<option value="Art">Art</option>
-											<option value="Crowd Funding">Crowd Funding</option>
-											<option value="Dealer">Dealer</option>
-											<option value="Distributors">Distributors</option>
-											<option value="Drop Shipping">Drop Shipping</option>
-											<option value="E-Comm">E-Comm</option>
-											<option value="Education">Education</option>
-											<option value="Electronic/Hardware">Electronic/Hardware</option>
-														<option value="Engineering Services">Engineering Services</option>
-														 <option value="Entertainment">Entertainment</option>
-														 <option value="Event Management">Event Management</option>
-														<option value="Financial Services">Financial Services</option>
-														<option value="Food and Beverages">Food and Beverages</option>
+
+										<div class="col-lg-12">
+										
+										<input type="hidden"
+														required="required" size="30" value="${bkyc.userBusinessKycId}"
+														name="userBusinessKycId" id="userBusinessKycId">
+										
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Business Entity Type<span
+														class="mandate">*</span></label> <Select name="entityType"
+														id="entityType" class="col-lg-12" style="height: 40px;">
+														<option value=${bkyc.entityType} Selected="selected">${bkyc.entityType}</option>
+														<option value="Partnership">Partnership</option>
+														<option value="Sole Proprietership">Sole Proprietership</option>
+														<option value="Public / Private Limited Company">Public	/ Private Limited Company</option>
+														<option value="Trust / NGO / Societies">Trust /	NGO / Societies</option>
+														<option value="Company yet to register">Company	yet to register</option>
+													</Select>
+
+													<%-- <input type="text" required="required" size="30" value="${bkyc.entityType }"
+												name="entityType" id="entityType" > --%>
+												</p>
+											</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Industry<span class="mandate">*</span></label>
+													<Select name="industry" id="industry" class="col-lg-12"
+														style="height: 40px;">
+														<option value=${bkyc.industry} Selected="selected">${bkyc.industry}</option>
+														<option value="Agriculture">Agriculture</option>
+														<option value="Architect">Architect</option>
+														<option value="Automobile">Automobile</option>
+														<option value="Builder">Builder</option>
+														<option value="Consultancy">Consultancy</option>
+														<option value="Art">Art</option>
+														<option value="Crowd Funding">Crowd Funding</option>
+														<option value="Dealer">Dealer</option>
+														<option value="Distributors">Distributors</option>
+														<option value="Drop Shipping">Drop Shipping</option>
+														<option value="E-Comm">E-Comm</option>
+														<option value="Education">Education</option>
+														<option value="Electronic/Hardware">Electronic/Hardware</option>
+														<option value="Engineering Services">Engineering
+															Services</option>
+														<option value="Entertainment">Entertainment</option>
+														<option value="Event Management">Event Management</option>
+														<option value="Financial Services">Financial
+															Services</option>
+														<option value="Food and Beverages">Food and
+															Beverages</option>
 														<option value="Freelancer">Freelancer</option>
 														<option value="Gambling/Casino">Gambling/Casino</option>
-														 <option value="Health">Health</option>
-														  <option value="Hospitality">Hospitality</option>
- <option value="IT / Software">IT / Software</option>
- <option value="Import / Export">Import / Export</option>
- <option value="Insurance">Insurance</option>
- <option value="Insurance">Insurance</option>
- <option value="Live Stock">Live Stock</option>
- <option value="Manpower / HR">Manpower / HR</option>
- <option value="Manufacturer">Manufacturer</option>
- <option value="Marketing Agency">Marketing Agency</option>
- <option value="Media / Advt">Media / Advt</option>
- <option value="Miscellaneous">Miscellaneous</option>
-<option value="Mobile / Computer Accessories">Mobile / Computer Accessories</option>
-<option value="Multi Level Marketing">Multi Level Marketing</option>
-<option value="NGO">NGO</option>
-<option value="Online Services">Online Services</option>
-<option value="Pet Shop">Pet Shop</option>
-<option value="Photography / Studio">Photography / Studio</option>
-<option value="Printing">Printing</option>
-<option value="Provisional Store">Provisional Store</option>
-<option value="Real Estate">Real Estate</option>
-<option value="Retailer / Supplier">Retailer / Supplier</option>
-<option value="Saloon / Lifestyle">Saloon / Lifestyle</option>
-<option value="Tobacco">Tobacco</option>
-<option value="Tours And Travels">Tours And Travels</option>
-<option value="Trading">Trading</option>
-<option value="Transportation / Logistics">Transportation / Logistics</option>
-<option value="Unlicensed Finance Services">Unlicensed Finance Services</option>
-<option value="Wholesaler">Wholesaler</option>
-<option value="Wine Shop">Wine Shop</option>
+														<option value="Health">Health</option>
+														<option value="Hospitality">Hospitality</option>
+														<option value="IT / Software">IT / Software</option>
+														<option value="Import / Export">Import / Export</option>
+														<option value="Insurance">Insurance</option>
+														<option value="Insurance">Insurance</option>
+														<option value="Live Stock">Live Stock</option>
+														<option value="Manpower / HR">Manpower / HR</option>
+														<option value="Manufacturer">Manufacturer</option>
+														<option value="Marketing Agency">Marketing Agency</option>
+														<option value="Media / Advt">Media / Advt</option>
+														<option value="Miscellaneous">Miscellaneous</option>
+														<option value="Mobile / Computer Accessories">Mobile
+															/ Computer Accessories</option>
+														<option value="Multi Level Marketing">Multi Level
+															Marketing</option>
+														<option value="NGO">NGO</option>
+														<option value="Online Services">Online Services</option>
+														<option value="Pet Shop">Pet Shop</option>
+														<option value="Photography / Studio">Photography
+															/ Studio</option>
+														<option value="Printing">Printing</option>
+														<option value="Provisional Store">Provisional
+															Store</option>
+														<option value="Real Estate">Real Estate</option>
+														<option value="Retailer / Supplier">Retailer /
+															Supplier</option>
+														<option value="Saloon / Lifestyle">Saloon /
+															Lifestyle</option>
+														<option value="Tobacco">Tobacco</option>
+														<option value="Tours And Travels">Tours And
+															Travels</option>
+														<option value="Trading">Trading</option>
+														<option value="Transportation / Logistics">Transportation
+															/ Logistics</option>
+														<option value="Unlicensed Finance Services">Unlicensed
+															Finance Services</option>
+														<option value="Wholesaler">Wholesaler</option>
+														<option value="Wine Shop">Wine Shop</option>
 
 													</Select>
-											<%-- <input type="text" required="required"  value="${bkyc.industry }"
+													<%-- <input type="text" required="required"  value="${bkyc.industry }"
 												name="industry" id="industry" > --%>
-										</p>
+												</p>
+											</div>
 										</div>
-										</div>
-										
+
 										<div class="col-lg-12">
-                                   <div class="col-lg-6">
-										<p class="comment-form-author">
-											<label for="author">register Company Name<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.compnayName }"
-												name="compnayName" id="compnayName" >
-										</p>
-										</div>
-                                   <div class="col-lg-6">
-										<p class="comment-form-author">
-											<label for="author">No.of Employees<span class="mandate">*</span></label>
-											<Select name="noOfEmp" id="noOfEmp" class="col-lg-12" style="height: 35px;" >
-											<option value="5-20"> 5-20 </option>
-											<option value="20-50"> 20-50 </option>
-											<option value="50-100"> 50-100 </option>
-											<option value="100+">100+ </option>
-											</Select>
-											<%-- <input type="text" required="required" size="30" value="${bkyc.noOfEmp }"
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">register Company Name<span
+														class="mandate">*</span></label> <input type="text"
+														required="required" size="30" value="${bkyc.compnayName }"
+														name="compnayName" id="compnayName">
+												</p>
+											</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">No.of Employees<span
+														class="mandate">*</span></label> <Select name="noOfEmp"
+														id="noOfEmp" class="col-lg-12" style="height: 35px;">
+														<option value=${bkyc.noOfEmp} Selected="selected">${bkyc.noOfEmp}</option>
+														<option value="5-20">5-20</option>
+														<option value="20-50">20-50</option>
+														<option value="50-100">50-100</option>
+														<option value="100+">100+</option>
+													</Select>
+													<%-- <input type="text" required="required" size="30" value="${bkyc.noOfEmp }"
 												name="noOfEmp" id="noOfEmp" > --%>
-										</p>
+												</p>
+											</div>
 										</div>
-										</div>
-										
+
 										<div class="col-lg-12">
-                                   <div class="col-lg-6">
-										<p class="comment-form-author">
-											<label for="author">Individual Pan<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.individualPan }"
-												name="individualPan" id="individualPan" >
-										</p>
-										</div>
-										<div class="col-lg-6">
-										<p class="comment-form-author">
-											<label for="author">GST Number<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.gstNo }"
-												name="gstNo" id="gstNo" >
-										</p>
-										</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Individual Pan<span
+														class="mandate">*</span></label> <input type="text"
+														required="required"  maxlength="10"
+														value="${bkyc.individualPan }" name="individualPan"
+														id="individualPan">
+												</p>
+											</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">GST Number<span class="mandate">*</span></label>
+													<input type="text" required="required" maxlength="15"
+														value="${bkyc.gstNo }" name="gstNo" id="gstNo">
+												</p>
+											</div>
 										</div>
 										<div class="col-lg-12">
-                                   <div class="col-lg-6">
-										<p class="comment-form-author">
-											<label for="author">Business Website Link<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.websiteLink }"
-												name="websiteLink" id="websiteLink" >
-										</p>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Business Website Link<span
+														class="mandate">*</span></label> <input type="text"
+														required="required" size="30" value="${bkyc.websiteLink }"
+														name="websiteLink" id="websiteLink">
+												</p>
+											</div>
+											<div class="col-lg-6"></div>
 										</div>
-										<div class="col-lg-6">
-										</div>
-										</div>
-										
-										 <div class="col-lg-12">
-										<strong> <font
-													style="color: Blue; cursor: pointer;">Business Documents</font>
-												</strong>
-												</div>
-										
+
 										<div class="col-lg-12">
-                                       <div class="col-lg-6">
-										 <p class="comment-form-author">
-											<label for="author">GST Certificate<span class="mandate">*</span></label>
-											<input type="file" required="required" size="30" value=""
-												name="fileUpload" id="fileUpload" >
-										</p>
-										<c:if test="${userDocx.docType eq 'DOCUMENT_GST'}">
-										<p><font color="blue;">${userDocx.fileName }</font> <font color="green;">Already uploaded</font></p>
-										</c:if>
+											<strong> <font style="color: Blue; cursor: pointer;">Business
+													Documents</font>
+											</strong>
 										</div>
-										 <div class="col-lg-6">
-										 </div>
-										 </div>
-										 
-										 
-										 
-										 
-										 
-										  <div class="col-lg-12">
-										<strong> <font
-													style="color: Blue; cursor: pointer;">Registered Address</font>
-												</strong>
-												</div>
+
 										<div class="col-lg-12">
-										 <p class="comment-form-author">
-											<label for="author">Address Line 1<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.address1 }"
-												name="address1" id="address1" >
-										</p>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">GST Certificate<span
+														class="mandate">*</span></label> <input type="file"
+														required="required" size="30" value="" name="fileUpload"
+														id="fileUpload">
+												</p>
+												<c:if test="${userDocx.docType eq 'DOCUMENT_GST'}">
+													<p>
+														<font color="blue;">${userDocx.fileName }</font> <font
+															color="green;">Already uploaded</font>
+													</p>
+												</c:if>
+											</div>
+											<div class="col-lg-6"></div>
 										</div>
-										
+
+
+
+
+
 										<div class="col-lg-12">
-										 <p class="comment-form-author">
-											<label for="author">Address Line 2<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.address2 }"
-												name="address2" id="address2" >
-										</p>
+											<strong> <font style="color: Blue; cursor: pointer;">Registered
+													Address</font>
+											</strong>
 										</div>
-										
 										<div class="col-lg-12">
-                                       <div class="col-lg-6">
-										 <p class="comment-form-author">
-											<label for="author">Pincode<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.pincode }"
-												name="pincode" id="pincode" >
-										</p>
+											<p class="comment-form-author">
+												<label for="author">Address Line 1<span
+													class="mandate">*</span></label> <input type="text"
+													required="required" size="30" value="${bkyc.address1 }"
+													name="address1" id="address1">
+											</p>
 										</div>
-										 <div class="col-lg-6">
-										  <p class="comment-form-author">
-											<label for="author">State<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.state }"
-												name="state" id="state" >
-										</p>
-										 </div>
-										 </div>
-										 
-										 <div class="col-lg-12">
-                                       <div class="col-lg-6">
-										 <p class="comment-form-author">
-											<label for="author">City<span class="mandate">*</span></label>
-											<input type="text" required="required" size="30" value="${bkyc.city }"
-												name="city" id="city" >
-										</p>
+
+										<div class="col-lg-12">
+											<p class="comment-form-author">
+												<label for="author">Address Line 2<span
+													class="mandate">*</span></label> <input type="text"
+													required="required" size="30" value="${bkyc.address2 }"
+													name="address2" id="address2">
+											</p>
 										</div>
-										 <div class="col-lg-6">
-										 </div>
-										 </div>
-										 
-										 
-										
+
+										<div class="col-lg-12">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Pincode<span class="mandate">*</span></label>
+													<input type="text" required="required" size="30"
+														value="${bkyc.pincode }" name="pincode" id="pincode">
+												</p>
+											</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">State<span class="mandate">*</span></label>
+													<input type="text" required="required" size="30"
+														value="${bkyc.state }" name="state" id="state">
+												</p>
+											</div>
+										</div>
+
+										<div class="col-lg-12">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">City<span class="mandate">*</span></label>
+													<input type="text" required="required" size="30"
+														value="${bkyc.city }" name="city" id="city">
+												</p>
+											</div>
+											<div class="col-lg-6"></div>
+										</div>
+
+
+
 										<p class="form-submit">
 											<input type="submit" value="Submit" class="btn btn-success"
-												name="Submit"> <input
-												
-												type="button" value="Cancel" class="btn btn-info"
-												name="cancel">
+												name="Submit"> <input type="button" value="Cancel"
+												class="btn btn-info" name="cancel">
 										</p>
-										</form>
-										
+									</form>
+
 								</div>
 
 
@@ -459,7 +503,8 @@
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
+	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"
+		aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">

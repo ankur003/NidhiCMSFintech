@@ -19,8 +19,10 @@
 <link href="/assets/css/font-awesome.css" rel="stylesheet">
 <link href="/assets/css/bootstrap.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/assets/css/slick.css">
-<link rel="stylesheet" href="/assets/css/jquery.fancybox.css" type="text/css" media="screen" />
-<link id="switcher" href="/assets/css/theme-color/default-theme.css" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/jquery.fancybox.css"
+	type="text/css" media="screen" />
+<link id="switcher" href="/assets/css/theme-color/default-theme.css"
+	rel="stylesheet">
 
 
 <link href="/assets/css/style.css" rel="stylesheet">
@@ -31,9 +33,9 @@
 </head>
 <c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
-</c:if> 
+</c:if>
 <body>
-<!-- //https://bbbootstrap.com/snippets/bootstrap-5-sidebar-menu-toggle-button-34132202 -->
+	<!-- //https://bbbootstrap.com/snippets/bootstrap-5-sidebar-menu-toggle-button-34132202 -->
 	<!--START SCROLL TOP BUTTON -->
 	<a class="scrollToTop" href="#"> <i class="fa fa-angle-up"></i>
 	</a>
@@ -83,9 +85,9 @@
 			<!-- FOR MOBILE VIEW COLLAPSED BUTTON -->
 			<button type="button" class="navbar-toggle collapsed"
 				data-toggle="collapse" data-target="#navbar" aria-expanded="false"
-				aria-controls="navbar"style="background-color: transparent;border: 0;">
-				&#9776;
-				<span class="sr-only">Toggle navigation</span> <span
+				aria-controls="navbar"
+				style="background-color: transparent; border: 0;">
+				&#9776; <span class="sr-only">Toggle navigation</span> <span
 					class="icon-bar"></span> <span class="icon-bar"></span> <span
 					class="icon-bar"></span>
 			</button>
@@ -93,19 +95,21 @@
 			<!-- TEXT BASED LOGO -->
 			<!--  <a class="navbar-brand" href="index.html"><i class="fa fa-university"></i><span>ss</span></a> -->
 			<!-- IMG BASED LOGO  -->
-		<a class="navbar-brand" href="/api/v1/fe/index"><img
+			<a class="navbar-brand" href="/api/v1/fe/index"><img
 				src="/assets/img/logo.png"
 				style="height: 80px; width: 300px; margin-top: 0px;" alt="logo"></a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
-				<li><a href="#">Hi <b>${userLoginDetails.fullName }</b></a></li>
+				<!-- <li ><a href="index">My Profile</a></li> -->
+				<li><a href="/api/v1/fe/Dashboard">Dashboard </a></li>
 				<li class="dropdown active"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="logout">Logout </a></li>
 					</ul></li>
+				<!-- <li class="active"><a href="Signup">SIGNUP</a></li> -->
 			</ul>
 		</div>
 		<!--/.nav-collapse -->
@@ -161,10 +165,10 @@
 						</div> -->
 					<!-- end title -->
 					<!-- start contact content -->
-					
-					
-					
-					
+
+
+
+
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
 							<div class="col-md-3">
@@ -176,19 +180,18 @@
 											<div class="panel-heading" style="background-color: #60b51a;"
 												align="center">
 												<strong> <font
-													style="color: white; cursor: pointer;">Lets Get Started</font>
-													
+													style="color: white; cursor: pointer;">Lets Get
+														Started</font>
 												</strong>
 											</div>
 										</div>
 										<div style="margin-top: -20px;">
 											<div class="panel-heading"
 												style="background-color: #002066; margin: 1px 0 1px 0px; border-radius: 0px;">
-												<strong> <a href="#"> <font	style="color: white; cursor: pointer;">1. Personal KYC</font>
-                                                  <img src="/assets/img/rightbluearrow.png"
-														align="right"
-														style="width: 7px; height: 13px; margin-right: 15px; margin-top: 6px;"
-														alt="">
+												<strong> <a href="/api/v1/fe/Pkyc"> <font
+														style="color: white; cursor: pointer;">1. Personal
+															KYC</font>
+
 												</a>
 												</strong>
 											</div>
@@ -196,16 +199,20 @@
 										<div class="panel-heading"
 											style="background-color: #002066; margin: 1px 0 1px 0px; border-radius: 0px;">
 											<strong> <a href="/api/v1/fe/Bkyc"> <font
-													style="color: white; cursor: pointer;">2. Business KYC </font>
-
+													style="color: white; cursor: pointer;">2. Business
+														KYC </font> 
 											</a>
 											</strong>
 										</div>
+										
 										<div class="panel-heading"
 											style="background-color: #002066; margin: 1px 0 1px 0px; border-radius: 0px;">
 											<strong> <a href="/api/v1/fe/UserBank"> <font
 													style="color: white; cursor: pointer;">3. Bank Details </font>
-
+                                                    <img src="/assets/img/rightbluearrow.png"
+													align="right"
+													style="width: 7px; height: 13px; margin-right: 15px; margin-top: 6px;"
+													alt="">
 											</a>
 											</strong>
 										</div>
@@ -214,9 +221,9 @@
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/pkycupload" method="post" enctype = "multipart/form-data">
-                            
-                            	<c:choose>
+									<form class="contactform" action="/api/v1/user-bank-account" method="post" >
+
+										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
 													style="border-style: solid; border-color: green;">
@@ -226,53 +233,65 @@
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
+
+										<div class="col-lg-12">
+											<strong> <font style="color: Blue; cursor: pointer;">Bank Details</font>
+											</strong>
+										</div>
+
+											
+										<input type="hidden"
+														required="required"  maxlength="100"
+														value="${bank.userBankDetailsId}" name="userBankDetailsId"
+														id="userBankDetailsId">
+
 										
-								        <p class="comment-form-author">
-											<label for="author">Upload Personal PAN <span class="mandate">*</span></label>
-											<input type="file" required="required" size="30" value=""
-												name="fileUpload" id="pan" >
-										</p>
-										
-										
-										<c:if test="${userDoc.docType eq 'DOCUMENT_PAN'}">
-										<img src="data:image/gif;base64,${userDoc.data}" height="30%"	width="30%" />
-										<p><font color="blue;">${userDoc.fileName }</font>  <font color="green;">Already uploaded</font></p>
-										</c:if>
-										
-										<p class="comment-form-author">
-											<label for="author">Upload Aadhar card <span class="mandate">*</span></label>
-											<input type="file" required="required" size="30" value=""
-												name="fileUpload" id="aadhar" >
-										</p>
-										<c:if test="${userDocs.docType eq 'DOCUMENT_AADHAR'}">
-										<img src="data:image/gif;base64,${userDocs.data}" height="30%"	width="30%" />
-										<p><font color="blue;">${userDocs.fileName }</font> <font color="green;">Already uploaded</font></p>
-										</c:if>
+
+										<div class="col-lg-12">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Bank Account Holder Name<span
+														class="mandate">*</span></label> <input type="text"
+														required="required"  maxlength="100"
+														value="${bank.bankAccHolderName }" name="bankAccHolderName"
+														id="bankAccHolderName">
+												</p>
+											</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Bank Name<span class="mandate">*</span></label>
+													<input type="text" required="required" maxlength="55"
+														value="${bank.bankName}" name="bankName" id="bankName">
+												</p>
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Account Number<span
+														class="mandate">*</span></label> <input type="text"
+														required="required" size="20" value="${bank.accountNumber }"
+														name="accountNumber" id="accountNumber">
+												</p>
+											</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">IFSC<span
+														class="mandate">*</span></label> <input type="text"
+														required="required" size="10" value="${bank.ifsc }"
+														name="ifsc" id="ifsc">
+												</p>
+											</div>
+										</div>
+
+
 										<p class="form-submit">
 											<input type="submit" value="Submit" class="btn btn-success"
-												name="Submit"> <input
-												
-												type="button" value="Cancel" class="btn btn-info"
-												name="cancel">
+												name="Submit"> <input type="button" value="Cancel"
+												class="btn btn-info" name="cancel">
 										</p>
-										</form>
-										
-										
-										<%-- <form class="contactform" action="/api/v1/user" method="post" id="2">
-                            
-										<p class="comment-form-author">
-											<label for="author">Upload Aadhar card <span class="mandate">*</span></label>
-											<input type="file" required="required" size="30" value=""
-												name="fullName" id="fullName" >
-										</p>
-											<p class="form-submit">
-											<input type="submit" value="Submit" class="btn btn-success"
-												name="Submit"> <input
-												
-												type="button" value="Cancel" class="btn btn-info"
-												name="cancel">
-										</p>
-										</form> --%>
+									</form>
+
 								</div>
 
 
@@ -292,7 +311,8 @@
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
+	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"
+		aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">

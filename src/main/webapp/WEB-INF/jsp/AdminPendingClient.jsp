@@ -110,7 +110,7 @@
 														
 															<td>
 															 <c:choose>
-															<c:when test="${!ul.isUserVerified}"> 
+															<c:when test="${ul.kycStatus eq 'PENDING'}"> 
 															 <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
 															<input type="Button" value="Approve" class="btn btn-success" name="Approve"></a>
 														 	</c:when>
@@ -121,7 +121,7 @@
 														 	</c:choose> 
 														 	 
 															 <c:choose>
-														<c:when test="${ul.isUserVerified}"> 
+														<c:when test="${ul.kycStatus eq 'VERIFIED'}"> 
 											            <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=false">
 											            <input type="button" value="Reject" class="btn btn-danger"	name="reject"></a>
 											         </c:when>

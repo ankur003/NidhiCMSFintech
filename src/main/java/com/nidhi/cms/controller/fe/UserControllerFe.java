@@ -35,14 +35,17 @@ import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Role;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
+import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.LoginRequestModal;
+import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
+import com.nidhi.cms.modal.response.UserBusinessKycModal;
 
 /**
  * @author Devendra Gread
@@ -114,6 +117,11 @@ public class UserControllerFe {
 			session.setAttribute("userDoc", userDoc);
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
+			UserBusinessKycModal bkyc= userController.getUserBusnessKyc();
+			session.setAttribute("bkyc", bkyc);
+			UserBankDetails bank= userController.getUserBankDetails(userLoginDetails.getUserUuid());
+					session.setAttribute("bank", bank);
+					
 			String roleName = StringUtils.EMPTY;
 			for (Role roles : userLoginDetails.getRoles()) {
 				roleName = roles.getName().name();
@@ -121,11 +129,11 @@ public class UserControllerFe {
 
 			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
 
-			if (!getUserAllKyc.isEmpty() && getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
-				session.setAttribute("kyc", "Done");
-			} else {
-				session.setAttribute("kyc", "Pending");
-			}
+//			if (!getUserAllKyc.isEmpty() && getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
+//				session.setAttribute("kyc", "Done");
+//			} else {
+//				session.setAttribute("kyc", "Pending");
+//			}
 
 			if (authtoken != null && roleName.equals(RoleEum.ADMIN.name())) {
 				return new ModelAndView("AdminDashboard");
@@ -190,12 +198,30 @@ public class UserControllerFe {
 			}
 
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
-			return new ModelAndView("Dashboard");
+			return new ModelAndView("UserBank");
 		} catch (Exception e) {
 			return new ModelAndView("Pkyc");
 		}
 	}
 
+	//bank 
+	@PostMapping(value = "/user-bank-account")
+	public ModelAndView saveOrUpdateUserBankDetail(Model model,@ModelAttribute UserBankModal userBankModal) {
+		UserBankDetails bank=userController.saveOrUpdateUserBankDetails(userBankModal);
+		if(bank!=null)
+		{
+			model.addAttribute("msg", "Bank Details Succesfully Uploaded");
+			return new ModelAndView("Dashboard");
+		}
+		else
+		{
+			model.addAttribute("msg", "Business Details Not Uploaded");
+			return new ModelAndView("Dashboard");
+		}
+		
+	}
+	
+	
 	@PostMapping(value = "/updateEmailpass")
 	public ModelAndView updateEmailpass(Model model, HttpServletRequest request) {
 		String email = request.getParameter("userEmail");
@@ -385,4 +411,26 @@ public class UserControllerFe {
 		     model.addAttribute("msg", "payment Mode has been added");
 		return new ModelAndView("AdminProductFeaturing");
 	}
+	
+//	@GetMapping(value = "/get-kyc-data")
+//	public ModelAndView kycData(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request) {
+//		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_PAN);
+//		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_AADHAR);
+//		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_GST);
+//
+//		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
+//		userRequestFilterModel.setPage(1);
+//		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+//		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+//		if (users != null) {
+//			model.addAttribute("msg", "same has been verified");
+//			model.addAttribute("userList", users.get("data"));
+//			model.addAttribute("init", true);
+//			return new ModelAndView("AdminPendingClient");
+//		} else {
+//			model.addAttribute("init", false);
+//		}
+//		return new ModelAndView("AdminPendingClient");
+//	}
+
 }

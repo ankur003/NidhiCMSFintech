@@ -162,13 +162,20 @@ public class forwardController {
 		return new ModelAndView("SubAdminAccountUpdate");
 	}
 	
-	  @GetMapping(value = "/docsView") public ModelAndView docsView(Model model) { return
-	  new ModelAndView("docsView"); }
+	@GetMapping(value = "/docsView")
+	public ModelAndView docsView(Model model) {
+		return new ModelAndView("docsView");
+	}
+	@GetMapping(value = "/UserBank")
+	public ModelAndView UserBank(Model model) {
+		return new ModelAndView("UserBank");
+	}
+	 
 	 
 	
 	@GetMapping(value = "/logout")
-	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response,HttpSession session) {
-		//HttpSession session = request.getSession(false);
+	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession(false);
 		session.invalidate(); 
 		if (session != null) {
 			response.setHeader("Cache-Control", "no-store");

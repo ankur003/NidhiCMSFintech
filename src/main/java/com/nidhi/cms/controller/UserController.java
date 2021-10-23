@@ -199,10 +199,10 @@ public class UserController extends AbstractController {
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	@GetMapping(value = "/get-business-kyc")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@GetMapping(value = "/get-business-kyc")
+//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public UserBusinessKycModal getUserBusnessKyc() {
 		User user = getLoggedInUserDetails();
 		UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
@@ -321,19 +321,19 @@ public class UserController extends AbstractController {
 		return userWalletService.updateUserPaymentMode(user, userPaymentModeModal.getPaymentMode());
 	}
 	
-	@PutMapping(value = "/user-bank-account")
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "save or update user bank details", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@PutMapping(value = "/user-bank-account")
+//	@PreAuthorize("hasAnyRole('ADMIN')")
+//	@ApiOperation(value = "save or update user bank details", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public UserBankDetails saveOrUpdateUserBankDetails(@RequestBody UserBankModal userBankModal) {
 		User user = getLoggedInUserDetails();
 		return userservice.saveOrUpdateUserBankDetails(user, userBankModal);
 	}
 	
-	@GetMapping(value = "/get-user-bank-account")
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "get user bank details", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@GetMapping(value = "/get-user-bank-account")
+//	@PreAuthorize("hasAnyRole('ADMIN')")
+//	@ApiOperation(value = "get user bank details", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public UserBankDetails getUserBankDetails(@RequestParam("userUuid") String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		return userservice.getUserBankDetails(user);
