@@ -10,6 +10,7 @@ import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.modal.request.UserBankModal;
+import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 
 /**
@@ -41,5 +42,7 @@ public interface UserService {
 	UserBankDetails saveOrUpdateUserBankDetails(User user, UserBankModal userBankModal);
 
 	UserBankDetails getUserBankDetails(User user);
+
+	Object getUserRegistrationStatus(UserIciciInfo userIciciInfo) throws IOException;
 
 }

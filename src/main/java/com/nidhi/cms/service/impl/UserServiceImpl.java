@@ -1,8 +1,10 @@
 package com.nidhi.cms.service.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nidhi.cms.CheckNEFTjson;
 import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.RoleEum;
@@ -30,6 +33,7 @@ import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.UserBankModal;
+import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
@@ -41,6 +45,7 @@ import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
+import com.nidhi.cms.utils.RSA_Encryption;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -51,6 +56,8 @@ import com.nidhi.cms.utils.Utility;
 
 @Service(value = "userService")
 public class UserServiceImpl implements UserDetailsService, UserService {
+	
+	private static final String uri  = "https://apibankingone.icicibank.com/api/Corporate/CIB/v1/RegistrationStatus";
 
 	@Autowired
 	private UserRepository userRepository;
@@ -69,12 +76,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserWalletRepository userWalletRepository;
-	
+
 	@Autowired
 	private DocRepository docRepository;
-	
+
 	@Autowired
 	private UserBankDetailsRepo userBankDetailsRepo;
+	
+	@Autowired
+	private RSA_Encryption rsaEncryption;
+	
+	
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
@@ -190,11 +202,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				userRepository.save(user);
 				return Boolean.TRUE;
 			}
-			
+
 			return Boolean.TRUE;
 
 		}
-		return  Boolean.FALSE;
+		return Boolean.FALSE;
 
 	}
 
@@ -231,6 +243,42 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Override
 	public UserBankDetails getUserBankDetails(User user) {
 		return userBankDetailsRepo.findByUserId(user.getUserId());
+	}
+
+	@Override
+	public Object getUserRegistrationStatus(UserIciciInfo userIciciInfo) throws IOException {
+		CheckNEFTjson runMainMethod = new CheckNEFTjson();
+		Map<Object, Object> map = new HashMap<>();
+	try {
+//			WebClient client = WebClient.create();
+//			MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
+//
+//			bodyValues.add("AGGRNAME", userIciciInfo.getAGGRNAME());
+//			bodyValues.add("AGGRID", userIciciInfo.getAGGRID());
+//			bodyValues.add("CORPID", userIciciInfo.getCORPID());
+//			bodyValues.add("USERID", userIciciInfo.getUSERID());
+//			bodyValues.add("URN", userIciciInfo.getURN());
+//			
+//			String encyptedData = rsaEncryption.encryptData(bodyValues.toString());
+//
+//			String response = client.post()
+//					.uri(new URI(uri))
+//					.header("apikey", "f59e8580b4a34dce87e89b121e242392")
+//					.contentType(MediaType.TEXT_PLAIN).accept(MediaType.ALL)
+//					.body(BodyInserters.fromObject(encyptedData))
+//					.retrieve()
+//					.bodyToMono(String.class)
+//					.block();
+//			System.out.println(response);
+		
+		
+		
+		return runMainMethod.CheckNEFTTes(map);
+		} catch (Exception e) {
+			map.put("mainEx", e);
+		e.printStackTrace();
+		}
+	return runMainMethod.CheckNEFTTes(map);
 	}
 
 }

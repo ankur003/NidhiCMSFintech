@@ -39,6 +39,7 @@ import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
+import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
@@ -337,5 +338,15 @@ public class UserController extends AbstractController {
 		User user = userservice.getUserByUserUuid(userUuid);
 		return userservice.getUserBankDetails(user);
 	}
+	
+	@PostMapping(value = "/registrationStatus")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@ApiOperation(value = "get user Registration Status", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Object getUserRegistrationStatus() throws IOException {
+		return userservice.getUserRegistrationStatus(null);
+	}
+	
+	
 	
 }
