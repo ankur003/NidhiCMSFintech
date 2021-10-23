@@ -50,8 +50,8 @@ public class CheckNEFTjson implements Serializable {
 		}
 	
 	public Map<Object, Object> CheckNEFTTes(Map<Object, Object> map) {
-		 String bodyMessage = "{\"AGGNAME\":\"NIDHI\", \"AGGRID\":\"CUST0355\", \"URN\":\"SR188085192\",\"CORPID\":\"573759208\",\"USERID\":\"USER1\"}";
-	     runMainMethod(bodyMessage, map);
+		   String bodyMessage = "{\"AGGRID\":\"CUST0355\", \"UTRNUMBER\":\"022694322561\",\"CORPID\":\"573759208\",\"USERID\":\"USER1\",\"URN\":\"SR188085192\"}";
+		   runMainMethod(bodyMessage, map);
 		return map;
 	}
 	public String runMainMethod(String message, Map<Object, Object> map) {
@@ -152,7 +152,7 @@ public class CheckNEFTjson implements Serializable {
 	
 	public static String SendThePostRequest(String json ) throws Exception{
 		 String jsonResponse="";
-		 URL url = new URL("https://apibankingone.icicibank.com/api/Corporate/CIB/v1/RegistrationStatus");
+		 URL url = new URL("https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus");
 		 try {
 			    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			    connection.setRequestMethod("POST");	
@@ -183,10 +183,6 @@ public class CheckNEFTjson implements Serializable {
 		 	return jsonResponse;
 		}
 	
-	public static void main(String[] args) throws IOException {
-		
-		CheckNEFTjson  dheckNEFTjson  = new CheckNEFTjson();
-	}
-	 
+
 	
 }
