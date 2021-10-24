@@ -1,4 +1,4 @@
-package com.nidhi.cms;
+package com.nidhi.cms.cipher;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyFactory;
@@ -17,12 +16,11 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
-import java.util.Base64;
-import java.util.Map;
 
-public class CheckNEFTjson implements Serializable {
+public class CibPayoutJson {
 
 	private String jsonMain;
 	
@@ -43,21 +41,10 @@ public class CheckNEFTjson implements Serializable {
 		  }
 		  return newStr;
 		 }
-	 public CheckNEFTjson()throws IOException
-		{
-		   String bodyMessage = "{\"AGGNAME\":\"NIDHI\", \"AGGRID\":\"CUST0355\", \"URN\":\"SR188085192\",\"CORPID\":\"573759208\",\"USERID\":\"USER1\"}";
-		    // runMainMethod(bodyMessage, null);
-		}
 	
-	public Map<Object, Object> CheckNEFTTes(Map<Object, Object> map) {
-		   String bodyMessage = "{\"AGGRID\":\"CUST0355\", \"UTRNUMBER\":\"022694322561\",\"CORPID\":\"573759208\",\"USERID\":\"USER1\",\"URN\":\"SR188085192\"}";
-		   runMainMethod(bodyMessage, map);
-		return map;
-	}
-	public String runMainMethod(String message, Map<Object, Object> map) {
+	public String runMainMethod(String message) {
 
 		System.out.println("sdfsssfsfs:"+message);
-		map.put("plainMsg", message);
 		  //String message = "";
 		  byte[] messageBytes;
 		  byte[] tempPub = null;
@@ -77,7 +64,6 @@ public class CheckNEFTjson implements Serializable {
 		   // Loading certificate file  
 		   //String certFile = "W:/keys/publicKey.txt";
 		   String certFile = "/home/nidhicms/public_html/keys/publicKey.txt";
-		   
 		   InputStream inStream = new FileInputStream(certFile);
 		   CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		   X509Certificate cert = (X509Certificate) cf.generateCertificate(inStream);
@@ -88,11 +74,9 @@ public class CheckNEFTjson implements Serializable {
 		   RSAPublicKey pubkey = (RSAPublicKey) cert.getPublicKey();
 		   tempPub = pubkey.getEncoded();
 		   sPub = new String(tempPub);
-		   String tt = hex(sPub);
-		   System.out.println("Public key from certificate file:\n" + tt + "\n");
+		   System.out.println("Public key from certificate file:\n" + hex(sPub) + "\n");
 		   System.out.println("Public Key Algorithm = " + cert.getPublicKey().getAlgorithm() + "\n");
-		   map.put("Public_key_from_certificate_file", tt);
-		   map.put("Public_Key_Algorithm", cert.getPublicKey().getAlgorithm());
+
 
 		   //String keyFile = "W:/keys/privateKey.txt";
 		   String keyFile = "/home/nidhicms/public_html/keys/privateKey.txt";
@@ -104,10 +88,8 @@ public class CheckNEFTjson implements Serializable {
 		   
 		   
 		   System.out.println(pvtKey);
-		   map.put("pvtKey", pvtKey);
 		   // Read the private key from file
 		   System.out.println("RSA PrivateKeyInfo: " + encKey.length + " bytes\n");
-		   map.put("pvtKeyInfo", encKey.length + "bytes");
 		   PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pvtKey));
 		   KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		   System.out.println("KeyFactory Object Info:");
@@ -124,25 +106,20 @@ public class CheckNEFTjson implements Serializable {
 
 			   // Encrypt the message
 			   ciphertextBytes = cipher.doFinal(messageBytes);
-			   
-			   String responseRequest =SendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)));
-			   System.out.println("Response:  "+responseRequest);
-			   map.put("responseRequest", responseRequest);
+			   String responseRequest =SendThePostRequest("https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)));
+			   //System.out.println("Response:  "+responseRequest);
 			   byte[] cipherByte = org.bouncycastle.util.encoders.Base64.decode(responseRequest.getBytes("UTF-8"));
-			 cipher.init(Cipher.DECRYPT_MODE, priv, secureRandom);
+			   cipher.init(Cipher.DECRYPT_MODE, priv, secureRandom);
 			   jsonMain= new String(cipher.doFinal(cipherByte));
-			   System.out.println("Message decrypted with file private key:\n");
-			   System.out.println(jsonMain);
-			   map.put("jsonMain", jsonMain);
+			  // System.out.println("Message decrypted with file private key:\n");
+			   //System.out.println(jsonMain);
 			   return jsonMain;
 		   
 		  } catch (IOException e) {
 			  e.printStackTrace();
-			  map.put("exceptionIo", e);
 		   System.out.println("IOException:" + e);
 		  } catch (Exception e) {
 			  e.printStackTrace();
-			  map.put("exception", e);
 		   System.out.println("Exception:" + e);
 		  }
 		return jsonMain;
@@ -150,9 +127,9 @@ public class CheckNEFTjson implements Serializable {
 	}
 	
 	
-	public static String SendThePostRequest(String json ) throws Exception{
+	public static String SendThePostRequest(String cc, String json ) throws Exception{
 		 String jsonResponse="";
-		 URL url = new URL("https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus");
+		 URL url = new URL("https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction");
 		 try {
 			    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			    connection.setRequestMethod("POST");	
@@ -182,7 +159,7 @@ public class CheckNEFTjson implements Serializable {
 		 
 		 	return jsonResponse;
 		}
+	 
 	
-
 	
 }

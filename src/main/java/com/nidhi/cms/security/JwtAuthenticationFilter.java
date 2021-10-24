@@ -21,6 +21,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.nidhi.cms.domain.User;
+import com.nidhi.cms.service.UserService;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
@@ -37,6 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private TokenProvider jwtTokenUtil;
+
+	@Autowired
+	private UserService userservice;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
@@ -66,7 +72,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		}
+		validateWhiteListIp(req, username);
 		chain.doFilter(req, res);
+	}
+
+	private void validateWhiteListIp(HttpServletRequest req, String username) {
+		if (username == null) {
+			return;
+		}
+		String ip = getRemoteIpAddress(req);
+		if (StringUtils.isBlank(ip)) {
+			throw new IllegalArgumentException("Ip not found exception");
+		}
+		User user = userservice.getUserByUserEmailOrMobileNumber(username, username);
+		if (user == null) {
+			throw new IllegalArgumentException("Auth Token not valid");
+		}
+		if (!ip.equals(user.getWhiteListIp())) {
+			throw new IllegalArgumentException("please white list the Ip - " + ip);
+		}
+	}
+
+	public static String getRemoteIpAddress(final HttpServletRequest httpServletRequest) {
+		String remoteIpAddress = httpServletRequest.getHeader("X-FORWARDED-FOR");
+
+		if (StringUtils.isBlank(remoteIpAddress)) {
+			remoteIpAddress = httpServletRequest.getHeader("X-REAL-IP");
+		}
+		if (StringUtils.isBlank(remoteIpAddress)) {
+			remoteIpAddress = httpServletRequest.getRemoteAddr();
+		}
+		return remoteIpAddress;
 	}
 
 	private String extractAuthToken(HttpServletRequest req) {
@@ -74,7 +110,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (StringUtils.isNotBlank(header)) {
 			return header;
 		}
-		 Object token = req.getServletContext().getAttribute(AUTH_TOKEN);
+		Object token = req.getServletContext().getAttribute(AUTH_TOKEN);
 		if (token != null) {
 			return token.toString();
 		}

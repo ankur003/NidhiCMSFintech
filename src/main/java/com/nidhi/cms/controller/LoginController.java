@@ -29,11 +29,15 @@ public class LoginController extends AbstractController {
 	@Autowired
 	private LoginService loginservice;
 
-	@PostMapping(value = "/test")
 	public String login(@Valid @RequestBody LoginRequestModal loginRequestModal) {
 		AuthToken authToken = loginservice.login(loginRequestModal);
-		//return ResponseHandler.getContentResponse(authToken);
 		return authToken.getToken();
+	}
+	
+	@PostMapping(value = "/client")
+	public AuthToken loginClient(@Valid @RequestBody LoginRequestModal loginRequestModal) {
+		
+		return loginservice.login(loginRequestModal);
 	}
 
 }

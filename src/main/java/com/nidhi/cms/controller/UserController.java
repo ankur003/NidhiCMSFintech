@@ -39,7 +39,6 @@ import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
-import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
@@ -128,7 +127,7 @@ public class UserController extends AbstractController {
 	@GetMapping(value = "")
 	@PreAuthorize("hasRole('ADMIN')")
 	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+			@Authorization(value = "oauthToken") }, hidden = true)
 	public  Map<String, Object> getAllUser(
 			@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
 		Page<User> users = userservice.getAllUsers(userRequestFilterModel);
@@ -141,7 +140,7 @@ public class UserController extends AbstractController {
 	@PutMapping(value = "/doc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+			@Authorization(value = "oauthToken") }, hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserDoc(@RequestParam("file") final MultipartFile multiipartFile,
 			@RequestParam(required = true, name = "docType") final DocType docType) throws IOException {
 		User user = getLoggedInUserDetails();
@@ -184,7 +183,7 @@ public class UserController extends AbstractController {
 	@PutMapping(value = "/business-kyc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+			@Authorization(value = "oauthToken") } , hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(
 			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
 		User user = getLoggedInUserDetails();
@@ -215,7 +214,7 @@ public class UserController extends AbstractController {
 	@GetMapping(value = "/get-user-all-kyc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+			@Authorization(value = "oauthToken") }, hidden = true)
 	public List<UserDoc> getUserAllKyc() {
 		User user = getLoggedInUserDetails();
 		List<UserDoc> userDoc = docService.getUserAllKyc(user.getUserId());
@@ -275,7 +274,7 @@ public class UserController extends AbstractController {
 	@PostMapping(value = "/allocate-fund")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+			@Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean allocateFund(@RequestBody UserAllocateFundModal userAllocateFundModal) {
 		User user = userservice.getUserByUserUuid(userAllocateFundModal.getUserUuid());
 		if (user == null) {
@@ -300,7 +299,7 @@ public class UserController extends AbstractController {
 	@PutMapping(value = "/user-account")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "activate - deactivate user account", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+			@Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean userActivateOrDeactivate(@RequestBody UserAccountActivateModal userAccountActivateModal) {
 		User user = userservice.getUserByUserUuid(userAccountActivateModal.getUserUuid());
 		if (user == null) {
@@ -345,6 +344,14 @@ public class UserController extends AbstractController {
 			@Authorization(value = "oauthToken") })
 	public Object getUserRegistrationStatus() throws IOException {
 		return userservice.getUserRegistrationStatus(null);
+	}
+	
+	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip) throws IOException {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null || StringUtils.isBlank(ip)) {
+			return Boolean.FALSE;
+		}
+		return userservice.apiWhiteListing(user, ip);
 	}
 	
 	

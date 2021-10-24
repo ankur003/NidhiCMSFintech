@@ -21,7 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nidhi.cms.CheckNEFTjson;
+import com.nidhi.cms.cipher.CheckNEFTjson;
 import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.RoleEum;
@@ -45,7 +45,6 @@ import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
-import com.nidhi.cms.utils.RSA_Encryption;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -57,8 +56,6 @@ import com.nidhi.cms.utils.Utility;
 @Service(value = "userService")
 public class UserServiceImpl implements UserDetailsService, UserService {
 	
-	private static final String uri  = "https://apibankingone.icicibank.com/api/Corporate/CIB/v1/RegistrationStatus";
-
 	@Autowired
 	private UserRepository userRepository;
 
@@ -83,11 +80,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Autowired
 	private UserBankDetailsRepo userBankDetailsRepo;
 	
-	@Autowired
-	private RSA_Encryption rsaEncryption;
-	
-	
-
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
 		if (user == null || BooleanUtils.isFalse(user.getIsActive())
@@ -112,8 +104,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setPassword(encoder.encode(user.getPassword()));
 		user.setIsAdmin(false);
-		user.setIsUserVerified(isCreatedByAdim);
+		user.setIsUserVerified(false);
 		user.setRoles(Utility.getRole(RoleEum.USER));
+		user.setIsUserCreatedByAdmin(isCreatedByAdim);
 		User savedUser = userRepository.save(user);
 		return otpService.sendingOtp(savedUser);
 	}
@@ -216,6 +209,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userWallet = new UserWallet();
 			userWallet.setUserId(user.getUserId());
 			userWallet.setAmount(0.0);
+			userWallet.setWalletUuid(Utility.getUniqueUuid());
 			userWalletRepository.save(userWallet);
 		}
 	}
@@ -274,12 +268,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		
 		
 		
-		return runMainMethod.CheckNEFTTes(map);
+		return runMainMethod.checkNEFTTes(map);
 		} catch (Exception e) {
 			map.put("mainEx", e);
 		e.printStackTrace();
 		}
-	return runMainMethod.CheckNEFTTes(map);
+	return runMainMethod.checkNEFTTes(map);
+	}
+
+	@Override
+	public Boolean apiWhiteListing(User user, String ip) {
+		user.setWhiteListIp(ip.trim());
+		userRepository.save(user);
+		return Boolean.TRUE;
 	}
 
 }

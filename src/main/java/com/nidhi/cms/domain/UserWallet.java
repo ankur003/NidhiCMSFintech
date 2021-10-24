@@ -11,7 +11,7 @@ import com.nidhi.cms.constants.enums.PaymentMode;
 
 @Entity
 public class UserWallet extends BaseDomain {
-	
+
 	/**
 	 * 
 	 */
@@ -19,13 +19,15 @@ public class UserWallet extends BaseDomain {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userWalletId;
-	
+
 	private Long userId;
-	
+
 	private Double amount;
-	
+
 	private Double adminAllocatedFund;
-	
+
+	private String walletUuid;
+
 	@Enumerated(EnumType.STRING)
 	private PaymentMode paymentMode;
 
@@ -68,5 +70,13 @@ public class UserWallet extends BaseDomain {
 	public void setPaymentMode(PaymentMode paymentMode) {
 		this.paymentMode = paymentMode;
 	}
-	
+
+	public String getWalletUuid() {
+		return walletUuid;
+	}
+
+	public void setWalletUuid(String walletUuid) {
+		this.walletUuid = walletUuid;
+	}
+
 }

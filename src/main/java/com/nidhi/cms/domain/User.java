@@ -62,12 +62,17 @@ public class User extends BaseDomain {
 	private String userUuid;
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "USER_ROLES", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = { @JoinColumn(name = "ROLE_ID") })
+	@JoinTable(name = "USER_ROLES", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = {
+			@JoinColumn(name = "ROLE_ID") })
 	private Set<Role> roles = new HashSet<>();
-	
+
 	@Enumerated(EnumType.STRING)
 	private KycStatus kycStatus = KycStatus.PENDING;
-	
+
+	private String whiteListIp;
+
+	private Boolean isUserCreatedByAdmin = false;
+
 	public Long getUserId() {
 		return userId;
 	}
@@ -188,6 +193,20 @@ public class User extends BaseDomain {
 		this.kycStatus = kycStatus;
 	}
 
-	
-	
+	public String getWhiteListIp() {
+		return whiteListIp;
+	}
+
+	public void setWhiteListIp(String whiteListIp) {
+		this.whiteListIp = whiteListIp;
+	}
+
+	public Boolean getIsUserCreatedByAdmin() {
+		return isUserCreatedByAdmin;
+	}
+
+	public void setIsUserCreatedByAdmin(Boolean isUserCreatedByAdmin) {
+		this.isUserCreatedByAdmin = isUserCreatedByAdmin;
+	}
+
 }

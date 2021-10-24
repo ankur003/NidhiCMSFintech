@@ -45,4 +45,6 @@ public interface UserService {
 
 	Object getUserRegistrationStatus(UserIciciInfo userIciciInfo) throws IOException;
 
+	Boolean apiWhiteListing(User user, String ip);
+
 }
