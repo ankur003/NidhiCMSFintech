@@ -36,6 +36,7 @@ import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
+import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.DocRepository;
@@ -290,6 +291,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), "https://api.icicibank.com:8443/api/Corporate/CIB/v1/Transaction", "POST");
 		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+	}
+
+	@Override
+	public User updateUserDetails(User user, UserUpdateModal userUpdateModal) {
+		user.setFirstName(userUpdateModal.getFirstName());
+		user.setLastName(userUpdateModal.getLastName());
+		user.setMiddleName(userUpdateModal.getMiddleName());
+		user.setFullName(userUpdateModal.getFullName());
+		return userRepository.save(user);
 	}
 
 }

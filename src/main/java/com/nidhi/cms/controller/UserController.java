@@ -42,6 +42,7 @@ import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
+import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
@@ -78,7 +79,7 @@ public class UserController extends AbstractController {
 
 	@Autowired
 	private UserWalletService userWalletService;
-	
+
 	@Autowired
 	private UserBusnessKycService userBusnessKycService;
 
@@ -121,16 +122,16 @@ public class UserController extends AbstractController {
 		return getLoggedInUserDetails();
 	}
 
-	public User getUserByEmailOrMobile(@RequestParam(required = true, name = "emailOrMobile") final String emailOrMobile) {
-		return  userservice.getUserByUserEmailOrMobileNumber(emailOrMobile, emailOrMobile);
+	public User getUserByEmailOrMobile(
+			@RequestParam(required = true, name = "emailOrMobile") final String emailOrMobile) {
+		return userservice.getUserByUserEmailOrMobileNumber(emailOrMobile, emailOrMobile);
 	}
-	
+
 	@GetMapping(value = "")
 	@PreAuthorize("hasRole('ADMIN')")
 	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
-	public  Map<String, Object> getAllUser(
-			@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
+	public Map<String, Object> getAllUser(@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
 		Page<User> users = userservice.getAllUsers(userRequestFilterModel);
 		if (users == null || CollectionUtils.isEmpty(users.getContent())) {
 			return null;
@@ -167,7 +168,7 @@ public class UserController extends AbstractController {
 		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
 		return doc;
 	}
-	
+
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
@@ -184,7 +185,7 @@ public class UserController extends AbstractController {
 	@PutMapping(value = "/business-kyc")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") } , hidden = true)
+			@Authorization(value = "oauthToken") }, hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(
 			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
 		User user = getLoggedInUserDetails();
@@ -263,19 +264,21 @@ public class UserController extends AbstractController {
 //	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 //	@ApiOperation(value = "get-user-account-statement", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
-	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate, @RequestParam("toDate") String toDate) {
+	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate,
+			@RequestParam("toDate") String toDate) {
 		User user = getLoggedInUserDetails();
-		List<UserAccountStatement> userAccountStatement = userAccountStatementService.getUserAccountStatements(user.getUserId(), Utility.stringToLocalDate(fromDate), Utility.stringToLocalDate(toDate));
+		List<UserAccountStatement> userAccountStatement = userAccountStatementService.getUserAccountStatements(
+				user.getUserId(), Utility.stringToLocalDate(fromDate), Utility.stringToLocalDate(toDate));
 		if (CollectionUtils.isEmpty(userAccountStatement)) {
 			return null;
 		}
 		return userAccountStatement;
 	}
-	
+
 	@PostMapping(value = "/allocate-fund")
 	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") }, hidden = true)
+	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = {
+			@Authorization(value = "accessToken"), @Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean allocateFund(@RequestBody UserAllocateFundModal userAllocateFundModal) {
 		User user = userservice.getUserByUserUuid(userAllocateFundModal.getUserUuid());
 		if (user == null) {
@@ -283,7 +286,7 @@ public class UserController extends AbstractController {
 		}
 		return userWalletService.allocateFund(user.getUserId(), userAllocateFundModal.getAmount());
 	}
-	
+
 //	@GetMapping(value = "/user-wallet")
 //	@PreAuthorize("hasAnyRole('ADMIN')")
 //	@ApiOperation(value = "get user wallet", authorizations = { @Authorization(value = "accessToken"),
@@ -295,12 +298,11 @@ public class UserController extends AbstractController {
 		}
 		return userWalletService.findByUserId(user.getUserId());
 	}
-	
-	
+
 	@PutMapping(value = "/user-account")
 	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "activate - deactivate user account", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") }, hidden = true)
+	@ApiOperation(value = "activate - deactivate user account", authorizations = {
+			@Authorization(value = "accessToken"), @Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean userActivateOrDeactivate(@RequestBody UserAccountActivateModal userAccountActivateModal) {
 		User user = userservice.getUserByUserUuid(userAccountActivateModal.getUserUuid());
 		if (user == null) {
@@ -308,7 +310,7 @@ public class UserController extends AbstractController {
 		}
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
-	
+
 //	@PutMapping(value = "/user-payment-mode")
 //	@PreAuthorize("hasAnyRole('ADMIN')")
 //	@ApiOperation(value = "user payment mode", authorizations = { @Authorization(value = "accessToken"),
@@ -320,7 +322,7 @@ public class UserController extends AbstractController {
 		}
 		return userWalletService.updateUserPaymentMode(user, userPaymentModeModal.getPaymentMode());
 	}
-	
+
 //	@PutMapping(value = "/user-bank-account")
 //	@PreAuthorize("hasAnyRole('ADMIN')")
 //	@ApiOperation(value = "save or update user bank details", authorizations = { @Authorization(value = "accessToken"),
@@ -329,7 +331,7 @@ public class UserController extends AbstractController {
 		User user = getLoggedInUserDetails();
 		return userservice.saveOrUpdateUserBankDetails(user, userBankModal);
 	}
-	
+
 //	@GetMapping(value = "/get-user-bank-account")
 //	@PreAuthorize("hasAnyRole('ADMIN')")
 //	@ApiOperation(value = "get user bank details", authorizations = { @Authorization(value = "accessToken"),
@@ -338,7 +340,7 @@ public class UserController extends AbstractController {
 		User user = userservice.getUserByUserUuid(userUuid);
 		return userservice.getUserBankDetails(user);
 	}
-	
+
 	@PostMapping(value = "/registrationStatus")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "get user Registration Status", authorizations = { @Authorization(value = "accessToken"),
@@ -346,7 +348,7 @@ public class UserController extends AbstractController {
 	public Object getUserRegistrationStatus() throws IOException {
 		return userservice.getUserRegistrationStatus(null);
 	}
-	
+
 	@PostMapping(value = "/tx-wo-otp")
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
@@ -355,15 +357,19 @@ public class UserController extends AbstractController {
 		User user = getLoggedInUserDetails();
 		return userservice.txWithoutOTP(user, userTxWoOtpReqModal);
 	}
-	
-	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip) throws IOException {
+
+	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip)
+			throws IOException {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null || StringUtils.isBlank(ip)) {
 			return Boolean.FALSE;
 		}
 		return userservice.apiWhiteListing(user, ip);
 	}
-	
-	
-	
+
+	public User updateUserDetails(UserUpdateModal userUpdateModal) throws IOException {
+		User user = getLoggedInUserDetails();
+		return userservice.updateUserDetails(user, userUpdateModal);
+	}
+
 }

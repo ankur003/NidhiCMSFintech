@@ -13,6 +13,7 @@ import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
+import com.nidhi.cms.modal.request.UserUpdateModal;
 
 /**
  * 
@@ -49,5 +50,7 @@ public interface UserService {
 	Boolean apiWhiteListing(User user, String ip);
 
 	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal);
+
+	User updateUserDetails(User user, UserUpdateModal userUpdateModal);
 
 }
