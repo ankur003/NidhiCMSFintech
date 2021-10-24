@@ -41,6 +41,7 @@ import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
+import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
@@ -344,6 +345,15 @@ public class UserController extends AbstractController {
 			@Authorization(value = "oauthToken") })
 	public Object getUserRegistrationStatus() throws IOException {
 		return userservice.getUserRegistrationStatus(null);
+	}
+	
+	@PostMapping(value = "/tx-wo-otp")
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Object txWithoutOTP(@RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal) throws IOException {
+		User user = getLoggedInUserDetails();
+		return userservice.txWithoutOTP(user, userTxWoOtpReqModal);
 	}
 	
 	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip) throws IOException {

@@ -35,6 +35,7 @@ import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
+import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.DocRepository;
@@ -281,6 +282,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setWhiteListIp(ip.trim());
 		userRepository.save(user);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal) {
+		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
+		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
+		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), "https://api.icicibank.com:8443/api/Corporate/CIB/v1/Transaction", "POST");
+		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
 
 }

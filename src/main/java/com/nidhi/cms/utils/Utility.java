@@ -2,6 +2,7 @@ package com.nidhi.cms.utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.Role;
+import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.response.TextLocalResponseModal;
 
 /**
@@ -81,28 +83,43 @@ public class Utility {
 		return asLocalDate(getDateFromString(localDate, "dd-MM-yyyy"));
 	}
 
-	 private static LocalDate asLocalDate(Date dateFromString) {
-		 if (dateFromString == null) {
-			 return null;
-		 }
-		 return dateFromString.toInstant()
-			      .atZone(ZoneId.systemDefault())
-			      .toLocalDate();
+	private static LocalDate asLocalDate(Date dateFromString) {
+		if (dateFromString == null) {
+			return null;
+		}
+		return dateFromString.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
-	 public static Date getDateFromString(final String date, final String format) {
-	        if (date == null) {
-	            return null;
-	        }
+	public static Date getDateFromString(final String date, final String format) {
+		if (date == null) {
+			return null;
+		}
 
-	        if (date.length() > 0) {
-	            SimpleDateFormat formatter = new SimpleDateFormat(format);
-	            try {
-	                return formatter.parse(date);
-	            } catch (final ParseException parseEx) {
-	            }
-	        }
-	        return null;
-	    }
+		if (date.length() > 0) {
+			SimpleDateFormat formatter = new SimpleDateFormat(format);
+			try {
+				return formatter.parse(date);
+			} catch (final ParseException parseEx) {
+			}
+		}
+		return null;
+	}
+
+	public static String createJsonRequestAsString(UserTxWoOtpReqModal userTxWoOtpReqModal) {
+		String request = "{";
+		try {
+			Class<? extends UserTxWoOtpReqModal> cls = userTxWoOtpReqModal.getClass();
+			Field[] fields = cls.getDeclaredFields();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				request = request + "\"" + field.getName().toUpperCase() +"\"" + ":";
+				request = request + "\"" + cls.getDeclaredField(field.getName()).getName() +"\"" + ",";
+			}
+			request = StringUtils.removeEnd(request, ",");
+			request = request + "}";
+		} catch (Exception e) {
+		}
+		return request;
+	}
 
 }

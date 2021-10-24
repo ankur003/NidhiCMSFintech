@@ -22,7 +22,7 @@ import javax.crypto.Cipher;
 
 public class CheckNEFTjson {
 
-	private String jsonMain;
+	private static String jsonMain;
 
 	private static String hex(String binStr) {
 		String newStr = "";
@@ -47,7 +47,7 @@ public class CheckNEFTjson {
 		return map;
 	}
 
-	public String runMainMethod(String message, Map<Object, Object> map) {
+	public static String runMainMethod(String message, Map<Object, Object> map) {
 
 		map.put("plainMsg", message);
 		byte[] messageBytes;
@@ -141,6 +141,80 @@ public class CheckNEFTjson {
 		}
 
 		return jsonResponse;
+	}
+
+	public static String sendThePostRequest(String encyptedJson, String url, String method) {
+		try {
+			URL apiUrl = new URL(url);
+			HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+			connection.setRequestMethod(method.toUpperCase());
+			connection.setRequestProperty("apikey", "f59e8580b4a34dce87e89b121e242392");
+			connection.setRequestProperty("Content-Type", "text/plain");
+			connection.setDoOutput(true);
+
+			DataOutputStream requestWriter = new DataOutputStream(connection.getOutputStream());
+			requestWriter.writeBytes(encyptedJson);
+			requestWriter.close();
+			InputStream is = connection.getInputStream();
+			BufferedReader responseReader = new BufferedReader(new InputStreamReader(is));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+			while ((inputLine = responseReader.readLine()) != null) {
+				response.append(inputLine);
+			}
+
+			responseReader.close();
+			return response.toString();
+
+		} catch (Exception exception) {
+		}
+
+		return null;
+	}
+
+	public static byte[] encryptJsonRequest(String jsonAsString) {
+		String certFile = "/home/nidhicms/public_html/keys/publicKey.txt";
+		// The source of randomness
+		try (InputStream inStream = new FileInputStream(certFile)) {
+			// Obtain a RSA Cipher Object
+			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			X509Certificate cert = (X509Certificate) cf.generateCertificate(inStream);
+
+			// Read the public key from certificate file
+			RSAPublicKey pubkey = (RSAPublicKey) cert.getPublicKey();
+			byte[] messageBytes = jsonAsString.getBytes();
+
+			// Initialize the cipher for encryption
+			SecureRandom secureRandom = new SecureRandom();
+			cipher.init(Cipher.ENCRYPT_MODE, pubkey, secureRandom);
+
+			// Encrypt the message
+			return cipher.doFinal(messageBytes);
+
+		} catch (Exception e) {
+		}
+		return null;
+
+	}
+
+	public static String deCryptResponse(String jsonResponse) {
+		String keyFile = "/home/nidhicms/public_html/keys/privateKey.txt";
+		try (InputStream inStream = new FileInputStream(keyFile);) {
+			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			byte[] encKey = new byte[inStream.available()];
+			inStream.read(encKey);
+			String pvtKey = new String(encKey);
+			PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pvtKey));
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			PrivateKey priv = keyFactory.generatePrivate(privKeySpec);
+			byte[] cipherByte = org.bouncycastle.util.encoders.Base64.decode(jsonResponse.getBytes("UTF-8"));
+			SecureRandom secureRandom = new SecureRandom();
+			cipher.init(Cipher.DECRYPT_MODE, priv, secureRandom);
+			return new String(cipher.doFinal(cipherByte));
+		} catch (Exception e) {
+		}
+		return null;
 	}
 
 }

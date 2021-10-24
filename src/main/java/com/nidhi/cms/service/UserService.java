@@ -12,6 +12,7 @@ import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
+import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 
 /**
  * 
@@ -46,5 +47,7 @@ public interface UserService {
 	Object getUserRegistrationStatus(UserIciciInfo userIciciInfo) throws IOException;
 
 	Boolean apiWhiteListing(User user, String ip);
+
+	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal);
 
 }
