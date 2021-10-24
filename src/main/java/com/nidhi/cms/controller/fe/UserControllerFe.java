@@ -5,6 +5,7 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -46,6 +48,7 @@ import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
+import com.nidhi.cms.service.UserService;
 
 /**
  * @author Devendra Gread
@@ -57,13 +60,16 @@ import com.nidhi.cms.modal.response.UserBusinessKycModal;
 public class UserControllerFe {
 
 	@Autowired
-	UserController userController;
+	private UserController userController;
 
 	@Autowired
-	OtpController otpController;
+	private OtpController otpController;
 
 	@Autowired
-	LoginController loginController;
+	private LoginController loginController;
+	
+	@Autowired
+	private UserService userservice;
 
 	@PostMapping(value = "/user")
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
@@ -101,6 +107,12 @@ public class UserControllerFe {
 	public ModelAndView login(@Valid @ModelAttribute LoginRequestModal loginRequestModal, Model model,
 			HttpServletRequest request) {
 		try {
+			
+			User usr=userservice.getUserByUserEmailOrMobileNumber(loginRequestModal.getUsername(), loginRequestModal.getUsername());
+			if(usr!=null && BooleanUtils.isTrue( usr.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(usr.getIsUserVerified()))
+			{
+				return new ModelAndView("VerifyOtp");
+			}
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
 			session.getServletContext().setAttribute(AUTH_TOKEN, authtoken);
@@ -140,6 +152,7 @@ public class UserControllerFe {
 			} else {
 				return new ModelAndView("Dashboard");
 			}
+			
 		} catch (Exception e) {
 			model.addAttribute("msg", "Either email or Password is incorrect, please try again.");
 			return new ModelAndView("login");
@@ -370,7 +383,37 @@ public class UserControllerFe {
 		return new ModelAndView("AdminmanageClint");
 	}
 
-	
+	@PostMapping(value = "/get-user-whitesearch")
+	public ModelAndView getWhitlist(Model model, HttpServletRequest request) {
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
+		userRequestFilterModel.setPage(1);
+		
+		
+		String firstName = request.getParameter("firstName");
+		String lastName = request.getParameter("lastName");
+		String userEmail = request.getParameter("userEmail");
+		String username = request.getParameter("username");
+
+	    userRequestFilterModel.setFirstName(firstName);
+	    userRequestFilterModel.setLastName(lastName);
+	    userRequestFilterModel.setUserEmail(userEmail);
+	    userRequestFilterModel.setUsername(username);
+		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
+			
+			model.addAttribute("firstName", firstName);
+			model.addAttribute("lastName", lastName);
+			model.addAttribute("userEmail", userEmail);
+			model.addAttribute("username", username);
+			return new ModelAndView("AdminWhiteListpage");
+		} else {
+			model.addAttribute("init", false);
+		}
+		return new ModelAndView("AdminWhiteListpage");
+	}
 	
 	@PostMapping(value = "/get-user-productFeature")
 	public ModelAndView productFeaturesearch(Model model, HttpServletRequest request) {
@@ -412,8 +455,28 @@ public class UserControllerFe {
 		return new ModelAndView("AdminProductFeaturing");
 	}
 	
+	@PostMapping(value = "/admin-whitelist-add")
+	public ModelAndView adminwhitelistAdd(Model model, HttpServletRequest request) {
+		String userUuid = request.getParameter("userUuid");
+		String ip = request.getParameter("ip");
+		boolean flag = false;
+		try {
+			flag = userController.apiWhiteListing(userUuid, ip);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (flag) {
+			model.addAttribute("msg", "IP has been added");
+		} else
+			model.addAttribute("msgs", "IP didn't add. ");
+		return new ModelAndView("AdminWhiteListpage");
+	}
+	
+	
 //	@GetMapping(value = "/get-kyc-data")
-//	public ModelAndView kycData(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request) {
+//	public ModelAndView kycData(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request)
+//	{
+//		
 //		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_PAN);
 //		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_AADHAR);
 //		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_GST);

@@ -131,6 +131,8 @@
 															 </c:otherwise>
 															</c:choose> 
 											            
+											            <input type="Button" value="Information" class="btn btn-warning" name="info" ></a>
+											            
 											            </td>
 														</tr>
 													</c:forEach>
