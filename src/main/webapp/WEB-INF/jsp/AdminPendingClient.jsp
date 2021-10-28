@@ -131,6 +131,8 @@
 															 </c:otherwise>
 															</c:choose> 
 											            
+											           <a href="/api/v1/get-kyc-data?userUuid=${ul.userUuid}" target="_blank"> <input type="Button" value="Information" class="btn btn-warning" name="info" ></a>
+											            
 											            </td>
 														</tr>
 													</c:forEach>

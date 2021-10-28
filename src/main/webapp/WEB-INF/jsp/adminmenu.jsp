@@ -164,15 +164,22 @@
           <li><a class="link_name" href="#">History</a></li>
         </ul>
       </li> -->
-      <li>
-        <a href="#">
-          <i class='bx bx-cog' ></i>
-          <span class="link_name">Setting</span>
-        </a>
-        <ul class="sub-menu blank">
-          <li><a class="link_name" href="/api/v1/fe/AdminSetting">Setting</a></li>
+      
+      
+        <li>
+        <div class="iocn-link">
+          <a href="#">
+            <i class='bx bx-cog' ></i>
+            <span class="link_name">Setting</span>
+          </a>
+          <i class='bx bxs-chevron-down arrow' ></i>
+        </div>
+        <ul class="sub-menu">
+           <li><a class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=a">Setting</a></li>
+          <li><a href="/api/v1/fe/AdminWhiteListpage">White Listing</a></li>
         </ul>
       </li>
+      
       <li>
   </li>
 </ul>

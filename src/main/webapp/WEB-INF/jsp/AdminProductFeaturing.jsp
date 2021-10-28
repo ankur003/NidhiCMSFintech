@@ -17,6 +17,7 @@
   function copyUuid(uuid)
   {
        document.getElementById("userUuid").value = uuid;
+       document.getElementById("ipdiv").style.display = "";
   }
 </script>
 </head>
@@ -151,7 +152,7 @@
 			
 			
 			
-				<div class="mu-contact-area">
+				<div class="mu-contact-area" id="ipdiv" style="display: none;">
 
 					<div class="mu-contact-content" >
 						<div class="row">

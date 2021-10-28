@@ -69,3 +69,6 @@ public interface UserService {
 	List<SystemPrivilege> getSystemPrivilegeList();
 
 }
+
+
+

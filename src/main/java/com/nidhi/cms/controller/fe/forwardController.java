@@ -170,7 +170,14 @@ public class forwardController {
 	public ModelAndView UserBank(Model model) {
 		return new ModelAndView("UserBank");
 	}
-	 
+	@GetMapping(value = "/AdminWhiteListpage")
+	public ModelAndView admin(Model model) {
+		return new ModelAndView("AdminWhiteListpage");
+	}
+	@GetMapping(value = "/userCompInfo")
+	public ModelAndView userCompInfo(Model model) {
+		return new ModelAndView("userCompInfo");
+	}
 	 
 	
 	@GetMapping(value = "/logout")
