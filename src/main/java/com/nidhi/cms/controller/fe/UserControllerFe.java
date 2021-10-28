@@ -21,7 +21,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +45,7 @@ import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
+import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.service.UserService;
@@ -203,12 +203,12 @@ public class UserControllerFe {
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
 
-			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
-			if (getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
-				session.setAttribute("kyc", "Done");
-			} else {
-				session.setAttribute("kyc", "Pending");
-			}
+//			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
+//			if (getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
+//				session.setAttribute("kyc", "Done");
+//			} else {
+//				session.setAttribute("kyc", "Pending");
+//			}
 
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
 			return new ModelAndView("UserBank");
@@ -237,14 +237,35 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/updateEmailpass")
 	public ModelAndView updateEmailpass(Model model, HttpServletRequest request) {
+		User users=null;
 		String email = request.getParameter("userEmail");
 		String password = request.getParameter("password");
 		String respose = userController.changeEmailOrPassword(email, password);
-		model.addAttribute("msg", respose);
-		if (respose != null && respose.equalsIgnoreCase("Email Or Password changed")) {
+		String firstName = request.getParameter("firstName");
+		String lastName = request.getParameter("lastName");
+		String fullName = request.getParameter("fullName");
+		String dob=request.getParameter("dob");
+		
+		UserUpdateModal userUpdateModal=new UserUpdateModal();
+		userUpdateModal.setFirstName(firstName);
+		userUpdateModal.setLastName(lastName);
+		userUpdateModal.setFullName(fullName);
+		userUpdateModal.setDob(dob);
+		try {
+			users=userController.updateUserDetails(userUpdateModal);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		model.addAttribute("msg", "Information Updated");
+		model.addAttribute("user",users);
+		if(request.getParameter("utype").equalsIgnoreCase("adm"))
+       {
+    	   return new ModelAndView("AdminSetting");
+	   }
+		else {
 			return new ModelAndView("Setting");
 		}
-		return new ModelAndView("Setting");
 
 	}
 
@@ -472,28 +493,40 @@ public class UserControllerFe {
 		return new ModelAndView("AdminWhiteListpage");
 	}
 	
+	@GetMapping(value = "/get-loggedin-info")
+	public ModelAndView loggedIninfo(@RequestParam("userUuid") String userUuid,@RequestParam("type") String type,
+			Model model, HttpServletRequest request, HttpSession session) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		model.addAttribute("user",user);
+		if(type.equalsIgnoreCase("a"))
+		return new ModelAndView("AdminSetting");
+		else
+			return new ModelAndView("setting");
+	}
 	
-//	@GetMapping(value = "/get-kyc-data")
-//	public ModelAndView kycData(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request)
-//	{
-//		
-//		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_PAN);
-//		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_AADHAR);
-//		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_GST);
-//
-//		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
-//		userRequestFilterModel.setPage(1);
-//		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
-//		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
-//		if (users != null) {
-//			model.addAttribute("msg", "same has been verified");
-//			model.addAttribute("userList", users.get("data"));
-//			model.addAttribute("init", true);
-//			return new ModelAndView("AdminPendingClient");
-//		} else {
-//			model.addAttribute("init", false);
-//		}
-//		return new ModelAndView("AdminPendingClient");
-//	}
+	@GetMapping(value = "/get-kyc-data")
+	public ModelAndView kycData(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request)
+	{
+		User user = userservice.getUserByUserUuid(userUuid);
+		UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+		UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+		UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+		UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+		UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+		
+		model.addAttribute("pan",pan);
+		model.addAttribute("aadhar",aadhar);
+		model.addAttribute("gst",gst);
+		model.addAttribute("bank",bank);
+		model.addAttribute("bkyc",business);
+		model.addAttribute("user",user);
+		
+		if(pan==null && aadhar==null && gst==null && bank==null && business==null)
+		{
+			System.out.println("allllllllllllllllllllllllllllllllllllllllllllllllllllllllll");
+		}
+		
+		return new ModelAndView("userCompInfo");
+	}
 
 }

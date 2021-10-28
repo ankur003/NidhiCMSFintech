@@ -18,9 +18,9 @@
 </head>
 <c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
-</c:if> 
+</c:if>
 <body>
-<jsp:include page="usermenu.jsp" />
+	<jsp:include page="usermenu.jsp" />
 	<!-- Page breadcrumb -->
 	<section id="mu-page-breadcrumb">
 	<div class="container">
@@ -57,11 +57,11 @@
 
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
-						<div class="col-md-3">
-						</div>
+							<div class="col-md-3"></div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/updateEmailpass" method="post">
+									<form class="contactform" action="/api/v1/updateEmailpass"
+										method="post">
 
 										<c:choose>
 											<c:when test="${msg!=null}">
@@ -74,10 +74,31 @@
 											</c:otherwise>
 										</c:choose>
 
+										<input type="hidden" value="usr" name="utype">
+										 <p class="comment-form-email">
+											<label for="email">First Name <span class="mandate">*</span></label>
+											<input type="text" required="required" aria-required="true"
+												value="${user.firstName}" name="firstName" id="firstName" maxlength="250">
+										</p>
+										<p class="comment-form-email">
+											<label for="email">Last Name <span class="mandate">*</span></label>
+											<input type="text" required="required" aria-required="true"
+												value="${user.lastName}" name="lastName" id="lastName" maxlength="250">
+										</p>
+										<p class="comment-form-email">
+											<label for="email">Full Name <span class="mandate">*</span></label>
+											<input type="text" required="required" aria-required="true"
+												value="${user.fullName}" name="fullName" id="fullName" maxlength="250">
+										</p>
+										<p class="comment-form-author">
+													<label for="author">DOB<span class="mandate">*</span></label>
+													<input type="text"  value="${user.dob}"
+														name="dob" id="datepicker" autocomplete="off">
+												</p>
 										<p class="comment-form-email">
 											<label for="email">Email <span class="mandate">*</span></label>
 											<input type="email" required="required" aria-required="true"
-												value="" name="userEmail" id="userEmail" maxlength="250">
+												value="${user.userEmail}" name="userEmail" id="userEmail" maxlength="250">
 										</p>
 
 										<p class="comment-form-url">
@@ -85,6 +106,11 @@
 											<input type="password" name="password" id="password"
 												minlentg="3" aria-required="true" required="required"
 												maxlength="10">
+										</p>
+										 <p class="comment-form-email">
+											<label for="email">IP </label>
+											<input type="email" required="required" aria-required="true" disabled="disabled"
+												value="${user.whiteListIp}" name="whiteListIp" id="whiteListIp" maxlength="250">
 										</p>
 										<p class="form-submit">
 											<input type="submit" value="Update" class="btn btn-success"
@@ -126,53 +152,11 @@
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"
-		aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">×</button>
-					<h1 class="text-center">Alloted Batch Timeings</h1>
-				</div>
-				<div class="modal-body">
-					<div class="col-md-12">
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<div class="text-center" id="showallotedtiming"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<div class="col-md-12">
-						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+
 
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />
 	<!-- End footer -->
-
-	<!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="/assets/js/bootstrap.js"></script>
-	<!-- Slick slider -->
-	<script type="text/javascript" src="/assets/js/slick.js"></script>
-	<!-- Counter -->
-	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
-	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
-	<!-- Mixit slider -->
-	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
-	<!-- Add fancyBox -->
-	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
-
-	<!-- Custom js -->
-	<script src="/assets/js/custom.js"></script>
 
 </body>
 </html>

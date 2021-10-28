@@ -169,9 +169,9 @@ public class UserController extends AbstractController {
 		return doc;
 	}
 
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public UserDoc getUserDocbyUserId(@RequestParam(required = true, name = "docType") final DocType docType,
 			@RequestParam(required = true, name = "userUuid") final String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
@@ -372,4 +372,13 @@ public class UserController extends AbstractController {
 		return userservice.updateUserDetails(user, userUpdateModal);
 	}
 
+	public UserBusinessKycModal getUserBusnessKybyid(@RequestParam("userUuid") String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
+		if (userBusinessKyc == null) {
+			return null;
+		}
+		return beanMapper.map(userBusinessKyc, UserBusinessKycModal.class);
+	}
+	
 }

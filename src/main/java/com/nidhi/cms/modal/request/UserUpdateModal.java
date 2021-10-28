@@ -9,6 +9,8 @@ public class UserUpdateModal {
 	private String lastName;
 
 	private String middleName;
+	
+	private String dob;
 
 	public String getFullName() {
 		return fullName;
@@ -42,4 +44,13 @@ public class UserUpdateModal {
 		this.middleName = middleName;
 	}
 
+	public String getDob() {
+		return dob;
+	}
+
+	public void setDob(String dob) {
+		this.dob = dob;
+	}
+
+	
 }

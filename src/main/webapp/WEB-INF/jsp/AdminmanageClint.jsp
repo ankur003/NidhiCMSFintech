@@ -13,6 +13,13 @@
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
 
 
+<script type="text/javascript">
+  function copyUuid(uuid)
+  {
+       document.getElementById("userUuid").value = uuid;
+       document.getElementById("tab").style.display = "";
+  }
+</script>
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
@@ -102,9 +109,10 @@
 															<td>${ul.fullName}</td>
 															<td>${ul.userEmail}</td>
 															<td>${ul.mobileNumber}</td>
- 															<td><a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
-															<input type="Button" value="Select" class="btn btn-success" name="Approve"></a></td>
-															
+ 															<%-- <td><a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
+															<input type="Button" value="Select" class="btn btn-success" name="Approve"></a></td> --%>
+															<td><input type="Button" value="Select" class="btn btn-success" name="Approve"
+ 															onclick="javascript:copyUuid('${ul.userUuid}')"></td>
 														</tr>
 													</c:forEach>
 												</tbody>
@@ -119,236 +127,19 @@
 				</div>
 				<!-- end contact content -->
 				
-				
-				
-				
-				<div class="mu-contact-area">
-					<div class="mu-contact-content" >
-						<div class="row">
-							<div class="col-md-12">
-								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/get-user-search" method="post">
-
-									<div class="col-lg-12">
-											<strong> <font style="color: Blue; cursor: pointer;">Personal
-													KYC</font>
-											</strong>
-										</div>
-										<p class="comment-form-author">
-											<label for="author">Upload Personal PAN <span
-												class="mandate">*</span></label> <input type="file"
-												required="required" size="30" value="" name="fileUpload"
-												id="pan">
-										</p>
-
-
-										<c:if test="${userDoc.docType eq 'DOCUMENT_PAN'}">
-											<img src="data:image/gif;base64,${userDoc.data}" height="30%"
-												width="30%" />
-											<p>
-												<font color="blue;">${userDoc.fileName }</font>
-											</p>
-										</c:if>
-
-										<p class="comment-form-author">
-											<label for="author">Upload Aadhar card <span
-												class="mandate">*</span></label> <input type="file"
-												required="required" size="30" value="" name="fileUpload"
-												id="aadhar">
-										</p>
-										<c:if test="${userDocs.docType eq 'DOCUMENT_AADHAR'}">
-											<img src="data:image/gif;base64,${userDocs.data}"
-												height="30%" width="30%" />
-											<p>
-												<font color="blue;">${userDocs.fileName }</font> 
-											</p>
-										</c:if>
-
-										<!-- -----------------personal------------------------------ -->
-										<!-- -----------------Business------------------------------ -->
-                                
-                                
-										<div class="col-lg-12">
-											<strong> <font style="color: Blue; cursor: pointer;">Business
-													Details</font>
-											</strong>
-										</div>
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">Business Entity Type<span
-														class="mandate">*</span></label> <input type="text"
-														required="required" size="30" value="${bkyc.entityType }"
-														name="entityType" id="entityType">
-												</p>
-											</div>
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">Industry<span class="mandate">*</span></label>
-													<input type="text" required="required"
-														value="${bkyc.industry }" name="industry" id="industry">
-												</p>
-											</div>
-										</div>
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">register Company Name<span
-														class="mandate">*</span></label> <input type="text"
-														required="required" size="30" value="${bkyc.compnayName }"
-														name="compnayName" id="compnayName">
-												</p>
-											</div>
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">No.of Employees<span
-														class="mandate">*</span></label> <input type="text"
-														required="required" size="30" value="${bkyc.noOfEmp }"
-														name="noOfEmp" id="noOfEmp">
-												</p>
-											</div>
-										</div>
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">Individual Pan<span
-														class="mandate">*</span></label> <input type="text"
-														required="required" size="30"
-														value="${bkyc.individualPan }" name="individualPan"
-														id="individualPan">
-												</p>
-											</div>
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">GST Number<span class="mandate">*</span></label>
-													<input type="text" required="required" size="30"
-														value="${bkyc.gstNo }" name="gstNo" id="gstNo">
-												</p>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">Business Website Link<span
-														class="mandate">*</span></label> <input type="text"
-														required="required" size="30" value="${bkyc.websiteLink }"
-														name="websiteLink" id="websiteLink">
-												</p>
-											</div>
-											<div class="col-lg-6"></div>
-										</div>
-
-										<div class="col-lg-12">
-											<strong> <font style="color: Blue; cursor: pointer;">Business
-													Documents</font>
-											</strong>
-										</div>
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">GST Certificate<span
-														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
-														id="fileUpload">
-												</p>
-												<c:if test="${userDocx.docType eq 'DOCUMENT_GST'}">
-													<p>
-														<font color="blue;">${userDocx.fileName }</font> 
-													</p>
-												</c:if>
-											</div>
-											<div class="col-lg-6"></div>
-										</div>
-
-
-
-
-
-										<div class="col-lg-12">
-											<strong> <font style="color: Blue; cursor: pointer;">Registered
-													Address</font>
-											</strong>
-										</div>
-										<div class="col-lg-12">
-											<p class="comment-form-author">
-												<label for="author">Address Line 1<span
-													class="mandate">*</span></label> <input type="text"
-													required="required" size="30" value="${bkyc.address1 }"
-													name="address1" id="address1">
-											</p>
-										</div>
-
-										<div class="col-lg-12">
-											<p class="comment-form-author">
-												<label for="author">Address Line 2<span
-													class="mandate">*</span></label> <input type="text"
-													required="required" size="30" value="${bkyc.address2 }"
-													name="address2" id="address2">
-											</p>
-										</div>
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">Pincode<span class="mandate">*</span></label>
-													<input type="text" required="required" size="30"
-														value="${bkyc.pincode }" name="pincode" id="pincode">
-												</p>
-											</div>
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">State<span class="mandate">*</span></label>
-													<input type="text" required="required" size="30"
-														value="${bkyc.state }" name="state" id="state">
-												</p>
-											</div>
-										</div>
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">City<span class="mandate">*</span></label>
-													<input type="text" required="required" size="30"
-														value="${bkyc.city }" name="city" id="city">
-												</p>
-											</div>
-											<div class="col-lg-6"></div>
-										</div>
-
-										<div class="col-lg-12">
-										
-											<div class="col-lg-6">
-												<p class="comment-form-comment">
-													<label for="comment">Deactivate Account  <input type="checkbox" required="required" size="30"
-														value="" name="city" id="city"></label>
-													<textarea name="comment" cols="25" rows="8" placeholder="Type Your reason"
-														aria-required="true" required="required"></textarea>
-												</p>
-											</div>
-											<div class="col-lg-6"></div>
-										</div>
-
-
-
-
-										<p class="form-submit">
-											<input type="submit" value="Update" class="btn btn-success"
-												name="Submit"> <input type="button" value="Cancel"
-												class="btn btn-info" name="cancel">
-										</p>
-										<!-- -----------------personal------------------------------ -->
-									</form>
-								</div>
-							</div>
-						</div>
-					</div>
+				<div class="col-md-12" style="display: none;" id="tab">
+					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value"
+					><button type="button" class="btn btn-primary">Personal KYC</button></a>
+					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value">
+					<button type="button" class="btn btn-secondary">Business Details</button></a>
+					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value">
+					<button type="button" class="btn btn-success">Bank Details</button></a>
+					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value">
+					<button type="button" class="btn btn-danger">Deactivate</button></a>
 				</div>
-				
-				
+					
+					<input type="hidden" id="userUuid" name="userUuid" >
+			
 			</div>
 		</div>
 	</div>
@@ -359,22 +150,6 @@
 	<jsp:include page="footer.jsp" />
 	<!-- End footer -->
 
-	<!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="/assets/js/bootstrap.js"></script>
-	<!-- Slick slider -->
-	<script type="text/javascript" src="/assets/js/slick.js"></script>
-	<!-- Counter -->
-	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
-	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
-	<!-- Mixit slider -->
-	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
-	<!-- Add fancyBox -->
-	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
-
-	<!-- Custom js -->
-	<script src="/assets/js/custom.js"></script>
 
 </body>
 </html>

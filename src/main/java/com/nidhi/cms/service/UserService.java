@@ -54,3 +54,6 @@ public interface UserService {
 	User updateUserDetails(User user, UserUpdateModal userUpdateModal);
 
 }
+
+
+

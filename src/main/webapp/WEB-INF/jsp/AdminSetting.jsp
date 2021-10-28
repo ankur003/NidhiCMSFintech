@@ -11,7 +11,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
-
+<link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+  $( function() {
+    $( "#datepicker" ).datepicker({
+    	 changeMonth: true,
+         changeYear: true,
+         dateFormat: 'dd-mm-yy',
+         endDate: "today",
+         maxDate: "today"
+    });
+  } );
+  </script>
 
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
@@ -70,18 +84,44 @@
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
-
+										
+										<input type="hidden" value="adm" name="utype">
+										
+                                      <p class="comment-form-email">
+											<label for="email">First Name <span class="mandate">*</span></label>
+											<input type="text" required="required" aria-required="true"
+												value="${user.firstName}" name="firstName" id="firstName" maxlength="250">
+										</p>
+										<p class="comment-form-email">
+											<label for="email">Last Name <span class="mandate">*</span></label>
+											<input type="text" required="required" aria-required="true"
+												value="${user.lastName}" name="lastName" id="lastName" maxlength="250">
+										</p>
+										<p class="comment-form-email">
+											<label for="email">Full Name <span class="mandate">*</span></label>
+											<input type="text" required="required" aria-required="true"
+												value="${user.fullName}" name="fullName" id="fullName" maxlength="250">
+										</p>
 										<p class="comment-form-email">
 											<label for="email">Email <span class="mandate">*</span></label>
 											<input type="email" required="required" aria-required="true"
-												value="" name="userEmail" id="userEmail" maxlength="250">
+												value="${user.userEmail}" name="userEmail" id="userEmail" maxlength="250">
 										</p>
-
+										<p class="comment-form-author">
+													<label for="author">DOB<span class="mandate">*</span></label>
+													<input type="text"  value="${user.dob}"
+														name="dob" id="datepicker" autocomplete="off">
+												</p>
 										<p class="comment-form-url">
 											<label for="subject">Password<span class="mandate">*</span></label>
 											<input type="password" name="password" id="password"
 												minlentg="3" aria-required="true" required="required"
 												maxlength="10">
+										</p>
+										 <p class="comment-form-email">
+											<label for="email">IP </label>
+											<input type="email" required="required" aria-required="true" disabled="disabled"
+												value="${user.whiteListIp}" name="whiteListIp" id="whiteListIp" maxlength="250">
 										</p>
 										<p class="form-submit">
 											<input type="submit" value="Update" class="btn btn-success"
@@ -91,7 +131,7 @@
 												name="cancel">
 										</p>
 
-
+                                  
 
 
 
