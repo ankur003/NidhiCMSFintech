@@ -19,6 +19,7 @@ import javax.persistence.ManyToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nidhi.cms.constants.enums.KycStatus;
+import com.nidhi.cms.utils.Utility;
 
 /**
  * 
@@ -56,10 +57,12 @@ public class User extends BaseDomain {
 
 	private Boolean isAdmin;
 
+	private Boolean isSubAdmin;
+
 	private Boolean isUserVerified = false;
 
 	@Column(unique = true, nullable = false, updatable = false)
-	private String userUuid;
+	private String userUuid = Utility.getUniqueUuid();
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "USER_ROLES", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = {
@@ -72,6 +75,8 @@ public class User extends BaseDomain {
 	private String whiteListIp;
 
 	private Boolean isUserCreatedByAdmin = false;
+
+	private String[] privilageNames;
 
 	public Long getUserId() {
 		return userId;
@@ -207,6 +212,22 @@ public class User extends BaseDomain {
 
 	public void setIsUserCreatedByAdmin(Boolean isUserCreatedByAdmin) {
 		this.isUserCreatedByAdmin = isUserCreatedByAdmin;
+	}
+
+	public String[] getPrivilageNames() {
+		return privilageNames;
+	}
+
+	public void setPrivilageNames(String[] privilageNames) {
+		this.privilageNames = privilageNames;
+	}
+
+	public Boolean getIsSubAdmin() {
+		return isSubAdmin;
+	}
+
+	public void setIsSubAdmin(Boolean isSubAdmin) {
+		this.isSubAdmin = isSubAdmin;
 	}
 
 }

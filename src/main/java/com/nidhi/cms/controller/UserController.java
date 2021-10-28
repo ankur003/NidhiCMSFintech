@@ -28,12 +28,14 @@ import com.nidhi.cms.constants.SwaggerConstant;
 import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.domain.DocType;
+import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBankModal;
@@ -85,7 +87,7 @@ public class UserController extends AbstractController {
 
 	@Autowired
 	private UserAccountStatementService userAccountStatementService;
-
+	
 //	@PostMapping(value = "")
 	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal) {
 		final User user = beanMapper.map(userCreateModal, User.class);
@@ -353,8 +355,19 @@ public class UserController extends AbstractController {
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Object txWithoutOTP(@RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal) throws IOException {
+	public Object txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal) {
 		User user = getLoggedInUserDetails();
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "user wallet not created");
+			errorResponse.addError("errorCode", "" +ErrorCode.ENTITY_NOT_FOUND.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < userTxWoOtpReqModal.getAmount()) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
 		return userservice.txWithoutOTP(user, userTxWoOtpReqModal);
 	}
 
@@ -367,9 +380,58 @@ public class UserController extends AbstractController {
 		return userservice.apiWhiteListing(user, ip);
 	}
 
-	public User updateUserDetails(UserUpdateModal userUpdateModal) throws IOException {
+	public User updateUserDetails(UserUpdateModal userUpdateModal)  {
 		User user = getLoggedInUserDetails();
 		return userservice.updateUserDetails(user, userUpdateModal);
 	}
+	
+	public SystemPrivilege addAccessPrivilegesIntoSystem(String privilegeName) {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isTrue(user.getIsAdmin())) {
+			return userservice.addAccessPrivilegesIntoSystem(privilegeName);
+		}
+		return null;
+	}
+	
+	public SystemPrivilege updateAccessPrivilegesIntoSystem(String oldPrivilegeName, String newPrivilegeName) {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isTrue(user.getIsAdmin())) {
+			return userservice.updateAccessPrivilegesIntoSystem(oldPrivilegeName, newPrivilegeName);
+		}
+		return null;
+	}
+	
+	public SystemPrivilege deleteAccessPrivilegesIntoSystem(String privilegeName) {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isTrue(user.getIsAdmin())) {
+			return userservice.deleteAccessPrivilegesIntoSystem(privilegeName);
+		}
+		return null;
+	}
+	
+	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isTrue(user.getIsAdmin())) {
+			return userservice.createSubAdmin(subAdminCreateModal);
+		}
+		return null;
+	}
+	
+	public List<User> getSubAdminList() {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isTrue(user.getIsAdmin())) {
+			return userservice.getSubAdminList();
+		}
+		return null;
+	}
+	
+	public List<SystemPrivilege> getSystemPrivlegeList() {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isTrue(user.getIsAdmin())) {
+			return userservice.getSystemPrivilegeList();
+		}
+		return null;
+	}
+
 
 }

@@ -3,45 +3,51 @@ package com.nidhi.cms.modal.request;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class UserTxWoOtpReqModal {
 
-	@NotBlank
+	@JsonIgnore
 	private String aggrid;
 
-	@NotBlank
+	@JsonIgnore
 	private String aggrname;
 
-	@NotBlank
+	@JsonIgnore
 	private String corpid;
 
-	@NotBlank
+	@JsonIgnore
 	private String userid;
 
-	@NotBlank
+	@JsonIgnore
 	private String urn;
 
-	@NotBlank
+	@JsonIgnore
 	private String uniqueid;
 
-	@NotBlank
+	@NotBlank(message = "debitacc : debitacc is invalid or missing")
 	private String debitacc;
 
-	@NotBlank
+	@NotBlank(message = "creditacc : creditacc is invalid or missing")
 	private String creditacc;
 
-	@NotBlank
+	@NotBlank(message = "ifsc : ifsc is invalid or missing")
 	private String ifsc;
 
-	@NotNull
+	@NotNull(message = "amount : amount is invalid or missing")
 	private Double amount;
 
-	@NotBlank
+	@NotBlank(message = "currency : currency is invalid or missing")
 	private String currency;
 
-	private char txntype;
+	@NotBlank(message = "txntype : txntype is invalid or missing")
+	private String txntype;
 
-	@NotBlank
+	@NotBlank(message = "payeename : payeename is invalid or missing")
 	private String payeename;
+
+	@NotBlank(message = "merchantId : merchantId is invalid or missing")
+	private String merchantId;
 
 	public String getUniqueid() {
 		return uniqueid;
@@ -91,11 +97,11 @@ public class UserTxWoOtpReqModal {
 		this.currency = currency;
 	}
 
-	public char getTxntype() {
+	public String getTxntype() {
 		return txntype;
 	}
 
-	public void setTxntype(char txntype) {
+	public void setTxntype(String txntype) {
 		this.txntype = txntype;
 	}
 
@@ -145,6 +151,14 @@ public class UserTxWoOtpReqModal {
 
 	public void setUrn(String urn) {
 		this.urn = urn;
+	}
+
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
 	}
 
 }

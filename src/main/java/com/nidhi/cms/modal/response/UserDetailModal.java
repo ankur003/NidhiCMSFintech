@@ -33,10 +33,14 @@ public class UserDetailModal {
 	private Boolean isUserVerified;
 
 	private String userUuid;
-	
+
 	private Set<Role> roles;
-	
+
 	private KycStatus kycStatus;
+
+	private Boolean isSubAdmin;
+
+	private String[] privilageNames;
 
 	public String getUserEmail() {
 		return userEmail;
@@ -118,7 +122,6 @@ public class UserDetailModal {
 		this.userUuid = userUuid;
 	}
 
-
 	public Set<Role> getRoles() {
 		return roles;
 	}
@@ -134,5 +137,21 @@ public class UserDetailModal {
 	public void setKycStatus(KycStatus kycStatus) {
 		this.kycStatus = kycStatus;
 	}
-	
+
+	public Boolean getIsSubAdmin() {
+		return isSubAdmin;
+	}
+
+	public void setIsSubAdmin(Boolean isSubAdmin) {
+		this.isSubAdmin = isSubAdmin;
+	}
+
+	public String[] getPrivilageNames() {
+		return privilageNames;
+	}
+
+	public void setPrivilageNames(String[] privilageNames) {
+		this.privilageNames = privilageNames;
+	}
+
 }

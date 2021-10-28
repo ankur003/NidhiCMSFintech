@@ -1,14 +1,17 @@
 package com.nidhi.cms.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
+import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
+import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -52,5 +55,17 @@ public interface UserService {
 	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal);
 
 	User updateUserDetails(User user, UserUpdateModal userUpdateModal);
+
+	SystemPrivilege addAccessPrivilegesIntoSystem(String privilegeName);
+
+	SystemPrivilege deleteAccessPrivilegesIntoSystem(String privilegeName);
+
+	SystemPrivilege updateAccessPrivilegesIntoSystem(String oldPrivilegeName, String newPrivilegeName);
+
+	User createSubAdmin(SubAdminCreateModal subAdminCreateModal);
+
+	List<User> getSubAdminList();
+
+	List<SystemPrivilege> getSystemPrivilegeList();
 
 }

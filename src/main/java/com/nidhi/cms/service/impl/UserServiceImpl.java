@@ -1,6 +1,7 @@
 package com.nidhi.cms.service.impl;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,10 +30,12 @@ import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.constants.enums.SearchOperation;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
+import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -40,6 +44,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.DocRepository;
+import com.nidhi.cms.repository.SystemPrivilegeRepo;
 import com.nidhi.cms.repository.UserBankDetailsRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.repository.UserWalletRepository;
@@ -81,6 +86,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserBankDetailsRepo userBankDetailsRepo;
+	
+	@Autowired
+	private SystemPrivilegeRepo systemPrivilegeRepo;
 	
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
@@ -287,6 +295,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal) {
+		userTxWoOtpReqModal.setAggrid("CUST0355");
+		userTxWoOtpReqModal.setAggrname("NIDHI");
+		userTxWoOtpReqModal.setCorpid("573759208");
+		userTxWoOtpReqModal.setUrn("SR188085192");
+		userTxWoOtpReqModal.setUserid("USER1");
+		userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), "https://api.icicibank.com:8443/api/Corporate/CIB/v1/Transaction", "POST");
@@ -300,6 +314,70 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setMiddleName(userUpdateModal.getMiddleName());
 		user.setFullName(userUpdateModal.getFullName());
 		return userRepository.save(user);
+	}
+
+	@Override
+	public SystemPrivilege addAccessPrivilegesIntoSystem(String privilegeName) {
+		SystemPrivilege systemPrivilege = systemPrivilegeRepo.findByPrivilegeName(privilegeName);
+		if (systemPrivilege == null) {
+			systemPrivilege = new SystemPrivilege();
+		}
+		systemPrivilege.setPrivilegeName(privilegeName);
+		return systemPrivilegeRepo.save(systemPrivilege);
+	}
+	
+	@Override
+	public SystemPrivilege deleteAccessPrivilegesIntoSystem(String privilegeName) {
+		SystemPrivilege systemPrivilege = systemPrivilegeRepo.findByPrivilegeName(privilegeName);
+		if (systemPrivilege == null) {
+			return systemPrivilege;
+		}
+		systemPrivilegeRepo.delete(systemPrivilege);
+		systemPrivilege.setPrivilegeName(null);
+		return systemPrivilege;
+	}
+
+	@Override
+	public SystemPrivilege updateAccessPrivilegesIntoSystem(String oldPrivilegeName, String newPrivilegeName) {
+		SystemPrivilege systemPrivilege = systemPrivilegeRepo.findByPrivilegeName(oldPrivilegeName);
+		if (systemPrivilege == null) {
+			return null;
+		}
+		systemPrivilege.setPrivilegeName(newPrivilegeName);
+		return systemPrivilegeRepo.save(systemPrivilege);
+	}
+
+	@Override
+	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
+		List<SystemPrivilege> systemPrivileges = systemPrivilegeRepo.findByPrivilegeNameIn(subAdminCreateModal.getPrivilageNames());
+		if (CollectionUtils.isEmpty(systemPrivileges) || systemPrivileges.size() != subAdminCreateModal.getPrivilageNames().length) {
+			return null;
+		}
+		User user = userRepository.findByUserEmailOrMobileNumber(subAdminCreateModal.getUserEmail(), subAdminCreateModal.getMobileNumber());
+		if (user != null) {
+			return null;
+		}
+		user = new User();
+		user.setUserEmail(subAdminCreateModal.getUserEmail());
+		user.setMobileNumber(subAdminCreateModal.getMobileNumber());
+		user.setFullName(subAdminCreateModal.getFullName());
+		user.setIsUserVerified(true);
+		user.setPrivilageNames(subAdminCreateModal.getPrivilageNames());
+		user.setPassword(encoder.encode(subAdminCreateModal.getPassword()));
+		user.setUserUuid(Utility.getUniqueUuid());
+		user.setIsUserCreatedByAdmin(true);
+		user.setIsSubAdmin(true);
+		return userRepository.save(user);
+	}
+
+	@Override
+	public List<User> getSubAdminList() {
+		return userRepository.findByIsSubAdmin(Boolean.TRUE);
+	}
+
+	@Override
+	public List<SystemPrivilege> getSystemPrivilegeList() {
+		return systemPrivilegeRepo.findAll();
 	}
 
 }

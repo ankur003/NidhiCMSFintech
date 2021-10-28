@@ -14,10 +14,9 @@ import com.nidhi.cms.constants.enums.ErrorCode;
  * @author Ankur Bansala
  */
 
-
 public class ErrorResponse {
 
-	private ErrorCode errorCode;
+	private ErrorCode errorDesc;
 
 	private String message;
 
@@ -68,9 +67,9 @@ public class ErrorResponse {
 	 * @param errorCode the error code
 	 * @param message   the message
 	 */
-	public ErrorResponse(final ErrorCode errorCode, final String message) {
+	public ErrorResponse(final ErrorCode errorDesc, final String message) {
 		super();
-		this.errorCode = errorCode;
+		this.errorDesc = errorDesc;
 		this.message = message;
 	}
 
@@ -78,27 +77,22 @@ public class ErrorResponse {
 	 * Gets the error code.
 	 *
 	 * @return the error code
-	 */
-	public ErrorCode getErrorCode() {
-		return errorCode;
-	}
-
-	/**
-	 * Sets the error code.
-	 *
-	 * @param errorCode the new error code
-	 */
-	public void setErrorCode(final ErrorCode errorCode) {
-		this.errorCode = errorCode;
-	}
-
-	/**
-	 * Gets the message.
+	 * 
+	 * 
+	 *         /** Gets the message.
 	 *
 	 * @return the message
 	 */
 	public String getMessage() {
 		return message;
+	}
+
+	public ErrorCode getErrorDesc() {
+		return errorDesc;
+	}
+
+	public void setErrorDesc(ErrorCode errorDesc) {
+		this.errorDesc = errorDesc;
 	}
 
 	/**
