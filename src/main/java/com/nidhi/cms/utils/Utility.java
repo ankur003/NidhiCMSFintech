@@ -105,19 +105,22 @@ public class Utility {
 		return null;
 	}
 
-	public static String createJsonRequestAsString(UserTxWoOtpReqModal userTxWoOtpReqModal) {
+	public static String createJsonRequestAsString(Object clazz) {
 		String request = "{";
 		try {
-			Class<? extends UserTxWoOtpReqModal> cls = userTxWoOtpReqModal.getClass();
+			 Class<? extends Object> cls = clazz.getClass();
 			Field[] fields = cls.getDeclaredFields();
 			for (Field field : fields) {
 				field.setAccessible(true);
 				request = request + "\"" + field.getName().toUpperCase() +"\"" + ":";
-				request = request + "\"" + cls.getDeclaredField(field.getName()).getName() +"\"" + ",";
+				if (field.get(clazz) != null) {
+					request = request + "\"" + field.get(clazz) +"\"" + ",";
+				}
 			}
 			request = StringUtils.removeEnd(request, ",");
 			request = request + "}";
 		} catch (Exception e) {
+			System.out.println(e);
 		}
 		return request;
 	}
