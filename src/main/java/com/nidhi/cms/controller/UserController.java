@@ -1,6 +1,8 @@
 package com.nidhi.cms.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -9,6 +11,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nidhi.cms.constants.SwaggerConstant;
 import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.constants.enums.KycStatus;
+import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
@@ -34,6 +38,7 @@ import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
+import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
@@ -44,6 +49,7 @@ import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
+import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
@@ -54,6 +60,7 @@ import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserAccountStatementService;
 import com.nidhi.cms.service.UserBusnessKycService;
+import com.nidhi.cms.service.UserPaymentModeService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.ResponseHandler;
@@ -89,6 +96,9 @@ public class UserController extends AbstractController {
 
 	@Autowired
 	private UserAccountStatementService userAccountStatementService;
+	
+	@Autowired
+	private UserPaymentModeService userPaymentModeService;
 	
 //	@PostMapping(value = "")
 	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal) {
@@ -315,10 +325,6 @@ public class UserController extends AbstractController {
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
 
-//	@PutMapping(value = "/user-payment-mode")
-//	@PreAuthorize("hasAnyRole('ADMIN')")
-//	@ApiOperation(value = "user payment mode", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
 	public Boolean userPaymentMode(@RequestBody UserPaymentModeModal userPaymentModeModal) {
 		User user = userservice.getUserByUserUuid(userPaymentModeModal.getUserUuid());
 		if (user == null) {
@@ -357,14 +363,37 @@ public class UserController extends AbstractController {
 			errorResponse.addError("errorCode", "" +ErrorCode.ENTITY_NOT_FOUND.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < userTxWoOtpReqModal.getAmount()) {
+		
+		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, EnumUtils.getEnum(PaymentMode.class, userTxWoOtpReqModal.getTxntype()));
+		if (userPaymentMode == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is in-valid");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		if (BooleanUtils.isNotTrue(userPaymentMode.getIsActive())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "permission not granted for txntype - " + userTxWoOtpReqModal.getTxntype());
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		BigDecimal userTxWoAmount = new BigDecimal(userTxWoOtpReqModal.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+		if ((userPaymentMode.getFeePercent() == null) && (userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < userTxWoAmount.doubleValue()) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
+		if ((userPaymentMode.getFeePercent() != null) && (getFee(userPaymentMode.getFeePercent(), userTxWoOtpReqModal.getAmount()) + userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < userTxWoAmount.doubleValue()) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
 		return userservice.txWithoutOTP(user, userTxWoOtpReqModal);
 	}
 	
+	private Double getFee(Double feePercent, Double amount) {
+		return (amount * feePercent) / 100;
+	}
+
 	@PostMapping(value = "/transaction/inquiry")
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "transaction inquiry", authorizations = { @Authorization(value = "accessToken"),
@@ -455,6 +484,24 @@ public class UserController extends AbstractController {
 			return null;
 		}
 		return beanMapper.map(userBusinessKyc, UserBusinessKycModal.class);
+	}
+	
+	public UserPaymentMode saveOrUpdateUserPaymentMode(UserPaymentModeModalReqModal userPaymentModeModalReqModal) {
+		User user = userservice.getUserByUserUuid(userPaymentModeModalReqModal.getUserUuid());
+		if (user == null) {
+			return null;
+		}
+		return userPaymentModeService.saveOrUpdateUserPaymentMode(user, userPaymentModeModalReqModal);
+		
+	}
+	
+	public UserPaymentMode activateOrDeActivateUserPaymentMode(String userUuid, PaymentMode paymentMode,  Boolean isActivate) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return null;
+		}
+		return userPaymentModeService.activateOrDeActivateUserPaymentMode(user, paymentMode, isActivate);
+		
 	}
 	
 }
