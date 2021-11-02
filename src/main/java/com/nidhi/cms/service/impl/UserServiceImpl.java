@@ -313,6 +313,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setLastName(userUpdateModal.getLastName());
 		user.setMiddleName(userUpdateModal.getMiddleName());
 		user.setFullName(userUpdateModal.getFullName());
+		user.setDob(Utility.stringToLocalDate(userUpdateModal.getDob()));
 		return userRepository.save(user);
 	}
 

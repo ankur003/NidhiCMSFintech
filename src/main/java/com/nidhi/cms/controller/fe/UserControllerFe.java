@@ -251,12 +251,7 @@ public class UserControllerFe {
 		userUpdateModal.setLastName(lastName);
 		userUpdateModal.setFullName(fullName);
 		userUpdateModal.setDob(dob);
-		try {
 			users=userController.updateUserDetails(userUpdateModal);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		model.addAttribute("msg", "Information Updated");
 		model.addAttribute("user",users);
 		if(request.getParameter("utype").equalsIgnoreCase("adm"))
