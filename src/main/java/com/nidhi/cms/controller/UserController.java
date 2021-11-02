@@ -35,7 +35,9 @@ import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
+import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBankModal;
@@ -343,15 +345,7 @@ public class UserController extends AbstractController {
 		return userservice.getUserBankDetails(user);
 	}
 
-	@PostMapping(value = "/registrationStatus")
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@ApiOperation(value = "get user Registration Status", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
-	public Object getUserRegistrationStatus() throws IOException {
-		return userservice.getUserRegistrationStatus(null);
-	}
-
-	@PostMapping(value = "/tx-wo-otp")
+	@PostMapping(value = "/transaction/payout")
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
@@ -370,7 +364,27 @@ public class UserController extends AbstractController {
 		}
 		return userservice.txWithoutOTP(user, userTxWoOtpReqModal);
 	}
+	
+	@PostMapping(value = "/transaction/inquiry")
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+	@ApiOperation(value = "transaction inquiry", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Object txStatusInquiry(@Valid @RequestBody TxStatusInquiry txStatusInquiry) {
+		User user = getLoggedInUserDetails();
+		return userservice.txStatusInquiry(user, txStatusInquiry);
+	}
 
+	
+	@PostMapping(value = "/transaction/NEFT-status")
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+	@ApiOperation(value = "NEFT Incremental status API", authorizations = { @Authorization(value = "accessToken"),
+			@Authorization(value = "oauthToken") })
+	public Object txNEFTStatus(@Valid @RequestBody NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
+		User user = getLoggedInUserDetails();
+		return userservice.txNEFTStatus(user, nEFTIncrementalStatusReqModal);
+	}
+	
+	
 	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip)
 			throws IOException {
 		User user = userservice.getUserByUserUuid(userUuid);

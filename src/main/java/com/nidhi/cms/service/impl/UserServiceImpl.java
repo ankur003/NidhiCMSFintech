@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -35,7 +37,9 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
+import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -251,42 +255,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Object getUserRegistrationStatus(UserIciciInfo userIciciInfo) throws IOException {
-		CheckNEFTjson runMainMethod = new CheckNEFTjson();
-		Map<Object, Object> map = new HashMap<>();
-	try {
-//			WebClient client = WebClient.create();
-//			MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
-//
-//			bodyValues.add("AGGRNAME", userIciciInfo.getAGGRNAME());
-//			bodyValues.add("AGGRID", userIciciInfo.getAGGRID());
-//			bodyValues.add("CORPID", userIciciInfo.getCORPID());
-//			bodyValues.add("USERID", userIciciInfo.getUSERID());
-//			bodyValues.add("URN", userIciciInfo.getURN());
-//			
-//			String encyptedData = rsaEncryption.encryptData(bodyValues.toString());
-//
-//			String response = client.post()
-//					.uri(new URI(uri))
-//					.header("apikey", "f59e8580b4a34dce87e89b121e242392")
-//					.contentType(MediaType.TEXT_PLAIN).accept(MediaType.ALL)
-//					.body(BodyInserters.fromObject(encyptedData))
-//					.retrieve()
-//					.bodyToMono(String.class)
-//					.block();
-//			System.out.println(response);
-		
-		
-		
-		return runMainMethod.checkNEFTTes(map);
-		} catch (Exception e) {
-			map.put("mainEx", e);
-		e.printStackTrace();
-		}
-	return runMainMethod.checkNEFTTes(map);
-	}
-
-	@Override
 	public Boolean apiWhiteListing(User user, String ip) {
 		user.setWhiteListIp(ip.trim());
 		userRepository.save(user);
@@ -303,8 +271,45 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), "https://api.icicibank.com:8443/api/Corporate/CIB/v1/Transaction", "POST");
-		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
+				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
+		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		System.out.println("txWithoutOTP ==>  "+response);
+		return response;
+	}
+	
+	@Override
+	public Object txStatusInquiry(User user, TxStatusInquiry txStatusInquiry) {
+		txStatusInquiry.setAggrid("CUST0355");
+		// txStatusInquiry.setAggrname("NIDHI");
+		txStatusInquiry.setCorpid("573759208");
+		txStatusInquiry.setUrn("SR188085192");
+		txStatusInquiry.setUserid("USER1");
+		txStatusInquiry.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
+		String jsonAsString = Utility.createJsonRequestAsString(txStatusInquiry);
+		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
+		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), 
+				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
+		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		System.out.println("txStatusInquiry --> " +response);
+		return response;
+	}
+	
+	@Override
+	public Object txNEFTStatus(User user, NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
+		nEFTIncrementalStatusReqModal.setAggrid("CUST0355");
+		// txStatusInquiry.setAggrname("NIDHI");
+		nEFTIncrementalStatusReqModal.setCorpid("573759208");
+		nEFTIncrementalStatusReqModal.setUrn("SR188085192");
+		nEFTIncrementalStatusReqModal.setUserid("USER1");
+		nEFTIncrementalStatusReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
+		String jsonAsString = Utility.createJsonRequestAsString(nEFTIncrementalStatusReqModal);
+		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
+		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), 
+				"https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus", "POST");
+		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		System.out.println("txNEFTStatus --> " +response);
+		return response;
 	}
 
 	@Override

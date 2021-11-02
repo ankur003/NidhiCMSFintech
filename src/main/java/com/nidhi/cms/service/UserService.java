@@ -3,6 +3,8 @@ package com.nidhi.cms.service;
 import java.io.IOException;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +13,9 @@ import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
+import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
+import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -48,8 +52,6 @@ public interface UserService {
 
 	UserBankDetails getUserBankDetails(User user);
 
-	Object getUserRegistrationStatus(UserIciciInfo userIciciInfo) throws IOException;
-
 	Boolean apiWhiteListing(User user, String ip);
 
 	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal);
@@ -67,6 +69,10 @@ public interface UserService {
 	List<User> getSubAdminList();
 
 	List<SystemPrivilege> getSystemPrivilegeList();
+
+	Object txStatusInquiry(User user, TxStatusInquiry txStatusInquiry);
+
+	Object txNEFTStatus(User user, @Valid NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal);
 
 }
 
