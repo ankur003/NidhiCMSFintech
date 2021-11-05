@@ -443,6 +443,11 @@ public class UserController extends AbstractController {
 		}
 		return null;
 	}
+	public SystemPrivilege getPriviligebyid(Long privilege_id) {
+		User user = getLoggedInUserDetails();
+			return userservice.findbyIdprivilege(privilege_id);
+	}
+	
 	
 	public SystemPrivilege deleteAccessPrivilegesIntoSystem(String privilegeName) {
 		User user = getLoggedInUserDetails();

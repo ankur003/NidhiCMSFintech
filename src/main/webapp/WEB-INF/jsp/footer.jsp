@@ -53,7 +53,7 @@
 										size="3px;" style="margin-left: 4px;"><a
 										href="tel:+91-6377201669"><font color="white">+91-6377201669</font></a><br></font>
 									<font size="3px;" style="margin-left: 24px;">
-										011-25520578<br>
+										<br>
 									</font>
 								</p>
 

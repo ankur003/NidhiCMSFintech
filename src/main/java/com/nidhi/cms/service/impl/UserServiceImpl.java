@@ -354,6 +354,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
+	public SystemPrivilege findbyIdprivilege(Long id) {
+		SystemPrivilege systemPrivilege = systemPrivilegeRepo.findById(id).get();
+		return systemPrivilege;
+	}
+	
+	@Override
 	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
 		List<SystemPrivilege> systemPrivileges = systemPrivilegeRepo.findByPrivilegeNameIn(subAdminCreateModal.getPrivilageNames());
 		if (CollectionUtils.isEmpty(systemPrivileges) || systemPrivileges.size() != subAdminCreateModal.getPrivilageNames().length) {
