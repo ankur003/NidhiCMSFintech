@@ -14,6 +14,6 @@ public interface SystemPrivilegeRepo extends JpaRepository<SystemPrivilege, Long
 
 	SystemPrivilege findByPrivilegeName(String privilegeName);
 	
-	List<SystemPrivilege> findByPrivilegeNameIn(String[] privilegeName);
+	List<SystemPrivilege> findByPrivilegeNameIn(List<String> privilegeName);
 	
 }

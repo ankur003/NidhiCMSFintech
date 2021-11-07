@@ -1,14 +1,16 @@
 package com.nidhi.cms.modal.request;
 
-public class SubAdminCreateModal extends UserCreateModal{
+import java.util.List;
 
-	private String[] privilageNames;
+public class SubAdminCreateModal extends UserCreateModal {
 
-	public String[] getPrivilageNames() {
+	private List<String> privilageNames;
+
+	public List<String> getPrivilageNames() {
 		return privilageNames;
 	}
 
-	public void setPrivilageNames(String[] privilageNames) {
+	public void setPrivilageNames(List<String> privilageNames) {
 		this.privilageNames = privilageNames;
 	}
 

@@ -76,7 +76,7 @@ public class User extends BaseDomain {
 
 	private Boolean isUserCreatedByAdmin = false;
 
-	private String[] privilageNames;
+	private String privilageNames;
 
 	public Long getUserId() {
 		return userId;
@@ -214,11 +214,11 @@ public class User extends BaseDomain {
 		this.isUserCreatedByAdmin = isUserCreatedByAdmin;
 	}
 
-	public String[] getPrivilageNames() {
+	public String getPrivilageNames() {
 		return privilageNames;
 	}
 
-	public void setPrivilageNames(String[] privilageNames) {
+	public void setPrivilageNames(String privilageNames) {
 		this.privilageNames = privilageNames;
 	}
 
