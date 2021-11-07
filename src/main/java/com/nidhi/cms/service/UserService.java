@@ -74,6 +74,8 @@ public interface UserService {
 
 	Object txNEFTStatus(User user, @Valid NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal);
 
+	SystemPrivilege findbyIdprivilege(Long id);
+
 }
 
 

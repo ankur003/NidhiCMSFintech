@@ -178,7 +178,14 @@ public class forwardController {
 	public ModelAndView userCompInfo(Model model) {
 		return new ModelAndView("userCompInfo");
 	}
-	 
+	@GetMapping(value = "/AdminAddPrivilege")
+	public ModelAndView AdminAddPrivilege(Model model) {
+		return new ModelAndView("AdminAddPrivilege");
+	}
+	@GetMapping(value = "/Adminupdateprivilege")
+	public ModelAndView Adminupdateprivilege(Model model) {
+		return new ModelAndView("Adminupdateprivilege");
+	}
 	
 	@GetMapping(value = "/logout")
 	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response) {

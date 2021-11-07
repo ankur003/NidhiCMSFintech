@@ -34,6 +34,7 @@ import com.nidhi.cms.controller.OtpController;
 import com.nidhi.cms.controller.UserController;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Role;
+import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBankDetails;
@@ -498,6 +499,68 @@ public class UserControllerFe {
 		else
 			return new ModelAndView("setting");
 	}
+	
+	
+	@GetMapping(value = "/get-privilegeList")
+	public ModelAndView getListOfPrivilege(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request, HttpSession session) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		model.addAttribute("user",user);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		model.addAttribute("privilegeList",list);
+		model.addAttribute("init",list.size());
+		return new ModelAndView("AdminAddPrivilege");
+	}
+	
+	
+	@PostMapping(value = "/admin-add-privilege")
+	public ModelAndView addAccessPrivilegesIntoSystem(Model model, HttpServletRequest request) {
+		String privilegeName = request.getParameter("privilegeName");
+		SystemPrivilege systemPrivilege = null;
+			systemPrivilege = userController.addAccessPrivilegesIntoSystem(privilegeName);
+			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+			model.addAttribute("privilegeList",list);
+			model.addAttribute("init",list.size());
+		if (systemPrivilege!=null) {
+			model.addAttribute("msg", "System Privilege has been added");
+		} else
+			model.addAttribute("msgs", "Privilege Name didn't add. ");
+		return new ModelAndView("AdminAddPrivilege");
+	}
+	
+//	deleteAccessPrivilegesIntoSystem
+	@PostMapping(value = "/admin-update-privilege")
+	public ModelAndView updateAccessPrivilegesIntoSystem(Model model, HttpServletRequest request) {
+		String privilegeName = request.getParameter("privilegeName");
+		String nprivilegeName = request.getParameter("nprivilegeName");
+		SystemPrivilege systemPrivilege = null;
+			systemPrivilege = userController.updateAccessPrivilegesIntoSystem(privilegeName,nprivilegeName);
+			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+			model.addAttribute("privilegeList",list);
+			model.addAttribute("init",list.size());
+		if (systemPrivilege!=null) {
+			model.addAttribute("msg", "System Privilege has been Updated");
+		} else
+			model.addAttribute("msgs", "Privilege Name didn't Update. ");
+		return new ModelAndView("AdminAddPrivilege");
+	}
+
+	
+	@GetMapping(value = "/deletePrivlege")
+	public ModelAndView deleteAccessPrivilegesIntoSystem(@RequestParam("privilegeName") String privilegeName,Model model, HttpServletRequest request, HttpSession session) {
+		userController.deleteAccessPrivilegesIntoSystem(privilegeName);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		model.addAttribute("privilegeList",list);
+		model.addAttribute("init",list.size());
+		return new ModelAndView("AdminAddPrivilege");
+	}
+	
+	@GetMapping(value = "/getPriviligebyid")
+	public ModelAndView getPriviligebyid(@RequestParam("id") Long id,Model model, HttpServletRequest request, HttpSession session) {
+		SystemPrivilege systemPrivilege = userController.getPriviligebyid(id);
+		model.addAttribute("systemPrivilege",systemPrivilege);
+		return new ModelAndView("Adminupdateprivilege");
+	}
+	
 	
 	@GetMapping(value = "/get-kyc-data")
 	public ModelAndView kycData(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request)
