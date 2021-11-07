@@ -75,5 +75,13 @@ public class UserCreateModal {
 	public void setIsCreatedByAdmin(Boolean isCreatedByAdmin) {
 		this.isCreatedByAdmin = isCreatedByAdmin;
 	}
+
+	@Override
+	public String toString() {
+		return "UserCreateModal [userEmail=" + userEmail + ", mobileNumber=" + mobileNumber + ", password=" + password
+				+ ", fullName=" + fullName + ", referralCode=" + referralCode + ", isCreatedByAdmin=" + isCreatedByAdmin
+				+ "]";
+	}
+	
 	
 }

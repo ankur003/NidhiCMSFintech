@@ -1,5 +1,7 @@
 package com.nidhi.cms.modal.request;
 
+import java.util.Arrays;
+
 public class SubAdminCreateModal extends UserCreateModal{
 
 	private String[] privilageNames;
@@ -12,4 +14,10 @@ public class SubAdminCreateModal extends UserCreateModal{
 		this.privilageNames = privilageNames;
 	}
 
+	@Override
+	public String toString() {
+		return "SubAdminCreateModal [privilageNames=" + Arrays.toString(privilageNames) + "]";
+	}
+
+	
 }

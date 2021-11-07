@@ -62,13 +62,13 @@
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/user" method="post">
+									<form class="contactform" action="/api/v1/subadmin-add" method="post">
 
 
 										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: red;">
+													style="border-style: solid; border-color: green;">
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
@@ -99,12 +99,39 @@
 												aria-required="true" required="required" maxlength="10">
 										</p>
 										
-										<div>
+										
+										 
+											<table class="table table-striped">
+												<thead class="thead-dark">
+													<tr>
+														<th scope="col">#</th>
+														<th scope="col">Privilege Name </th>
+														<th scope="col">Action</th>
+													</tr>
+												</thead>
+												<tbody>
+												
+													<c:forEach items="${privilegeList}" var="ul" varStatus="counter">
+														<tr>
+															<th scope="row">${counter.count}</th>
+															<td>${ul.privilegeName}</td>
+ 															<td> 
+ 															<label class="checkbox-inline"><input type="checkbox" name="privilageNames"
+ 															 value="${ul.privilegeName}"></label>
+ 															</td>
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										
+										
+										
+										<!-- <div>
 										<label class="checkbox-inline"><input type="checkbox" value="">Onboarding</label>
 										<label class="checkbox-inline"><input type="checkbox" value="">Product Featuring</label>
 										<label class="checkbox-inline"><input type="checkbox" value="">SubAdmin</label>
 										<label class="checkbox-inline"><input type="checkbox" value="">Report</label>
-										</div>
+										</div> -->
 										<br>
 										<p class="form-submit">
 											<input type="submit" value="Create" class="btn btn-success"

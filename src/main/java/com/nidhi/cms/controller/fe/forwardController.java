@@ -1,9 +1,12 @@
 package com.nidhi.cms.controller.fe;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,10 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nidhi.cms.constants.ApiConstants;
+import com.nidhi.cms.controller.UserController;
+import com.nidhi.cms.domain.SystemPrivilege;
 
 @RestController
 @RequestMapping(value = ApiConstants.API_VERSION + "/fe")
 public class forwardController {
+	
+	@Autowired
+	private UserController userController;
+
 
 	@GetMapping(value = "/")
 	public ModelAndView main(Model model) {
@@ -126,6 +135,9 @@ public class forwardController {
 	
 	@GetMapping(value = "/SubAdminAccount")
 	public ModelAndView SubAdminAccount(Model model) {
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+       	model.addAttribute("privilegeList",list);
+	    model.addAttribute("init",list.size());
 		return new ModelAndView("SubAdminAccount");
 	}
 	

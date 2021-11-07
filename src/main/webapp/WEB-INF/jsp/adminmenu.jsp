@@ -50,6 +50,8 @@
           <li><a class="link_name" href="#">Category</a></li>
         </ul>
       </li> -->
+      
+      
       <li>
         <div class="iocn-link">
           <a href="#">
@@ -65,6 +67,9 @@
           <li><a href="/api/v1/fe/AdminmanageClint">Manage Client</a></li>
         </ul>
       </li>
+      
+      
+      
      <!--  <li>
         <div class="iocn-link">
           <a href="#">
@@ -80,6 +85,9 @@
           <li><a href="#">Card Design</a></li>
         </ul>
       </li> -->
+      
+      
+      
       <li>
         <a href="#">
           <i class='bx bx-pie-chart-alt-2' ></i>
@@ -89,6 +97,8 @@
           <li><a class="link_name" href="/api/v1/fe/AdminProductFeaturing">Product Featuring</a></li>
         </ul>
       </li>
+      
+      
 <!--       <li>
         <a href="#">
           <i class='bx bx-line-chart' ></i>
@@ -123,6 +133,8 @@
           <li><a href="#">Update</a></li>
         </ul>
       </li> -->
+      
+      
       <li>
        <div class="iocn-link">
           <a href="#">
@@ -137,6 +149,8 @@
           <li><a href="/api/v1/fe/SubAdminAccountUpdate">Update</a></li>
         </ul>
       </li>
+      
+      
         <li>
         <div class="iocn-link">
           <a href="#">
@@ -176,11 +190,12 @@
         </div>
         <ul class="sub-menu">
            <li><a class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=a">Setting</a></li>
-          <li><a href="/api/v1/fe/AdminWhiteListpage">White Listing</a></li>
+           <li><a href="/api/v1/fe/AdminWhiteListpage">White Listing</a></li>
            <li><a href="/api/v1/get-privilegeList?userUuid=${userLoginDetails.userUuid}">Add Privilege</a></li>
-          
         </ul>
       </li>
+      
+      
       
       <li>
   </li>

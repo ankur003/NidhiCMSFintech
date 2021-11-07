@@ -41,6 +41,7 @@ import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.LoginRequestModal;
+import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
@@ -560,6 +561,31 @@ public class UserControllerFe {
 		model.addAttribute("systemPrivilege",systemPrivilege);
 		return new ModelAndView("Adminupdateprivilege");
 	}
+	
+	@PostMapping(value = "/subadmin-add")
+	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal, Model model,
+			HttpServletRequest request) {
+			model.addAttribute("msg", "Subadmin has been created");
+//			String[] privilageNames = request.getParameterValues("privilageNames");
+//			SubAdminCreateModal subAdminCreateModal=new SubAdminCreateModal();
+//			subAdminCreateModal.setPrivilageNames(privilege);
+			User createSubAdmin=userController.createSubAdmin(subAdminCreateModal);
+			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+			model.addAttribute("privilegeList",list);
+			return new ModelAndView("SubAdminAccount");
+
+		
+
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	@GetMapping(value = "/get-kyc-data")
