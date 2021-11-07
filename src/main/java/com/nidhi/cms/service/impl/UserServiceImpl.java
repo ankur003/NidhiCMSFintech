@@ -2,13 +2,9 @@ package com.nidhi.cms.service.impl;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -41,7 +37,6 @@ import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
-import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
@@ -149,6 +144,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		if (StringUtils.isNotBlank(userRequestFilterModel.getMiddleName())) {
 			genericSpesification.add(
 					new SearchCriteria("middleName", userRequestFilterModel.getMiddleName(), SearchOperation.EQUAL));
+		}
+		if (userRequestFilterModel.getIsSubAdmin() != null) {
+			genericSpesification.add(
+					new SearchCriteria("isSubAdmin", userRequestFilterModel.getIsSubAdmin(), SearchOperation.EQUAL));
 		}
 		if (CollectionUtils.isNotEmpty(genericSpesification.getSearchCriteriaList())) {
 			return userRepository.findAll(genericSpesification,
@@ -362,7 +361,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Override
 	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
 		List<SystemPrivilege> systemPrivileges = systemPrivilegeRepo.findByPrivilegeNameIn(subAdminCreateModal.getPrivilageNames());
-		if (CollectionUtils.isEmpty(systemPrivileges) || systemPrivileges.size() != subAdminCreateModal.getPrivilageNames().length) {
+		if (CollectionUtils.isEmpty(systemPrivileges) || systemPrivileges.size() != subAdminCreateModal.getPrivilageNames().size()) {
 			return null;
 		}
 		User user = userRepository.findByUserEmailOrMobileNumber(subAdminCreateModal.getUserEmail(), subAdminCreateModal.getMobileNumber());
@@ -374,7 +373,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setMobileNumber(subAdminCreateModal.getMobileNumber());
 		user.setFullName(subAdminCreateModal.getFullName());
 		user.setIsUserVerified(true);
-		user.setPrivilageNames(subAdminCreateModal.getPrivilageNames());
+		user.setPrivilageNames(String.join(",", subAdminCreateModal.getPrivilageNames()));
 		user.setPassword(encoder.encode(subAdminCreateModal.getPassword()));
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setIsUserCreatedByAdmin(true);
