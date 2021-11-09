@@ -12,6 +12,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
 
+<script type="text/javascript" src="/assets/js_dev/generic.js"></script>
 
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
@@ -473,12 +474,19 @@
 												<p class="comment-form-comment">
 													<label for="comment">Deactivate Account 
 													
-													<p><input type="radio" name="acstatus" value="active"> Active</input></p>
-                                                    <p><input type="radio" name="acstatus" value="deactuve"> Deactive</input></p>
+													<p><input type="radio" name="acstatus"
+													 <c:if test="${user.isActive}">checked="checked"</c:if> 
+													value="active"> Active</input></p>
+                                                    <p><input type="radio" name="acstatus" value="deactive"
+                                                    <c:if test="${!user.isActive}">checked="checked"</c:if>> Deactive</input></p>
 													
 													
 													<textarea name="reason" cols="25" rows="8" placeholder="Type Your reason"
-														aria-required="true" required="required"></textarea>
+														aria-required="true" required="required">
+														 <c:if test="${!user.isActive}">
+														${user.deactivateReason}
+														</c:if>
+														</textarea>
 												</p>
 											</div>
 												<div class="col-lg-6"><br></div>
@@ -517,24 +525,72 @@
 														</Select>
 												</p>
 												</div>
+		
+											
+											
+												
 												<div class="col-lg-12">
-												<div class="col-lg-6">
+												<div class="col-lg-3">
 												<p class="comment-form-author">
 													<label for="author">Set Charges<span
 														class="mandate">*</span></label><br>
-														<Select id="paymentMode" name="paymentMode" style="width:95%;height: 40px;">
-														<option value="RTG">RTGS</option>
-														<option value="IFS">IMPS</option>
-														<option value="RGS">NEFT</option>
-														</Select>
+                                                 <input type="hidden"  required="required" maxlength="5" name="RGS" id="RTG" value="RTG" >
+                                                <input type="Text"  required="required" maxlength="5" name="RTGS" id="RTGS" value="RTGS" readonly="readonly">   
+                                          
 												</p>
 												</div>
-												<div class="col-lg-6" style="margin-top: 2%;margin-left: -2%">
+												<div class="col-lg-3" style="margin-top: 2%;margin-left: -2%">
 												<label for="author"></label>
-												 <input type="text" placeholder="%"
-														required="required" maxlength="5" name="feePercent" id="feePercent" >
+												 <input type="text" placeholder="%" value="${RTGfeePercent}"
+														required="required" maxlength="5" name="RTGfeePercent" id="RTGfeePercent" 
+														onkeypress="javascript: return onlyNumbers(event);">
+												</div>
+												<div class="col-lg-3" style="margin-top: 3%;">
+												  <input type="radio" name="rtgsstatus" value="Active" <c:if test="${rtgsstatus}">checked="checked"</c:if>> Active</input>
+												  <input type="radio" name="rtgsstatus" value="Deactive" <c:if test="${!rtgsstatus}">checked="checked"</c:if>> Deactive</input>
 												</div>
 												</div>
+												
+												
+													<div class="col-lg-12">
+												<div class="col-lg-3">
+												<p class="comment-form-author">
+													<label for="author">Set Charges<span
+														class="mandate">*</span></label><br>
+					<input type="hidden"  required="required" maxlength="5" name="IFS" id="IFS" value="IFS" >
+                      <input type="Text"  required="required" maxlength="5" name="IMPS" id="IMPS" value="IMPS" readonly="readonly">                          
+												</p>
+												</div>
+												<div class="col-lg-3" style="margin-top: 2%;margin-left: -2%">
+												<label for="author"></label>
+												 <input type="text" placeholder="%" required="required" maxlength="5" name="IFSfeePercent" id="IFSfeePercent" 
+													value="${IFSfeePercent}"	onkeypress="javascript: return onlyNumbers(event);">
+												</div>
+												<div class="col-lg-3" style="margin-top: 3%;">
+												  <input type="radio" name="impsstatus" value="Active"  <c:if test="${impsstatus}">checked="checked"</c:if>> Active</input>
+												  <input type="radio" name="impsstatus" value="Deactive"  <c:if test="${!impsstatus}">checked="checked"</c:if>> Deactive</input>
+												</div>
+												</div>
+												
+												<div class="col-lg-12">
+												<div class="col-lg-3">
+												<p class="comment-form-author">
+												<label for="author">Set Charges<span class="mandate">*</span></label><br>
+												<input type="hidden"  required="required" maxlength="5" name="RGS" id="RGS" value="RGS" >
+                                                <input type="Text"  required="required" maxlength="5" name="NEFT" id="NEFT" value="NEFT" readonly="readonly">   
+												</p>
+												</div>
+												<div class="col-lg-3" style="margin-top: 2%;margin-left: -2%">
+												<label for="author"></label>
+												 <input type="text" placeholder="%" required="required" maxlength="5" name="RGSfeePercent" id="RGSfeePercent" 
+												 value="${RGSfeePercent}" onkeypress="javascript: return onlyNumbers(event);">
+												</div>
+												<div class="col-lg-3" style="margin-top: 3%;">
+												  <input type="radio" name="neftstatus" value="Active"  <c:if test="${neftstatus}">checked="checked"</c:if>> Active</input>
+												  <input type="radio" name="neftstatus" value="Deactive"  <c:if test="${!neftstatus}">checked="checked"</c:if>> Deactive</input>
+												</div>
+												</div>
+												
 											
 											<div class="col-lg-12">
 											<p class="form-submit">

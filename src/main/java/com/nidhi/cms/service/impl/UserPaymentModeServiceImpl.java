@@ -27,8 +27,10 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 			userPaymentMode.setPaymentMode(userPaymentModeModalReqModal.getPaymentMode());
 			userPaymentMode.setUserId(user.getUserId());
 			userPaymentMode.setFeePercent(userPaymentModeModalReqModal.getFeePercent());
+			userPaymentMode.setIsActive(userPaymentModeModalReqModal.isActive());
 			return userPaymentModeRepo.save(userPaymentMode);
 		}
+		userPaymentMode.setIsActive(userPaymentModeModalReqModal.isActive());
 		if (userPaymentModeModalReqModal.getPaymentMode() != null) {
 			userPaymentMode.setPaymentMode(userPaymentModeModalReqModal.getPaymentMode());
 

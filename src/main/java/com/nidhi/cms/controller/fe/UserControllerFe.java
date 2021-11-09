@@ -6,6 +6,7 @@ package com.nidhi.cms.controller.fe;
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nidhi.cms.constants.ApiConstants;
+import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.controller.LoginController;
 import com.nidhi.cms.controller.OtpController;
@@ -436,6 +438,8 @@ public class UserControllerFe {
 	    userRequestFilterModel.setUserEmail(userEmail);
 	    userRequestFilterModel.setUsername(username);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		userRequestFilterModel.setIsAdmin(false);
+		userRequestFilterModel.setIsSubAdmin(false);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
@@ -714,6 +718,28 @@ public class UserControllerFe {
 		model.addAttribute("bank",bank);
 		model.addAttribute("bkyc",business);
 		model.addAttribute("user",user);
+		List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(userUuid);
+		model.addAttribute("paylist",paylist);
+		
+		for (UserPaymentMode userPaymentMode : paylist) 
+		{
+			if(userPaymentMode.getPaymentMode()==PaymentMode.RTG)
+			{
+				model.addAttribute("RTGfeePercent",userPaymentMode.getFeePercent());
+				model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
+			}
+			if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
+			{
+				model.addAttribute("RGSfeePercent",userPaymentMode.getFeePercent());
+				model.addAttribute("neftstatus",userPaymentMode.getIsActive());
+			}
+			if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
+			{
+				model.addAttribute("IFSfeePercent",userPaymentMode.getFeePercent());
+				model.addAttribute("impsstatus",userPaymentMode.getIsActive());
+			}
+		}
+		
 		
 		if(pan==null && aadhar==null && gst==null && bank==null && business==null)
 		{
@@ -855,12 +881,40 @@ public class UserControllerFe {
 	public ModelAndView  addpaymentmode(Model model,HttpServletRequest request,@ModelAttribute UserPaymentModeModalReqModal userPaymentModeModalReqModal) {
 		String userUuid=request.getParameter("userUuid");
 		userPaymentModeModalReqModal.setUserUuid(userUuid);
-		String feePercent=request.getParameter("feePercent");
 		
-		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(feePercent));
+		String RTG=request.getParameter("RTG");
+		String RTGfeePercent=request.getParameter("RTGfeePercent");
+		String rtgsstatus=request.getParameter("rtgsstatus");
+		boolean flag=false;
+		if(rtgsstatus.equalsIgnoreCase("Active"))flag=true;
+		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RTG);
+		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(RTGfeePercent));
+		userPaymentModeModalReqModal.setActive(flag);
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		
-		 model.addAttribute("msg", "Payment mode Has been Added");
+		String IFS=request.getParameter("IFS");
+		String IFSfeePercent=request.getParameter("IFSfeePercent");
+		String impsstatus=request.getParameter("impsstatus");
+		boolean flag1=false;
+		if(impsstatus.equalsIgnoreCase("Active"))flag1=true;
+		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.IFS);
+		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(IFSfeePercent));
+		userPaymentModeModalReqModal.setActive(flag1);
+		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
+		
+		String RGS=request.getParameter("RGS");
+		String RGSfeePercent=request.getParameter("RGSfeePercent");
+		String neftstatus=request.getParameter("neftstatus");
+		
+		boolean flag2=false;
+		if(neftstatus.equalsIgnoreCase("Active"))flag2=true;
+		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RGS);
+		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(RGSfeePercent));
+		userPaymentModeModalReqModal.setActive(flag2);
+		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
+		 
+		 
+		 model.addAttribute("msg", "Payment mode Has been updated");
 			model.addAttribute("id",5);
 			
 			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
@@ -874,6 +928,27 @@ public class UserControllerFe {
 			model.addAttribute("bank",bank);
 			model.addAttribute("bkyc",business);
 			model.addAttribute("user",userservice.getUserByUserUuid(userUuid));
+			List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(userUuid);
+			model.addAttribute("paylist",paylist);
+			
+			for (UserPaymentMode userPaymentMode : paylist) 
+			{
+				if(userPaymentMode.getPaymentMode()==PaymentMode.RTG)
+				{
+					model.addAttribute("RTGfeePercent",userPaymentMode.getFeePercent());
+					model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
+				}
+				if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
+				{
+					model.addAttribute("RGSfeePercent",userPaymentMode.getFeePercent());
+					model.addAttribute("neftstatus",userPaymentMode.getIsActive());
+				}
+				if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
+				{
+					model.addAttribute("IFSfeePercent",userPaymentMode.getFeePercent());
+					model.addAttribute("impsstatus",userPaymentMode.getIsActive());
+				}
+			}
 			return new ModelAndView("UserUpdateAdmin");
 		
 	}

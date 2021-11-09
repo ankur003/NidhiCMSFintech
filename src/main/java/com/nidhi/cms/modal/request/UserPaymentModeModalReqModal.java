@@ -10,6 +10,7 @@ public class UserPaymentModeModalReqModal {
 
 	private Double feePercent;
 
+	private boolean isActive;
 	public String getUserUuid() {
 		return userUuid;
 	}
@@ -32,6 +33,14 @@ public class UserPaymentModeModalReqModal {
 
 	public void setFeePercent(Double feePercent) {
 		this.feePercent = feePercent;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 
 }
