@@ -105,7 +105,7 @@ public class UserController extends AbstractController {
 		final User user = beanMapper.map(userCreateModal, User.class);
 		User existingUser = userservice.getUserByUserEmailOrMobileNumber(user.getUserEmail(), user.getMobileNumber());
 		if (Objects.nonNull(existingUser) && BooleanUtils.isTrue(existingUser.getIsUserVerified())) {
-			return "username : user already exist by mobile or email.";
+			return "Either Email or Mobile already Exist.";
 		}
 		// user has not filled the OTP yet and trying again for signUp
 		// in that case - user is available in our system but not veryfied
@@ -188,9 +188,9 @@ public class UserController extends AbstractController {
 //			@Authorization(value = "oauthToken") })
 	public UserDoc getUserDocbyUserId(@RequestParam(required = true, name = "docType") final DocType docType,
 			@RequestParam(required = true, name = "userUuid") final String userUuid) {
-		User user = userservice.getUserByUserUuid(userUuid);
+		User user = userservice.getUserDetailByUserUuid(userUuid);
 		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
-		if (doc != null) {
+		if (null!=doc) {
 			return doc;
 		}
 		return doc;
@@ -347,7 +347,7 @@ public class UserController extends AbstractController {
 //	@ApiOperation(value = "get user bank details", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
 	public UserBankDetails getUserBankDetails(@RequestParam("userUuid") String userUuid) {
-		User user = userservice.getUserByUserUuid(userUuid);
+		User user = userservice.getUserDetailByUserUuid(userUuid);
 		return userservice.getUserBankDetails(user);
 	}
 
@@ -428,6 +428,10 @@ public class UserController extends AbstractController {
 		return userservice.updateUserDetails(user, userUpdateModal);
 	}
 	
+	public User updateSubadminuser(User user,UserUpdateModal userUpdateModal)  {
+		return userservice.updateUserDetails(user, userUpdateModal);
+	}
+	
 	public SystemPrivilege addAccessPrivilegesIntoSystem(String privilegeName) {
 		User user = getLoggedInUserDetails();
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
@@ -492,6 +496,10 @@ public class UserController extends AbstractController {
 	}
 	
 	public UserPaymentMode saveOrUpdateUserPaymentMode(UserPaymentModeModalReqModal userPaymentModeModalReqModal) {
+		User userAdmin = getLoggedInUserDetails();
+		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
+			return null;
+		}
 		User user = userservice.getUserByUserUuid(userPaymentModeModalReqModal.getUserUuid());
 		if (user == null) {
 			return null;
@@ -501,6 +509,10 @@ public class UserController extends AbstractController {
 	}
 	
 	public UserPaymentMode activateOrDeActivateUserPaymentMode(String userUuid, PaymentMode paymentMode,  Boolean isActivate) {
+		User userAdmin = getLoggedInUserDetails();
+		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
+			return null;
+		}
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			return null;
@@ -509,4 +521,67 @@ public class UserController extends AbstractController {
 		
 	}
 	
+	public UserPaymentMode getUserPaymentModeDetailsByPaymentMode(String userUuid, PaymentMode paymentMode) {
+		User userAdmin = getLoggedInUserDetails();
+		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
+			return null;
+		}
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return null;
+		}
+		return userPaymentModeService.getUserPaymentMode(user, paymentMode);
+	}
+	
+	public List<UserPaymentMode> getUserAllPaymentModeDetails(String userUuid) {
+		User userAdmin = getLoggedInUserDetails();
+		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
+			return null;
+		}
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return null;
+		}
+		return userPaymentModeService.getUserAllPaymentMode(user);
+	}
+		
+	
+	/// doc for other
+	public ResponseEntity<Object> saveOrUpdateUserDoc2(@RequestParam("file") final MultipartFile multiipartFile,
+			@RequestParam(required = true, name = "docType") final DocType docType,User user) throws IOException {
+		
+		if (multiipartFile == null) {
+			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "file is blank");
+			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+		}
+		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
+		if (BooleanUtils.isTrue(isSaved)) {
+			return ResponseHandler.getMapResponse("message", "file saved successfully");
+		}
+		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
+				"Please contact support, unable to persist file");
+		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc2(
+			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal,User user) {
+		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
+		userBusinessKyc.setUserId(user.getUserId());
+		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
+		if (BooleanUtils.isTrue(isSaved)) {
+			return ResponseHandler.getMapResponse("message", "data saved");
+		}
+		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
+				"Please contact support, unable to persist data");
+		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	public UserBankDetails saveOrUpdateUserBankDetails2(@RequestBody UserBankModal userBankModal,User user) {
+		return userservice.saveOrUpdateUserBankDetails(user, userBankModal);
+	}
+	
+	public Boolean userActivateOrDeactivate2(String reason,Boolean flag,User user) {
+		user.setDeactivateReason(reason);
+		return userservice.userActivateOrDeactivate(user, flag);
+	}
 }

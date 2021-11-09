@@ -23,12 +23,12 @@
 	type="text/css" media="screen" />
 <link id="switcher" href="/assets/css/theme-color/default-theme.css"
 	rel="stylesheet">
-
+<script type="text/javascript" src="/assets/js_dev/generic.js"></script>
 
 <link href="/assets/css/style.css" rel="stylesheet">
 <script src="/assets/js_dev/profile.js"></script>
 
-
+</script>
 </head>
 <body>
 
@@ -175,8 +175,14 @@
 										<c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: red;">
+													style="border-style: solid; border-color: green;">
 													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+												<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
 												</p>
 											</c:when>
 											<c:otherwise>
@@ -187,12 +193,13 @@
 											<label for="email">Email OTP <span
 												class="mandate">*</span></label> <input type="text"
 												required="required" aria-required="true" value=""
-												name="emailOtp" id="emailOtp" maxlength="6">
+												name="emailOtp" id="emailOtp" maxlength="6" minlength="6"
+													onkeypress="javascript: return onlyNumbers(event);">
 										</p>
 										<p class="comment-form-url">
 											<label for="subject">Mobile OTP<span class="mandate">*</span></label>
 											<input type="text" name="mobileOtp" aria-required="true"
-												maxlength="6" id="mobileOtp">
+												maxlength="6" id="mobileOtp" onkeypress="javascript: return onlyNumbers(event);">
 
 										</p>
 
@@ -248,11 +255,13 @@
 											<div class="form-group">
 												<input class="form-control input-lg"
 													placeholder="E-mail Address/Contact Number"
-													id="contactoremail" type="text">
+													id="contactoremail" type="text"
+														onkeypress="javascript: return onlyNumbers(event);">
 											</div>
 											<input class="btn btn-lg btn-primary btn-block"
 												value="Send My Password" type="button"
-												onclick="javascript:sendpassword();">
+												onclick="javascript:sendpassword();"
+													onkeypress="javascript: return onlyNumbers(event);">
 										</fieldset>
 									</div>
 								</div>
@@ -283,6 +292,7 @@
 	<script src="/assets/js/bootstrap.js"></script>
 	<!-- Slick slider -->
 	<script type="text/javascript" src="/assets/js/slick.js"></script>
+	
 	<!-- Counter -->
 	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
 	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>

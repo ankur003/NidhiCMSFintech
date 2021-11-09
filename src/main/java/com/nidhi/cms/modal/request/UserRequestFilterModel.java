@@ -27,6 +27,8 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 	private String userUuid;
 
 	private Boolean isSubAdmin;
+	
+	private Boolean isAdmin;
 
 	public String getUsername() {
 		return username;
@@ -98,6 +100,14 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 
 	public void setIsSubAdmin(Boolean isSubAdmin) {
 		this.isSubAdmin = isSubAdmin;
+	}
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 
 }

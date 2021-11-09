@@ -55,6 +55,24 @@
 								<div class="mu-contact-right">
 									<form class="contactform" action="/api/v1/get-user-search" method="post">
 
+	                                       <c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											
+											</c:otherwise>
+										</c:choose>
+										
 									<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">First Name</label> <input type="text"
@@ -111,8 +129,8 @@
 															<td>${ul.mobileNumber}</td>
  															<%-- <td><a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
 															<input type="Button" value="Select" class="btn btn-success" name="Approve"></a></td> --%>
-															<td><input type="Button" value="Select" class="btn btn-success" name="Approve"
- 															onclick="javascript:copyUuid('${ul.userUuid}')"></td>
+															<td><a href="/api/v1/get-div-kyc?userUuid=${ul.userUuid}&id=1" target="_blank"><input type="Button" value="Select" class="btn btn-success" name="Approve"
+ 															onclick="javascript:copyUuid('${ul.userUuid}')"></a></td>
 														</tr>
 													</c:forEach>
 												</tbody>
@@ -127,7 +145,9 @@
 				</div>
 				<!-- end contact content -->
 				
-				<div class="col-md-12" style="display: none;" id="tab">
+				<c:if test="${user ne null }">
+				
+				<div class="col-md-12" >
 					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value"
 					><button type="button" class="btn btn-primary">Personal KYC</button></a>
 					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value">
@@ -136,8 +156,11 @@
 					<button type="button" class="btn btn-success">Bank Details</button></a>
 					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value">
 					<button type="button" class="btn btn-danger">Deactivate</button></a>
+					<a href = "javascript:;" onclick = "this.href='/api/v1/get-kyc-data?userUuid=' + document.getElementById('userUuid').value">
+					<button type="button" class="btn btn-warning">Billing Charges</button></a>
 				</div>
 					
+					</c:if>
 					<input type="hidden" id="userUuid" name="userUuid" >
 			
 			</div>

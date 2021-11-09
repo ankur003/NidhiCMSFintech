@@ -93,6 +93,17 @@
 												</p>
 											</div>
 										</div>
+										
+										<c:if test="${userWallet.walletUuid ne null}">
+										 <div class="col-sm-12">
+												<p class="comment-form-comment">
+													<label for="comment">Virtual Wallet</label>
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="green" size="3">${userWallet.walletUuid}</font></label> 
+												</p>
+											</div>
+											</c:if>
 										</form>
 								</div>
 

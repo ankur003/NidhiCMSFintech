@@ -6,6 +6,7 @@ public class UserAccountActivateModal {
 
 	private Boolean isActivate;
 
+	
 	public String getUserUuid() {
 		return userUuid;
 	}
@@ -22,4 +23,5 @@ public class UserAccountActivateModal {
 		this.isActivate = isActivate;
 	}
 
+	
 }

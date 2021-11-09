@@ -36,8 +36,10 @@ public class User extends BaseDomain {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
 
+	@Column(unique = true)
 	private String userEmail;
 
+	@Column(unique = true)
 	private String mobileNumber;
 
 	private String fullName;
@@ -57,7 +59,7 @@ public class User extends BaseDomain {
 
 	private Boolean isAdmin;
 
-	private Boolean isSubAdmin;
+	private Boolean isSubAdmin= false;
 
 	private Boolean isUserVerified = false;
 
@@ -78,6 +80,8 @@ public class User extends BaseDomain {
 
 	private String privilageNames;
 
+	private String deactivateReason;
+	
 	public Long getUserId() {
 		return userId;
 	}
@@ -228,6 +232,14 @@ public class User extends BaseDomain {
 
 	public void setIsSubAdmin(Boolean isSubAdmin) {
 		this.isSubAdmin = isSubAdmin;
+	}
+
+	public String getDeactivateReason() {
+		return deactivateReason;
+	}
+
+	public void setDeactivateReason(String deactivateReason) {
+		this.deactivateReason = deactivateReason;
 	}
 
 }

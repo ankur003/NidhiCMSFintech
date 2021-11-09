@@ -129,6 +129,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public User getUserByUserUuid(String userUuid) {
 		return userRepository.findByUserUuidAndIsUserVerified(userUuid, true);
 	}
+	
+	@Override
+	public User getUserDetailByUserUuid(String userUuid) {
+		return userRepository.findByUserUuid(userUuid);
+	}
 
 	@Override
 	public Page<User> getAllUsers(UserRequestFilterModel userRequestFilterModel) {
@@ -148,6 +153,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		if (userRequestFilterModel.getIsSubAdmin() != null) {
 			genericSpesification.add(
 					new SearchCriteria("isSubAdmin", userRequestFilterModel.getIsSubAdmin(), SearchOperation.EQUAL));
+		}
+		if (userRequestFilterModel.getIsAdmin() != null) {
+			genericSpesification.add(
+					new SearchCriteria("isAdmin", userRequestFilterModel.getIsAdmin(), SearchOperation.EQUAL));
 		}
 		if (CollectionUtils.isNotEmpty(genericSpesification.getSearchCriteriaList())) {
 			return userRepository.findAll(genericSpesification,
@@ -313,11 +322,29 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public User updateUserDetails(User user, UserUpdateModal userUpdateModal) {
-		user.setFirstName(userUpdateModal.getFirstName());
-		user.setLastName(userUpdateModal.getLastName());
-		user.setMiddleName(userUpdateModal.getMiddleName());
-		user.setFullName(userUpdateModal.getFullName());
-		user.setDob(Utility.stringToLocalDate(userUpdateModal.getDob()));
+		if (userUpdateModal.getFirstName() != null) {
+			user.setFirstName(userUpdateModal.getFirstName());
+		}
+		
+		if (userUpdateModal.getLastName() != null) {
+			user.setLastName(userUpdateModal.getLastName());
+		}
+		
+		if (userUpdateModal.getMiddleName() != null) {
+			user.setMiddleName(userUpdateModal.getMiddleName());
+		}
+		
+		if (userUpdateModal.getFullName() != null) {
+			user.setFullName(userUpdateModal.getFullName());
+		}
+		
+		if (userUpdateModal.getDob() != null) {
+			user.setDob(Utility.stringToLocalDate(userUpdateModal.getDob()));
+		}
+		
+		if ((userUpdateModal.getUserPrivileges()!=null)) {
+			user.setPrivilageNames(String.join(",", userUpdateModal.getUserPrivileges()));
+		}
 		return userRepository.save(user);
 	}
 

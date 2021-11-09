@@ -64,7 +64,22 @@
 									<form class="contactform" action="/api/v1/user" method="post">
 
 
-
+	<c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											</c:otherwise>
+										</c:choose>
 <!-- 
 <button type="button" id="showalloted"	data-target="#allotedmodel" data-toggle="modal">alloted</button>
 

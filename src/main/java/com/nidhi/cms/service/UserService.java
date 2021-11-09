@@ -76,6 +76,8 @@ public interface UserService {
 
 	SystemPrivilege findbyIdprivilege(Long id);
 
+	User getUserDetailByUserUuid(String userUuid);
+
 }
 
 

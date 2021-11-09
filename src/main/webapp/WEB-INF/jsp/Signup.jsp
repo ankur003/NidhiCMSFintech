@@ -21,6 +21,7 @@
 <link id="switcher" href="/assets/css/theme-color/default-theme.css" rel="stylesheet">
 <link href="/assets/css/style.css" rel="stylesheet">
 <script src="/assets/js_dev/profile.js"></script>
+<script type="text/javascript" src="/assets/js_dev/generic.js"></script>
 
 
 </head>
@@ -88,7 +89,7 @@
 			<!-- IMG BASED LOGO  -->
 			<a class="navbar-brand" href="index"><img
 				src="/assets/img/logo.png"
-				style="height: 150px; width: 300px; margin-top: -15px;" alt="logo"></a>
+				style="height: 80px; width: 300px; margin-top: -15px;" alt="logo"></a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
@@ -172,6 +173,12 @@
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
+											<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
@@ -190,8 +197,9 @@
 										<p class="comment-form-comment">
 											<label for="comment">Contact Number<span
 												class="mandate">*</span></label> <input type="text"
-												required="required" aria-required="true" value=""
-												name="mobileNumber" id="mobileNumber" maxlength="10">
+												required="required" aria-required="true" value="" minlength="10"
+												name="mobileNumber" id="mobileNumber" maxlength="10"
+												onkeypress="javascript: return onlyNumbers(event);">
 										</p>
 										<p class="comment-form-url">
 											<label for="subject">Password<span class="mandate">*</span></label>

@@ -1,5 +1,7 @@
 package com.nidhi.cms.modal.request;
 
+import java.util.List;
+
 public class UserUpdateModal {
 
 	private String fullName;
@@ -11,6 +13,8 @@ public class UserUpdateModal {
 	private String middleName;
 	
 	private String dob;
+	
+	private String[] userPrivileges;
 
 	public String getFullName() {
 		return fullName;
@@ -51,6 +55,21 @@ public class UserUpdateModal {
 	public void setDob(String dob) {
 		this.dob = dob;
 	}
+
+	public String[] getUserPrivileges() {
+		return userPrivileges;
+	}
+
+	public void setUserPrivileges(String[] userPrivileges) {
+		this.userPrivileges = userPrivileges;
+	}
+
+	/*
+	 * public List<String> getUserPrivileges() { return userPrivileges; }
+	 * 
+	 * public void setUserPrivileges(List<String> userPrivileges) {
+	 * this.userPrivileges = userPrivileges; }
+	 */
 
 	
 }

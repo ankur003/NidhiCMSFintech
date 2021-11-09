@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		}
-		validateWhiteListIp(req, username);
+		//validateWhiteListIp(req, username);
 		chain.doFilter(req, res);
 	}
 

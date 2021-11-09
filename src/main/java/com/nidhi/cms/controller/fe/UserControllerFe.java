@@ -39,13 +39,16 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
+import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.LoginRequestModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
+import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModal;
+import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
@@ -79,7 +82,7 @@ public class UserControllerFe {
 		userCreateModal.setIsCreatedByAdmin(false);
 		String respose = userController.userSignUp(userCreateModal);
 		model.addAttribute("msg", respose);
-		if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
+		if (respose != null && respose.equalsIgnoreCase("Either Email or Mobile already Exist.")) {
 			return new ModelAndView("Signup");
 		} else {
 			return new ModelAndView("VerifyOtp");
@@ -92,15 +95,23 @@ public class UserControllerFe {
 	public ModelAndView userSave(@Valid @ModelAttribute VerifyOtpRequestModal verifyOtpRequestModal, Model model,
 			HttpServletRequest request) {
 		String respose = otpController.verifyOTP(verifyOtpRequestModal);
-		model.addAttribute("msg", respose);
+		
 		if (respose.equalsIgnoreCase("Either email or mobile OTP is incorrect, please try again."))
-			return new ModelAndView("login");
+			{
+			model.addAttribute("msgs", respose);
+			return new ModelAndView("VerifyOtp");
+			}
 		if (respose.equalsIgnoreCase("Otp already verified, please login"))
-			return new ModelAndView("login");
+			{model.addAttribute("msg", respose);
+			return new ModelAndView("login");}
 		if (respose.equalsIgnoreCase("Otp expired, please signUp again."))
-			return new ModelAndView("Signup");
+			{model.addAttribute("msgs", respose);
+			return new ModelAndView("Signup");}
 		if (respose.equalsIgnoreCase("Otp verified, please proceed with login."))
+			{model.addAttribute("msg", respose);
 			return new ModelAndView("login");
+			
+			}
 
 		return null;
 	}
@@ -156,7 +167,7 @@ public class UserControllerFe {
 			}
 			
 		} catch (Exception e) {
-			model.addAttribute("msg", "Either email or Password is incorrect, please try again.");
+			model.addAttribute("msgs", "Either email or Password is incorrect, please try again.");
 			return new ModelAndView("login");
 		}
 	}
@@ -298,6 +309,8 @@ public class UserControllerFe {
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		userRequestFilterModel.setIsAdmin(false);
+		userRequestFilterModel.setIsSubAdmin(false);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
@@ -341,9 +354,13 @@ public class UserControllerFe {
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		userRequestFilterModel.setIsAdmin(false);
+		userRequestFilterModel.setIsSubAdmin(false);
+		
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
-			model.addAttribute("msg", "same has been verified");
+			User user=userservice.getUserByUserUuid(userUuid);
+			model.addAttribute("msg", user.getFullName() ==null ? "record has been verified" : user.getFullName() + " has been verified");
 			model.addAttribute("userList", users.get("data"));
 			model.addAttribute("init", true);
 			return new ModelAndView("AdminPendingClient");
@@ -385,6 +402,8 @@ public class UserControllerFe {
 	    userRequestFilterModel.setUserEmail(userEmail);
 	    userRequestFilterModel.setUsername(username);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		userRequestFilterModel.setIsAdmin(false);
+		userRequestFilterModel.setIsSubAdmin(false);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
@@ -449,6 +468,8 @@ public class UserControllerFe {
 	    userRequestFilterModel.setUserEmail(userEmail);
 	    userRequestFilterModel.setUsername(username);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		userRequestFilterModel.setIsAdmin(false);
+		userRequestFilterModel.setIsSubAdmin(false);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
@@ -566,9 +587,6 @@ public class UserControllerFe {
 	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal, Model model,
 			HttpServletRequest request) {
 			model.addAttribute("msg", "Subadmin has been created");
-//			String[] privilageNames = request.getParameterValues("privilageNames");
-//			SubAdminCreateModal subAdminCreateModal=new SubAdminCreateModal();
-//			subAdminCreateModal.setPrivilageNames(privilege);
 			User createSubAdmin=userController.createSubAdmin(subAdminCreateModal);
 			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
 			model.addAttribute("privilegeList",list);
@@ -580,11 +598,76 @@ public class UserControllerFe {
 	
 	
 	
+	@PostMapping(value = "/get-subadmin")
+	public ModelAndView getSubadmin(Model model, HttpServletRequest request) {
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
+		userRequestFilterModel.setPage(1);
+		
+		
+		String firstName = request.getParameter("firstName");
+		String lastName = request.getParameter("lastName");
+		String userEmail = request.getParameter("userEmail");
+		String username = request.getParameter("username");
+
+	    userRequestFilterModel.setFirstName(firstName);
+	    userRequestFilterModel.setLastName(lastName);
+	    userRequestFilterModel.setUserEmail(userEmail);
+	    userRequestFilterModel.setUsername(username);
+	    userRequestFilterModel.setIsSubAdmin(true);
+		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
+			
+			model.addAttribute("firstName", firstName);
+			model.addAttribute("lastName", lastName);
+			model.addAttribute("userEmail", userEmail);
+			model.addAttribute("username", username);
+			return new ModelAndView("SubAdminAccountUpdate");
+		} else {
+			model.addAttribute("init", false);
+		}
+		return new ModelAndView("SubAdminAccountUpdate");
+	}
 	
 	
+	@GetMapping(value = "/get-userDetails")
+	public ModelAndView userDetails(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request, HttpSession session) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		String[] userPrivilages = user.getPrivilageNames().split(",");
+		model.addAttribute("privilegeList",userPrivilages);
+		model.addAttribute("user",user);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		model.addAttribute("listprivlege",list);
+		return new ModelAndView("SubAdminAccountUpdate");
+	}
 	
-	
-	
+	@PostMapping(value = "/subadminUpdate")
+	public ModelAndView subadminUpdate(Model model, HttpServletRequest request) {
+		User users=null;
+		String email = request.getParameter("userEmail");
+		String password = request.getParameter("password");
+		String respose = userController.changeEmailOrPassword(email, password);
+		String mobileNumber = request.getParameter("mobileNumber");
+		String fullName = request.getParameter("fullName");
+		String[] privilageNames = request.getParameterValues("privilageNames");
+		
+		UserUpdateModal userUpdateModal=new UserUpdateModal();
+		userUpdateModal.setFullName(fullName);
+		userUpdateModal.setUserPrivileges(privilageNames);
+		User user = userservice.getUserByUserUuid(request.getParameter("userUuid"));
+			users=userController.updateSubadminuser(user,userUpdateModal);
+		model.addAttribute("msg", "Information Updated");
+		model.addAttribute("user",users);
+		String[] userPrivilages = user.getPrivilageNames().split(",");
+		model.addAttribute("privilegeList",userPrivilages);
+		model.addAttribute("user",user);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		model.addAttribute("listprivlege",list);
+		return new ModelAndView("SubAdminAccountUpdate");
+
+	}
 	
 	
 	
@@ -592,8 +675,8 @@ public class UserControllerFe {
 	public ModelAndView kycData(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request)
 	{
 		User user = userservice.getUserByUserUuid(userUuid);
-		UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
-		UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+			UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
 		UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
 		UserBankDetails bank= userController.getUserBankDetails(userUuid);	
 		UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
@@ -607,10 +690,191 @@ public class UserControllerFe {
 		
 		if(pan==null && aadhar==null && gst==null && bank==null && business==null)
 		{
-			System.out.println("allllllllllllllllllllllllllllllllllllllllllllllllllllllllll");
+			model.addAttribute("msgs","No data found against "+ user.getFullName());
+			return new ModelAndView("AdminPendingClient");
 		}
 		
 		return new ModelAndView("userCompInfo");
 	}
+	
+	@GetMapping(value = "/get-div-kyc")
+	public ModelAndView kycDivData(@RequestParam("userUuid") String userUuid,@RequestParam("id") int id,Model model, HttpServletRequest request)
+	{
+		
+		User user = userservice.getUserByUserUuid(userUuid);
+		UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+		UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+		UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+		UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+		UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+		model.addAttribute("id",id);
+		model.addAttribute("pan",pan);
+		model.addAttribute("aadhar",aadhar);
+		model.addAttribute("gst",gst);
+		model.addAttribute("bank",bank);
+		model.addAttribute("bkyc",business);
+		model.addAttribute("user",user);
+		
+		if(pan==null && aadhar==null && gst==null && bank==null && business==null)
+		{
+			model.addAttribute("msgs","No data found");
+			return new ModelAndView("UserUpdateAdmin");
+		}
+		
+		return new ModelAndView("UserUpdateAdmin");
+	}
 
+	
+	@PostMapping(value = "/pkycupload-Update")
+	public ModelAndView pkycUpdate(Model model, HttpServletRequest request, @RequestParam MultipartFile[] fileUpload) {
+		try {
+			String userUuid=request.getParameter("userUuid");
+			User user = userservice.getUserByUserUuid(userUuid);
+			if (fileUpload[0] != null) {
+				userController.saveOrUpdateUserDoc2(fileUpload[0], DocType.DOCUMENT_PAN,user);
+			}
+			if (fileUpload[1] != null) {
+				userController.saveOrUpdateUserDoc2(fileUpload[1], DocType.DOCUMENT_AADHAR,user);
+			}
+			model.addAttribute("msg", "Pan & Aadhar card successfully Updated");
+			model.addAttribute("id",1);
+			
+			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+			UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+			UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+			UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+			UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+			model.addAttribute("pan",pan);
+			model.addAttribute("aadhar",aadhar);
+			model.addAttribute("gst",gst);
+			model.addAttribute("bank",bank);
+			model.addAttribute("bkyc",business);
+			model.addAttribute("user",user);
+			return new ModelAndView("UserUpdateAdmin");
+		} catch (Exception e) {
+			
+		}
+		return null;
+	}
+
+	@PostMapping(value = "/bkycupload-update")
+	public ModelAndView bkycUpdate(Model model, HttpServletRequest request, @RequestParam MultipartFile fileUpload,
+			@ModelAttribute UserBusinessKycRequestModal userBusinessKycRequestModal) {
+		try {
+			String userUuid=request.getParameter("userUuid");
+			User user = userservice.getUserByUserUuid(userUuid);
+			if (fileUpload != null) {
+				userController.saveOrUpdateUserDoc2(fileUpload, DocType.DOCUMENT_GST,user);
+			}
+
+			userController.saveOrUpdateUserBusnessKyc2(userBusinessKycRequestModal,user);
+			model.addAttribute("msg", "Business Details Succesfully Update");
+			model.addAttribute("id",2);
+			
+			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+			UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+			UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+			UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+			UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+			model.addAttribute("pan",pan);
+			model.addAttribute("aadhar",aadhar);
+			model.addAttribute("gst",gst);
+			model.addAttribute("bank",bank);
+			model.addAttribute("bkyc",business);
+			model.addAttribute("user",user);
+			return new ModelAndView("UserUpdateAdmin");
+		} catch (Exception e) {
+			return new ModelAndView("UserUpdateAdmin");
+		}
+	}
+
+	//bank 
+	@PostMapping(value = "/user-bank-account-update")
+	public ModelAndView UpdateUserBankDetail(Model model,HttpServletRequest request,@ModelAttribute UserBankModal userBankModal) {
+		String userUuid=request.getParameter("userUuid");
+		User user = userservice.getUserByUserUuid(userUuid);
+		UserBankDetails banks=userController.saveOrUpdateUserBankDetails2(userBankModal,user);
+		if(banks!=null)
+		{
+			model.addAttribute("msg", "Bank Details Succesfully Updated");
+			model.addAttribute("id",3);
+			
+			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+			UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+			UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+			UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+			UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+			model.addAttribute("pan",pan);
+			model.addAttribute("aadhar",aadhar);
+			model.addAttribute("gst",gst);
+			model.addAttribute("bank",bank);
+			model.addAttribute("bkyc",business);
+			model.addAttribute("user",user);
+			return new ModelAndView("UserUpdateAdmin");
+		}
+		else
+		{
+			model.addAttribute("msgs", "Bank Details Not Uploaded");
+			return new ModelAndView("UserUpdateAdmin");
+		}
+		
+	}
+	
+	@PostMapping(value = "/deactivateUser")
+	public ModelAndView userActivateOrDeactivate2(Model model,HttpServletRequest request,@ModelAttribute UserAccountActivateModal userAccountActivateModal) {
+		String userUuid=request.getParameter("userUuid");
+		User user = userservice.getUserByUserUuid(userUuid);
+		String reason=request.getParameter("reason");
+	    String status=request.getParameter("acstatus");	
+		boolean flag=false;
+	    
+	    if(status.equalsIgnoreCase("active"))
+	    	flag=true;
+	    
+	    
+		userController.userActivateOrDeactivate2(reason, flag, user);
+		
+		model.addAttribute("msg", "User Has been deactivated");
+		model.addAttribute("id",4);
+		
+		UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+		UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+		UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+		UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+		UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+		model.addAttribute("pan",pan);
+		model.addAttribute("aadhar",aadhar);
+		model.addAttribute("gst",gst);
+		model.addAttribute("bank",bank);
+		model.addAttribute("bkyc",business);
+		model.addAttribute("user",user);
+		return new ModelAndView("UserUpdateAdmin");
+	}
+	
+	@PostMapping(value = "/add-Payment-mode")
+	public ModelAndView  addpaymentmode(Model model,HttpServletRequest request,@ModelAttribute UserPaymentModeModalReqModal userPaymentModeModalReqModal) {
+		String userUuid=request.getParameter("userUuid");
+		userPaymentModeModalReqModal.setUserUuid(userUuid);
+		String feePercent=request.getParameter("feePercent");
+		
+		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(feePercent));
+		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
+		
+		 model.addAttribute("msg", "Payment mode Has been Added");
+			model.addAttribute("id",5);
+			
+			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+			UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+			UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+			UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+			UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+			model.addAttribute("pan",pan);
+			model.addAttribute("aadhar",aadhar);
+			model.addAttribute("gst",gst);
+			model.addAttribute("bank",bank);
+			model.addAttribute("bkyc",business);
+			model.addAttribute("user",userservice.getUserByUserUuid(userUuid));
+			return new ModelAndView("UserUpdateAdmin");
+		
+	}
 }

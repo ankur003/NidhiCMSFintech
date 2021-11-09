@@ -178,6 +178,12 @@
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
+												<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
@@ -207,7 +213,7 @@
 												name="cancel">
 										</p>
 									</form>
-									<a href="Signup">If not register? <font color="blue"><b>Register
+									<a href="/api/v1/fe/Signup">If not register? <font color="blue"><b>Register
 												Here</b></font></a>
 
 

@@ -1,5 +1,7 @@
 package com.nidhi.cms.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,8 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 		if (userPaymentMode == null) {
 			userPaymentMode = new UserPaymentMode();
 			userPaymentMode.setPaymentMode(userPaymentModeModalReqModal.getPaymentMode());
-			userPaymentMode.setUserId(userPaymentMode.getUserId());
+			userPaymentMode.setUserId(user.getUserId());
+			userPaymentMode.setFeePercent(userPaymentModeModalReqModal.getFeePercent());
 			return userPaymentModeRepo.save(userPaymentMode);
 		}
 		if (userPaymentModeModalReqModal.getPaymentMode() != null) {
@@ -56,6 +59,11 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 			return null;
 		}
 		return userPaymentModeRepo.findByUserIdAndPaymentMode(user.getUserId(), paymentMode);
+	}
+
+	@Override
+	public List<UserPaymentMode> getUserAllPaymentMode(User user) {
+		return userPaymentModeRepo.findByUserId(user.getUserId());
 	}
 
 }

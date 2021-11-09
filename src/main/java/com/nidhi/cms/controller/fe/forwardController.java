@@ -198,6 +198,10 @@ public class forwardController {
 	public ModelAndView Adminupdateprivilege(Model model) {
 		return new ModelAndView("Adminupdateprivilege");
 	}
+	@GetMapping(value = "/UserUpdateAdmin")
+	public ModelAndView UserUpdateAdmin(Model model) {
+		return new ModelAndView("UserUpdateAdmin");
+	}
 	
 	@GetMapping(value = "/logout")
 	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response) {

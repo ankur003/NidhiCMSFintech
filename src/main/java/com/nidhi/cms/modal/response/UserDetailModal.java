@@ -40,7 +40,7 @@ public class UserDetailModal {
 
 	private Boolean isSubAdmin;
 
-	private String[] privilageNames;
+	private String privilageNames;
 
 	public String getUserEmail() {
 		return userEmail;
@@ -146,12 +146,14 @@ public class UserDetailModal {
 		this.isSubAdmin = isSubAdmin;
 	}
 
-	public String[] getPrivilageNames() {
+	public String getPrivilageNames() {
 		return privilageNames;
 	}
 
-	public void setPrivilageNames(String[] privilageNames) {
+	public void setPrivilageNames(String privilageNames) {
 		this.privilageNames = privilageNames;
 	}
+
+	
 
 }
