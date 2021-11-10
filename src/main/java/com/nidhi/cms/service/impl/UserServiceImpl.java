@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.cipher.CheckNEFTjson;
 import com.nidhi.cms.config.ApplicationConfig;
+import com.nidhi.cms.config.CmsConfig;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.constants.enums.SearchOperation;
@@ -102,9 +104,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	private Set<SimpleGrantedAuthority> getAuthority(User user) {
 		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-		user.getRoles().forEach(role -> {
-			authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
-		});
+		user.getRoles().forEach(role -> 
+			authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()))
+		);
 		return authorities;
 	}
 
@@ -271,53 +273,45 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal) {
-		userTxWoOtpReqModal.setAggrid("CUST0355");
-		userTxWoOtpReqModal.setAggrname("NIDHI");
-		userTxWoOtpReqModal.setCorpid("573759208");
-		userTxWoOtpReqModal.setUrn("SR188085192");
-		userTxWoOtpReqModal.setUserid("USER1");
+		userTxWoOtpReqModal.setAggrid(CmsConfig.CUST_ID);
+		userTxWoOtpReqModal.setAggrname(CmsConfig.AGGR_NAME);
+		userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
+		userTxWoOtpReqModal.setUrn(CmsConfig.URN);
+		userTxWoOtpReqModal.setUserid(CmsConfig.USER);
 		userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
-		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
-		System.out.println("txWithoutOTP ==>  "+response);
-		return response;
+		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
 	
 	@Override
 	public Object txStatusInquiry(User user, TxStatusInquiry txStatusInquiry) {
-		txStatusInquiry.setAggrid("CUST0355");
-		// txStatusInquiry.setAggrname("NIDHI");
-		txStatusInquiry.setCorpid("573759208");
-		txStatusInquiry.setUrn("SR188085192");
-		txStatusInquiry.setUserid("USER1");
+		txStatusInquiry.setAggrid(CmsConfig.CUST_ID);
+		txStatusInquiry.setCorpid(CmsConfig.CORP_ID);
+		txStatusInquiry.setUrn(CmsConfig.URN);
+		txStatusInquiry.setUserid(CmsConfig.USER);
 		txStatusInquiry.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(txStatusInquiry);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), 
 				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
-		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
-		System.out.println("txStatusInquiry --> " +response);
-		return response;
+		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
 	
 	@Override
 	public Object txNEFTStatus(User user, NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
-		nEFTIncrementalStatusReqModal.setAggrid("CUST0355");
-		// txStatusInquiry.setAggrname("NIDHI");
-		nEFTIncrementalStatusReqModal.setCorpid("573759208");
-		nEFTIncrementalStatusReqModal.setUrn("SR188085192");
-		nEFTIncrementalStatusReqModal.setUserid("USER1");
+		nEFTIncrementalStatusReqModal.setAggrid(CmsConfig.CUST_ID);
+		nEFTIncrementalStatusReqModal.setCorpid(CmsConfig.CORP_ID);
+		nEFTIncrementalStatusReqModal.setUrn(CmsConfig.URN);
+		nEFTIncrementalStatusReqModal.setUserid(CmsConfig.USER);
 		nEFTIncrementalStatusReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(nEFTIncrementalStatusReqModal);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), 
 				"https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus", "POST");
-		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
-		System.out.println("txNEFTStatus --> " +response);
-		return response;
+		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
 
 	@Override
@@ -381,8 +375,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public SystemPrivilege findbyIdprivilege(Long id) {
-		SystemPrivilege systemPrivilege = systemPrivilegeRepo.findById(id).get();
-		return systemPrivilege;
+		Optional<SystemPrivilege> systemPrivilege = systemPrivilegeRepo.findById(id);
+		if (systemPrivilege.isPresent()) {
+			return systemPrivilege.get();
+		}
+		return null;
 	}
 	
 	@Override
@@ -399,13 +396,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setUserEmail(subAdminCreateModal.getUserEmail());
 		user.setMobileNumber(subAdminCreateModal.getMobileNumber());
 		user.setFullName(subAdminCreateModal.getFullName());
-		user.setIsUserVerified(true);
 		user.setPrivilageNames(String.join(",", subAdminCreateModal.getPrivilageNames()));
 		user.setPassword(encoder.encode(subAdminCreateModal.getPassword()));
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setIsUserCreatedByAdmin(true);
 		user.setIsSubAdmin(true);
-		return userRepository.save(user);
+		User savedUser = userRepository.save(user);
+		otpService.sendingOtp(savedUser, subAdminCreateModal.getPassword());
+		return savedUser;
 	}
 
 	@Override

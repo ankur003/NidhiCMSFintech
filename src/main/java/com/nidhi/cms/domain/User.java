@@ -59,7 +59,7 @@ public class User extends BaseDomain {
 
 	private Boolean isAdmin;
 
-	private Boolean isSubAdmin= false;
+	private Boolean isSubAdmin = false;
 
 	private Boolean isUserVerified = false;
 
@@ -81,7 +81,7 @@ public class User extends BaseDomain {
 	private String privilageNames;
 
 	private String deactivateReason;
-	
+
 	public Long getUserId() {
 		return userId;
 	}

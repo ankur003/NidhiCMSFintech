@@ -17,4 +17,6 @@ public interface OtpService {
 
 	Otp getOtpDetails(String mobileOtp, String emailOtp);
 
+	void sendingOtp(User savedUser, String password);
+
 }

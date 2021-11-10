@@ -55,6 +55,40 @@ public class OtpServiceImpl implements OtpService {
 		}
 		return saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
 	}
+	
+	@Override
+	public void sendingOtp(User existingUser, String password) {
+		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
+		String mobileOtp = "123456";/*
+									 * Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),
+									 * applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
+									 */
+		if (StringUtils.isBlank(mobileOtp)) {
+			return ;
+		}
+		String emailOtp = Utility.getRandomNumberString();
+		sendOtpOnEmail(existingUser, emailOtp, password);
+		if (StringUtils.isBlank(emailOtp)) {
+			return ;
+		}
+		 saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
+	}
+	
+	private void sendOtpOnEmail(User existingUser, String emailOtp,  String password) {
+		CompletableFuture.runAsync(() -> {
+			try {
+				SimpleMailMessage msg = new SimpleMailMessage();
+				msg.setTo(existingUser.getUserEmail());
+				msg.setSubject("Verify OTP | Nidhi CMS");
+				msg.setText("Use the OTP " + emailOtp
+						+ " to verify your NidhiCMS account. \n Password : " +password+"\n DO NOT SHARE OTP WITH ANYONE. \n \n \n \nRegards NidhiCms");
+				javaMailSender.send(msg);
+			} catch (final Exception e) {
+				// to be handled
+			}
+		});
+
+	}
 
 	private void sendOtpOnEmail(User existingUser, String emailOtp) {
 		CompletableFuture.runAsync(() -> {
