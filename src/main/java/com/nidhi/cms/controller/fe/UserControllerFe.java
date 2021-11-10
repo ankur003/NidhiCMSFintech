@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -156,12 +157,9 @@ public class UserControllerFe {
 
 			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
 
-//			if (!getUserAllKyc.isEmpty() && getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
-//				session.setAttribute("kyc", "Done");
-//			} else {
-//				session.setAttribute("kyc", "Pending");
-//			}
+			session.setAttribute("roleName", roleName);
 
+			
 			if (authtoken != null && roleName.equals(RoleEum.ADMIN.name())) {
 				return new ModelAndView("AdminDashboard");
 			} else {
@@ -523,7 +521,7 @@ public class UserControllerFe {
 		if(type.equalsIgnoreCase("a"))
 		return new ModelAndView("AdminSetting");
 		else
-			return new ModelAndView("setting");
+			return new ModelAndView("Setting");
 	}
 	
 	
@@ -638,7 +636,7 @@ public class UserControllerFe {
 	
 	@GetMapping(value = "/get-userDetails")
 	public ModelAndView userDetails(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request, HttpSession session) {
-		User user = userservice.getUserByUserUuid(userUuid);
+		User user = userservice.getUserDetailByUserUuid(userUuid);
 		String[] userPrivilages = user.getPrivilageNames().split(",");
 		model.addAttribute("privilegeList",userPrivilages);
 		model.addAttribute("user",user);
@@ -951,5 +949,37 @@ public class UserControllerFe {
 			}
 			return new ModelAndView("UserUpdateAdmin");
 		
+	}
+	
+	@PostMapping(value = "/admin-whitelist-update")
+	public ModelAndView adminwhitelistupdate(Model model, HttpServletRequest request) {
+		String userUuid = request.getParameter("userUuid");
+		String ip = request.getParameter("ip");
+		boolean flag = false;
+		try {
+			flag = userController.apiWhiteListing(userUuid, ip);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (flag) {
+			model.addAttribute("msg", "IP has been added");
+			
+			model.addAttribute("id",6);
+			
+			User user = userservice.getUserByUserUuid(userUuid);
+			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+			UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+			UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+			UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+			UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+			model.addAttribute("pan",pan);
+			model.addAttribute("aadhar",aadhar);
+			model.addAttribute("gst",gst);
+			model.addAttribute("bank",bank);
+			model.addAttribute("bkyc",business);
+			model.addAttribute("user",user);
+		} else
+			model.addAttribute("msgs", "IP didn't add. ");
+		return new ModelAndView("UserUpdateAdmin");
 	}
 }

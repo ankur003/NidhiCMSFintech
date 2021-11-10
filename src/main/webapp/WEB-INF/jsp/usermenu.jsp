@@ -133,10 +133,12 @@
       <li>
         <a href="#">
           <i class='bx bx-cog' ></i>
-          <span class="link_name" href="/api/v1/fe/Setting">Setting</span>
+           <span class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=u">Setting</span> 
+         <%--   <li><a class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=a">Setting</a></li> --%>
         </a>
         <ul class="sub-menu blank">
-          <li><a class="link_name" href="/api/v1/fe/Setting">Setting</a></li>
+       <!--    <li><a class="link_name" href="/api/v1/fe/Setting">Setting</a></li> -->
+       <li><a class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=u">Setting</a></li>
         </ul>
       </li>
       <li>
@@ -175,7 +177,7 @@
 			<!-- TEXT BASED LOGO -->
 			<!--  <a class="navbar-brand" href="index.html"><i class="fa fa-university"></i><span>ss</span></a> -->
 			<!-- IMG BASED LOGO  -->
-			<a class="navbar-brand" href="/api/v1/fe/index"><img
+			<a class="navbar-brand" href="#"><img
 				src="/assets/img/logo.png"
 				style="height: 80px; width: 300px; margin-top: 0px;" alt="logo"></a>
 		</div>
@@ -192,13 +194,13 @@
 				</c:if>
 					
 					
-					
-				<li class="dropdown active"><a href="#" class="dropdown-toggle"
+					<li><a href="/api/v1/fe/index">Logout </a></li>
+			<!-- 	<li class="dropdown active"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="logout">Logout </a></li>
-					</ul></li>
+						
+					</ul></li> -->
 			</ul>
 		</div>
 		

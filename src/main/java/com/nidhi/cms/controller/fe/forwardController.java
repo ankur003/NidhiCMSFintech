@@ -203,19 +203,6 @@ public class forwardController {
 		return new ModelAndView("UserUpdateAdmin");
 	}
 	
-	@GetMapping(value = "/logout")
-	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response) {
-		HttpSession session = request.getSession(false);
-		session.invalidate(); 
-		if (session != null) {
-			response.setHeader("Cache-Control", "no-store");
-			response.setHeader("Pragma", "no-cache");
-			response.setHeader("Expires", "0");
-			session.removeAttribute("userLoginDetails");
-		     session.invalidate();
-
-		}
-		return new ModelAndView("login");
-	}
+	
 }
 

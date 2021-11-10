@@ -50,6 +50,8 @@
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=3"><button type="button" class="btn btn-success">Bank Details</button></a>
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=4"><button type="button" class="btn btn-danger">Deactivate</button></a>
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=5"><button type="button" class="btn btn-warning">Billing Charges</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=6"><button type="button" class="btn btn-info">White List IP</button></a>
+				
 				</div>
 					
 						             <c:choose>
@@ -608,6 +610,42 @@
 					</div>
 					</c:if>
 					<!-- ---------------------------------------------------------------- -->
+					
+						<!-- ------------------------------------------------------------ -->
+					<c:if test="${id eq 6 }">
+					<div id="4">
+					<div class="mu-contact-area" >
+						<div class="mu-contact-content">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="mu-contact-right">
+										<form class="contactform" action="/api/v1/admin-whitelist-update"	method="post">
+                                     <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+												<div class="col-lg-6">
+										<p class="comment-form-url">
+											<label for="subject">Enter IP<span class="mandate">*</span></label>
+											<input type="text" name="ip" id="ip"
+												minlength="3" aria-required="true" required="required"
+												maxlength="50" value="${user.whiteListIp}">
+										</p>
+										</div>
+												<div class="col-lg-6"><br></div>
+												<div class="col-lg-12">
+											<p class="form-submit">
+											<input type="submit" value="Update" class="btn btn-success"
+												name="Update"> <input type="button" value="Cancel"
+												class="btn btn-info" name="cancel">
+										</p>
+										</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					</div>
+					</c:if>
+					<!-- ------------------------------------------------------------- -->
 			
 		</div>
 	</div>

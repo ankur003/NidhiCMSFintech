@@ -107,7 +107,7 @@
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="logout">Logout </a></li>
+						<li><a href="/api/v1/fe/login">Logout </a></li>
 					</ul></li>
 				<!-- <li class="active"><a href="Signup">SIGNUP</a></li> -->
 			</ul>

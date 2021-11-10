@@ -152,7 +152,7 @@
 			
 			
 			
-				<div class="mu-contact-area" id="ipdiv" style="display: none;">
+			<%-- 	<div class="mu-contact-area" id="ipdiv" style="display: none;">
 
 					<div class="mu-contact-content" >
 						<div class="row">
@@ -194,7 +194,7 @@
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> --%>
 				<!-- end contact content -->
 			</div>
 		</div>
