@@ -13,12 +13,15 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.Role;
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.response.TextLocalResponseModal;
 
@@ -124,5 +127,51 @@ public class Utility {
 		}
 		return request;
 	}
+	
+	public static boolean getRemoteIpAddress(User user, final HttpServletRequest httpServletRequest) {
+		String ip = user.getWhiteListIp();
+		if (ip == null) {
+			return false;
+		}
+		String remoteIpAddress = httpServletRequest.getHeader("X-FORWARDED-FOR");
+
+		if (ip.equals(remoteIpAddress)) {
+			return true;
+		}
+		remoteIpAddress = httpServletRequest.getHeader("X-REAL-IP");
+		if (ip.equals(remoteIpAddress)) {
+			return true;
+		}
+		remoteIpAddress = httpServletRequest.getRemoteAddr();
+		if(ip.equals(remoteIpAddress)) {
+			return true;
+		}
+		return getClientIpAddress(ip, httpServletRequest);
+	}
+	
+	private static final String[] HEADERS_TO_TRY = {
+            "X-Forwarded-For",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED",
+            "HTTP_X_CLUSTER_CLIENT_IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR",
+            "HTTP_FORWARDED",
+            "HTTP_VIA",
+            "REMOTE_ADDR" };
+
+private static boolean getClientIpAddress(String ip2, HttpServletRequest request) {
+    for (String header : HEADERS_TO_TRY) {
+        String ip = request.getHeader(header);
+        if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip) && ip.equalsIgnoreCase(ip2)) {
+            	 return true;
+        }
+    }
+
+    return false;
+}
+
 
 }

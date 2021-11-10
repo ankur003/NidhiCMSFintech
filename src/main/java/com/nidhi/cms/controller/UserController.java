@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -350,13 +351,66 @@ public class UserController extends AbstractController {
 		User user = userservice.getUserDetailByUserUuid(userUuid);
 		return userservice.getUserBankDetails(user);
 	}
+	
+	public static boolean getRemoteIpAddress(User user, final HttpServletRequest httpServletRequest) {
+		String ip = user.getWhiteListIp();
+		if (ip == null) {
+			return false;
+		}
+		String remoteIpAddress = httpServletRequest.getHeader("X-FORWARDED-FOR");
+
+		if (ip.equals(remoteIpAddress)) {
+			return true;
+		}
+		remoteIpAddress = httpServletRequest.getHeader("X-REAL-IP");
+		if (ip.equals(remoteIpAddress)) {
+			return true;
+		}
+		remoteIpAddress = httpServletRequest.getRemoteAddr();
+		if(ip.equals(remoteIpAddress)) {
+			return true;
+		}
+		return getClientIpAddress(ip, httpServletRequest);
+	}
+	
+	private static final String[] HEADERS_TO_TRY = {
+            "X-Forwarded-For",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED",
+            "HTTP_X_CLUSTER_CLIENT_IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR",
+            "HTTP_FORWARDED",
+            "HTTP_VIA",
+            "REMOTE_ADDR" };
+
+private static boolean getClientIpAddress(String ip2, HttpServletRequest request) {
+    for (String header : HEADERS_TO_TRY) {
+        String ip = request.getHeader(header);
+        if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip) && ip.equalsIgnoreCase(ip2)) {
+            	 return true;
+        }
+    }
+
+    return false;
+}
 
 	@PostMapping(value = "/transaction/payout")
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Object txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal) {
+	public Object txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal, final HttpServletRequest httpServletRequest) {
 		User user = getLoggedInUserDetails();
+		
+		boolean isValid = getRemoteIpAddress(user, httpServletRequest);
+		if (!isValid) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over ip");
+			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+		}
+		
 		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
 		if (userWallet == null) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "user wallet not created");
