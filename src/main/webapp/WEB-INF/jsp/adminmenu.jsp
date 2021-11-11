@@ -42,7 +42,7 @@
     </div> -->
     <ul class="nav-links">
    
-       <c:if test="${roleName eq 'ADMIN'}">
+       <c:if test="${userLoginDetails.isAdmin}">
       <li>
         <div class="iocn-link">
           <a href="#">
@@ -119,7 +119,7 @@
      
         
       <c:set var = "theString" value = "${userLoginDetails.privilageNames}"/>
-       <c:if test="${roleName eq 'SUBADMIN'}">
+       <c:if test="${userLoginDetails.isSubAdmin}">
      <c:if test="${fn:contains(theString,'Onboarding')}">  
       <li>
         <div class="iocn-link">
