@@ -401,6 +401,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setIsUserCreatedByAdmin(true);
 		user.setIsSubAdmin(true);
+		user.setRoles(Utility.getRole(RoleEum.USER));
 		User savedUser = userRepository.save(user);
 		otpService.sendingOtp(savedUser, subAdminCreateModal.getPassword());
 		return savedUser;

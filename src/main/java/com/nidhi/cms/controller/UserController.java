@@ -130,9 +130,9 @@ public class UserController extends AbstractController {
 	}
 
 //	@GetMapping(value = "/user")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public User getUserDetail() {
 		return getLoggedInUserDetails();
 	}
@@ -143,19 +143,22 @@ public class UserController extends AbstractController {
 	}
 
 	@GetMapping(value = "")
-	@PreAuthorize("hasRole('ADMIN')")
+	// @PreAuthorize("hasRole('ADMIN')")
 	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
 	public Map<String, Object> getAllUser(@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
-		Page<User> users = userservice.getAllUsers(userRequestFilterModel);
-		if (users == null || CollectionUtils.isEmpty(users.getContent())) {
-			return null;
+		if(BooleanUtils.isTrue(getLoggedInUserDetails().getIsAdmin())) {
+			Page<User> users = userservice.getAllUsers(userRequestFilterModel);
+			if (users == null || CollectionUtils.isEmpty(users.getContent())) {
+				return null;
+			}
+			return ResponseHandler.getpaginationResponse(beanMapper, users, UserDetailModal.class);
 		}
-		return ResponseHandler.getpaginationResponse(beanMapper, users, UserDetailModal.class);
+		return null;
 	}
 
 	@PutMapping(value = "/doc")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	// @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserDoc(@RequestParam("file") final MultipartFile multiipartFile,
@@ -175,9 +178,9 @@ public class UserController extends AbstractController {
 	}
 
 	// @GetMapping(value = "/doc")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") })
+//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") })
 	public UserDoc getUserDoc(@RequestParam(required = true, name = "docType") final DocType docType) {
 		User user = getLoggedInUserDetails();
 		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
@@ -198,7 +201,7 @@ public class UserController extends AbstractController {
 	}
 
 	@PutMapping(value = "/business-kyc")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	//@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(
@@ -229,7 +232,7 @@ public class UserController extends AbstractController {
 	}
 
 	@GetMapping(value = "/get-user-all-kyc")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
 	public List<UserDoc> getUserAllKyc() {
@@ -244,7 +247,7 @@ public class UserController extends AbstractController {
 	}
 
 	// @PutMapping(value = "/change-email-password")
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	//@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "change Email Or Password", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange,
@@ -291,7 +294,7 @@ public class UserController extends AbstractController {
 	}
 
 	@PostMapping(value = "/allocate-fund")
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	//@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = {
 			@Authorization(value = "accessToken"), @Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean allocateFund(@RequestBody UserAllocateFundModal userAllocateFundModal) {
@@ -315,7 +318,7 @@ public class UserController extends AbstractController {
 	}
 
 	@PutMapping(value = "/user-account")
-	@PreAuthorize("hasAnyRole('ADMIN')")
+//	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "activate - deactivate user account", authorizations = {
 			@Authorization(value = "accessToken"), @Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean userActivateOrDeactivate(@RequestBody UserAccountActivateModal userAccountActivateModal) {
@@ -517,6 +520,9 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
 		User user = getLoggedInUserDetails();
+		if (CollectionUtils.isEmpty(subAdminCreateModal.getPrivilageNames())) {
+			return null;
+		}
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
 			return userservice.createSubAdmin(subAdminCreateModal);
 		}

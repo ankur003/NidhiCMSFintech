@@ -1,7 +1,5 @@
 package com.nidhi.cms;
 
-import java.util.Arrays;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.User;
-import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.repository.UserRepository;
-import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -29,9 +25,6 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 
 	@Autowired
 	private UserRepository userRepository;
-	
-	@Autowired
-	private UserService userService;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;

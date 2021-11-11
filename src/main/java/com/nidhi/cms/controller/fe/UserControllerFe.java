@@ -588,10 +588,10 @@ public class UserControllerFe {
 	@PostMapping(value = "/subadmin-add")
 	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal, Model model,
 			HttpServletRequest request) {
-			model.addAttribute("msg", "Subadmin has been created");
-			User createSubAdmin=userController.createSubAdmin(subAdminCreateModal);
+			userController.createSubAdmin(subAdminCreateModal);
 			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
 			model.addAttribute("privilegeList",list);
+			model.addAttribute("msg", "Subadmin has been created");
 			return new ModelAndView("SubAdminAccount");
 
 		

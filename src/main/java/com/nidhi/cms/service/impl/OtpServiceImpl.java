@@ -67,7 +67,7 @@ public class OtpServiceImpl implements OtpService {
 			return ;
 		}
 		String emailOtp = Utility.getRandomNumberString();
-		sendOtpOnEmail(existingUser, emailOtp, password);
+		// sendOtpOnEmail(existingUser, emailOtp, password);
 		if (StringUtils.isBlank(emailOtp)) {
 			return ;
 		}
