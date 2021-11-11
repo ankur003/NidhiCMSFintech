@@ -9,6 +9,8 @@ public class UserPaymentModeModalReqModal {
 	private PaymentMode paymentMode;
 
 	private Double feePercent;
+	
+	private String billChargeType;
 
 	private boolean isActive;
 	public String getUserUuid() {
@@ -41,6 +43,14 @@ public class UserPaymentModeModalReqModal {
 
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	public String getBillChargeType() {
+		return billChargeType;
+	}
+
+	public void setBillChargeType(String billChargeType) {
+		this.billChargeType = billChargeType;
 	}
 
 }
