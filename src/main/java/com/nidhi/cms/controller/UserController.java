@@ -1,5 +1,7 @@
 package com.nidhi.cms.controller;
 
+import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -432,6 +435,19 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		
+		String apiKey = httpServletRequest.getHeader("apiKey");
+		if (StringUtils.isBlank(apiKey) || userWallet.getApiKey() == null || !apiKey.equals(userWallet.getApiKey())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - apiKey is reuired");
+			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(userTxWoOtpReqModal.getMerchantId())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "merchantId not valid.");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		
 		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, EnumUtils.getEnum(PaymentMode.class, userTxWoOtpReqModal.getTxntype()));
 		if (userPaymentMode == null) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is in-valid");
@@ -495,8 +511,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	
-	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip)
-			throws IOException {
+	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null || StringUtils.isBlank(ip)) {
 			return Boolean.FALSE;
@@ -712,5 +727,18 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 	
-	
+	public UserWallet generateApiKey() {
+		User user = getLoggedInUserDetails();
+		if (user == null) {
+			return null;
+		}
+		UserWallet wallet = userWalletService.findByUserId(user.getUserId());
+		if (wallet == null) {
+			return null;
+		}
+//		HttpServletRequest request = null;
+//		HttpSession session = request.getSession();
+//		session.getServletContext().getAttribute(AUTH_TOKEN);
+		return userWalletService.updateApiKey(wallet);
+	}
 }

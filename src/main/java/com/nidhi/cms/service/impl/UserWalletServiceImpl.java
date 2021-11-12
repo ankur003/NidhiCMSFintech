@@ -8,6 +8,7 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.UserWalletService;
+import com.nidhi.cms.utils.Utility;
 
 @Service
 public class UserWalletServiceImpl implements UserWalletService {
@@ -40,6 +41,12 @@ public class UserWalletServiceImpl implements UserWalletService {
 		userWallet.setPaymentMode(paymentMode);
 		userWalletRepo.save(userWallet);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public UserWallet updateApiKey(UserWallet wallet) {
+		wallet.setApiKey(Utility.getUniqueUuid());
+		return userWalletRepo.save(wallet);
 	}
 
 }

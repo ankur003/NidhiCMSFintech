@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EnumType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -31,6 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.nidhi.cms.constants.ApiConstants;
 import com.nidhi.cms.constants.enums.PaymentMode;
+import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.controller.LoginController;
 import com.nidhi.cms.controller.OtpController;
@@ -502,11 +505,7 @@ public class UserControllerFe {
 		String userUuid = request.getParameter("userUuid");
 		String ip = request.getParameter("ip");
 		boolean flag = false;
-		try {
 			flag = userController.apiWhiteListing(userUuid, ip);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		if (flag) {
 			model.addAttribute("msg", "IP has been added");
 		} else
@@ -894,7 +893,7 @@ public class UserControllerFe {
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RTG);
 		userPaymentModeModalReqModal.setFee(Double.valueOf(RTGfeePercent));
 		userPaymentModeModalReqModal.setActive(flag);
-		userPaymentModeModalReqModal.setPaymentModeFeeType(billChargeType);
+		userPaymentModeModalReqModal.setPaymentModeFeeType(EnumUtils.getEnum(PaymentModeFeeType.class, billChargeType));
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		
 		String IFS=request.getParameter("IFS");
@@ -906,7 +905,7 @@ public class UserControllerFe {
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.IFS);
 		userPaymentModeModalReqModal.setFee(Double.valueOf(IFSfeePercent));
 		userPaymentModeModalReqModal.setActive(flag1);
-		userPaymentModeModalReqModal.setPaymentModeFeeType(billChargeType1);
+		userPaymentModeModalReqModal.setPaymentModeFeeType(EnumUtils.getEnum(PaymentModeFeeType.class, billChargeType1));
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		
 		String RGS=request.getParameter("RGS");
@@ -919,7 +918,7 @@ public class UserControllerFe {
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RGS);
 		userPaymentModeModalReqModal.setFee(Double.valueOf(RGSfeePercent));
 		userPaymentModeModalReqModal.setActive(flag2);
-		userPaymentModeModalReqModal.setPaymentModeFeeType(billChargeType2);
+		userPaymentModeModalReqModal.setPaymentModeFeeType(EnumUtils.getEnum(PaymentModeFeeType.class, billChargeType2));
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		 
 		 
@@ -967,11 +966,7 @@ public class UserControllerFe {
 		String userUuid = request.getParameter("userUuid");
 		String ip = request.getParameter("ip");
 		boolean flag = false;
-		try {
 			flag = userController.apiWhiteListing(userUuid, ip);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		if (flag) {
 			model.addAttribute("msg", "IP has been added");
 			

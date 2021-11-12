@@ -547,8 +547,8 @@
 													<label for="author">Bill Charge<span
 														class="mandate">*</span></label><br>
                                                         <Select name="billChargeType" style="width:100%;height: 36px;">
-														<option value="Flat">Flat</option>
-														<option value="Percentage">Percentage</option>
+														<option value="FLAT">Flat</option>
+														<option value="PERCENTAGE">Percentage</option>
 														</Select>
                                           
 												</p>
@@ -580,8 +580,8 @@
 													<label for="author">Bill Charge<span
 														class="mandate">*</span></label><br>
                                                         <Select name="billChargeType2" style="width:100%;height: 36px;">
-														<option value="Flat">Flat</option>
-														<option value="Percentage">Percentage</option>
+														<option value="FLAT">Flat</option>
+														<option value="PERCENTAGE">Percentage</option>
 														</Select>
                                           
 												</p>
@@ -610,8 +610,8 @@
 													<label for="author">Bill Charge<span
 														class="mandate">*</span></label><br>
                                                         <Select name="billChargeType2" style="width:100%;height: 36px;">
-														<option value="Flat">Flat</option>
-														<option value="Percentage">Percentage</option>
+														<option value="FLAT">Flat</option>
+														<option value="PERCENTAGE">Percentage</option>
 														</Select>
                                           
 												</p>
