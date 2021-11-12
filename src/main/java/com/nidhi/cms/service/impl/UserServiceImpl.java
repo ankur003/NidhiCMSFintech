@@ -425,7 +425,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	
 	@Override
 	public User findByUserMobileNumber(String mobileOrEmail) {
-		return userRepository.findByUserMobileNumber(mobileOrEmail);
+		return userRepository.findByMobileNumber(mobileOrEmail);
 	}
 
 }
