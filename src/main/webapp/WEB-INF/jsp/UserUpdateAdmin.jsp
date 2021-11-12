@@ -42,19 +42,7 @@
 	<div class="container">
 		<div class="row">
 				
-			
-				
-				<div class="col-md-12" style="margin-top: -4%;">
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=1"><button type="button" class="btn btn-primary">Personal KYC</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=2"><button type="button" class="btn btn-secondary">Business Details</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=3"><button type="button" class="btn btn-success">Bank Details</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=4"><button type="button" class="btn btn-danger">Deactivate</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=5"><button type="button" class="btn btn-warning">Billing Charges</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=6"><button type="button" class="btn btn-info">White List IP</button></a>
-				
-				</div>
-					
-						             <c:choose>
+			                           <c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
 													style="border-style: solid; border-color: green;">
@@ -71,6 +59,19 @@
 											
 											</c:otherwise>
 										</c:choose>
+				
+				<c:if test="${msgs == null}">
+				<div class="col-md-12" style="margin-top: -4%;">
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=1"><button type="button" class="btn btn-primary">Personal KYC</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=2"><button type="button" class="btn btn-secondary">Business Details</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=3"><button type="button" class="btn btn-success">Bank Details</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=4"><button type="button" class="btn btn-danger">Deactivate</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=5"><button type="button" class="btn btn-warning">Billing Charges</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=6"><button type="button" class="btn btn-info">White List IP</button></a>
+				
+				</div>
+					
+						            
 					
 					<c:if test="${id eq 1 }">
 					<div id="1" >
@@ -541,9 +542,20 @@
                                           
 												</p>
 												</div>
+												<div class="col-lg-3">
+												<p class="comment-form-author">
+													<label for="author">Bill Charge<span
+														class="mandate">*</span></label><br>
+                                                        <Select name="billChargeType" style="width:100%;height: 36px;">
+														<option value="Flat">Flat</option>
+														<option value="Percentage">Percentage</option>
+														</Select>
+                                          
+												</p>
+												</div>
 												<div class="col-lg-3" style="margin-top: 2%;margin-left: -2%">
 												<label for="author"></label>
-												 <input type="text" placeholder="%" value="${RTGfeePercent}"
+												 <input type="text"  value="${RTGfeePercent}"
 														required="required" maxlength="5" name="RTGfeePercent" id="RTGfeePercent" 
 														onkeypress="javascript: return onlyNumbers(event);">
 												</div>
@@ -563,9 +575,20 @@
                       <input type="Text"  required="required" maxlength="5" name="IMPS" id="IMPS" value="IMPS" readonly="readonly">                          
 												</p>
 												</div>
+												<div class="col-lg-3">
+												<p class="comment-form-author">
+													<label for="author">Bill Charge<span
+														class="mandate">*</span></label><br>
+                                                        <Select name="billChargeType2" style="width:100%;height: 36px;">
+														<option value="Flat">Flat</option>
+														<option value="Percentage">Percentage</option>
+														</Select>
+                                          
+												</p>
+												</div>
 												<div class="col-lg-3" style="margin-top: 2%;margin-left: -2%">
 												<label for="author"></label>
-												 <input type="text" placeholder="%" required="required" maxlength="5" name="IFSfeePercent" id="IFSfeePercent" 
+												 <input type="text"  required="required" maxlength="5" name="IFSfeePercent" id="IFSfeePercent" 
 													value="${IFSfeePercent}"	onkeypress="javascript: return onlyNumbers(event);">
 												</div>
 												<div class="col-lg-3" style="margin-top: 3%;">
@@ -582,9 +605,20 @@
                                                 <input type="Text"  required="required" maxlength="5" name="NEFT" id="NEFT" value="NEFT" readonly="readonly">   
 												</p>
 												</div>
+												<div class="col-lg-3">
+												<p class="comment-form-author">
+													<label for="author">Bill Charge<span
+														class="mandate">*</span></label><br>
+                                                        <Select name="billChargeType2" style="width:100%;height: 36px;">
+														<option value="Flat">Flat</option>
+														<option value="Percentage">Percentage</option>
+														</Select>
+                                          
+												</p>
+												</div>
 												<div class="col-lg-3" style="margin-top: 2%;margin-left: -2%">
 												<label for="author"></label>
-												 <input type="text" placeholder="%" required="required" maxlength="5" name="RGSfeePercent" id="RGSfeePercent" 
+												 <input type="text"  required="required" maxlength="5" name="RGSfeePercent" id="RGSfeePercent" 
 												 value="${RGSfeePercent}" onkeypress="javascript: return onlyNumbers(event);">
 												</div>
 												<div class="col-lg-3" style="margin-top: 3%;">
@@ -646,7 +680,7 @@
 					</div>
 					</c:if>
 					<!-- ------------------------------------------------------------- -->
-			
+			</c:if>
 		</div>
 	</div>
 	</section>

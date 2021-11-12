@@ -589,10 +589,13 @@ public class UserControllerFe {
 	@PostMapping(value = "/subadmin-add")
 	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal, Model model,
 			HttpServletRequest request) {
-			userController.createSubAdmin(subAdminCreateModal);
+		User user=userController.createSubAdmin(subAdminCreateModal);
 			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
 			model.addAttribute("privilegeList",list);
+			if(user!=null)
 			model.addAttribute("msg", "Subadmin has been created");
+			else
+			model.addAttribute("msgs", "Phone Or Email already Exist");	
 			return new ModelAndView("SubAdminAccount");
 
 		
@@ -882,16 +885,20 @@ public class UserControllerFe {
 		userPaymentModeModalReqModal.setUserUuid(userUuid);
 		
 		String RTG=request.getParameter("RTG");
+		String billChargeType=request.getParameter("billChargeType");
 		String RTGfeePercent=request.getParameter("RTGfeePercent");
 		String rtgsstatus=request.getParameter("rtgsstatus");
+		
 		boolean flag=false;
 		if(rtgsstatus.equalsIgnoreCase("Active"))flag=true;
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RTG);
 		userPaymentModeModalReqModal.setFee(Double.valueOf(RTGfeePercent));
 		userPaymentModeModalReqModal.setActive(flag);
+		userPaymentModeModalReqModal.setPaymentModeFeeType(billChargeType);
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		
 		String IFS=request.getParameter("IFS");
+		String billChargeType1=request.getParameter("billChargeType1");
 		String IFSfeePercent=request.getParameter("IFSfeePercent");
 		String impsstatus=request.getParameter("impsstatus");
 		boolean flag1=false;
@@ -899,9 +906,11 @@ public class UserControllerFe {
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.IFS);
 		userPaymentModeModalReqModal.setFee(Double.valueOf(IFSfeePercent));
 		userPaymentModeModalReqModal.setActive(flag1);
+		userPaymentModeModalReqModal.setPaymentModeFeeType(billChargeType1);
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		
 		String RGS=request.getParameter("RGS");
+		String billChargeType2=request.getParameter("billChargeType2");
 		String RGSfeePercent=request.getParameter("RGSfeePercent");
 		String neftstatus=request.getParameter("neftstatus");
 		
@@ -910,6 +919,7 @@ public class UserControllerFe {
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RGS);
 		userPaymentModeModalReqModal.setFee(Double.valueOf(RGSfeePercent));
 		userPaymentModeModalReqModal.setActive(flag2);
+		userPaymentModeModalReqModal.setPaymentModeFeeType(billChargeType2);
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		 
 		 

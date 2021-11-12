@@ -42,13 +42,17 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	@PostConstruct
 	public void createAdmin() {
 		User admin = userRepository.findByUserEmailOrMobileNumber("admin@gmail", "1234"); 
-		if (admin == null) {
+		if (admin == null) 
+		{
 			admin = new User(); 
 			admin.setUserEmail("admin@gmail.com");
-			admin.setMobileNumber("1234");
+			admin.setMobileNumber("1234567890");
 			admin.setUserUuid(Utility.getUniqueUuid());
 			admin.setPassword(encoder.encode("admin"));
 			admin.setIsAdmin(true);
+			admin.setFirstName("Super");
+			admin.setLastName("admin");
+			admin.setFullName("Super admin");
 			admin.setIsActive(true); 
 			admin.setIsUserVerified(true);
 			admin.setRoles(Utility.getRole(RoleEum.ADMIN));
