@@ -30,9 +30,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.constants.SwaggerConstant;
 import com.nidhi.cms.constants.enums.ErrorCode;
+import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.PaymentMode;
+import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.domain.DocType;
+import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
@@ -267,6 +270,7 @@ public class UserController extends AbstractController {
 //			@Authorization(value = "oauthToken") })
 	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse,
+			@RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
 			@RequestParam(required = true, name = "docType") final DocType docType) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
@@ -275,7 +279,10 @@ public class UserController extends AbstractController {
 		if (user.getKycStatus().equals(KycStatus.VERIFIED)) {
 			return false;
 		}
-		return userservice.approveOrDisApproveKyc(user, kycResponse, docType);
+		if (BooleanUtils.isNotTrue(kycResponse) && kycRejectReason == null) {
+			return false;
+		}
+		return userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
 	}
 
 //	@GetMapping(value = "/get-user-account-statement")
@@ -406,7 +413,11 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			@Authorization(value = "oauthToken") })
 	public Object txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal, final HttpServletRequest httpServletRequest) {
 		User user = getLoggedInUserDetails();
-		
+		if (BooleanUtils.isNotTrue(user.getIsActive())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over de-activated account");
+			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
 		boolean isValid = getRemoteIpAddress(user, httpServletRequest);
 		if (!isValid) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over ip");
@@ -433,15 +444,28 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		BigDecimal userTxWoAmount = new BigDecimal(userTxWoOtpReqModal.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
-		if ((userPaymentMode.getFeePercent() == null) && (userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < userTxWoAmount.doubleValue()) {
+		if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
+			if ((userPaymentMode.getFee() == null)) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
-		}
-		if ((userPaymentMode.getFeePercent() != null) && (getFee(userPaymentMode.getFeePercent(), userTxWoOtpReqModal.getAmount()) + userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < userTxWoAmount.doubleValue()) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
+			}
+		if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < (getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount())) + userTxWoAmount.doubleValue()) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+			}
+		} else if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
+			if (userPaymentMode.getFee() == null) {
+				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
+				errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+				}
+			if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < (userTxWoAmount.doubleValue() + userPaymentMode.getFee())) {
+				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
+				errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+				}
 		}
 		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
 		return userservice.txWithoutOTP(user, userTxWoOtpReqModal);
@@ -556,6 +580,9 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	public UserPaymentMode saveOrUpdateUserPaymentMode(UserPaymentModeModalReqModal userPaymentModeModalReqModal) {
+		if (userPaymentModeModalReqModal.getPaymentModeFeeType() == null || userPaymentModeModalReqModal.getPaymentMode() == null) {
+			return null;
+		}
 		User userAdmin = getLoggedInUserDetails();
 		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
 			return null;
@@ -644,4 +671,46 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		user.setDeactivateReason(reason);
 		return userservice.userActivateOrDeactivate(user, flag);
 	}
+	
+	
+	public Boolean sendOTPForgotPassword(String mobileOrEmail, ForgotPassType forgotPassType) {
+		if (forgotPassType == null || mobileOrEmail == null) {
+			return false;
+		}
+		User user = null;
+		if (forgotPassType.equals(ForgotPassType.EMAIL)) {
+			user  = userservice.findByUserEmail(mobileOrEmail);
+			if (user == null || user.getUserEmail() == null || BooleanUtils.isNotTrue(user.getIsActive())) {
+				return false;
+			}
+			
+		} else if (forgotPassType.equals(ForgotPassType.PHONE)) {
+			user = userservice.findByUserMobileNumber(mobileOrEmail);
+			if (user == null || user.getMobileNumber() == null || BooleanUtils.isNotTrue(user.getIsActive())) {
+				return false;
+			}
+			
+		}
+		return otpService.sendingOtp(user, forgotPassType);
+	}
+	
+	public Boolean matchOtpForgotPassword(String otp) {
+		Otp otpDetails = otpService.findByMobileOtpOrEmailOtp(otp, otp);
+		return otpDetails != null;
+		
+	}
+	
+	public Boolean updatePasswordForgotPassword(String mobileOrEmail, String newPass, String confirmPass) {
+		if (mobileOrEmail == null || newPass ==null || confirmPass == null || !newPass.equals(confirmPass)) {
+			return false;
+		}
+		User user = userservice.getUserByUserEmailOrMobileNumber(mobileOrEmail, mobileOrEmail);
+		if (user == null) {
+			return false;
+		}
+		return userservice.changeEmailOrPassword(user, null, newPass);
+		
+	}
+	
+	
 }

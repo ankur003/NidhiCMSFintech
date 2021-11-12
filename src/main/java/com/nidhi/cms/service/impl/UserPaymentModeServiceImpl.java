@@ -26,7 +26,8 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 			userPaymentMode = new UserPaymentMode();
 			userPaymentMode.setPaymentMode(userPaymentModeModalReqModal.getPaymentMode());
 			userPaymentMode.setUserId(user.getUserId());
-			userPaymentMode.setFeePercent(userPaymentModeModalReqModal.getFeePercent());
+			userPaymentMode.setFee(userPaymentModeModalReqModal.getFee());
+			userPaymentMode.setPaymentModeFeeType(userPaymentModeModalReqModal.getPaymentModeFeeType());
 			userPaymentMode.setIsActive(userPaymentModeModalReqModal.isActive());
 			return userPaymentModeRepo.save(userPaymentMode);
 		}
@@ -35,11 +36,14 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 			userPaymentMode.setPaymentMode(userPaymentModeModalReqModal.getPaymentMode());
 
 		}
-		if (userPaymentModeModalReqModal.getFeePercent() != null) {
-			userPaymentMode.setFeePercent(userPaymentModeModalReqModal.getFeePercent());
+		if (userPaymentModeModalReqModal.getFee() != null) {
+			userPaymentMode.setFee(userPaymentModeModalReqModal.getFee());
 
 		}
-		if (userPaymentModeModalReqModal.getPaymentMode() == null && userPaymentModeModalReqModal.getFeePercent() == null) {
+		if (userPaymentMode.getPaymentModeFeeType() != null) {
+			userPaymentMode.setPaymentModeFeeType(userPaymentModeModalReqModal.getPaymentModeFeeType());
+		}
+		if (userPaymentModeModalReqModal.getPaymentMode() == null && userPaymentModeModalReqModal.getFee() == null) {
 			return null;
 		}
 		return userPaymentModeRepo.save(userPaymentMode);

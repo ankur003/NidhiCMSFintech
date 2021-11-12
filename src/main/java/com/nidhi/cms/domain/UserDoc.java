@@ -31,17 +31,19 @@ public class UserDoc extends BaseDomain {
 
 	@Enumerated(EnumType.STRING)
 	private DocType docType;
-	
+
 	private String fileName;
-	
+
 	private String contentType;
-	
+
 	private Long fileLength;
 
 	@Lob
 	private String data;
-	
+
 	private Boolean isVerifiedByAdmin = Boolean.FALSE;
+
+	private String rejectionReason;
 
 	public Long getUserDocId() {
 		return userDocId;
@@ -114,5 +116,13 @@ public class UserDoc extends BaseDomain {
 	public void setIsVerifiedByAdmin(Boolean isVerifiedByAdmin) {
 		this.isVerifiedByAdmin = isVerifiedByAdmin;
 	}
-	
+
+	public String getRejectionReason() {
+		return rejectionReason;
+	}
+
+	public void setRejectionReason(String rejectionReason) {
+		this.rejectionReason = rejectionReason;
+	}
+
 }

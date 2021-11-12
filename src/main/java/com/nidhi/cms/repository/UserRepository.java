@@ -27,4 +27,6 @@ public interface UserRepository extends JpaRepository<User, Long> , PagingAndSor
 	User findByUserUuid(String userUuid);
 	
 	User findByUserEmail(String email);
+
+	User findByUserMobileNumber(String mobileNumber);
 }

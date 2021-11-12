@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.nidhi.cms.config.ApplicationConfig;
+import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.repository.OtpRepository;
@@ -116,8 +117,12 @@ public class OtpServiceImpl implements OtpService {
 			otp.setIsActive(true);
 			return otpRepository.save(otp) != null;
 		}
-		existingOtp.setMobileOtp(mobileOtp);
-		existingOtp.setEmailOtp(emailOtp);
+		if (mobileOtp != null ) {
+			existingOtp.setMobileOtp(mobileOtp);
+		}
+		if (emailOtp != null ) {
+			existingOtp.setEmailOtp(emailOtp);
+		}
 		return otpRepository.save(existingOtp) != null;
 	}
 
@@ -140,6 +145,25 @@ public class OtpServiceImpl implements OtpService {
 	@Override
 	public Otp getOtpDetails(String mobileOtp, String emailOtp) {
 		return otpRepository.findByMobileOtpAndEmailOtp(mobileOtp, emailOtp);
+	}
+
+	@Override
+	public Boolean sendingOtp(User user, ForgotPassType forgotPassType) {
+		Otp otp = otpRepository.findByUserId(user.getUserId());
+		if (forgotPassType.equals(ForgotPassType.EMAIL)) {
+			String emailOtp = Utility.getRandomNumberString();
+			sendOtpOnEmail(user, emailOtp);
+			return saveOtpDetails(null, emailOtp, user, otp);
+		} else if (forgotPassType.equals(ForgotPassType.PHONE)) {
+			String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), user.getMobileNumber());
+			return saveOtpDetails(mobileOtp, null, user, otp);
+		}
+		return false;
+	}
+
+	@Override
+	public Otp findByMobileOtpOrEmailOtp(String mobileOtp, String emailOtp) {
+		return otpRepository.findByMobileOtpOrEmailOtp(mobileOtp, emailOtp);
 	}
 
 }

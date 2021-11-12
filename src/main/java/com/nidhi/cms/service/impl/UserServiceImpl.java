@@ -203,8 +203,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType) {
-		Boolean isDone = docService.approveOrDisApproveKyc(user, kycResponse, docType);
+	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason) {
+		Boolean isDone = docService.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
 		if (BooleanUtils.isTrue(isDone)) {
 			if (BooleanUtils.isTrue(kycResponse)) {
 				List<UserDoc> doc = docRepository.findByUserIdAndIsVerifiedByAdmin(user.getUserId(), true);
@@ -234,6 +234,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userWallet.setUserId(user.getUserId());
 			userWallet.setAmount(0.0);
 			userWallet.setWalletUuid(Utility.getUniqueUuid());
+			userWallet.setMerchantId(Utility.getUniqueUuid());
 			userWalletRepository.save(userWallet);
 		}
 	}
@@ -415,6 +416,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Override
 	public List<SystemPrivilege> getSystemPrivilegeList() {
 		return systemPrivilegeRepo.findAll();
+	}
+
+	@Override
+	public User findByUserEmail(String mobileOrEmail) {
+		return userRepository.findByUserEmail(mobileOrEmail);
+	}
+	
+	@Override
+	public User findByUserMobileNumber(String mobileOrEmail) {
+		return userRepository.findByUserMobileNumber(mobileOrEmail);
 	}
 
 }

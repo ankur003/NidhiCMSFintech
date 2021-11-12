@@ -44,7 +44,7 @@ public interface UserService {
 
 	Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange);
 
-	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType);
+	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason);
 
 	Boolean userActivateOrDeactivate(User user, Boolean isActivate);
 
@@ -77,6 +77,10 @@ public interface UserService {
 	SystemPrivilege findbyIdprivilege(Long id);
 
 	User getUserDetailByUserUuid(String userUuid);
+
+	User findByUserEmail(String mobileOrEmail);
+
+	User findByUserMobileNumber(String mobileOrEmail);
 
 }
 

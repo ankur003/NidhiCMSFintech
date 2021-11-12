@@ -21,4 +21,6 @@ public interface OtpRepository extends JpaRepository<Otp, Long> , PagingAndSorti
 
 	Otp findByMobileOtpAndEmailOtp(String mobileOtp, String emailOtp);
 	
+	Otp findByMobileOtpOrEmailOtp(String mobileOtp, String emailOtp);
+	
 }

@@ -28,6 +28,8 @@ public class UserWallet extends BaseDomain {
 
 	private String walletUuid;
 
+	private String merchantId;
+
 	@Enumerated(EnumType.STRING)
 	private PaymentMode paymentMode;
 
@@ -77,6 +79,14 @@ public class UserWallet extends BaseDomain {
 
 	public void setWalletUuid(String walletUuid) {
 		this.walletUuid = walletUuid;
+	}
+
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
 	}
 
 }

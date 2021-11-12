@@ -346,10 +346,11 @@ public class UserControllerFe {
 
 	@GetMapping(value = "/kyc-auth")
 	public ModelAndView approveOrRejectKyc(@RequestParam("userUuid") String userUuid,
-			@RequestParam("kycResponse") Boolean kycResponse, Model model, HttpServletRequest request) {
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_PAN);
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_AADHAR);
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, DocType.DOCUMENT_GST);
+			@RequestParam("kycResponse") Boolean kycResponse, @RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
+			Model model, HttpServletRequest request) {
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN );
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR);
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST);
 
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
@@ -723,17 +724,17 @@ public class UserControllerFe {
 		{
 			if(userPaymentMode.getPaymentMode()==PaymentMode.RTG)
 			{
-				model.addAttribute("RTGfeePercent",userPaymentMode.getFeePercent());
+				model.addAttribute("RTGfeePercent",userPaymentMode.getFee());
 				model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
 			}
 			if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
 			{
-				model.addAttribute("RGSfeePercent",userPaymentMode.getFeePercent());
+				model.addAttribute("RGSfeePercent",userPaymentMode.getFee());
 				model.addAttribute("neftstatus",userPaymentMode.getIsActive());
 			}
 			if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
 			{
-				model.addAttribute("IFSfeePercent",userPaymentMode.getFeePercent());
+				model.addAttribute("IFSfeePercent",userPaymentMode.getFee());
 				model.addAttribute("impsstatus",userPaymentMode.getIsActive());
 			}
 		}
@@ -886,7 +887,7 @@ public class UserControllerFe {
 		boolean flag=false;
 		if(rtgsstatus.equalsIgnoreCase("Active"))flag=true;
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RTG);
-		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(RTGfeePercent));
+		userPaymentModeModalReqModal.setFee(Double.valueOf(RTGfeePercent));
 		userPaymentModeModalReqModal.setActive(flag);
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		
@@ -896,7 +897,7 @@ public class UserControllerFe {
 		boolean flag1=false;
 		if(impsstatus.equalsIgnoreCase("Active"))flag1=true;
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.IFS);
-		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(IFSfeePercent));
+		userPaymentModeModalReqModal.setFee(Double.valueOf(IFSfeePercent));
 		userPaymentModeModalReqModal.setActive(flag1);
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		
@@ -907,7 +908,7 @@ public class UserControllerFe {
 		boolean flag2=false;
 		if(neftstatus.equalsIgnoreCase("Active"))flag2=true;
 		userPaymentModeModalReqModal.setPaymentMode(PaymentMode.RGS);
-		userPaymentModeModalReqModal.setFeePercent(Double.valueOf(RGSfeePercent));
+		userPaymentModeModalReqModal.setFee(Double.valueOf(RGSfeePercent));
 		userPaymentModeModalReqModal.setActive(flag2);
 		 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
 		 
@@ -933,17 +934,17 @@ public class UserControllerFe {
 			{
 				if(userPaymentMode.getPaymentMode()==PaymentMode.RTG)
 				{
-					model.addAttribute("RTGfeePercent",userPaymentMode.getFeePercent());
+					model.addAttribute("RTGfeePercent",userPaymentMode.getFee());
 					model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
 				}
 				if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
 				{
-					model.addAttribute("RGSfeePercent",userPaymentMode.getFeePercent());
+					model.addAttribute("RGSfeePercent",userPaymentMode.getFee());
 					model.addAttribute("neftstatus",userPaymentMode.getIsActive());
 				}
 				if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
 				{
-					model.addAttribute("IFSfeePercent",userPaymentMode.getFeePercent());
+					model.addAttribute("IFSfeePercent",userPaymentMode.getFee());
 					model.addAttribute("impsstatus",userPaymentMode.getIsActive());
 				}
 			}

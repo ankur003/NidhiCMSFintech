@@ -1,6 +1,7 @@
 package com.nidhi.cms.modal.request;
 
 import com.nidhi.cms.constants.enums.PaymentMode;
+import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 
 public class UserPaymentModeModalReqModal {
 
@@ -8,9 +9,12 @@ public class UserPaymentModeModalReqModal {
 
 	private PaymentMode paymentMode;
 
-	private Double feePercent;
+	private PaymentModeFeeType paymentModeFeeType;
+
+	private Double fee;
 
 	private boolean isActive;
+
 	public String getUserUuid() {
 		return userUuid;
 	}
@@ -27,12 +31,20 @@ public class UserPaymentModeModalReqModal {
 		this.paymentMode = paymentMode;
 	}
 
-	public Double getFeePercent() {
-		return feePercent;
+	public PaymentModeFeeType getPaymentModeFeeType() {
+		return paymentModeFeeType;
 	}
 
-	public void setFeePercent(Double feePercent) {
-		this.feePercent = feePercent;
+	public void setPaymentModeFeeType(PaymentModeFeeType paymentModeFeeType) {
+		this.paymentModeFeeType = paymentModeFeeType;
+	}
+
+	public Double getFee() {
+		return fee;
+	}
+
+	public void setFee(Double fee) {
+		this.fee = fee;
 	}
 
 	public boolean isActive() {

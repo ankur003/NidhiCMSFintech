@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,10 +58,13 @@ public class DocServiceImpl implements DocService {
 	}
 
 	@Override
-	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType) {
+	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason) {
 		UserDoc doc = docRepository.findByUserIdAndDocType(user.getUserId(), docType);
 		if (doc == null) {
 			return Boolean.FALSE;
+		}
+		if (BooleanUtils.isNotTrue(kycResponse)) {
+			doc.setRejectionReason(kycRejectReason);
 		}
 		doc.setIsVerifiedByAdmin(kycResponse);
 		docRepository.save(doc);

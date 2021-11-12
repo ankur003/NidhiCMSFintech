@@ -23,6 +23,6 @@ public interface DocService {
 
 	List<UserDoc> getUserAllKyc(Long userId);
 
-	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType);
+	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason);
 
 }

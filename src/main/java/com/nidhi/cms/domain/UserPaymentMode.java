@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.nidhi.cms.constants.enums.PaymentMode;
+import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 
 @Entity
 public class UserPaymentMode extends BaseDomain {
@@ -23,7 +24,10 @@ public class UserPaymentMode extends BaseDomain {
 	@Enumerated(EnumType.STRING)
 	private PaymentMode paymentMode;
 
-	private Double feePercent;
+	@Enumerated(EnumType.STRING)
+	private PaymentModeFeeType paymentModeFeeType;
+
+	private Double fee;
 
 	public Long getUserPaymentModeId() {
 		return userPaymentModeId;
@@ -49,12 +53,20 @@ public class UserPaymentMode extends BaseDomain {
 		this.paymentMode = paymentMode;
 	}
 
-	public Double getFeePercent() {
-		return feePercent;
+	public PaymentModeFeeType getPaymentModeFeeType() {
+		return paymentModeFeeType;
 	}
 
-	public void setFeePercent(Double feePercent) {
-		this.feePercent = feePercent;
+	public void setPaymentModeFeeType(PaymentModeFeeType paymentModeFeeType) {
+		this.paymentModeFeeType = paymentModeFeeType;
+	}
+
+	public Double getFee() {
+		return fee;
+	}
+
+	public void setFee(Double fee) {
+		this.fee = fee;
 	}
 
 }
