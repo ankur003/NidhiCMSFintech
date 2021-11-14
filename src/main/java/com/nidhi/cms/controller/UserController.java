@@ -63,6 +63,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
+import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserAccountStatementService;
@@ -88,6 +89,9 @@ public class UserController extends AbstractController {
 
 	@Autowired
 	private UserService userservice;
+	
+	@Autowired
+	private UserRepository userRepo;
 
 	@Autowired
 	private DocService docService;
@@ -176,6 +180,7 @@ public class UserController extends AbstractController {
 		}
 		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
 		if (BooleanUtils.isTrue(isSaved)) {
+			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
 			return ResponseHandler.getMapResponse("message", "file saved successfully");
 		}
 		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
@@ -217,6 +222,7 @@ public class UserController extends AbstractController {
 		userBusinessKyc.setUserId(user.getUserId());
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
 		if (BooleanUtils.isTrue(isSaved)) {
+			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
 			return ResponseHandler.getMapResponse("message", "data saved");
 		}
 		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
@@ -274,7 +280,8 @@ public class UserController extends AbstractController {
 	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse,
 			@RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
-			@RequestParam(required = true, name = "docType") final DocType docType) {
+			@RequestParam(required = true, name = "docType") final DocType docType,
+			HttpServletRequest request) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			return false;
@@ -285,7 +292,17 @@ public class UserController extends AbstractController {
 		if (BooleanUtils.isNotTrue(kycResponse) && kycRejectReason == null) {
 			return false;
 		}
-		return userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
+		Boolean isDone = userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
+		if (isDone && user.getKycStatus().equals(KycStatus.VERIFIED) && user.getToken() == null) {
+			HttpSession session = request.getSession();
+			Object token = session.getServletContext().getAttribute(AUTH_TOKEN);
+			if (Objects.isNull(token)) {
+				token = session.getAttribute(AUTH_TOKEN);
+			}
+			user.setToken(token.toString());
+			userRepo.save(user);
+		}
+		return isDone;
 	}
 
 //	@GetMapping(value = "/get-user-account-statement")
@@ -353,7 +370,11 @@ public class UserController extends AbstractController {
 //			@Authorization(value = "oauthToken") })
 	public UserBankDetails saveOrUpdateUserBankDetails(@RequestBody UserBankModal userBankModal) {
 		User user = getLoggedInUserDetails();
-		return userservice.saveOrUpdateUserBankDetails(user, userBankModal);
+		UserBankDetails response = userservice.saveOrUpdateUserBankDetails(user, userBankModal);
+		if (response != null ) {
+			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
+		}
+		return response;
 	}
 
 //	@GetMapping(value = "/get-user-bank-account")
@@ -727,18 +748,36 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 	
-	public UserWallet generateApiKey() {
+	public String generateApiKey() {
 		User user = getLoggedInUserDetails();
-		if (user == null) {
+		if (user == null || BooleanUtils.isNotTrue(user.getIsActive()) || BooleanUtils.isNotTrue(user.getIsUserVerified())
+				|| !user.getKycStatus().equals(KycStatus.VERIFIED)) {
 			return null;
 		}
+		
 		UserWallet wallet = userWalletService.findByUserId(user.getUserId());
 		if (wallet == null) {
 			return null;
 		}
-//		HttpServletRequest request = null;
-//		HttpSession session = request.getSession();
-//		session.getServletContext().getAttribute(AUTH_TOKEN);
-		return userWalletService.updateApiKey(wallet);
+		UserWallet userWallet = userWalletService.updateApiKey(wallet);
+		String apiKey = userWallet.getApiKey();
+		String token = user.getToken();
+		return apiKey + "dev_Ankur" +token;
+		
+	}
+	
+	public String getGeneratedApiKey() {
+		User user = getLoggedInUserDetails();
+		UserWallet wallet = userWalletService.findByUserId(user.getUserId());
+		if (wallet == null) {
+			return null;
+		}
+		String apiKey = wallet.getApiKey();
+		String token = user.getToken();
+		
+		if (apiKey != null && token !=null) {
+			return apiKey + "dev_Ankur" +token;
+		}
+		return null;
 	}
 }

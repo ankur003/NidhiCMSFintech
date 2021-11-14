@@ -24,10 +24,45 @@
 <link id="switcher" href="/assets/css/theme-color/default-theme.css"
 	rel="stylesheet">
 
+<script type="text/javascript" src="/assets/js_dev/generic.js"></script>
 
 <link href="/assets/css/style.css" rel="stylesheet">
 <script src="/assets/js_dev/profile.js"></script>
 
+<script type="text/javascript">
+
+function yesnoCheck() { 
+    if (document.getElementById('Email').checked) {
+        document.getElementById('e').style.display = '';
+        document.getElementById('emailorphone').value = "EMAIL";
+        document.getElementById('p').style.display = 'none';
+        document.getElementById('btn').style.display = '';
+    } else {
+        document.getElementById('e').style.display = 'none';
+        document.getElementById('p').style.display = '';
+        document.getElementById('emailorphone').value = "PHONE";
+        document.getElementById('btn').style.display = '';
+    }
+
+}
+
+function passwordmatch()
+{
+	var valid=true;
+	var npassword=document.getElementById('npassword').value;
+	var cpassword=document.getElementById('cpassword').value;
+	
+	if(npassword!=cpassword)
+		{
+		document.getElementById("password_error").style.display = "block";
+		document.getElementById("password_error").innerHTML = "password and confirm password not match";
+		valid=false;
+		}
+	return valid;
+}
+
+
+</script>
 
 </head>
 <body>
@@ -165,6 +200,9 @@
 
 								</div>
 							</div>
+							
+							<c:if test="${otp eq null }">
+							
 							<div class="col-md-6">
 								<div class="mu-contact-right">
 									<form class="contactform" action="/api/v1/login" method="post">
@@ -205,6 +243,8 @@
 
 										</p>
 
+                                      <input type="hidden" name="otpflag" value="no">
+
 										<p class="form-submit">
 											<input type="submit" value="Login" class="btn btn-success"
 												name="submit"> <input type="reset" value="Reset"
@@ -219,6 +259,96 @@
 
 								</div>
 							</div>
+							</c:if>
+							
+							
+							
+							<!-- verify OTP------------------------------------------------------ -->
+							<c:if test="${otp ne null }">
+							
+							<div class="col-md-6">
+								<div class="mu-contact-right">
+									<form class="contactform" action="/api/v1/login" method="post" onsubmit="javascript:return passwordmatch();">
+
+
+
+										<c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+												<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											</c:otherwise>
+										</c:choose>
+											
+											<c:if test="${byemail ne null }">
+											<p class="comment-form-email">
+											<label for="email">Enter id<span
+												class="mandate">*</span></label> <input type="text"
+												required="required" aria-required="true" value="${byemail}"
+												name="byemail" id="byemail" readonly="readonly">
+										</p>
+										</c:if>
+										<c:if test="${byphone ne null }">
+										<p class="comment-form-email">
+											<label for="email">Contact Number<span
+												class="mandate">*</span></label> <input type="text"
+												required="required" aria-required="true" readonly="readonly"
+												name="byphone" id="byphone" maxlength="10" minlength="10" value="${byphone}">
+										</p>
+											</c:if>
+										
+										<p class="comment-form-email">
+											<label for="email">Enter OTP<span
+												class="mandate">*</span></label> <input type="text"
+												required="required" aria-required="true" value=""
+												name="emailphOtp" id="emailphOtp" maxlength="6" minlength="6"
+													onkeypress="javascript: return onlyNumbers(event);">
+										</p>
+										<p class="comment-form-email">
+											<label for="email">Enter New Password<span
+												class="mandate">*</span></label> <input type="text"
+												required="required" aria-required="true" value=""
+												name="npassword" id="npassword" maxlength="20" minlength="3"   onclick="hideMessage('password_error');">
+										</p>
+										<p class="comment-form-email">
+											<label for="email">Enter Confirm Password<span
+												class="mandate">*</span></label> <input type="text"
+												required="required" aria-required="true" value=""
+												name="cpassword" id="cpassword" maxlength="20" minlength="3"  onclick="hideMessage('password_error');">
+												<label	id="password_error" style="display: none; color: red;"></label>
+										</p>
+                                     
+                                     
+
+										
+                                      <input type="hidden" name="otpflag" value="verifytp">
+
+										<p class="form-submit">
+											<input type="submit" value="Verify" class="btn btn-success"
+												name="submit"> <input type="reset" value="Reset"
+												class="btn btn-warning" name="reset"> <input
+												type="button" value="Cancel" class="btn btn-info"
+												name="cancel">
+										</p>
+									</form>
+
+
+								</div>
+							</div>
+							</c:if>
+							
+							
+							
+							
 						</div>
 					</div>
 					<!-- end contact content -->
@@ -238,6 +368,7 @@
 	<!--modal-->
 	<div id="pwdModal" class="modal fade" tabindex="-1" role="dialog"
 		aria-hidden="true">
+		
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -251,17 +382,51 @@
 							<div class="panel-body">
 								<div class="text-center">
 
-									<p>Please enter your email id or contact Number.</p>
+									<p>Please Choose Any One</p>
+									
+									<div class="form-check">
+  <input class="form-check-input" type="radio" name="PhoneOrEmail" id="Email"  onclick="javascript:yesnoCheck();">
+  <label class="form-check-label" for="flexRadioDefault2">
+    By Email
+  </label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="PhoneOrEmail" id="Phone" onclick="javascript:yesnoCheck();">
+  <label class="form-check-label" for="flexRadioDefault2">
+    By Phone
+  </label>
+</div>
+									
 									<div class="panel-body">
 										<fieldset>
-											<div class="form-group">
+										<form class="contactform1" action="/api/v1/login" method="post">
+										
+										<input type="hidden" name="otpflag" value="yes">
+										<div class="form-group" id="pe" style="display: none;">
 												<input class="form-control input-lg"
-													placeholder="E-mail Address/Contact Number"
-													id="contactoremail" type="text">
+													placeholder="E-mail Address" name="emailorphone"
+													id="emailorphone" type="text" >
 											</div>
-											<input class="btn btn-lg btn-primary btn-block"
-												value="Send My Password" type="button"
-												onclick="javascript:sendpassword();">
+										
+										
+											<div class="form-group" id="e" style="display: none;">
+												<input class="form-control input-lg"
+													placeholder="E-mail Address" name="byemail" 
+													id="byemail" type="text">
+											</div>
+											
+											<div class="form-group" id="p" style="display: none;">
+												<input class="form-control input-lg"
+													placeholder="Conatct Number" maxlength="10"
+													id="byphone" type="text" name="byphone">
+											</div>
+											
+											<div id="btn" style="display: none;">
+											<input type="Submit" value="Submit" class="btn btn-success" name="Submit">
+											<!-- <input class="btn btn-lg btn-primary btn-block"
+												value="Ok" type="Submit"> -->
+											</div>	
+											</form>	
 										</fieldset>
 									</div>
 								</div>
@@ -277,6 +442,7 @@
 				</div>
 			</div>
 		</div>
+		
 	</div>
 	<!-- lgt box end -->
 
@@ -287,22 +453,6 @@
 
 
 
-
-
-	<script src="/assets/js/bootstrap.js"></script>
-	<!-- Slick slider -->
-	<script type="text/javascript" src="/assets/js/slick.js"></script>
-	<!-- Counter -->
-	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
-	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
-	<!-- Mixit slider -->
-	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
-	<!-- Add fancyBox -->
-	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
-
-
-	<!-- Custom js -->
-	<script src="/assets/js/custom.js"></script>
 
 </body>
 </html>

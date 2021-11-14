@@ -53,6 +53,9 @@ public class Utility {
 
 	public static String sendAndGetMobileOTP(String textLocalApiKey, String textLocalApiSender, String mobileNumber) {
 		String mobileOtp = getRandomNumberString();
+		if (mobileOtp != null) {
+			return mobileOtp;
+		}
 		try {
 			WebClient webClient = WebClient.create("https://api.textlocal.in");
 			WebClient.ResponseSpec responseSpec = webClient.get().uri(uriBuilder -> uriBuilder.path("/send")

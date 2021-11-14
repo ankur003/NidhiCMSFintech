@@ -58,10 +58,13 @@
 					<div class="mu-contact-content" style="margin-top: -2%">
 						<div class="row">
 							<div class="col-md-3">
+							
+							
+							
 							</div>
 							<div class="col-md-9">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/updateEmailpass" method="post">
+									<form class="contactform" action="#" method="post">
 
 										<c:choose>
 											<c:when test="${msg!=null}">
@@ -70,34 +73,38 @@
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
+											<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
-										<label for="email">Geneerate Key pair <span class="mandate">*</span></label>
+										<label for="email"> </label>
 									
 
 										<p class="comment-form-email">
-											<label for="email">API <span class="mandate">*</span></label>
+											<label for="email">API KEY<span class="mandate">*</span></label>
 											<input type="text" required="required" aria-required="true"
-												value="" name="" id="userEmail" maxlength="650">
+												value="${api}"  disabled="disabled" readonly="readonly">
 										</p>
                                      <p class="comment-form-email">
 											<label for="email">Secret Key <span class="mandate">*</span></label>
 											<input type="text" required="required" aria-required="true"
-												value="" name="" id="userEmail" maxlength="100">
+												value="${token}" name=""  disabled="disabled" readonly="readonly">
 										</p>
 										<p class="comment-form-url">
 											<label for="subject">IP<span class="mandate">*</span></label>
-											<input type="text" name="password" id="password"
-												minlentg="3" aria-required="true" required="required"
-												maxlength="10">
+											<input type="text" name="ip" id="ip" value="${userLoginDetails.whiteListIp }"
+												 disabled="disabled" readonly="readonly"
+												>
 										</p>
-										<p class="form-submit">
-											<input type="submit" value="Add" class="btn btn-success"
-												name="updte"> <input type="reset" value="Reset"
-												class="btn btn-warning" name="reset"> <input
-												type="button" value="Cancel" class="btn btn-info"
-												name="cancel">
+								 <p class="form-submit">
+											<a href="/api/v1/generateApiKey">
+							<button type="button" class="btn btn-info">Generate</button>
+							</a>
 										</p>
 
 

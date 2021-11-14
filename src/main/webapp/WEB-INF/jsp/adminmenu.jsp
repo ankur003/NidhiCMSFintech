@@ -131,9 +131,9 @@
         </div>
         <ul class="sub-menu">
           <li><a class="link_name" href="#">Onboarding </a></li>
-          <li><a href="/api/v1/fe/AdminCreateNew">Create New</a></li>
-          <li><a href="/api/v1/get-all-user">Pending client</a></li>
-          <li><a href="/api/v1/fe/AdminmanageClint">Manage Client</a></li>
+          <c:if test="${fn:contains(theString,'Create New')}">  <li><a href="/api/v1/fe/AdminCreateNew">Create New</a></li></c:if>
+          <c:if test="${fn:contains(theString,'Pending Client')}">  <li><a href="/api/v1/get-all-user">Pending Client</a></li></c:if>
+          <c:if test="${fn:contains(theString,'Manage Client')}">  <li><a href="/api/v1/fe/AdminmanageClint">Manage Client</a></li></c:if>
         </ul>
       </li>
       </c:if>
@@ -144,7 +144,7 @@
           <span class="link_name">Product Featuring</span>
         </a>
         <ul class="sub-menu blank">
-          <li><a class="link_name" href="/api/v1/fe/AdminProductFeaturing">Product Featuring</a></li>
+         <c:if test="${fn:contains(theString,'Product Featuring')}"><li><a class="link_name" href="/api/v1/fe/AdminProductFeaturing">Product Featuring</a></li></c:if>
         </ul>
       </li>
       </c:if>
@@ -160,8 +160,8 @@
         </div>
         <ul class="sub-menu">
           <li><a class="link_name" href="#"> SubAdmin </a></li>
-          <li><a href="/api/v1/fe/SubAdminAccount">Create</a></li>
-          <li><a href="/api/v1/fe/SubAdminAccountUpdate">Update</a></li>
+          <c:if test="${fn:contains(theString,'Create Subadmin')}"><li><a href="/api/v1/fe/SubAdminAccount">Create Subadmin</a></li></c:if>
+          <c:if test="${fn:contains(theString,'Update Subadmin')}"><li><a href="/api/v1/fe/SubAdminAccountUpdate">Update Subadmin</a></li></c:if>
         </ul>
       </li>
       </c:if>
@@ -177,11 +177,11 @@
         </div>
         <ul class="sub-menu">
           <li><a class="link_name" href="#">Report</a></li>
-          <li><a href="/api/v1/fe/AdminTransactionReport">Transaction report</a></li>
-          <li><a href="/api/v1/fe/AdminBankACverification">Bank A/c Verification</a></li>
-          <li><a href="/api/v1/fe/AdminBillingReport">Billing / Charges Report</a></li>
-          <li><a href="/api/v1/fe/AdminTransactionInqReport">Transaction inquiry</a></li>
-          <li><a href="/api/v1/fe/AdminACStatement">Account Statement</a></li>
+           <c:if test="${fn:contains(theString,'Transaction report')}"><li><a href="/api/v1/fe/AdminTransactionReport">Transaction report</a></li></c:if>
+           <c:if test="${fn:contains(theString,'Bank A/c Verification')}"><li><a href="/api/v1/fe/AdminBankACverification">Bank A/c Verification</a></li></c:if>
+           <c:if test="${fn:contains(theString,'Billing/Charges Report')}"><li><a href="/api/v1/fe/AdminBillingReport">Billing/Charges Report</a></li></c:if>
+           <c:if test="${fn:contains(theString,'Transaction Inquiry')}"><li><a href="/api/v1/fe/AdminTransactionInqReport">Transaction Inquiry</a></li></c:if>
+           <c:if test="${fn:contains(theString,'Account Statement')}"><li><a href="/api/v1/fe/AdminACStatement">Account Statement</a></li></c:if>
         </ul>
       </li>
       </c:if>
@@ -197,8 +197,8 @@
         </div>
         <ul class="sub-menu">
            <li><a class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=a">Setting</a></li>
-           <li><a href="/api/v1/fe/AdminWhiteListpage">White Listing</a></li>
-           <li><a href="/api/v1/get-privilegeList?userUuid=${userLoginDetails.userUuid}">Add Privilege</a></li>
+            <c:if test="${fn:contains(theString,'White Listing')}"><li><a href="/api/v1/fe/AdminWhiteListpage">White Listing</a></li></c:if>
+            <c:if test="${fn:contains(theString,'Add Privilege')}"><li><a href="/api/v1/get-privilegeList?userUuid=${userLoginDetails.userUuid}">Add Privilege</a></li></c:if>
         </ul>
       </li>
       </c:if>

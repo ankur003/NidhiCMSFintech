@@ -82,6 +82,8 @@ public class User extends BaseDomain {
 
 	private String deactivateReason;
 
+	private String token;
+
 	public Long getUserId() {
 		return userId;
 	}
@@ -240,6 +242,14 @@ public class User extends BaseDomain {
 
 	public void setDeactivateReason(String deactivateReason) {
 		this.deactivateReason = deactivateReason;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 }

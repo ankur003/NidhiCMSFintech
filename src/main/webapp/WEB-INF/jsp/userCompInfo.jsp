@@ -49,46 +49,7 @@
 								<div class="mu-contact-right">
 									<form class="contactform" action="/api/v1/get-user-search" method="post">
 
-									<div class="col-lg-12">
-											<strong> <font style="color: Blue; cursor: pointer;">Personal
-													KYC</font>
-											</strong>
-										</div>
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">Upload PAN <span
-														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
-														id="pan">
-												</p>
-
-												<c:if test="${pan ne null}">
-													<img src="data:image/gif;base64,${pan.data}" height="100%"
-														width="100%" />
-													<p>
-														<font color="blue;">${pan.fileName }</font>
-													</p>
-												</c:if>
-											</div>
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">Upload Aadhar card <span
-														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
-														id="aadhar">
-												</p>
-												<c:if test="${aadhar ne null}">
-													<img src="data:image/gif;base64,${aadhar.data}"
-														height="100%" width="100%" />
-													<p>
-														<font color="blue;">${aadhar.fileName }</font>
-													</p>
-												</c:if>
-											</div>
-										</div>
-										<!-- -----------------personal------------------------------ -->
+									
 										<!-- -----------------Business------------------------------ -->
                                 
                                 
@@ -165,32 +126,9 @@
 											<div class="col-lg-6"></div>
 										</div>
 
-										<div class="col-lg-12">
-											<strong> <font style="color: Blue; cursor: pointer;">Business
-													Documents</font>
-											</strong>
-										</div>
+										
 
-										<div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">GST Certificate<span
-														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
-														id="fileUpload">
-												</p>
-												
-												<c:if test="${gst ne null}">
-													<img src="data:image/gif;base64,${gst.data}"
-														height="100%" width="100%" />
-													<p>
-														<font color="blue;">${gst.fileName }</font>
-													</p>
-												</c:if>
-												
-											</div>
-											<div class="col-lg-6"></div>
-										</div>
+									
 
 
 
@@ -316,6 +254,64 @@
 												name="Submit"> <input type="button" value="Cancel"
 												class="btn btn-info" name="cancel">
 										</p> -->
+										<!-- -----------------personal------------------------------ -->
+										
+										<div class="col-lg-12">
+											<strong> <font style="color: Blue; cursor: pointer;">Personal
+													KYC</font>
+											</strong>
+										</div>
+
+										<div class="col-lg-12">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Uploaded PAN </label> 
+												</p>
+
+												<c:if test="${pan ne null}">
+													<img src="data:image/gif;base64,${pan.data}" height="70%"
+														width="70%" />
+													<p>
+														<font color="blue;">${pan.fileName }</font>
+													</p>
+												</c:if>
+											</div>
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Uploaded Aadhar card </label> 
+												</p>
+												<c:if test="${aadhar ne null}">
+													<img src="data:image/gif;base64,${aadhar.data}"
+														height="70%" width="70%" />
+													<p>
+														<font color="blue;">${aadhar.fileName }</font>
+													</p>
+												</c:if>
+											</div>
+											
+											<div class="col-lg-12">
+											<strong> <font style="color: Blue; cursor: pointer;">Business
+													Documents</font>
+											</strong>
+										</div>
+												<div class="col-lg-12">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">GST Certificate</label> 
+												</p>
+												
+												<c:if test="${gst ne null}">
+													<img src="data:image/gif;base64,${gst.data}"
+														height="70%" width="70%" />
+													<p>
+														<font color="blue;">${gst.fileName }</font>
+													</p>
+												</c:if>
+												
+											</div>
+											<div class="col-lg-6"></div>
+										</div>
+										</div>
 										<!-- -----------------personal------------------------------ -->
 									</form>
 								</div>

@@ -40,8 +40,7 @@
 	<!-- Start contact  -->
 	<section id="mu-contact">
 	<div class="container">
-		<div class="row">
-				
+		<div style="margin-top: -2%;">
 			                           <c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
@@ -59,9 +58,14 @@
 											
 											</c:otherwise>
 										</c:choose>
+										</div>
+		<div class="row">
+				
+				
+			
 				
 				<c:if test="${msgs == null}">
-				<div class="col-md-12" style="margin-top: -4%;">
+				<div class="col-md-12" >
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=1"><button type="button" class="btn btn-primary">Personal KYC</button></a>
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=2"><button type="button" class="btn btn-secondary">Business Details</button></a>
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=3"><button type="button" class="btn btn-success">Bank Details</button></a>
@@ -547,8 +551,8 @@
 													<label for="author">Bill Charge<span
 														class="mandate">*</span></label><br>
                                                         <Select name="billChargeType" style="width:100%;height: 36px;">
-														<option value="FLAT">Flat</option>
-														<option value="PERCENTAGE">Percentage</option>
+														<option <c:if test="${billChargeType eq 'FLAT'}">Selected</c:if>   value="FLAT">Flat</option>
+														<option <c:if test="${billChargeType eq 'PERCENTAGE'}">Selected</c:if> value="PERCENTAGE">Percentage</option>
 														</Select>
                                           
 												</p>
@@ -566,6 +570,8 @@
 												</div>
 												
 												
+												
+												
 													<div class="col-lg-12">
 												<div class="col-lg-3">
 												<p class="comment-form-author">
@@ -579,9 +585,9 @@
 												<p class="comment-form-author">
 													<label for="author">Bill Charge<span
 														class="mandate">*</span></label><br>
-                                                        <Select name="billChargeType2" style="width:100%;height: 36px;">
-														<option value="FLAT">Flat</option>
-														<option value="PERCENTAGE">Percentage</option>
+                                                        <Select name="billChargeType1" style="width:100%;height: 36px;">
+														<option <c:if test="${billChargeType1 eq 'FLAT'}">Selected</c:if>  value="FLAT">Flat</option>
+														<option <c:if test="${billChargeType1 eq 'PERCENTAGE'}">Selected</c:if> value="PERCENTAGE">Percentage</option>
 														</Select>
                                           
 												</p>
@@ -597,6 +603,11 @@
 												</div>
 												</div>
 												
+												
+												
+												
+												
+												
 												<div class="col-lg-12">
 												<div class="col-lg-3">
 												<p class="comment-form-author">
@@ -610,8 +621,8 @@
 													<label for="author">Bill Charge<span
 														class="mandate">*</span></label><br>
                                                         <Select name="billChargeType2" style="width:100%;height: 36px;">
-														<option value="FLAT">Flat</option>
-														<option value="PERCENTAGE">Percentage</option>
+														<option <c:if test="${billChargeType2 eq 'FLAT'}">Selected</c:if> value="FLAT">Flat</option>
+														<option <c:if test="${billChargeType2 eq 'PERCENTAGE'}">Selected</c:if> value="PERCENTAGE">Percentage</option>
 														</Select>
                                           
 												</p>

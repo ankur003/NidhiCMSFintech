@@ -28,7 +28,7 @@ public class LoginController extends AbstractController {
 
 	@Autowired
 	private LoginService loginservice;
-
+	
 	public String login(@Valid @RequestBody LoginRequestModal loginRequestModal) {
 		AuthToken authToken = loginservice.login(loginRequestModal);
 		return authToken.getToken();

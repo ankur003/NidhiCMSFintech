@@ -5,14 +5,10 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EnumType;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -32,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nidhi.cms.constants.ApiConstants;
+import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.constants.enums.RoleEum;
@@ -59,6 +56,7 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
+import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 
 /**
@@ -81,6 +79,9 @@ public class UserControllerFe {
 	
 	@Autowired
 	private UserService userservice;
+	
+	@Autowired
+	private UserBusnessKycService  userBusnessKycService;
 
 	@PostMapping(value = "/user")
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
@@ -125,8 +126,11 @@ public class UserControllerFe {
 	@PostMapping(value = "/login")
 	public ModelAndView login(@Valid @ModelAttribute LoginRequestModal loginRequestModal, Model model,
 			HttpServletRequest request) {
+		
+		if(loginRequestModal.getOtpflag().equalsIgnoreCase("no"))
+		{
+		
 		try {
-			
 			User usr=userservice.getUserByUserEmailOrMobileNumber(loginRequestModal.getUsername(), loginRequestModal.getUsername());
 			if(usr!=null && BooleanUtils.isTrue( usr.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(usr.getIsUserVerified()))
 			{
@@ -159,20 +163,95 @@ public class UserControllerFe {
 			}
 
 			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
-
-			session.setAttribute("roleName", roleName);
-
-			
 			if (authtoken != null && roleName.equals(RoleEum.ADMIN.name())) {
-				return new ModelAndView("AdminDashboard");
+				{
+					return new ModelAndView("AdminDashboard");
+				}
 			} else {
-				return new ModelAndView("Dashboard");
+				if(!userLoginDetails.getIsSubAdmin())
+				{return new ModelAndView("Dashboard");}
+				else
+				{return new ModelAndView("AdminDashboard");}	
 			}
 			
 		} catch (Exception e) {
 			model.addAttribute("msgs", "Either email or Password is incorrect, please try again.");
 			return new ModelAndView("login");
 		}
+		}
+		else if(loginRequestModal.getOtpflag().equalsIgnoreCase("yes"))
+		
+		{
+			
+			try {
+				String emailorphone = request.getParameter("emailorphone");
+				String byemail=null;
+				String byphone=null;
+				boolean flag = false;
+				if(emailorphone.equalsIgnoreCase("EMAIL"))
+				{	 byemail = request.getParameter("byemail");
+				     flag = userController.sendOTPForgotPassword(byemail,ForgotPassType.EMAIL);
+				   if(flag)  model.addAttribute("msg", "OTP has sent to Your Email");
+				   else model.addAttribute("msg", "OTP has not sent to Your Email");
+				   model.addAttribute("byemail",byemail);
+				}
+					else
+					{
+				 byphone = request.getParameter("byphone"); 
+				 flag = userController.sendOTPForgotPassword(byphone,ForgotPassType.PHONE);
+				 if(flag)model.addAttribute("msg", "OTP has sent to Your Phone");
+				 else model.addAttribute("msgs", "OTP has not sent to Your Phone");
+				 model.addAttribute("byphone",byphone);
+					}
+					
+				if (flag) {
+					model.addAttribute("otp","otp");
+				} 
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				System.out.println(e);
+			}
+		}
+		
+		else if(loginRequestModal.getOtpflag().equalsIgnoreCase("verifytp"))
+		{
+			String emailphOtp = request.getParameter("emailphOtp");
+			String newPass = request.getParameter("npassword");
+			String confirmPass = request.getParameter("cpassword");
+			boolean flag = false;
+			String byemail = request.getParameter("byemail");
+			if (byemail != null)
+				model.addAttribute("byemail", byemail);
+			String byphone = request.getParameter("byphone");
+			if (byphone != null)
+				model.addAttribute("byphone", byphone);
+
+			flag = userController.matchOtpForgotPassword(emailphOtp);
+			if (flag)
+			{
+				boolean Flag2=false;
+				if (byemail != null)
+					Flag2= userController.updatePasswordForgotPassword(byemail, newPass, confirmPass);
+				if (byphone != null)
+					Flag2=userController.updatePasswordForgotPassword(byphone, newPass, confirmPass);
+				
+				if(Flag2)
+				{model.addAttribute("msg", "Password has been Changed");}
+				else
+				{
+					model.addAttribute("msgs", "due to some error password didn't change. Try after some time");
+					model.addAttribute("otp", "otp");
+				}
+			} 
+			else
+			{
+				model.addAttribute("msgs", "OTP not Matched");
+				model.addAttribute("otp", "otp");
+			}
+		}
+		
+		return new ModelAndView("login");
 	}
 
 	@PostMapping(value = "/pkycupload")
@@ -193,6 +272,8 @@ public class UserControllerFe {
 			} else {
 				session.setAttribute("kyc", "Pending");
 			}
+			User userLoginDetails = userController.getUserDetail();
+			session.setAttribute("userLoginDetails", userLoginDetails);
 
 			return new ModelAndView("Bkyc");
 		} catch (Exception e) {
@@ -226,6 +307,9 @@ public class UserControllerFe {
 //				session.setAttribute("kyc", "Pending");
 //			}
 
+			User userLoginDetails = userController.getUserDetail();
+			session.setAttribute("userLoginDetails", userLoginDetails);
+
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
 			return new ModelAndView("UserBank");
 		} catch (Exception e) {
@@ -235,8 +319,12 @@ public class UserControllerFe {
 
 	//bank 
 	@PostMapping(value = "/user-bank-account")
-	public ModelAndView saveOrUpdateUserBankDetail(Model model,@ModelAttribute UserBankModal userBankModal) {
+	public ModelAndView saveOrUpdateUserBankDetail(Model model,@ModelAttribute UserBankModal userBankModal,HttpServletRequest request) {
 		UserBankDetails bank=userController.saveOrUpdateUserBankDetails(userBankModal);
+		User userLoginDetails = userController.getUserDetail();
+		HttpSession session = request.getSession();
+		session.setAttribute("userLoginDetails", userLoginDetails);
+
 		if(bank!=null)
 		{
 			model.addAttribute("msg", "Bank Details Succesfully Uploaded");
@@ -351,9 +439,9 @@ public class UserControllerFe {
 	public ModelAndView approveOrRejectKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse, @RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
 			Model model, HttpServletRequest request) {
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN );
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR);
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST);
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN, request);
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR, request);
+		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST, request);
 
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
@@ -374,6 +462,38 @@ public class UserControllerFe {
 		return new ModelAndView("AdminPendingClient");
 	}
 
+	
+	@PostMapping(value = "/kyc-authReject")
+	public ModelAndView approveOrRejectKycReject(Model model, HttpServletRequest request) {
+		
+		String userUuid=request.getParameter("userUuid");
+		String kycRejectReason=request.getParameter("kycRejectReason").trim();
+		
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_PAN, request );
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_AADHAR, request);
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_GST, request);
+
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
+		userRequestFilterModel.setPage(1);
+		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		userRequestFilterModel.setIsAdmin(false);
+		userRequestFilterModel.setIsSubAdmin(false);
+		
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			User user=userservice.getUserByUserUuid(userUuid);
+			model.addAttribute("msgs", user.getFullName() ==null ? "record has been Rejected" : user.getFullName() + " has been Rejected");
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
+			return new ModelAndView("AdminPendingClient");
+		} else {
+			model.addAttribute("init", false);
+		}
+		return new ModelAndView("AdminPendingClient");
+	}
+
+	
+	
 	@PostMapping(value = "/userbyAdmin")
 	public ModelAndView userSavebyadmin(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
 			HttpServletRequest request) {
@@ -728,16 +848,19 @@ public class UserControllerFe {
 			{
 				model.addAttribute("RTGfeePercent",userPaymentMode.getFee());
 				model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
+				model.addAttribute("billChargeType",userPaymentMode.getPaymentModeFeeType());
 			}
 			if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
 			{
 				model.addAttribute("RGSfeePercent",userPaymentMode.getFee());
 				model.addAttribute("neftstatus",userPaymentMode.getIsActive());
+				model.addAttribute("billChargeType1",userPaymentMode.getPaymentModeFeeType());
 			}
 			if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
 			{
 				model.addAttribute("IFSfeePercent",userPaymentMode.getFee());
 				model.addAttribute("impsstatus",userPaymentMode.getIsActive());
+				model.addAttribute("billChargeType2",userPaymentMode.getPaymentModeFeeType());
 			}
 		}
 		
@@ -945,16 +1068,19 @@ public class UserControllerFe {
 				{
 					model.addAttribute("RTGfeePercent",userPaymentMode.getFee());
 					model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
+					model.addAttribute("billChargeType",userPaymentMode.getPaymentModeFeeType());
 				}
 				if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
 				{
 					model.addAttribute("RGSfeePercent",userPaymentMode.getFee());
 					model.addAttribute("neftstatus",userPaymentMode.getIsActive());
+					model.addAttribute("billChargeType1",userPaymentMode.getPaymentModeFeeType());
 				}
 				if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
 				{
 					model.addAttribute("IFSfeePercent",userPaymentMode.getFee());
 					model.addAttribute("impsstatus",userPaymentMode.getIsActive());
+					model.addAttribute("billChargeType2",userPaymentMode.getPaymentModeFeeType());
 				}
 			}
 			return new ModelAndView("UserUpdateAdmin");
@@ -987,5 +1113,36 @@ public class UserControllerFe {
 		} else
 			model.addAttribute("msgs", "IP didn't add. ");
 		return new ModelAndView("UserUpdateAdmin");
+	}
+	
+	
+	@GetMapping(value = "/generateApiKey")
+	public ModelAndView generateApiKey( Model model,HttpServletRequest request) {
+		String apiandToken = userController.generateApiKey();
+		
+		if(apiandToken!=null)
+		{
+			String[] api_token=apiandToken.split("dev_Ankur");
+			model.addAttribute("api",api_token[0]);
+			model.addAttribute("token",api_token[1]);
+		}
+		else {
+			model.addAttribute("msgs","Your KYC is not verified");
+		}
+		return new ModelAndView("AccessSetting");
+	}
+	
+	@GetMapping(value = "/getGeneratedApiKey")
+	public ModelAndView getGeneratedApiKey( Model model,HttpServletRequest request) {
+		String apiandToken = userController.getGeneratedApiKey();
+		
+		if(apiandToken!=null)
+		{
+			String[] api_token=apiandToken.split("dev_Ankur");
+			model.addAttribute("api",api_token[0]);
+			model.addAttribute("token",api_token[1]);
+		}
+		
+		return new ModelAndView("AccessSetting");
 	}
 }

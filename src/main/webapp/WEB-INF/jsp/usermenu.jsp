@@ -33,7 +33,19 @@
   <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
   <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
   
+  <link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script type="text/javascript">
   
+  function removeTextAreaWhiteSpace() {
+	  var myTxtArea = document.getElementById("kycRejectReason");
+	  myTxtArea.value = myTxtArea.value.replace(/^\s*|\s*$/g," ");
+	  }
+</script>
+
 </head>
 <body>
  <div class="sidebar close">
@@ -85,7 +97,7 @@
           <span class="link_name">Access Setting </span>
         </a>
         <ul class="sub-menu blank">
-          <li><a class="link_name" href="/api/v1/fe/AccessSetting">Access Setting </a></li>
+          <li><a class="link_name" href="/api/v1/getGeneratedApiKey">Access Setting </a></li>
         </ul>
       </li>
       <li>
@@ -186,14 +198,21 @@
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
 				<li><a href="#">Hi <b>${userLoginDetails.fullName }</b></a></li>
 				
+				<c:if test="${!userLoginDetails.isSubAdmin}">
+				
 				<c:if test="${userLoginDetails.kycStatus eq 'VERIFIED' }">
 				<li><a href="#"><b>KYC  <font color="Green">${userLoginDetails.kycStatus}</b></font></a></li>
 				</c:if>
 				<c:if test="${userLoginDetails.kycStatus eq 'PENDING' }">
 				<li><a href="/api/v1/fe/Pkyc"><b>KYC </b> <font color="red">${userLoginDetails.kycStatus }</font></a></li>
 				</c:if>
-					
-					
+				<c:if test="${userLoginDetails.kycStatus eq 'REJECTED' }">
+				<li onclick="javascript:removeTextAreaWhiteSpace()"><a href="#" data-target="#allotedmodel1" data-toggle="modal"><b>KYC </b> <font color="red">${userLoginDetails.kycStatus }</font></a></li>
+				</c:if>	
+					<c:if test="${userLoginDetails.kycStatus eq 'UNDER_REVIEW' }">
+				<li><a href="#"><b>KYC  <font color="blue">UNDER REVIEW</b></font></a></li>
+				</c:if>
+				</c:if>
 					<li><a href="/api/v1/fe/index">Logout </a></li>
 			<!-- 	<li class="dropdown active"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown">Setting &#9881; <span
@@ -225,6 +244,44 @@
 			</div>
 		</div>
 	</div>
+	
+	<div id="allotedmodel1" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
+<form class="contactform" action="#" method="post">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h1 class="text-center"> Reason For Reject</h1>
+				</div>
+				<div class="modal-body">
+				
+				<input type="hidden" name="userUuid" id="userUuid">
+					<div class="col-md-12">
+						<div class="panel panel-default">
+							<!-- <div class="panel-body"> -->
+							<!-- 	<div  id="batchtimelist"></div> -->
+								<textarea required="required"
+								id="kycRejectReason" name="kycRejectReason" rows="4" cols="65" readonly="readonly">
+								${userDoc.rejectionReason }
+								<%-- ${userDocs.rejectionReason }
+								${userDocx.rejectionReason } --%>
+								</textarea>
+								
+							<!-- </div> -->
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12">
+					 <a href="/api/v1/fe/Pkyc"><input type="button" value="Go To KYC" class="btn btn-success" name="Submit"></a>
+						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		</form>
+	</div>
+	
 	<!-- End search box -->
 	<!-- Page breadcrumb -->
   

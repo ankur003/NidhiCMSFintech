@@ -13,6 +13,23 @@
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
 
 
+<link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script type="text/javascript">
+  function copyUuid(uuid)
+  {
+       document.getElementById("userUuid").value = uuid;
+       removeTextAreaWhiteSpace();
+  }
+  
+  function removeTextAreaWhiteSpace() {
+	  var myTxtArea = document.getElementById("kycRejectReason");
+	  myTxtArea.value = myTxtArea.value.replace(/^\s*|\s*$/g," ");
+	  }
+</script>
 
 
 </head>
@@ -102,6 +119,7 @@
 												<tbody>
 												
 													<c:forEach items="${userList}" var="ul"		varStatus="counter">
+													<c:if test="${ul.kycStatus eq 'UNDER_REVIEW'}">
 														<tr>
 															<th scope="row">${counter.count}</th>
 															<td>${ul.fullName}</td>
@@ -124,7 +142,7 @@
  	
 														
 															<td>
-															 <c:choose>
+														<%-- 	 <c:choose>
 															<c:when test="${ul.kycStatus eq 'PENDING'}"> 
 															 <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
 															<input type="Button" value="Approve" class="btn btn-success" name="Approve"></a>
@@ -133,9 +151,22 @@
 														 	 <a href="#">
 															<input type="Button" value="Approve" class="btn btn-success" name="Approve" disabled="disabled"></a>
 														 	</c:otherwise>
-														 	</c:choose> 
+														 	</c:choose>  --%>
+														
+														 <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
+															<input type="Button" value="Approve" class="btn btn-success" name="Approve"></a>
+															
+														<%-- <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=false"> --%>
+											            <input type="button" value="Reject" class="btn btn-danger"	name="reject"
+											            data-target="#allotedmodel" data-toggle="modal" onclick="javascript:copyUuid('${ul.userUuid}')"><!-- </a> -->
 														 	 
-															 <c:choose>
+														 	 
+													<!-- 	 	 <div class="container" >
+									<button type="button" id="batchdivbtn"
+										data-target="#allotedmodel" data-toggle="modal">alloted</button>
+										
+											</div> -->
+														<%-- 	 <c:choose>
 														<c:when test="${ul.kycStatus eq 'VERIFIED'}"> 
 											            <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=false">
 											            <input type="button" value="Reject" class="btn btn-danger"	name="reject"></a>
@@ -144,12 +175,13 @@
 											            <a href="#">
 											            <input type="button" value="Reject" class="btn btn-danger"	name="reject" disabled="disabled"></a>
 															 </c:otherwise>
-															</c:choose> 
+															</c:choose>  --%>
 											            
 											           <a href="/api/v1/get-kyc-data?userUuid=${ul.userUuid}" target="_blank"> <input type="Button" value="Information" class="btn btn-warning" name="info" ></a>
 											            
 											            </td>
 														</tr>
+														</c:if>
 													</c:forEach>
 												</tbody>
 											</table>
@@ -174,35 +206,39 @@
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
+<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
+<form class="contactform" action="/api/v1/kyc-authReject" method="post">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">×</button>
-					<h1 class="text-center">Document</h1>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h1 class="text-center"> Reason For Reject</h1>
 				</div>
 				<div class="modal-body">
+				
+				<input type="hidden" name="userUuid" id="userUuid">
 					<div class="col-md-12">
 						<div class="panel panel-default">
-							<div class="panel-body">
-							
-							
-							<jsp:include page="docsView.jsp" />
-							
-							
-							
-							</div>
+							<!-- <div class="panel-body"> -->
+							<!-- 	<div  id="batchtimelist"></div> -->
+								<textarea required="required"
+								id="kycRejectReason" name="kycRejectReason" rows="4" cols="65">
+								
+								</textarea>
+								
+							<!-- </div> -->
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
 					<div class="col-md-12">
+					<input type="Submit" value="Submit" class="btn btn-success" name="Submit">
 						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
 					</div>
 				</div>
 			</div>
 		</div>
+		</form>
 	</div>
 
 	<!-- Start footer -->
