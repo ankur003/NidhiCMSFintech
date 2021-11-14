@@ -12,6 +12,4 @@ public interface UserWalletService {
 
 	Boolean updateUserPaymentMode(User user, PaymentMode paymentMode);
 
-	UserWallet updateApiKey(UserWallet wallet);
-
 }

@@ -65,7 +65,7 @@ import com.nidhi.cms.utils.Utility;
 
 @Service(value = "userService")
 public class UserServiceImpl implements UserDetailsService, UserService {
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -89,10 +89,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserBankDetailsRepo userBankDetailsRepo;
-	
+
 	@Autowired
 	private SystemPrivilegeRepo systemPrivilegeRepo;
-	
+
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
 		if (user == null || BooleanUtils.isFalse(user.getIsActive())
@@ -106,9 +106,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	private Set<SimpleGrantedAuthority> getAuthority(User user) {
 		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-		user.getRoles().forEach(role -> 
-			authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()))
-		);
+		user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName())));
 		return authorities;
 	}
 
@@ -133,7 +131,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public User getUserByUserUuid(String userUuid) {
 		return userRepository.findByUserUuidAndIsUserVerified(userUuid, true);
 	}
-	
+
 	@Override
 	public User getUserDetailByUserUuid(String userUuid) {
 		return userRepository.findByUserUuid(userUuid);
@@ -159,8 +157,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 					new SearchCriteria("isSubAdmin", userRequestFilterModel.getIsSubAdmin(), SearchOperation.EQUAL));
 		}
 		if (userRequestFilterModel.getIsAdmin() != null) {
-			genericSpesification.add(
-					new SearchCriteria("isAdmin", userRequestFilterModel.getIsAdmin(), SearchOperation.EQUAL));
+			genericSpesification
+					.add(new SearchCriteria("isAdmin", userRequestFilterModel.getIsAdmin(), SearchOperation.EQUAL));
 		}
 		if (CollectionUtils.isNotEmpty(genericSpesification.getSearchCriteriaList())) {
 			return userRepository.findAll(genericSpesification,
@@ -236,9 +234,21 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userWallet.setUserId(user.getUserId());
 			userWallet.setAmount(0.0);
 			userWallet.setWalletUuid(Utility.getUniqueUuid());
-			userWallet.setMerchantId(Utility.getUniqueUuid());
+			userWallet.setMerchantId(getMerchantId());
 			userWalletRepository.save(userWallet);
 		}
+	}
+
+	private String getMerchantId() {
+		UserWallet usrWallet = userWalletRepository.findFirstByOrderByUserWalletIdDesc();
+		if (usrWallet == null) {
+			return "MID" + "_" + "00001";
+		}
+		String merchantId = usrWallet.getMerchantId();
+		String[] splitMerchantId = merchantId.split("_");
+		Long subStringMerchantId = Long.valueOf(splitMerchantId[1]);
+		subStringMerchantId = subStringMerchantId + 1;
+		return "MID" + "_" + subStringMerchantId;
 	}
 
 	@Override
@@ -284,11 +294,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
+		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
+				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
 		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
-	
+
 	@Override
 	public Object txStatusInquiry(User user, TxStatusInquiry txStatusInquiry) {
 		txStatusInquiry.setAggrid(CmsConfig.CUST_ID);
@@ -298,11 +309,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txStatusInquiry.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(txStatusInquiry);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), 
+		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
+				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
 		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
-	
+
 	@Override
 	public Object txNEFTStatus(User user, NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
 		nEFTIncrementalStatusReqModal.setAggrid(CmsConfig.CUST_ID);
@@ -312,7 +324,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		nEFTIncrementalStatusReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(nEFTIncrementalStatusReqModal);
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)), 
+		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
+				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 				"https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus", "POST");
 		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
@@ -322,24 +335,24 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		if (userUpdateModal.getFirstName() != null) {
 			user.setFirstName(userUpdateModal.getFirstName());
 		}
-		
+
 		if (userUpdateModal.getLastName() != null) {
 			user.setLastName(userUpdateModal.getLastName());
 		}
-		
+
 		if (userUpdateModal.getMiddleName() != null) {
 			user.setMiddleName(userUpdateModal.getMiddleName());
 		}
-		
+
 		if (userUpdateModal.getFullName() != null) {
 			user.setFullName(userUpdateModal.getFullName());
 		}
-		
+
 		if (userUpdateModal.getDob() != null) {
 			user.setDob(Utility.stringToLocalDate(userUpdateModal.getDob()));
 		}
-		
-		if ((userUpdateModal.getUserPrivileges()!=null)) {
+
+		if ((userUpdateModal.getUserPrivileges() != null)) {
 			user.setPrivilageNames(String.join(",", userUpdateModal.getUserPrivileges()));
 		}
 		return userRepository.save(user);
@@ -354,7 +367,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		systemPrivilege.setPrivilegeName(privilegeName);
 		return systemPrivilegeRepo.save(systemPrivilege);
 	}
-	
+
 	@Override
 	public SystemPrivilege deleteAccessPrivilegesIntoSystem(String privilegeName) {
 		SystemPrivilege systemPrivilege = systemPrivilegeRepo.findByPrivilegeName(privilegeName);
@@ -384,14 +397,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
-		List<SystemPrivilege> systemPrivileges = systemPrivilegeRepo.findByPrivilegeNameIn(subAdminCreateModal.getPrivilageNames());
-		if (CollectionUtils.isEmpty(systemPrivileges) || systemPrivileges.size() != subAdminCreateModal.getPrivilageNames().size()) {
+		List<SystemPrivilege> systemPrivileges = systemPrivilegeRepo
+				.findByPrivilegeNameIn(subAdminCreateModal.getPrivilageNames());
+		if (CollectionUtils.isEmpty(systemPrivileges)
+				|| systemPrivileges.size() != subAdminCreateModal.getPrivilageNames().size()) {
 			return null;
 		}
-		User user = userRepository.findByUserEmailOrMobileNumber(subAdminCreateModal.getUserEmail(), subAdminCreateModal.getMobileNumber());
+		User user = userRepository.findByUserEmailOrMobileNumber(subAdminCreateModal.getUserEmail(),
+				subAdminCreateModal.getMobileNumber());
 		if (user != null) {
 			return null;
 		}
@@ -424,10 +440,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public User findByUserEmail(String mobileOrEmail) {
 		return userRepository.findByUserEmail(mobileOrEmail);
 	}
-	
+
 	@Override
 	public User findByUserMobileNumber(String mobileOrEmail) {
 		return userRepository.findByMobileNumber(mobileOrEmail);
+	}
+
+	@Override
+	public User findByApiKey(String apiKey) {
+		return userRepository.findByApiKey(apiKey);
 	}
 
 }

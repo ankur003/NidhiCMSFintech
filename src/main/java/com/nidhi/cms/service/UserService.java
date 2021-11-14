@@ -82,6 +82,8 @@ public interface UserService {
 
 	User findByUserMobileNumber(String mobileOrEmail);
 
+	User findByApiKey(String apiKey);
+
 }
 
 

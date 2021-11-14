@@ -30,8 +30,6 @@ public class UserWallet extends BaseDomain {
 
 	private String merchantId;
 
-	private String apiKey;
-
 	@Enumerated(EnumType.STRING)
 	private PaymentMode paymentMode;
 
@@ -90,13 +88,4 @@ public class UserWallet extends BaseDomain {
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
-
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
-
 }

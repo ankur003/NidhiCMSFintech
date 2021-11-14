@@ -43,10 +43,4 @@ public class UserWalletServiceImpl implements UserWalletService {
 		return Boolean.TRUE;
 	}
 
-	@Override
-	public UserWallet updateApiKey(UserWallet wallet) {
-		wallet.setApiKey(Utility.getUniqueUuid());
-		return userWalletRepo.save(wallet);
-	}
-
 }

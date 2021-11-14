@@ -114,13 +114,13 @@ public class Utility {
 	public static String createJsonRequestAsString(Object clazz) {
 		String request = "{";
 		try {
-			 Class<? extends Object> cls = clazz.getClass();
+			Class<? extends Object> cls = clazz.getClass();
 			Field[] fields = cls.getDeclaredFields();
 			for (Field field : fields) {
 				field.setAccessible(true);
-				request = request + "\"" + field.getName().toUpperCase() +"\"" + ":";
+				request = request + "\"" + field.getName().toUpperCase() + "\"" + ":";
 				if (field.get(clazz) != null) {
-					request = request + "\"" + field.get(clazz) +"\"" + ",";
+					request = request + "\"" + field.get(clazz) + "\"" + ",";
 				}
 			}
 			request = StringUtils.removeEnd(request, ",");
@@ -130,7 +130,7 @@ public class Utility {
 		}
 		return request;
 	}
-	
+
 	public static boolean getRemoteIpAddress(User user, final HttpServletRequest httpServletRequest) {
 		String ip = user.getWhiteListIp();
 		if (ip == null) {
@@ -146,35 +146,29 @@ public class Utility {
 			return true;
 		}
 		remoteIpAddress = httpServletRequest.getRemoteAddr();
-		if(ip.equals(remoteIpAddress)) {
+		if (ip.equals(remoteIpAddress)) {
 			return true;
 		}
 		return getClientIpAddress(ip, httpServletRequest);
 	}
-	
-	private static final String[] HEADERS_TO_TRY = {
-            "X-Forwarded-For",
-            "Proxy-Client-IP",
-            "WL-Proxy-Client-IP",
-            "HTTP_X_FORWARDED_FOR",
-            "HTTP_X_FORWARDED",
-            "HTTP_X_CLUSTER_CLIENT_IP",
-            "HTTP_CLIENT_IP",
-            "HTTP_FORWARDED_FOR",
-            "HTTP_FORWARDED",
-            "HTTP_VIA",
-            "REMOTE_ADDR" };
 
-private static boolean getClientIpAddress(String ip2, HttpServletRequest request) {
-    for (String header : HEADERS_TO_TRY) {
-        String ip = request.getHeader(header);
-        if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip) && ip.equalsIgnoreCase(ip2)) {
-            	 return true;
-        }
-    }
+	private static final String[] HEADERS_TO_TRY = { "X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP",
+			"HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED", "HTTP_X_CLUSTER_CLIENT_IP", "HTTP_CLIENT_IP",
+			"HTTP_FORWARDED_FOR", "HTTP_FORWARDED", "HTTP_VIA", "REMOTE_ADDR" };
 
-    return false;
-}
+	private static boolean getClientIpAddress(String ip2, HttpServletRequest request) {
+		for (String header : HEADERS_TO_TRY) {
+			String ip = request.getHeader(header);
+			if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip) && ip.equalsIgnoreCase(ip2)) {
+				return true;
+			}
+		}
 
+		return false;
+	}
+
+	public static String getMerchantId() {
+		return null;
+	}
 
 }

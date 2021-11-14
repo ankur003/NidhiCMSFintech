@@ -436,7 +436,21 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public Object txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal, final HttpServletRequest httpServletRequest) {
-		User user = getLoggedInUserDetails();
+		
+		String apiKey = httpServletRequest.getHeader("apiKey");
+		if (StringUtils.isBlank(apiKey)) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - apiKey is reuired");
+			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		User user = userservice.findByApiKey(apiKey);
+		if (user == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - invalid apiKey");
+			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
 		if (BooleanUtils.isNotTrue(user.getIsActive())) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over de-activated account");
 			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
@@ -454,13 +468,6 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "user wallet not created");
 			errorResponse.addError("errorCode", "" +ErrorCode.ENTITY_NOT_FOUND.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
-		}
-		
-		String apiKey = httpServletRequest.getHeader("apiKey");
-		if (StringUtils.isBlank(apiKey) || userWallet.getApiKey() == null || !apiKey.equals(userWallet.getApiKey())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - apiKey is reuired");
-			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
 		
 		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(userTxWoOtpReqModal.getMerchantId())) {
@@ -754,13 +761,9 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				|| !user.getKycStatus().equals(KycStatus.VERIFIED)) {
 			return null;
 		}
-		
-		UserWallet wallet = userWalletService.findByUserId(user.getUserId());
-		if (wallet == null) {
-			return null;
-		}
-		UserWallet userWallet = userWalletService.updateApiKey(wallet);
-		String apiKey = userWallet.getApiKey();
+		user.setApiKey(Utility.getUniqueUuid());
+		userRepo.save(user);
+		String apiKey = user.getApiKey();
 		String token = user.getToken();
 		return apiKey + "dev_Ankur" +token;
 		
@@ -768,11 +771,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	public String getGeneratedApiKey() {
 		User user = getLoggedInUserDetails();
-		UserWallet wallet = userWalletService.findByUserId(user.getUserId());
-		if (wallet == null) {
-			return null;
-		}
-		String apiKey = wallet.getApiKey();
+		String apiKey = user.getApiKey();
 		String token = user.getToken();
 		
 		if (apiKey != null && token !=null) {
