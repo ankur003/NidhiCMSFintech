@@ -34,6 +34,9 @@
   
   
 </head>
+<c:if test="${sessionScope.authtoken eq null}">
+	<c:redirect url="/api/v1/fe/login"></c:redirect>
+</c:if> 
 <body>
  <div class="sidebar close">
   <!--   <div class="logo-details">
@@ -245,7 +248,7 @@
 				
 			
 			 
-			 <li><a href="/api/v1/fe/login">Logout </a></li>
+			 <li><a href="/api/v1/logout">Logout </a></li>
 			  
 			 
 				<!-- <li class="dropdown active"><a href="#" class="dropdown-toggle"

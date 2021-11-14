@@ -418,7 +418,7 @@ function passwordmatch()
 											<div class="form-group" id="p" style="display: none;">
 												<input class="form-control input-lg"
 													placeholder="Conatct Number" maxlength="10"
-													id="byphone" type="text" name="byphone">
+													id="byphone" type="text" name="byphone" onkeypress="javascript: return onlyNumbers(event);">
 											</div>
 											
 											<div id="btn" style="display: none;">
