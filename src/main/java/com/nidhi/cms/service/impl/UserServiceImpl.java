@@ -248,7 +248,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		String[] splitMerchantId = merchantId.split("_");
 		Long subStringMerchantId = Long.valueOf(splitMerchantId[1]);
 		subStringMerchantId = subStringMerchantId + 1;
-		return "MID" + "_" + subStringMerchantId;
+		return "MID" + "_" + String.format("%05d", subStringMerchantId);
 	}
 
 	@Override
