@@ -70,9 +70,9 @@
 												</p>
 											</c:when>
 											<c:when test="${msgs!=null}">
-												<p align='center'
-													style="border-style: solid; border-color: red;">
-													<font color="red"> ${msgs} </font>
+												<p align='center' 
+													style="border-style: solid; border-color: red;margin-left: -29%;">
+													<font color="red" > ${msgs} </font>
 												</p>
 											</c:when>
 											<c:otherwise>
@@ -109,10 +109,19 @@
 											</a>
 										</p> --%>
 										
+									  <c:choose>
+										<c:when test="${msgs==null}">
 										 <a href="#" data-target="#pwdModal"
 												data-toggle="modal" style="margin-left: 25%;">
 												<button type="button" class="btn btn-info">Generate</button></a>
+										</c:when>
+										<c:otherwise>
+										<a href="#"
+												style="margin-left: 25%;">
+												<button type="button" class="btn btn-info" disabled="disabled">Generate</button></a>
 										
+										</c:otherwise>
+										</c:choose>
 									</form>
 								</div>
 							</div>

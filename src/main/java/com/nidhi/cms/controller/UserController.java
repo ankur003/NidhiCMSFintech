@@ -211,12 +211,11 @@ public class UserController extends AbstractController {
 		return doc;
 	}
 
-	@PutMapping(value = "/business-kyc")
-	//@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") }, hidden = true)
-	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(
-			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal) {
+//	@PutMapping(value = "/business-kyc")
+//	//@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") }, hidden = true)
+	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(UserBusinessKycRequestModal userBusunessKycRequestModal) {
 		User user = getLoggedInUserDetails();
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());

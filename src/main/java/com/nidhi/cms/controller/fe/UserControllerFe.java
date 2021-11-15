@@ -305,19 +305,15 @@ public class UserControllerFe {
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
 
-//			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
-//			if (getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
-//				session.setAttribute("kyc", "Done");
-//			} else {
-//				session.setAttribute("kyc", "Pending");
-//			}
-
 			User userLoginDetails = userController.getUserDetail();
+			session.removeAttribute("userLoginDetails");
 			session.setAttribute("userLoginDetails", userLoginDetails);
 
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
 			return new ModelAndView("UserBank");
 		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(e);
 			return new ModelAndView("Pkyc");
 		}
 	}

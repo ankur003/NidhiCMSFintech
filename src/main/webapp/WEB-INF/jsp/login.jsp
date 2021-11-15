@@ -235,7 +235,9 @@ function passwordmatch()
 										<p class="comment-form-url">
 											<label for="subject">Password<span class="mandate">*</span></label>
 											<input type="password" name="password" aria-required="true"
-												maxlength="10"> <a href="#" data-target="#pwdModal"
+												pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d][A-Za-z\d!@#$%^&*()_+]{7,19}$" 
+												title="Must contain at least one number and one uppercase and lowercase letter,one special  
+												and at least 8 or more characters"> <a href="#" data-target="#pwdModal"
 												data-toggle="modal" style="margin-left: 75%;">Forgot
 												Password?
 												</button>
@@ -317,13 +319,19 @@ function passwordmatch()
 											<label for="email">Enter New Password<span
 												class="mandate">*</span></label> <input type="text"
 												required="required" aria-required="true" value=""
-												name="npassword" id="npassword" maxlength="20" minlength="3"   onclick="hideMessage('password_error');">
+												name="npassword" id="npassword" 
+												pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d][A-Za-z\d!@#$%^&*()_+]{7,19}$" 
+												title="Must contain at least one number and one uppercase and lowercase letter,one special  
+												and at least 8 or more characters"   onclick="hideMessage('password_error');">
 										</p>
 										<p class="comment-form-email">
 											<label for="email">Enter Confirm Password<span
 												class="mandate">*</span></label> <input type="text"
 												required="required" aria-required="true" value=""
-												name="cpassword" id="cpassword" maxlength="20" minlength="3"  onclick="hideMessage('password_error');">
+												name="cpassword" id="cpassword" 
+                                                pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d][A-Za-z\d!@#$%^&*()_+]{7,19}$" 
+												title="Must contain at least one number and one uppercase and lowercase letter,one special  
+												and at least 8 or more characters"  onclick="hideMessage('password_error');">
 												<label	id="password_error" style="display: none; color: red;"></label>
 										</p>
                                      
