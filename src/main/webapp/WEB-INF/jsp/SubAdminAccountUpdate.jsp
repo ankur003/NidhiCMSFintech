@@ -172,25 +172,8 @@
 											</c:otherwise>
 										</c:choose>
 										
-										<!-- <div class="col-lg-12" style="margin-left: -30px;">
-											<div class="col-lg-6">
-											<p class="comment-form-author">
-												<label for="author">Search Subadmin<span
-													class="mandate">*</span></label> <input type="text"
-													required="required" value="" name="fullName" id="client">
-											</p>
-										</div>
-										<br>
-										<div class="col-lg-6">
-											<p class="form-submit">
-												<input type="button" value="search" class="btn btn-success"
-													name="Submit">
-											</p>
-										</div>
-										</div> -->
 
                                      <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
-                                     
                                        <input type=hidden id="userId" name="userId"  value="${user.userId }"  >
 										<p class="comment-form-author">
 											<label for="author">Full Name <span class="mandate">*</span></label>
@@ -215,30 +198,6 @@
 											<input type="password" name="password" id="password" minlength="3"
 												aria-required="true" maxlength="10">
 										</p>
-									<%-- 	<table class="table table-striped">
-												<thead class="thead-dark">
-													<tr>
-														<th scope="col">#</th>
-														<th scope="col">Selected Privileges </th>
-														<th scope="col">Action</th>
-													</tr>
-												</thead>
-												<tbody>
-												
-													<c:forEach items="${privilegeList}" var="ul" varStatus="counter">
-														<tr>
-															<th scope="row">${counter.count}</th>
-															<td>${ul}</td>
- 															<td> 
- 															<label class="checkbox-inline"><input type="checkbox" name="privilageNames" checked
- 															 value="${ul}" readonly></label>
- 															</td>
-														</tr>
-													</c:forEach>
-												</tbody>
-											</table>
-											 --%>
-											
 											<table class="table table-striped">
 												<thead class="thead-dark">
 													<tr>
@@ -249,37 +208,21 @@
 												</thead>
 												<tbody>
 												
+												<c:set var = "theString" value = "${plist}"/>
 													<c:forEach items="${listprivlege}" var="ul" varStatus="counter">
+													
 														<tr>
 															<th scope="row">${counter.count}</th>
-															<td>${ul.privilegeName}
- 															
- 															<c:forEach items="${privilegeList}" var="uls" varStatus="counter">
- 															<c:choose>
- 															<c:when test="${ul.privilegeName == uls}">
- 															<label class="checkbox-inline"><input type="checkbox" 
-																		value="${ul.privilegeName}" checked style="border-color: red;"></label>
- 															</c:when>
- 															<c:otherwise>
- 															</c:otherwise>
- 															</c:choose>
- 															</c:forEach> 
-															</td>
-															
+															<td>${ul.privilegeName}</td>
 															<td><label class="checkbox-inline">
 															<input type="checkbox" name="privilageNames"
-																		value="${ul.privilegeName}"></label></td>
+															 <c:if test="${fn:contains(theString,ul.privilegeName)}">checked </c:if>
+															 			value="${ul.privilegeName}"></label></td>
 														</tr>
 													</c:forEach>
 												</tbody>
 											</table>
 															
-										<!-- <div>
-										<label class="checkbox-inline"><input type="checkbox" value="">Onboarding</label>
-										<label class="checkbox-inline"><input type="checkbox" value="">Product Featuring</label>
-										<label class="checkbox-inline"><input type="checkbox" value="">SubAdmin</label>
-										<label class="checkbox-inline"><input type="checkbox" value="">Report</label>
-										</div> -->
 										<br>
 										<p class="form-submit">
 											<input type="submit" value="Update" class="btn btn-success"

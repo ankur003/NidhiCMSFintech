@@ -799,12 +799,12 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
 			return Collections.emptyList();
 		}
-		if (pan == null && marchantId == null) {
+		if (StringUtils.isNotBlank(pan) && StringUtils.isNotBlank(marchantId)) {
 			return Collections.emptyList();
 		}
 		List<Object> userList = new ArrayList<>();
 
-		if (pan != null) {
+		if (StringUtils.isNotBlank(pan)) {
 			UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKycByPan(pan);
 			if (userBusinessKyc != null) {
 				User userByPan = userservice.findByUserId(userBusinessKyc.getUserId());
@@ -813,7 +813,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				return Collections.emptyList();
 			}
 		}
-		if (marchantId != null) {
+		if (StringUtils.isNotBlank(marchantId)) {
 			UserWallet userWallet = userWalletService.findByMerchantId(marchantId);
 			if (userWallet != null) {
 				User userByMarchantId = userservice.findByUserId(userWallet.getUserId());
@@ -831,12 +831,12 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
 			return Collections.emptyList();
 		}
-		if (userEmail == null && contactNumber == null) {
+		if (StringUtils.isNotBlank(userEmail) && StringUtils.isNotBlank(contactNumber)) {
 			return Collections.emptyList();
 		}
 		List<Object> userList = new ArrayList<>();
 
-		if (userEmail != null) {
+		if (StringUtils.isNotBlank(userEmail)) {
 			User userByEmail = userservice.findByUserEmail(userEmail);
 			if (userByEmail != null) {
 				userList.add(userByEmail);
@@ -844,7 +844,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				return Collections.emptyList();
 			}
 		}
-		if (contactNumber != null) {
+		if (StringUtils.isNotBlank(contactNumber)) {
 			User userByContact = userservice.findByUserMobileNumber(contactNumber);
 			if (userByContact != null) {
 				userList.add(userByContact);

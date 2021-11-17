@@ -5,6 +5,7 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -526,9 +527,11 @@ public class UserControllerFe {
 		String userEmail = request.getParameter("userEmail");
 		String contactNumber = request.getParameter("contactNumber");
 		
+		
 		List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId);
+			list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber));
 		if (CollectionUtils.isNotEmpty(list)) {
-model.addAttribute("init", true);
+           model.addAttribute("init", true);
 			
 			model.addAttribute("merchantId", merchantId);
 			model.addAttribute("pancard", pancard);
@@ -542,6 +545,39 @@ model.addAttribute("init", true);
 		return new ModelAndView("AdminmanageClint");
 	}
 
+	@PostMapping(value = "/get-subadmin")
+	public ModelAndView getSubadmin(Model model, HttpServletRequest request) {
+		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
+		userRequestFilterModel.setPage(1);
+		
+		
+		String firstName = request.getParameter("firstName");
+		String lastName = request.getParameter("lastName");
+		String userEmail = request.getParameter("userEmail");
+		String username = request.getParameter("username");
+
+	    userRequestFilterModel.setFirstName(firstName);
+	    userRequestFilterModel.setLastName(lastName);
+	    userRequestFilterModel.setUserEmail(userEmail);
+	    userRequestFilterModel.setUsername(username);
+	    userRequestFilterModel.setIsSubAdmin(true);
+		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		if (users != null) {
+			model.addAttribute("userList", users.get("data"));
+			model.addAttribute("init", true);
+			
+			model.addAttribute("firstName", firstName);
+			model.addAttribute("lastName", lastName);
+			model.addAttribute("userEmail", userEmail);
+			model.addAttribute("username", username);
+			return new ModelAndView("SubAdminAccountUpdate");
+		} else {
+			model.addAttribute("init", false);
+		}
+		return new ModelAndView("SubAdminAccountUpdate");
+	}
+	
 	@PostMapping(value = "/get-user-whitesearch")
 	public ModelAndView getWhitlist(Model model, HttpServletRequest request) {
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
@@ -721,38 +757,7 @@ model.addAttribute("init", true);
 	
 	
 	
-	@PostMapping(value = "/get-subadmin")
-	public ModelAndView getSubadmin(Model model, HttpServletRequest request) {
-		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
-		userRequestFilterModel.setPage(1);
-		
-		
-		String firstName = request.getParameter("firstName");
-		String lastName = request.getParameter("lastName");
-		String userEmail = request.getParameter("userEmail");
-		String username = request.getParameter("username");
 
-	    userRequestFilterModel.setFirstName(firstName);
-	    userRequestFilterModel.setLastName(lastName);
-	    userRequestFilterModel.setUserEmail(userEmail);
-	    userRequestFilterModel.setUsername(username);
-	    userRequestFilterModel.setIsSubAdmin(true);
-		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
-		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
-		if (users != null) {
-			model.addAttribute("userList", users.get("data"));
-			model.addAttribute("init", true);
-			
-			model.addAttribute("firstName", firstName);
-			model.addAttribute("lastName", lastName);
-			model.addAttribute("userEmail", userEmail);
-			model.addAttribute("username", username);
-			return new ModelAndView("SubAdminAccountUpdate");
-		} else {
-			model.addAttribute("init", false);
-		}
-		return new ModelAndView("SubAdminAccountUpdate");
-	}
 	
 	
 	@GetMapping(value = "/get-userDetails")
@@ -763,6 +768,7 @@ model.addAttribute("init", true);
 		model.addAttribute("user",user);
 		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
 		model.addAttribute("listprivlege",list);
+		model.addAttribute("plist",user.getPrivilageNames());
 		return new ModelAndView("SubAdminAccountUpdate");
 	}
 	
@@ -779,7 +785,7 @@ model.addAttribute("init", true);
 		UserUpdateModal userUpdateModal=new UserUpdateModal();
 		userUpdateModal.setFullName(fullName);
 		userUpdateModal.setUserPrivileges(privilageNames);
-		User user = userservice.getUserByUserUuid(request.getParameter("userUuid"));
+		User user = userservice.getUserDetailByUserUuid(request.getParameter("userUuid"));
 			users=userController.updateSubadminuser(user,userUpdateModal);
 		model.addAttribute("msg", "Information Updated");
 		model.addAttribute("user",users);
@@ -788,6 +794,7 @@ model.addAttribute("init", true);
 		model.addAttribute("user",user);
 		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
 		model.addAttribute("listprivlege",list);
+		model.addAttribute("plist",user.getPrivilageNames());
 		return new ModelAndView("SubAdminAccountUpdate");
 
 	}
