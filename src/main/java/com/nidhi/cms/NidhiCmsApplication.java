@@ -1,5 +1,8 @@
 package com.nidhi.cms;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +13,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.nidhi.cms.constants.enums.RoleEum;
+import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.repository.SystemPrivilegeRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.utils.Utility;
 
@@ -25,6 +30,9 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private SystemPrivilegeRepo systemPrivilegeRepo;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;
@@ -40,6 +48,12 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 
 	@PostConstruct
+	public void runOninit() {
+		createAdmin();
+		createSystemPrivilages();
+	}
+	
+	
 	public void createAdmin() {
 		User admin = userRepository.findByUserEmail("admin@gmail.com"); 
 		if (admin == null) 
@@ -58,5 +72,22 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 			admin.setRoles(Utility.getRole(RoleEum.ADMIN));
 			userRepository.save(admin);
 		}
+	}
+	
+	private void createSystemPrivilages() { 
+		List<String> systemPrivilages = Arrays.asList("Onboarding", "Product Featuring", "SubAdmin", "Report", "Setting");
+		
+		if (systemPrivilegeRepo.count() == systemPrivilages.size()) {
+			return; 
+		}
+		
+		systemPrivilages.forEach(systemPrivilage -> {
+			SystemPrivilege systemPrivilegeDetail = systemPrivilegeRepo.findByPrivilegeName(systemPrivilage);
+			if (systemPrivilegeDetail == null) {
+				systemPrivilegeDetail = new SystemPrivilege();
+				systemPrivilegeDetail.setPrivilegeName(systemPrivilage);
+				systemPrivilegeRepo.save(systemPrivilegeDetail);
+			}
+		});		
 	}
 }
