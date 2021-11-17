@@ -75,15 +75,15 @@
 										
 									<div class="col-lg-6">
 											<p class="comment-form-author">
-												<label for="author">First Name</label> <input type="text"
-													 value="${firstName}" name="firstName" id="client">
+												<label for="author">Merchant Id</label> <input type="text"
+													 value="${merchantId}" name="firstName" id="client">
 											</p>
 										</div>
 										<div class="col-lg-6">
 											<p class="comment-form-author">
-												<label for="author">Last name
+												<label for="author">Pan Card
 												</label> <input type="text"
-													value="${lastName}" name="lastName" id="client">
+													value="${pancard}" name="lastName" id="client">
 											</p>
 										</div>
 										<br>

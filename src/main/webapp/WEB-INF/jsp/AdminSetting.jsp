@@ -116,6 +116,9 @@
 											<label for="subject">Password<span class="mandate">*</span></label>
 											<input type="password" name="password" id="password"
 												minlentg="3" aria-required="true" required="required"
+												pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d][A-Za-z\d!@#$%^&*()_+]{7,19}$" 
+												title="Must contain at least one number and one uppercase and lowercase letter,one special  
+												and at least 8 or more characters"
 												maxlength="10">
 										</p>
 										 <p class="comment-form-email">

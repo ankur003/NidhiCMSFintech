@@ -5,10 +5,12 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -17,6 +19,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -192,7 +197,7 @@ public class UserControllerFe {
 				{	 byemail = request.getParameter("byemail");
 				     flag = userController.sendOTPForgotPassword(byemail,ForgotPassType.EMAIL);
 				   if(flag)  model.addAttribute("msg", "OTP has sent to Your Email");
-				   else model.addAttribute("msg", "OTP has not sent to Your Email");
+				   else model.addAttribute("msgs", "Email Not Registered with us");
 				   model.addAttribute("byemail",byemail);
 				}
 					else
@@ -200,7 +205,7 @@ public class UserControllerFe {
 				 byphone = request.getParameter("byphone"); 
 				 flag = userController.sendOTPForgotPassword(byphone,ForgotPassType.PHONE);
 				 if(flag)model.addAttribute("msg", "OTP has sent to Your Phone");
-				 else model.addAttribute("msgs", "OTP has not sent to Your Phone");
+				 else model.addAttribute("msgs", "Mobile Number Not Registered with us");
 				 model.addAttribute("byphone",byphone);
 					}
 					
@@ -300,19 +305,15 @@ public class UserControllerFe {
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
 
-//			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
-//			if (getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
-//				session.setAttribute("kyc", "Done");
-//			} else {
-//				session.setAttribute("kyc", "Pending");
-//			}
-
 			User userLoginDetails = userController.getUserDetail();
+			session.removeAttribute("userLoginDetails");
 			session.setAttribute("userLoginDetails", userLoginDetails);
 
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
 			return new ModelAndView("UserBank");
 		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(e);
 			return new ModelAndView("Pkyc");
 		}
 	}
@@ -1144,5 +1145,18 @@ public class UserControllerFe {
 		}
 		
 		return new ModelAndView("AccessSetting");
+	}
+	
+@GetMapping("/logout")
+    public ModelAndView fetchSignoutSite(HttpServletRequest request, HttpServletResponse response) {        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        Enumeration<String> abc = request.getServletContext().getAttributeNames();
+        HttpSession session = request.getSession();
+        session.getServletContext().removeAttribute((String) session.getServletContext().getAttribute(AUTH_TOKEN));
+        request.getSession().invalidate();
+        return new ModelAndView("login");
 	}
 }

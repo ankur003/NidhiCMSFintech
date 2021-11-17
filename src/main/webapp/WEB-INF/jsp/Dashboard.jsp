@@ -27,7 +27,7 @@ function closeNav() {
 </script>
  -->
 </head>
-<c:if test="${sessionScope.userLoginDetails eq null}">
+<c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
 <body>

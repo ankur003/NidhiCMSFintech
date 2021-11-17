@@ -34,6 +34,9 @@
   
   
 </head>
+<c:if test="${sessionScope.authtoken eq null}">
+	<c:redirect url="/api/v1/fe/login"></c:redirect>
+</c:if> 
 <body>
  <div class="sidebar close">
   <!--   <div class="logo-details">
@@ -58,7 +61,7 @@
           <li><a href="/api/v1/fe/AdminmanageClint">Manage Client</a></li>
         </ul>
       </li>
-      <li>
+ <!--      <li>
         <a href="#">
           <i class='bx bx-pie-chart-alt-2' ></i>
           <span class="link_name">Product Featuring</span>
@@ -66,7 +69,7 @@
         <ul class="sub-menu blank">
           <li><a class="link_name" href="/api/v1/fe/AdminProductFeaturing">Product Featuring</a></li>
         </ul>
-      </li>
+      </li> -->
       <li>
        <div class="iocn-link">
           <a href="#">
@@ -245,7 +248,7 @@
 				
 			
 			 
-			 <li><a href="/api/v1/fe/login">Logout </a></li>
+			 <li><a href="/api/v1/logout">Logout </a></li>
 			  
 			 
 				<!-- <li class="dropdown active"><a href="#" class="dropdown-toggle"

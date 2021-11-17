@@ -47,6 +47,9 @@
 </script>
 
 </head>
+<c:if test="${sessionScope.authtoken eq null}">
+	<c:redirect url="/api/v1/fe/login"></c:redirect>
+</c:if> 
 <body>
  <div class="sidebar close">
    <!--  <div class="logo-details">
@@ -97,7 +100,8 @@
           <span class="link_name">Access Setting </span>
         </a>
         <ul class="sub-menu blank">
-          <li><a class="link_name" href="/api/v1/getGeneratedApiKey">Access Setting </a></li>
+        <!--   <li><a class="link_name" href="/api/v1/getGeneratedApiKey">Access Setting </a></li> -->
+          <li><a class="link_name" href="/api/v1/generateApiKey">Access Setting </a></li>
         </ul>
       </li>
       <li>
@@ -213,7 +217,7 @@
 				<li><a href="#"><b>KYC  <font color="blue">UNDER REVIEW</b></font></a></li>
 				</c:if>
 				</c:if>
-					<li><a href="/api/v1/fe/index">Logout </a></li>
+					<li><a href="/api/v1/logout">Logout </a></li>
 			<!-- 	<li class="dropdown active"><a href="#" class="dropdown-toggle"
 					data-toggle="dropdown">Setting &#9881; <span
 						class="fa fa-angle-down"></span></a>
