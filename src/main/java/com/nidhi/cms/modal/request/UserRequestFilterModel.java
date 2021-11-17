@@ -27,8 +27,10 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 	private String userUuid;
 
 	private Boolean isSubAdmin;
-	
+
 	private Boolean isAdmin;
+
+	private String mobileNumber;
 
 	public String getUsername() {
 		return username;
@@ -108,6 +110,14 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 
 	public void setIsAdmin(Boolean isAdmin) {
 		this.isAdmin = isAdmin;
+	}
+
+	public String getMobileNumber() {
+		return mobileNumber;
+	}
+
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
 	}
 
 }

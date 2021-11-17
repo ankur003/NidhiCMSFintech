@@ -520,39 +520,25 @@ public class UserControllerFe {
 
 	@PostMapping(value = "/get-user-search")
 	public ModelAndView getAllClintss(Model model, HttpServletRequest request) {
-		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
-		userRequestFilterModel.setPage(1);
-		
-		
 		String merchantId = request.getParameter("merchantId");
 		String pancard = request.getParameter("pancard");
 		
 		String userEmail = request.getParameter("userEmail");
-		String username = request.getParameter("username");
-
-	    userRequestFilterModel.setUserEmail(userEmail);
-	    userRequestFilterModel.setUsername(username);
-		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
-		userRequestFilterModel.setIsAdmin(false);
-		userRequestFilterModel.setIsSubAdmin(false);
-		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		String contactNumber = request.getParameter("contactNumber");
 		
-		List<Object> userList = userController.getUserByPanAndMarchantId(pancard, merchantId);
-		if ( MapUtils.isNotEmpty(users)) {
-			userList.add(users.get("data"));
-		}
-		model.addAttribute("userList", userList);
-		
-		if (users != null || CollectionUtils.isNotEmpty(userList)) {
-			model.addAttribute("init", true);
+		List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId);
+		if (CollectionUtils.isNotEmpty(list)) {
+model.addAttribute("init", true);
 			
 			model.addAttribute("merchantId", merchantId);
 			model.addAttribute("pancard", pancard);
 			model.addAttribute("userEmail", userEmail);
-			model.addAttribute("username", username);
-			return new ModelAndView("AdminmanageClint");
-		} 
-		model.addAttribute("init", false);
+			model.addAttribute("contactNumber", contactNumber);
+			
+			model.addAttribute("userList", list);
+		} else {
+			model.addAttribute("init", false);
+		}
 		return new ModelAndView("AdminmanageClint");
 	}
 
