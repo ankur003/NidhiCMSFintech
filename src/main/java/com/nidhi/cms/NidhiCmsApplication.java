@@ -48,7 +48,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 			admin.setUserEmail("admin@gmail.com");
 			admin.setMobileNumber("1234567890");
 			admin.setUserUuid(Utility.getUniqueUuid());
-			admin.setPassword(encoder.encode("admin"));
+			admin.setPassword(encoder.encode("Admin@123"));
 			admin.setIsAdmin(true);
 			admin.setFirstName("Super");
 			admin.setLastName("Admin");
