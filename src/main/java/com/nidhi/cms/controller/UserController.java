@@ -809,6 +809,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			if (userBusinessKyc != null) {
 				User userByPan = userservice.findByUserId(userBusinessKyc.getUserId());
 				userList.add(userByPan);
+			} else {
+				return Collections.emptyList();
 			}
 		}
 		if (marchantId != null) {
@@ -816,9 +818,41 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			if (userWallet != null) {
 				User userByMarchantId = userservice.findByUserId(userWallet.getUserId());
 				userList.add(userByMarchantId);
+			} else {
+				return Collections.emptyList();
 			}
 		}
 		return userList;
 		
+	}
+
+	public List<Object> getUserByUserEmailAndContactNumber(String userEmail, String contactNumber) {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
+			return Collections.emptyList();
+		}
+		if (userEmail == null && contactNumber == null) {
+			return Collections.emptyList();
+		}
+		List<Object> userList = new ArrayList<>();
+
+		if (userEmail != null) {
+			User userByEmail = userservice.findByUserEmail(userEmail);
+			if (userByEmail != null) {
+				userList.add(userByEmail);
+			} else {
+				return Collections.emptyList();
+			}
+		}
+		if (contactNumber != null) {
+			User userByContact = userservice.findByUserMobileNumber(contactNumber);
+			if (userByContact != null) {
+				userList.add(userByContact);
+			} else {
+				return Collections.emptyList();
+			}
+
+		}
+		return userList;
 	}
 }
