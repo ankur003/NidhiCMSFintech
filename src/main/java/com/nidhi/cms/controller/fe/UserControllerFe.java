@@ -538,7 +538,7 @@ public class UserControllerFe {
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		
 		List<Object> userList = userController.getUserByPanAndMarchantId(pancard, merchantId);
-		if (CollectionUtils.isNotEmpty(userList) && MapUtils.isNotEmpty(users)) {
+		if ( MapUtils.isNotEmpty(users)) {
 			userList.add(users.get("data"));
 		}
 		model.addAttribute("userList", userList);

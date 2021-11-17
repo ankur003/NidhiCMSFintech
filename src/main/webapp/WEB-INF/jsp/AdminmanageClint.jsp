@@ -90,13 +90,13 @@
 										<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">Email</label> <input type="text"
-													 value="${userEmail}" name="userEmail" id="client">
+													 value="${userEmail}" name="userEmail" id="userEmail">
 											</p>
 										</div>
 										<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">Contact Number</label> <input type="text"
-													 value="${username}" name="username" id="client">
+													 value="${contactNumber}" name="contactNumber" id="contactNumber">
 											</p>
 										</div>
 
