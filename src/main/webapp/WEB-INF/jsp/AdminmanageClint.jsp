@@ -76,14 +76,14 @@
 									<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">Merchant Id</label> <input type="text"
-													 value="${merchantId}" name="firstName" id="client">
+													 value="${merchantId}" name="merchantId" id="merchantId">
 											</p>
 										</div>
 										<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">Pan Card
 												</label> <input type="text"
-													value="${pancard}" name="lastName" id="client">
+													value="${pancard}" name="pancard" id="pancard">
 											</p>
 										</div>
 										<br>

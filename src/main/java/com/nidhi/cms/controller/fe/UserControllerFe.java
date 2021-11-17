@@ -15,10 +15,13 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -295,8 +298,12 @@ public class UserControllerFe {
 			}
 			HttpSession session = request.getSession();
 
-			userController.saveOrUpdateUserBusnessKyc(userBusinessKycRequestModal);
-
+			ResponseEntity<Object> res = userController.saveOrUpdateUserBusnessKyc(userBusinessKycRequestModal);
+			if (res.getStatusCode().equals(HttpStatus.PRECONDITION_FAILED) 
+					|| res.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+				model.addAttribute("msgs", "Duplicate Pan Number");
+				return new ModelAndView("Bkyc");
+			}
 			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN);
 			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR);
 			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST);
@@ -517,31 +524,35 @@ public class UserControllerFe {
 		userRequestFilterModel.setPage(1);
 		
 		
-		String firstName = request.getParameter("firstName");
-		String lastName = request.getParameter("lastName");
+		String merchantId = request.getParameter("merchantId");
+		String pancard = request.getParameter("pancard");
+		
 		String userEmail = request.getParameter("userEmail");
 		String username = request.getParameter("username");
 
-	    userRequestFilterModel.setFirstName(firstName);
-	    userRequestFilterModel.setLastName(lastName);
 	    userRequestFilterModel.setUserEmail(userEmail);
 	    userRequestFilterModel.setUsername(username);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
 		userRequestFilterModel.setIsAdmin(false);
 		userRequestFilterModel.setIsSubAdmin(false);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
-		if (users != null) {
-			model.addAttribute("userList", users.get("data"));
+		
+		List<Object> userList = userController.getUserByPanAndMarchantId(pancard, merchantId);
+		if (CollectionUtils.isNotEmpty(userList) && MapUtils.isNotEmpty(users)) {
+			userList.add(users.get("data"));
+		}
+		model.addAttribute("userList", userList);
+		
+		if (users != null || CollectionUtils.isNotEmpty(userList)) {
 			model.addAttribute("init", true);
 			
-			model.addAttribute("firstName", firstName);
-			model.addAttribute("lastName", lastName);
+			model.addAttribute("merchantId", merchantId);
+			model.addAttribute("pancard", pancard);
 			model.addAttribute("userEmail", userEmail);
 			model.addAttribute("username", username);
 			return new ModelAndView("AdminmanageClint");
-		} else {
-			model.addAttribute("init", false);
-		}
+		} 
+		model.addAttribute("init", false);
 		return new ModelAndView("AdminmanageClint");
 	}
 

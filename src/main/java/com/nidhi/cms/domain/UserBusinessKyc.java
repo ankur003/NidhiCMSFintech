@@ -1,9 +1,11 @@
 package com.nidhi.cms.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 @Entity
 public class UserBusinessKyc extends BaseDomain {
@@ -30,8 +32,12 @@ public class UserBusinessKyc extends BaseDomain {
 
 	private String websiteLink;
 
+	@Lob 
+	@Column(name="address1", length=512)
 	private String address1;
 
+	@Lob 
+	@Column(name="address2", length=512)
 	private String address2;
 
 	private String pincode;

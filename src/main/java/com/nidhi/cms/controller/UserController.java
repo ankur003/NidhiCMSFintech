@@ -795,7 +795,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return null;
 	}
 	
-	public List<User> getUserByPanAndMarchantId(String pan, String marchantId) {
+	public List<Object> getUserByPanAndMarchantId(String pan, String marchantId) {
 		User user = getLoggedInUserDetails();
 		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
 			return Collections.emptyList();
@@ -803,7 +803,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (pan == null && marchantId == null) {
 			return Collections.emptyList();
 		}
-		List<User> userList = new ArrayList<>();
+		List<Object> userList = new ArrayList<>();
 
 		if (pan != null) {
 			UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKycByPan(pan);
