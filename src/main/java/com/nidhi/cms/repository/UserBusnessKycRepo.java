@@ -12,4 +12,6 @@ public interface UserBusnessKycRepo extends JpaRepository<UserBusinessKyc, Long>
 
 	UserBusinessKyc findByUserId(Long userId);
 
+	UserBusinessKyc findByIndividualPan(String pan);
+
 }

@@ -451,4 +451,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return userRepository.findByApiKey(apiKey);
 	}
 
+	@Override
+	public User findByUserId(Long userId) {
+		return userRepository.findByUserId(userId);
+	}
+
 }

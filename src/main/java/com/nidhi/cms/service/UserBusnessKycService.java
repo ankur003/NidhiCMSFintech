@@ -14,4 +14,6 @@ public interface UserBusnessKycService {
 
 	void updateKycStatus(User user, KycStatus kycStatus);
 
+	UserBusinessKyc getUserBusnessKycByPan(String pan);
+
 }

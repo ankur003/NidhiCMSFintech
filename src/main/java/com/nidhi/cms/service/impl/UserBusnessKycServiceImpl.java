@@ -47,5 +47,10 @@ public class UserBusnessKycServiceImpl implements UserBusnessKycService {
 	public UserBusinessKyc getUserBusnessKyc(Long userId) {
 		return userBusnessKycRepo.findByUserId(userId);
 	}
+	
+	@Override
+	public UserBusinessKyc getUserBusnessKycByPan(String pan) {
+		return userBusnessKycRepo.findByIndividualPan(pan);
+	}
 
 }

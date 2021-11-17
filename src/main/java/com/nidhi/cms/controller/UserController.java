@@ -5,6 +5,8 @@ import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -194,8 +196,7 @@ public class UserController extends AbstractController {
 //			@Authorization(value = "oauthToken") })
 	public UserDoc getUserDoc(@RequestParam(required = true, name = "docType") final DocType docType) {
 		User user = getLoggedInUserDetails();
-		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
-		return doc;
+		return docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
 	}
 
 //	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
@@ -220,14 +221,32 @@ public class UserController extends AbstractController {
 		User user = getLoggedInUserDetails();
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());
+		ErrorResponse errorResponse = validatePan(user.getUserId(), userBusunessKycRequestModal.getIndividualPan());
+		if (errorResponse != null) {
+			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+		}
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
 		if (BooleanUtils.isTrue(isSaved)) {
 			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
 			return ResponseHandler.getMapResponse("message", "data saved");
 		}
-		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
+		errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 				"Please contact support, unable to persist data");
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private ErrorResponse validatePan(Long userId, String pan) {
+		if (pan == null) {
+			return null;
+		}
+		UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKycByPan(pan);
+		if (userBusinessKyc == null) {
+			return null;
+		}
+		if (pan.equals(userBusinessKyc.getIndividualPan()) && !userId.equals(userBusinessKyc.getUserId())) {
+			return new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "pan number should be unique");
+		}
+		return null;
 	}
 
 //	@GetMapping(value = "/get-business-kyc")
@@ -249,13 +268,7 @@ public class UserController extends AbstractController {
 			@Authorization(value = "oauthToken") }, hidden = true)
 	public List<UserDoc> getUserAllKyc() {
 		User user = getLoggedInUserDetails();
-		List<UserDoc> userDoc = docService.getUserAllKyc(user.getUserId());
-//		if (userDoc == null) {
-//			return Collections.emptyList();
-//		}
-		// return ResponseHandler.getListResponse(beanMapper, userDoc,
-		// UserDocModal.class);
-		return userDoc;
+		return docService.getUserAllKyc(user.getUserId());
 	}
 
 	// @PutMapping(value = "/change-email-password")
@@ -293,7 +306,7 @@ public class UserController extends AbstractController {
 			return false;
 		}
 		Boolean isDone = userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
-		if (isDone && user.getKycStatus().equals(KycStatus.VERIFIED) && user.getToken() == null) {
+		if (BooleanUtils.isTrue(isDone) && user.getKycStatus().equals(KycStatus.VERIFIED) && user.getToken() == null) {
 			HttpSession session = request.getSession();
 			Object token = session.getServletContext().getAttribute(AUTH_TOKEN);
 			if (Objects.isNull(token)) {
@@ -315,7 +328,7 @@ public class UserController extends AbstractController {
 		List<UserAccountStatement> userAccountStatement = userAccountStatementService.getUserAccountStatements(
 				user.getUserId(), Utility.stringToLocalDate(fromDate), Utility.stringToLocalDate(toDate));
 		if (CollectionUtils.isEmpty(userAccountStatement)) {
-			return null;
+			return Collections.emptyList();
 		}
 		return userAccountStatement;
 	}
@@ -571,9 +584,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		return null;
 	}
-	public SystemPrivilege getPriviligebyid(Long privilege_id) {
-		User user = getLoggedInUserDetails();
-			return userservice.findbyIdprivilege(privilege_id);
+	public SystemPrivilege getPriviligebyid(Long privilegeId) {
+			return userservice.findbyIdprivilege(privilegeId);
 	}
 	
 	
@@ -601,7 +613,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
 			return userservice.getSubAdminList();
 		}
-		return null;
+		return Collections.emptyList();
 	}
 	
 	public List<SystemPrivilege> getSystemPrivlegeList() {
@@ -697,11 +709,15 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal,User user) {
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());
+		ErrorResponse errorResponse = validatePan(user.getUserId(), userBusunessKycRequestModal.getIndividualPan());
+		if (errorResponse != null) {
+			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
+		}
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
 		if (BooleanUtils.isTrue(isSaved)) {
 			return ResponseHandler.getMapResponse("message", "data saved");
 		}
-		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
+		errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 				"Please contact support, unable to persist data");
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
@@ -778,5 +794,33 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return apiKey + "dev_Ankur" +token;
 		}
 		return null;
+	}
+	
+	public List<User> getUserByPanAndMarchantId(String pan, String marchantId) {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
+			return Collections.emptyList();
+		}
+		if (pan == null && marchantId == null) {
+			return Collections.emptyList();
+		}
+		List<User> userList = new ArrayList<>();
+
+		if (pan != null) {
+			UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKycByPan(pan);
+			if (userBusinessKyc != null) {
+				User userByPan = userservice.findByUserId(userBusinessKyc.getUserId());
+				userList.add(userByPan);
+			}
+		}
+		if (marchantId != null) {
+			UserWallet userWallet = userWalletService.findByMerchantId(marchantId);
+			if (userWallet != null) {
+				User userByMarchantId = userservice.findByUserId(userWallet.getUserId());
+				userList.add(userByMarchantId);
+			}
+		}
+		return userList;
+		
 	}
 }

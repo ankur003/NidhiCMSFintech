@@ -43,4 +43,9 @@ public class UserWalletServiceImpl implements UserWalletService {
 		return Boolean.TRUE;
 	}
 
+	@Override
+	public UserWallet findByMerchantId(String marchantId) {
+		return userWalletRepo.findByMerchantId(marchantId);
+	}
+
 }

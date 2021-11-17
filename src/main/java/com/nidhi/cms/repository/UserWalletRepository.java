@@ -14,4 +14,6 @@ public interface UserWalletRepository extends JpaRepository<UserWallet, Long> , 
 
 	UserWallet findFirstByOrderByUserWalletIdDesc();
 
+	UserWallet findByMerchantId(String marchantId);
+
 }
