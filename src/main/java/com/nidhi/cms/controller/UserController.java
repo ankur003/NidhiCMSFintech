@@ -226,7 +226,6 @@ public class UserController extends AbstractController {
 		}
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
 		if (BooleanUtils.isTrue(isSaved)) {
-			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
 			return ResponseHandler.getMapResponse("message", "data saved");
 		}
 		errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,

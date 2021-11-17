@@ -1,7 +1,5 @@
 package com.nidhi.cms.service.impl;
 
-import java.util.Optional;
-
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +28,9 @@ public class UserBusnessKycServiceImpl implements UserBusnessKycService {
 		} else {
 			userBusinessKyc.setUserBusinessKycId(businessKyc.getUserBusinessKycId());
 			userBusnessKycRepo.save(userBusinessKyc);
+			User user = userRepository.findByUserId(userBusinessKyc.getUserId());
+			user.setKycStatus(KycStatus.UNDER_REVIEW);
+			userRepository.save(user);
 		}
 		return Boolean.TRUE;
 	}
