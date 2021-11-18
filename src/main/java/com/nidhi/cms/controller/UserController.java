@@ -855,4 +855,12 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		return userList;
 	}
+
+	public List<User> getAllUsers() {
+		User user = getLoggedInUserDetails();
+		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
+			return Collections.emptyList();
+		}
+		return userservice.getAllUsers();
+	}
 }

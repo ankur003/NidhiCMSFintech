@@ -5,7 +5,6 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +63,6 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
-import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 
 /**
@@ -89,9 +86,6 @@ public class UserControllerFe {
 	@Autowired
 	private UserService userservice;
 	
-	@Autowired
-	private UserBusnessKycService  userBusnessKycService;
-
 	@PostMapping(value = "/user")
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
 			HttpServletRequest request) {
@@ -171,97 +165,93 @@ public class UserControllerFe {
 				roleName = roles.getName().name();
 			}
 
-			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
 			if (authtoken != null && roleName.equals(RoleEum.ADMIN.name())) {
 				{
 					return new ModelAndView("AdminDashboard");
 				}
 			} else {
-				if(!userLoginDetails.getIsSubAdmin())
-				{return new ModelAndView("Dashboard");}
-				else
-				{return new ModelAndView("AdminDashboard");}	
+				if (!userLoginDetails.getIsSubAdmin()) {
+					return new ModelAndView("Dashboard");
+				} else {
+					return new ModelAndView("AdminDashboard");
+				}
 			}
-			
+
 		} catch (Exception e) {
 			model.addAttribute("msgs", "Either email or Password is incorrect, please try again.");
 			return new ModelAndView("login");
 		}
-		}
-		else if(loginRequestModal.getOtpflag().equalsIgnoreCase("yes"))
-		
-		{
-			
-			try {
-				String emailorphone = request.getParameter("emailorphone");
-				String byemail=null;
-				String byphone=null;
-				boolean flag = false;
-				if(emailorphone.equalsIgnoreCase("EMAIL"))
-				{	 byemail = request.getParameter("byemail");
-				     flag = userController.sendOTPForgotPassword(byemail,ForgotPassType.EMAIL);
-				   if(flag)  model.addAttribute("msg", "OTP has sent to Your Email");
-				   else model.addAttribute("msgs", "Email Not Registered with us");
-				   model.addAttribute("byemail",byemail);
-				}
-					else
-					{
-				 byphone = request.getParameter("byphone"); 
-				 flag = userController.sendOTPForgotPassword(byphone,ForgotPassType.PHONE);
-				 if(flag)model.addAttribute("msg", "OTP has sent to Your Phone");
-				 else model.addAttribute("msgs", "Mobile Number Not Registered with us");
-				 model.addAttribute("byphone",byphone);
-					}
-					
-				if (flag) {
-					model.addAttribute("otp","otp");
-				} 
-			} catch (Exception e) {
-				// TODO: handle exception
-				e.printStackTrace();
-				System.out.println(e);
-			}
-		}
-		
-		else if(loginRequestModal.getOtpflag().equalsIgnoreCase("verifytp"))
-		{
-			String emailphOtp = request.getParameter("emailphOtp");
-			String newPass = request.getParameter("npassword");
-			String confirmPass = request.getParameter("cpassword");
-			boolean flag = false;
-			String byemail = request.getParameter("byemail");
-			if (byemail != null)
-				model.addAttribute("byemail", byemail);
-			String byphone = request.getParameter("byphone");
-			if (byphone != null)
-				model.addAttribute("byphone", byphone);
+	} else if (loginRequestModal.getOtpflag().equalsIgnoreCase("yes"))
 
-			flag = userController.matchOtpForgotPassword(emailphOtp);
-			if (flag)
-			{
-				boolean Flag2=false;
-				if (byemail != null)
-					Flag2= userController.updatePasswordForgotPassword(byemail, newPass, confirmPass);
-				if (byphone != null)
-					Flag2=userController.updatePasswordForgotPassword(byphone, newPass, confirmPass);
-				
-				if(Flag2)
-				{model.addAttribute("msg", "Password has been Changed");}
+	{
+
+		try {
+			String emailorphone = request.getParameter("emailorphone");
+			String byemail = null;
+			String byphone = null;
+			boolean flag = false;
+			if (emailorphone.equalsIgnoreCase("EMAIL")) {
+				byemail = request.getParameter("byemail");
+				flag = userController.sendOTPForgotPassword(byemail, ForgotPassType.EMAIL);
+				if (flag)
+					model.addAttribute("msg", "OTP has sent to Your Email");
 				else
-				{
-					model.addAttribute("msgs", "due to some error password didn't change. Try after some time");
-					model.addAttribute("otp", "otp");
-				}
-			} 
-			else
-			{
-				model.addAttribute("msgs", "OTP not Matched");
+					model.addAttribute("msgs", "Email Not Registered with us");
+				model.addAttribute("byemail", byemail);
+			} else {
+				byphone = request.getParameter("byphone");
+				flag = userController.sendOTPForgotPassword(byphone, ForgotPassType.PHONE);
+				if (flag)
+					model.addAttribute("msg", "OTP has sent to Your Phone");
+				else
+					model.addAttribute("msgs", "Mobile Number Not Registered with us");
+				model.addAttribute("byphone", byphone);
+			}
+
+			if (flag) {
 				model.addAttribute("otp", "otp");
 			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			System.out.println(e);
 		}
-		
-		return new ModelAndView("login");
 	}
+
+	else if (loginRequestModal.getOtpflag().equalsIgnoreCase("verifytp")) {
+		String emailphOtp = request.getParameter("emailphOtp");
+		String newPass = request.getParameter("npassword");
+		String confirmPass = request.getParameter("cpassword");
+		boolean flag = false;
+		String byemail = request.getParameter("byemail");
+		if (byemail != null)
+			model.addAttribute("byemail", byemail);
+		String byphone = request.getParameter("byphone");
+		if (byphone != null)
+			model.addAttribute("byphone", byphone);
+
+		flag = userController.matchOtpForgotPassword(emailphOtp);
+		if (flag) {
+			boolean Flag2 = false;
+			if (byemail != null)
+				Flag2 = userController.updatePasswordForgotPassword(byemail, newPass, confirmPass);
+			if (byphone != null)
+				Flag2 = userController.updatePasswordForgotPassword(byphone, newPass, confirmPass);
+
+			if (Flag2) {
+				model.addAttribute("msg", "Password has been Changed");
+			} else {
+				model.addAttribute("msgs", "due to some error password didn't change. Try after some time");
+				model.addAttribute("otp", "otp");
+			}
+		} else {
+			model.addAttribute("msgs", "OTP not Matched");
+			model.addAttribute("otp", "otp");
+		}
+	}
+
+	return new ModelAndView("login");
+}
 
 	@PostMapping(value = "/pkycupload")
 	public ModelAndView pkyc(Model model, HttpServletRequest request, @RequestParam MultipartFile[] fileUpload) {
@@ -526,6 +516,24 @@ public class UserControllerFe {
 		
 		String userEmail = request.getParameter("userEmail");
 		String contactNumber = request.getParameter("contactNumber");
+		
+		
+		if (StringUtils.isAllBlank(merchantId, pancard, userEmail, contactNumber)) {
+			List<User> list = userController.getAllUsers();
+			if (CollectionUtils.isNotEmpty(list)) {
+				 model.addAttribute("init", true);
+					
+					model.addAttribute("merchantId", merchantId);
+					model.addAttribute("pancard", pancard);
+					model.addAttribute("userEmail", userEmail);
+					model.addAttribute("contactNumber", contactNumber);
+					
+					model.addAttribute("userList", list);
+			} else {
+				model.addAttribute("init", false);
+			}
+				return new ModelAndView("AdminmanageClint");
+		}
 		
 		
 		List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId);

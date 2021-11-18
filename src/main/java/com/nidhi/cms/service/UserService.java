@@ -17,7 +17,6 @@ import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
-import com.nidhi.cms.modal.request.UserIciciInfo;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
@@ -85,6 +84,8 @@ public interface UserService {
 	User findByApiKey(String apiKey);
 	
 	User findByUserId(Long userId);
+
+	List<User> getAllUsers();
 
 }
 

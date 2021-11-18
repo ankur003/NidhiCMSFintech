@@ -456,4 +456,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return userRepository.findByUserId(userId);
 	}
 
+	@Override
+	public List<User> getAllUsers() {
+		return userRepository.findByIsSubAdminAndIsAdmin(false, false);
+	}
+
 }
