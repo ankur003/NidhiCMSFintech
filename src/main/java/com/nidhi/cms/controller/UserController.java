@@ -57,7 +57,6 @@ import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
-import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
@@ -367,14 +366,6 @@ public class UserController extends AbstractController {
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
 
-	public Boolean userPaymentMode(@RequestBody UserPaymentModeModal userPaymentModeModal) {
-		User user = userservice.getUserByUserUuid(userPaymentModeModal.getUserUuid());
-		if (user == null) {
-			return false;
-		}
-		return userWalletService.updateUserPaymentMode(user, userPaymentModeModal.getPaymentMode());
-	}
-
 //	@PutMapping(value = "/user-bank-account")
 //	@PreAuthorize("hasAnyRole('ADMIN')")
 //	@ApiOperation(value = "save or update user bank details", authorizations = { @Authorization(value = "accessToken"),
@@ -450,14 +441,14 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		if (StringUtils.isBlank(apiKey)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - apiKey is reuired");
-			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired - please provide apiKey in header");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 		}
 		
 		User user = userservice.findByApiKey(apiKey);
 		if (user == null) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - invalid apiKey");
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "invalid apiKey - please contact admin");
 			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
@@ -478,7 +469,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (userWallet == null) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "user wallet not created");
 			errorResponse.addError("errorCode", "" +ErrorCode.ENTITY_NOT_FOUND.value());
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errorResponse);
 		}
 		
 		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(userTxWoOtpReqModal.getMerchantId())) {
@@ -486,15 +477,23 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		
-		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, EnumUtils.getEnum(PaymentMode.class, userTxWoOtpReqModal.getTxntype()));
-		if (userPaymentMode == null) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is in-valid");
+		if (StringUtils.isBlank(userTxWoOtpReqModal.getTxntype())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is missing.");
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		if (BooleanUtils.isNotTrue(userPaymentMode.getIsActive())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "permission not granted for txntype - " + userTxWoOtpReqModal.getTxntype());
+		
+		PaymentMode txType = EnumUtils.getEnum(PaymentMode.class, userTxWoOtpReqModal.getTxntype());
+		
+		if (txType == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is in-valid.");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		
+		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, txType);
+		if (userPaymentMode == null || BooleanUtils.isNotTrue(userPaymentMode.getIsActive())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "permission not granted by admin for txntype - " +userTxWoOtpReqModal.getTxntype());
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
@@ -505,7 +504,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 			}
-		if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < (getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount())) + userTxWoAmount.doubleValue()) {
+		if ((userWallet.getAmount()) < (getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount())) + userTxWoAmount.doubleValue()) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
@@ -516,7 +515,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
 	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 				}
-			if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < (userTxWoAmount.doubleValue() + userPaymentMode.getFee())) {
+			if ((userWallet.getAmount()) < (userTxWoAmount.doubleValue() + userPaymentMode.getFee())) {
 				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
 				errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
 	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);

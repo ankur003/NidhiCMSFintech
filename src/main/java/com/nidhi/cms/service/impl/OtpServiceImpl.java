@@ -1,6 +1,8 @@
 package com.nidhi.cms.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -14,8 +16,10 @@ import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.repository.OtpRepository;
 import com.nidhi.cms.service.OtpService;
+import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -34,7 +38,7 @@ public class OtpServiceImpl implements OtpService {
 	private ApplicationConfig applicationConfig;
 
 	@Autowired
-	private JavaMailSender javaMailSender;
+	private EmailService emailService;
 
 	@Override
 	public Boolean sendingOtp(User existingUser) {
@@ -68,43 +72,41 @@ public class OtpServiceImpl implements OtpService {
 			return ;
 		}
 		String emailOtp = Utility.getRandomNumberString();
-		// sendOtpOnEmail(existingUser, emailOtp, password);
+		sendOtpOnEmail(existingUser, emailOtp, password);
 		if (StringUtils.isBlank(emailOtp)) {
 			return ;
 		}
 		 saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
 	}
 	
-	private void sendOtpOnEmail(User existingUser, String emailOtp,  String password) {
-		CompletableFuture.runAsync(() -> {
-			try {
-				SimpleMailMessage msg = new SimpleMailMessage();
-				msg.setTo(existingUser.getUserEmail());
-				msg.setSubject("Verify OTP | Nidhi CMS");
-				msg.setText("Use the OTP " + emailOtp
-						+ " to verify your NidhiCMS account. \n Password : " +password+"\n DO NOT SHARE OTP WITH ANYONE. \n \n \n \nRegards NidhiCms");
-				javaMailSender.send(msg);
-			} catch (final Exception e) {
-				// to be handled
-			}
-		});
+	private void sendOtpOnEmail(User existingUser, String emailOtp, String password) {
+		MailRequest request = new MailRequest();
+		request.setFrom("ankurbanssla@gmail.com");
+		request.setName(existingUser.getFullName());
+		request.setSubject("Email Verification | Nidhi CMS");
+		request.setTo(new String[] { existingUser.getUserEmail() });
+		Map<String, Object> modal = new HashMap<>();
+		modal.put("OTP", emailOtp);
+		modal.put("password", password);
+		sendMailAsync(request, modal, "", "email-template.ftl");
 
 	}
 
-	private void sendOtpOnEmail(User existingUser, String emailOtp) {
-		CompletableFuture.runAsync(() -> {
-			try {
-				SimpleMailMessage msg = new SimpleMailMessage();
-				msg.setTo(existingUser.getUserEmail());
-				msg.setSubject("Verify OTP | Nidhi CMS");
-				msg.setText("Use the OTP " + emailOtp
-						+ " to verify your NidhiCMS account. This is valid for 30 minutes. DO NOT SHARE OTP WITH ANYONE. \n \n \n \nRegards NidhiCms");
-				javaMailSender.send(msg);
-			} catch (final Exception e) {
-				// to be handled
-			}
-		});
+	private void sendMailAsync(MailRequest request, Map<String, Object> modal, String attach, String templateName) {
+		CompletableFuture.runAsync(() -> 
+			CompletableFuture.runAsync(() -> emailService.sendEmail(request, modal, attach, templateName))
+		 );
+	}
 
+	private void sendOtpOnEmail(User existingUser, String emailOtp) {
+		MailRequest request = new MailRequest();
+		request.setFrom("ankurbanssla@gmail.com");
+		request.setName(existingUser.getFullName());
+		request.setSubject("Email Verification | Nidhi CMS");
+		request.setTo(new String[] { existingUser.getUserEmail() });
+		Map<String, Object> modal = new HashMap<>();
+		modal.put("OTP", emailOtp);
+		sendMailAsync(request, modal, null, "email-template.ftl");
 	}
 
 	private Boolean saveOtpDetails(String mobileOtp, String emailOtp, User existingUser, Otp existingOtp) {

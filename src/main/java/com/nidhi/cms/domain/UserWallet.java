@@ -24,14 +24,9 @@ public class UserWallet extends BaseDomain {
 
 	private Double amount;
 
-	private Double adminAllocatedFund;
-
 	private String walletUuid;
 
 	private String merchantId;
-
-	@Enumerated(EnumType.STRING)
-	private PaymentMode paymentMode;
 
 	public Long getUserWalletId() {
 		return userWalletId;
@@ -55,22 +50,6 @@ public class UserWallet extends BaseDomain {
 
 	public void setAmount(Double amount) {
 		this.amount = amount;
-	}
-
-	public Double getAdminAllocatedFund() {
-		return adminAllocatedFund;
-	}
-
-	public void setAdminAllocatedFund(Double adminAllocatedFund) {
-		this.adminAllocatedFund = adminAllocatedFund;
-	}
-
-	public PaymentMode getPaymentMode() {
-		return paymentMode;
-	}
-
-	public void setPaymentMode(PaymentMode paymentMode) {
-		this.paymentMode = paymentMode;
 	}
 
 	public String getWalletUuid() {

@@ -657,7 +657,7 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/user-payment-mode")
 	public ModelAndView userPaymentModes(@ModelAttribute UserPaymentModeModal userPaymentModeModal,Model model, HttpServletRequest request) {
-		     userController.userPaymentMode(userPaymentModeModal);
+		   //  userController.userPaymentMode(userPaymentModeModal);
 		     model.addAttribute("msg", "payment Mode has been added");
 		return new ModelAndView("AdminProductFeaturing");
 	}
