@@ -31,13 +31,32 @@
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      
 
+  <script type="text/javascript">
   
+  function loaddata(userUuid)
+  {
+		var datas = {"userUuid":userUuid};
+			$.ajax({
+			type : "POST",
+			url :  "/api/v1/refresh",
+			data : datas,
+			success : function(data)
+			{
+				
+			},
+			error : function(e) {
+				//alert('Error: ' + e);
+			}
+		});
+  }
+  
+</script>
   
 </head>
 <c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
-<body>
+<body onload="javascript:loaddata('${userLoginDetails.userUuid}')">
  <div class="sidebar close">
   <!--   <div class="logo-details">
       <i class='bx bxl-c-plus-plus'></i>
@@ -57,7 +76,7 @@
         <ul class="sub-menu">
           <li><a class="link_name" href="#">Onboarding </a></li>
           <li><a href="/api/v1/fe/AdminCreateNew">Create New</a></li>
-          <li><a href="/api/v1/get-all-user">Pending client</a></li>
+          <li><a href="/api/v1/get-all-user?userUuid=${userLoginDetails.userUuid}">Pending client</a></li>
           <li><a href="/api/v1/fe/AdminmanageClint">Manage Client</a></li>
         </ul>
       </li>
@@ -135,7 +154,7 @@
         <ul class="sub-menu">
           <li><a class="link_name" href="#">Onboarding </a></li>
           <c:if test="${fn:contains(theString,'Create New')}">  <li><a href="/api/v1/fe/AdminCreateNew">Create New</a></li></c:if>
-          <c:if test="${fn:contains(theString,'Pending Client')}">  <li><a href="/api/v1/get-all-user">Pending Client</a></li></c:if>
+          <c:if test="${fn:contains(theString,'Pending Client')}">  <li><a href="/api/v1/get-all-user?userUuid=${userLoginDetails.userUuid}">Pending Client</a></li></c:if>
           <c:if test="${fn:contains(theString,'Manage Client')}">  <li><a href="/api/v1/fe/AdminmanageClint">Manage Client</a></li></c:if>
         </ul>
       </li>
@@ -180,7 +199,7 @@
         </div>
         <ul class="sub-menu">
           <li><a class="link_name" href="#">Report</a></li>
-           <c:if test="${fn:contains(theString,'Transaction report')}"><li><a href="/api/v1/fe/AdminTransactionReport">Transaction report</a></li></c:if>
+           <c:if test="${fn:contains(theString,'Transaction Report')}"><li><a href="/api/v1/fe/AdminTransactionReport">Transaction Report</a></li></c:if>
            <c:if test="${fn:contains(theString,'Bank A/c Verification')}"><li><a href="/api/v1/fe/AdminBankACverification">Bank A/c Verification</a></li></c:if>
            <c:if test="${fn:contains(theString,'Billing/Charges Report')}"><li><a href="/api/v1/fe/AdminBillingReport">Billing/Charges Report</a></li></c:if>
            <c:if test="${fn:contains(theString,'Transaction Inquiry')}"><li><a href="/api/v1/fe/AdminTransactionInqReport">Transaction Inquiry</a></li></c:if>

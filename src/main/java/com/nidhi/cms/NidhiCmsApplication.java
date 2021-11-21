@@ -75,7 +75,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 	
 	private void createSystemPrivilages() { 
-		List<String> systemPrivilages = Arrays.asList("Onboarding", "Product Featuring", "SubAdmin", "Report", "Setting");
+		List<String> systemPrivilages = Arrays.asList("Onboarding","Create New","Pending Client","Manage Client", "Product Featuring", "SubAdmin", "Report","Transaction Report","Bank A/c Verification","Billing/Charges Report","Transaction Inquiry","Account Statement", "Setting","Add Privilege");
 		
 		if (systemPrivilegeRepo.count() == systemPrivilages.size()) {
 			return; 
