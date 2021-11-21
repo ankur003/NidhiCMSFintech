@@ -48,4 +48,10 @@ public class UserBankModal {
 		return userUuid;
 	}
 
+	public void setUserUuid(String userUuid) {
+		this.userUuid = userUuid;
+	}
+
+	
+
 }

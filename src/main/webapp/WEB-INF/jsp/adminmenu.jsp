@@ -99,7 +99,7 @@
         </div>
         <ul class="sub-menu">
           <li><a class="link_name" href="#"> SubAdmin </a></li>
-          <li><a href="/api/v1/fe/SubAdminAccount">Create</a></li>
+          <li><a href="/api/v1/fe/SubAdminAccount?userUuid=${userLoginDetails.userUuid}">Create</a></li>
           <li><a href="/api/v1/fe/SubAdminAccountUpdate">Update</a></li>
         </ul>
       </li>

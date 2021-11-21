@@ -71,9 +71,17 @@
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
+											<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
+										
+										<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
 
 									 <input type="hidden" id="" name="" value="USER"> 
 										<p class="comment-form-author">

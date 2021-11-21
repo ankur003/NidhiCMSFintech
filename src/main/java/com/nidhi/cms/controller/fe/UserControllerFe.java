@@ -5,7 +5,6 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -96,7 +95,6 @@ public class UserControllerFe {
 			return new ModelAndView("Signup");
 		} else {
 			return new ModelAndView("VerifyOtp");
-
 		}
 
 	}
@@ -137,30 +135,28 @@ public class UserControllerFe {
 		{
 		
 		try {
-			User usr=userservice.getUserByUserEmailOrMobileNumber(loginRequestModal.getUsername(), loginRequestModal.getUsername());
-			if(usr!=null && BooleanUtils.isTrue( usr.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(usr.getIsUserVerified()))
+			User userLoginDetails=userservice.getUserByUserEmailOrMobileNumber(loginRequestModal.getUsername(), loginRequestModal.getUsername());
+			if(userLoginDetails!=null && BooleanUtils.isTrue( userLoginDetails.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(userLoginDetails.getIsUserVerified()))
 			{
 				return new ModelAndView("VerifyOtp");
 			}
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
+			
 			session.setAttribute(AUTH_TOKEN, authtoken);
-			User userLoginDetails = userController.getUserDetail(usr.getUserUuid());
-			model.addAttribute("userLoginDetails", userLoginDetails);
-
 			session.setAttribute("userLoginDetails", userLoginDetails);
 
-			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN, usr.getUserUuid());
-			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR, usr.getUserUuid());
-			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST, usr.getUserUuid());
-
+			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN, userLoginDetails.getUserUuid());
+			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR, userLoginDetails.getUserUuid());
+			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST, userLoginDetails.getUserUuid());
 			session.setAttribute("userDoc", userDoc);
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
-			UserBusinessKycModal bkyc= userController.getUserBusnessKyc(usr.getUserUuid());
+			
+			UserBusinessKycModal bkyc= userController.getUserBusnessKyc(userLoginDetails.getUserUuid());
 			session.setAttribute("bkyc", bkyc);
 			UserBankDetails bank= userController.getUserBankDetails(userLoginDetails.getUserUuid());
-					session.setAttribute("bank", bank);
+			session.setAttribute("bank", bank);
 					
 			String roleName = StringUtils.EMPTY;
 			for (Role roles : userLoginDetails.getRoles()) {
@@ -256,9 +252,10 @@ public class UserControllerFe {
 }
 
 	@PostMapping(value = "/pkycupload")
-	public ModelAndView pkyc(Model model, HttpServletRequest request, @RequestParam MultipartFile[] fileUpload, @RequestParam String userUuid) {
+	public ModelAndView pkyc(Model model, HttpServletRequest request,  MultipartFile[] fileUpload) {
 		try {
 			HttpSession session = request.getSession();
+			String userUuid=request.getParameter("userUuid");
 			if (fileUpload[0] != null) {
 				userController.saveOrUpdateUserDoc(fileUpload[0], DocType.DOCUMENT_PAN, userUuid);
 			}
@@ -312,8 +309,6 @@ public class UserControllerFe {
 			model.addAttribute("msg", "Business Details Succesfully Uploaded");
 			return new ModelAndView("UserBank");
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(e);
 			return new ModelAndView("Pkyc");
 		}
 	}
@@ -322,12 +317,11 @@ public class UserControllerFe {
 	@PostMapping(value = "/user-bank-account")
 	public ModelAndView saveOrUpdateUserBankDetail(Model model,@ModelAttribute UserBankModal userBankModal,HttpServletRequest request) {
 		UserBankDetails bank=userController.saveOrUpdateUserBankDetails(userBankModal);
-		User userLoginDetails = userController.getUserDetail(userBankModal.getUserUuid());
 		HttpSession session = request.getSession();
-		session.setAttribute("userLoginDetails", userLoginDetails);
-
 		if(bank!=null)
 		{
+			User userLoginDetails = userController.getUserDetail(userBankModal.getUserUuid());
+			session.setAttribute("userLoginDetails", userLoginDetails);
 			model.addAttribute("msg", "Bank Details Succesfully Uploaded");
 			return new ModelAndView("Dashboard");
 		}
@@ -337,12 +331,14 @@ public class UserControllerFe {
 			return new ModelAndView("Dashboard");
 		}
 		
+		
 	}
 	
 	
 	@PostMapping(value = "/updateEmailpass")
-	public ModelAndView updateEmailpass(Model model, HttpServletRequest request, @RequestParam String userUuid) {
+	public ModelAndView updateEmailpass(Model model, HttpServletRequest request) {
 		User users=null;
+		String userUuid=request.getParameter("userUuid");
 		String email = request.getParameter("userEmail");
 		String password = request.getParameter("password");
 		String respose = userController.changeEmailOrPassword(email, password, userUuid);
@@ -356,6 +352,7 @@ public class UserControllerFe {
 		userUpdateModal.setLastName(lastName);
 		userUpdateModal.setFullName(fullName);
 		userUpdateModal.setDob(dob);
+		userUpdateModal.setUserUuid(userUuid);
 			users=userController.updateUserDetails(userUpdateModal);
 		model.addAttribute("msg", "Information Updated");
 		model.addAttribute("user",users);
@@ -397,12 +394,14 @@ public class UserControllerFe {
 	}
 
 	@GetMapping(value = "/get-all-user")
-	public ModelAndView getAllClint(Model model, HttpServletRequest request) {
+	public ModelAndView getAllClint(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request) {
+		//User user = userservice.getUserByUserUuid(userUuid);
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
 		userRequestFilterModel.setIsAdmin(false);
 		userRequestFilterModel.setIsSubAdmin(false);
+		userRequestFilterModel.setUserUuid(userUuid);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
@@ -438,22 +437,30 @@ public class UserControllerFe {
 
 	@GetMapping(value = "/kyc-auth")
 	public ModelAndView approveOrRejectKyc(@RequestParam("userUuid") String userUuid,
-			@RequestParam("kycResponse") Boolean kycResponse, @RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
+			@RequestParam("kycResponse") Boolean kycResponse,@RequestParam("adminuid") String adminuid, @RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
 			Model model, HttpServletRequest request) {
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN, request);
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR, request);
-		userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST, request);
+	boolean a=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN, request);
+	boolean b=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR, request);
+	boolean c=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST, request);
 
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
 		userRequestFilterModel.setIsAdmin(false);
 		userRequestFilterModel.setIsSubAdmin(false);
+		userRequestFilterModel.setUserUuid(adminuid);
 		
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			User user=userservice.getUserByUserUuid(userUuid);
+			if(a && b && c)
+			{
 			model.addAttribute("msg", user.getFullName() ==null ? "record has been verified" : user.getFullName() + " has been verified");
+			}
+			else
+			{
+				model.addAttribute("msgs", user.getFullName() ==null ? "record has been verified" : user.getFullName() + " has not been verified");
+			}
 			model.addAttribute("userList", users.get("data"));
 			model.addAttribute("init", true);
 			return new ModelAndView("AdminPendingClient");
@@ -496,23 +503,33 @@ public class UserControllerFe {
 	
 	
 	@PostMapping(value = "/userbyAdmin")
-	public ModelAndView userSavebyadmin(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
-			HttpServletRequest request) {
+	public ModelAndView userSavebyadmin(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,HttpServletRequest request) {
+		String userUuid=request.getParameter("userUuid");
+		User user = userservice.getUserByUserUuid(userUuid);
+		if(user.getIsAdmin() || user.getIsSubAdmin())
+		{
 		userCreateModal.setIsCreatedByAdmin(true);
 		String respose = userController.userSignUp(userCreateModal);
 		model.addAttribute("msg", respose);
 		if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
 			return new ModelAndView("AdminCreateNew");
 		} else {
-			model.addAttribute("msg", "user has been created and verified");
+			model.addAttribute("msg", "user has been created");
 			return new ModelAndView("AdminCreateNew");
 
+		}
+		}
+		else
+		{
+			model.addAttribute("msgs", "Admin or Subadmin can create User");
+			return new ModelAndView("AdminCreateNew");
 		}
 
 	}
 
 	@PostMapping(value = "/get-user-search")
-	public ModelAndView getAllClintss(Model model, HttpServletRequest request, @RequestParam("adminUuid") String adminUuid) {
+	public ModelAndView getAllClintss(Model model, HttpServletRequest request) {
+		String userUuid=request.getParameter("userUuid");
 		String merchantId = request.getParameter("merchantId");
 		String pancard = request.getParameter("pancard");
 		
@@ -521,7 +538,7 @@ public class UserControllerFe {
 		
 		
 		if (StringUtils.isAllBlank(merchantId, pancard, userEmail, contactNumber)) {
-			List<User> list = userController.getAllUsers(adminUuid);
+			List<User> list = userController.getAllUsers(userUuid);
 			if (CollectionUtils.isNotEmpty(list)) {
 				 model.addAttribute("init", true);
 					
@@ -538,8 +555,8 @@ public class UserControllerFe {
 		}
 		
 		
-		List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, adminUuid);
-			list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, adminUuid));
+		List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, userUuid);
+			list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, userUuid));
 		if (CollectionUtils.isNotEmpty(list)) {
            model.addAttribute("init", true);
 			
@@ -560,7 +577,7 @@ public class UserControllerFe {
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		
-		
+		String userUuid=request.getParameter("userUuid");
 		String firstName = request.getParameter("firstName");
 		String lastName = request.getParameter("lastName");
 		String userEmail = request.getParameter("userEmail");
@@ -572,6 +589,7 @@ public class UserControllerFe {
 	    userRequestFilterModel.setUsername(username);
 	    userRequestFilterModel.setIsSubAdmin(true);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
+		userRequestFilterModel.setUserUuid(userUuid);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
@@ -690,10 +708,10 @@ public class UserControllerFe {
 	
 	
 	@GetMapping(value = "/get-privilegeList")
-	public ModelAndView getListOfPrivilege(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid,Model model, HttpServletRequest request, HttpSession session) {
+	public ModelAndView getListOfPrivilege(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request, HttpSession session) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		model.addAttribute("user",user);
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(userUuid);
 		model.addAttribute("privilegeList",list);
 		model.addAttribute("init",list.size());
 		return new ModelAndView("AdminAddPrivilege");
@@ -701,9 +719,10 @@ public class UserControllerFe {
 	
 	
 	@PostMapping(value = "/admin-add-privilege")
-	public ModelAndView addAccessPrivilegesIntoSystem(Model model, HttpServletRequest request, @RequestParam("adminUuid") String adminUuid) {
+	public ModelAndView addAccessPrivilegesIntoSystem(Model model, HttpServletRequest request) {
 		String privilegeName = request.getParameter("privilegeName");
 		SystemPrivilege systemPrivilege = null;
+		String adminUuid=request.getParameter("adminUuid");
 			systemPrivilege = userController.addAccessPrivilegesIntoSystem(privilegeName, adminUuid);
 			List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 			model.addAttribute("privilegeList",list);
@@ -717,9 +736,10 @@ public class UserControllerFe {
 	
 //	deleteAccessPrivilegesIntoSystem
 	@PostMapping(value = "/admin-update-privilege")
-	public ModelAndView updateAccessPrivilegesIntoSystem(Model model, HttpServletRequest request, @RequestParam("adminUuid") String adminUuid) {
+	public ModelAndView updateAccessPrivilegesIntoSystem(Model model, HttpServletRequest request) {
 		String privilegeName = request.getParameter("privilegeName");
 		String nprivilegeName = request.getParameter("nprivilegeName");
+		String adminUuid=request.getParameter("adminUuid");
 		SystemPrivilege systemPrivilege = null;
 			systemPrivilege = userController.updateAccessPrivilegesIntoSystem(privilegeName,nprivilegeName, adminUuid);
 			List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
@@ -750,10 +770,11 @@ public class UserControllerFe {
 	}
 	
 	@PostMapping(value = "/subadmin-add")
-	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal,@RequestParam("adminUuid") String adminUuid, Model model,
+	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal, Model model,
 			HttpServletRequest request) {
-		User user=userController.createSubAdmin(subAdminCreateModal,adminUuid);
-			List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
+		String userUuid=request.getParameter("userUuid");
+		User user=userController.createSubAdmin(subAdminCreateModal,userUuid);
+			List<SystemPrivilege> list= userController.getSystemPrivlegeList(userUuid);
 			model.addAttribute("privilegeList",list);
 			if(user!=null)
 			model.addAttribute("msg", "Subadmin has been created");
@@ -771,20 +792,21 @@ public class UserControllerFe {
 	
 	
 	@GetMapping(value = "/get-userDetails")
-	public ModelAndView userDetails(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid,Model model, HttpServletRequest request, HttpSession session) {
+	public ModelAndView userDetails(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request, HttpSession session) {
 		User user = userservice.getUserDetailByUserUuid(userUuid);
 		String[] userPrivilages = user.getPrivilageNames().split(",");
 		model.addAttribute("privilegeList",userPrivilages);
 		model.addAttribute("user",user);
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(userUuid);
 		model.addAttribute("listprivlege",list);
 		model.addAttribute("plist",user.getPrivilageNames());
 		return new ModelAndView("SubAdminAccountUpdate");
 	}
 	
 	@PostMapping(value = "/subadminUpdate")
-	public ModelAndView subadminUpdate(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid, Model model, HttpServletRequest request) {
+	public ModelAndView subadminUpdate(Model model, HttpServletRequest request) {
 		User users=null;
+		String userUuid=request.getParameter("userUuid");
 		String email = request.getParameter("userEmail");
 		String password = request.getParameter("password");
 		String respose = userController.changeEmailOrPassword(email, password, userUuid);
@@ -802,7 +824,7 @@ public class UserControllerFe {
 		String[] userPrivilages = user.getPrivilageNames().split(",");
 		model.addAttribute("privilegeList",userPrivilages);
 		model.addAttribute("user",user);
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(request.getParameter("userUuid"));
 		model.addAttribute("listprivlege",list);
 		model.addAttribute("plist",user.getPrivilageNames());
 		return new ModelAndView("SubAdminAccountUpdate");
@@ -1168,7 +1190,8 @@ public class UserControllerFe {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
         HttpSession session = request.getSession();
-        session.getServletContext().removeAttribute((String) session.getServletContext().getAttribute(AUTH_TOKEN));
+      //  session.getServletContext().removeAttribute((String) session.getServletContext().getAttribute(AUTH_TOKEN));
+        session.removeAttribute("userLoginDetails");
         request.getSession().invalidate();
         return new ModelAndView("login");
 	}

@@ -84,14 +84,7 @@
 												</p>
 											</div>
 											
-											<div class="col-sm-6">
-												<p class="comment-form-comment">
-													<label for="comment">AdminAllocated Fund</label>
-												</p>
-												<p class="comment-form-comment">
-													<label for="comment"><font color="blue" size="6">${userWallet.adminAllocatedFund} &#8377;</font></label> 
-												</p>
-											</div>
+											
 										</div>
 										
 										<div class="col-sm-12">

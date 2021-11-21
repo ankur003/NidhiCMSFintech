@@ -98,7 +98,7 @@
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
-
+                                        <input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
 										<input type="hidden" value="usr" name="utype">
 										 <p class="comment-form-email">
 											<label for="email">First Name <span class="mandate">*</span></label>

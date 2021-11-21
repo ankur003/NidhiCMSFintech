@@ -153,7 +153,7 @@
 														 	</c:otherwise>
 														 	</c:choose>  --%>
 														
-														 <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
+														 <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true&adminuid=${userLoginDetails.userUuid}">
 															<input type="Button" value="Approve" class="btn btn-success" name="Approve"></a>
 															
 														<%-- <a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=false"> --%>

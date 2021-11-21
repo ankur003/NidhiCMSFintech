@@ -80,6 +80,7 @@
 										
 									<div id="addp" >	
 									
+									<input type="hidden" id="adminUuid" name="adminUuid" value="${userLoginDetails.userUuid}">
 									<input type="hidden" value="${systemPrivilege.systemPrivilegeId}" name="systemPrivilegeId" id="systemPrivilegeId">
 									
 									    <div class="col-lg-6">
@@ -118,7 +119,7 @@
  															<td> 
  															<a href="/api/v1/getPriviligebyid?id=${ul.systemPrivilegeId}">
 															<input type="Button" value="Update" class="btn btn-success" name="Approve" onclick="showadp();"></a>
-															<a href="/api/v1/deletePrivlege?privilegeName=${ul.privilegeName}">
+															<a href="/api/v1/deletePrivlege?privilegeName=${ul.privilegeName}&adminUuid=${userLoginDetails.userUuid}">
  															   <input type="button" value="Delete" class="btn btn-danger"	name="reject" >
  															   </a>
  															</td>

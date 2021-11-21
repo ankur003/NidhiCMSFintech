@@ -247,6 +247,8 @@
 
 										<div class="col-lg-12">
 										
+										<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
+										
 										<c:if test="${bkyc.userBusinessKycId ne null}">
 										<input type="hidden"
 														required="required" size="30" value="${bkyc.userBusinessKycId}"

@@ -150,10 +150,10 @@ public class UserController extends AbstractController {
 		return userservice.getUserByUserEmailOrMobileNumber(emailOrMobile, emailOrMobile);
 	}
 
-	@GetMapping(value = "")
+//	@GetMapping(value = "")
 	// @PreAuthorize("hasRole('ADMIN')")
-	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") }, hidden = true)
+//	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") }, hidden = true)
 	public Map<String, Object> getAllUser(@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
 		if(BooleanUtils.isTrue(userservice.getUserByUserUuid(userRequestFilterModel.getUserUuid()).getIsAdmin())) {
 			Page<User> users = userservice.getAllUsers(userRequestFilterModel);
@@ -165,12 +165,12 @@ public class UserController extends AbstractController {
 		return null;
 	}
 
-	@PutMapping(value = "/doc")
-	// @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-			@Authorization(value = "oauthToken") }, hidden = true)
+//	@PutMapping(value = "/doc")
+//	// @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
+//			@Authorization(value = "oauthToken") }, hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserDoc(@RequestParam("file") final MultipartFile multiipartFile,
-			@RequestParam(required = true, name = "docType") final DocType docType, @RequestParam("file") final String userUuid) throws IOException {
+			@RequestParam(required = true, name = "docType") final DocType docType, @RequestParam("userUuid") final String userUuid) throws IOException {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (multiipartFile == null) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "file is blank");
@@ -301,12 +301,7 @@ public class UserController extends AbstractController {
 		}
 		Boolean isDone = userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
 		if (BooleanUtils.isTrue(isDone) && user.getKycStatus().equals(KycStatus.VERIFIED) && user.getToken() == null) {
-			HttpSession session = request.getSession();
-			Object token = session.getServletContext().getAttribute(AUTH_TOKEN);
-			if (Objects.isNull(token)) {
-				token = session.getAttribute(AUTH_TOKEN);
-			}
-			user.setToken(token.toString());
+			user.setToken("".toString());
 			userRepo.save(user);
 		}
 		return isDone;
@@ -343,7 +338,7 @@ public class UserController extends AbstractController {
 //	@PreAuthorize("hasAnyRole('ADMIN')")
 //	@ApiOperation(value = "get user wallet", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
-	public UserWallet getUserWallet(@RequestParam("userUuid") String userUuid) {
+	public UserWallet getUserWallet(String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			return null;
@@ -370,6 +365,9 @@ public class UserController extends AbstractController {
 	public UserBankDetails saveOrUpdateUserBankDetails(@RequestBody UserBankModal userBankModal) {
 		User user = userservice.getUserByUserUuid(userBankModal.getUserUuid());
 		UserBankDetails response = userservice.saveOrUpdateUserBankDetails(user, userBankModal);
+		if (user.getKycStatus().equals(KycStatus.VERIFIED)) {
+			return response;
+		}
 		if (response != null ) {
 			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
 		}
@@ -611,8 +609,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	public List<SystemPrivilege> getSystemPrivlegeList(String userUuid) {
-		User user = userservice.getUserByUserUuid(userUuid);
-		if (BooleanUtils.isTrue(user.getIsAdmin())) {
+		User user = userservice.getUserDetailByUserUuid(userUuid);
+		if (BooleanUtils.isTrue(user.getIsAdmin()) || BooleanUtils.isTrue(user.getIsSubAdmin())) {
 			return userservice.getSystemPrivilegeList();
 		}
 		return null;

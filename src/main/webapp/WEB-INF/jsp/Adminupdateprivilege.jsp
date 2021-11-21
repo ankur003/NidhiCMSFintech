@@ -81,7 +81,7 @@
 									<div id="addp" >	
 									
 									<input type="hidden" value="${systemPrivilege.systemPrivilegeId}" name="systemPrivilegeId" id="systemPrivilegeId">
-									
+									<input type="hidden" id="adminUuid" name="adminUuid" value="${userLoginDetails.userUuid}">
 									    <div class="col-lg-12">
 											<p class="comment-form-author">
 												<label for="author">Privilege Name</label> 

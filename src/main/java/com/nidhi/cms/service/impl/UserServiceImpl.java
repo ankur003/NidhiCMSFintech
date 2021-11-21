@@ -261,6 +261,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Override
 	public UserBankDetails saveOrUpdateUserBankDetails(User user, UserBankModal userBankModal) {
 		UserBankDetails userBankDetails = userBankDetailsRepo.findByUserId(user.getUserId());
+		if (user.getKycStatus().equals(KycStatus.VERIFIED)) {
+			return userBankDetails;
+		}
 		if (userBankDetails == null) {
 			userBankDetails = new UserBankDetails();
 		}

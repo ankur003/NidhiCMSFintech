@@ -58,7 +58,7 @@
 							<div class="col-md-12">
 								<div class="mu-contact-right">
 									<form class="contactform" action="/api/v1/get-subadmin" method="post">
-
+                                 	<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
 									<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">First Name</label> <input type="text"
@@ -173,7 +173,7 @@
 										</c:choose>
 										
 
-                                     <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+                                   	<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
                                        <input type=hidden id="userId" name="userId"  value="${user.userId }"  >
 										<p class="comment-form-author">
 											<label for="author">Full Name <span class="mandate">*</span></label>
@@ -255,31 +255,7 @@
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">×</button>
-					<h1 class="text-center">Alloted Batch Timeings</h1>
-				</div>
-				<div class="modal-body">
-					<div class="col-md-12">
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<div class="text-center" id="showallotedtiming"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<div class="col-md-12">
-						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	
 
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />

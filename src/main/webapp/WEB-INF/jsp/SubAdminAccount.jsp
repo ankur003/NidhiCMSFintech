@@ -81,6 +81,8 @@
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
+										
+										<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
                                       <input type="hidden" id="" name="" value="SUBADMIN"> 
 										<p class="comment-form-author">
 											<label for="author">Full Name <span class="mandate">*</span></label>

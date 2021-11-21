@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -134,8 +135,8 @@ public class forwardController {
 	}
 	
 	@GetMapping(value = "/SubAdminAccount")
-	public ModelAndView SubAdminAccount(Model model) {
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList(null);
+	public ModelAndView SubAdminAccount(Model model,@RequestParam("userUuid") String userUuid) {
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(userUuid);
        	model.addAttribute("privilegeList",list);
 	    model.addAttribute("init",list.size());
 		return new ModelAndView("SubAdminAccount");

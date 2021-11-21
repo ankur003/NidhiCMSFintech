@@ -237,6 +237,7 @@
 											</strong>
 										</div>
 
+                                        <input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
 											
 										<input type="hidden"
 														required="required"  maxlength="100"

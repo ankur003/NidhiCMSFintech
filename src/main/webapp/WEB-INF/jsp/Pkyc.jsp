@@ -227,6 +227,9 @@
 											</c:otherwise>
 										</c:choose>
 										
+										<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
+										
+										
 								        <p class="comment-form-author">
 											<label for="author">Upload Personal PAN <span class="mandate">*</span></label>
 											<input type="file" required="required" size="30" value=""
@@ -256,23 +259,8 @@
 												name="cancel">
 										</p>
 										</form>
-										
-										
-										<%-- <form class="contactform" action="/api/v1/user" method="post" id="2">
-                            
-										<p class="comment-form-author">
-											<label for="author">Upload Aadhar card <span class="mandate">*</span></label>
-											<input type="file" required="required" size="30" value=""
-												name="fullName" id="fullName" >
-										</p>
-											<p class="form-submit">
-											<input type="submit" value="Submit" class="btn btn-success"
-												name="Submit"> <input
-												
-												type="button" value="Cancel" class="btn btn-info"
-												name="cancel">
-										</p>
-										</form> --%>
+																
+									
 								</div>
 
 
@@ -292,31 +280,7 @@
 
 
 	<!--modal-->
-	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">×</button>
-					<h1 class="text-center">Alloted Batch Timeings</h1>
-				</div>
-				<div class="modal-body">
-					<div class="col-md-12">
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<div class="text-center" id="showallotedtiming"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<div class="col-md-12">
-						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+
 
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />

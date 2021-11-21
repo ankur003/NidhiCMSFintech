@@ -73,6 +73,8 @@
 											</c:otherwise>
 										</c:choose>
 										
+									<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
+										
 									<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">Merchant Id</label> <input type="text"
@@ -129,7 +131,7 @@
 															<td>${ul.mobileNumber}</td>
  															<%-- <td><a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
 															<input type="Button" value="Select" class="btn btn-success" name="Approve"></a></td> --%>
-															<td><a href="/api/v1/get-div-kyc?userUuid=${ul.userUuid}&id=1" target="_blank"><input type="Button" value="Select" class="btn btn-success" name="Approve"
+															<td><a href="/api/v1/get-div-kyc?userUuid=${ul.userUuid}&adminUuid=${userLoginDetails.userUuid}&id=1" target="_blank"><input type="Button" value="Select" class="btn btn-success" name="Approve"
  															onclick="javascript:copyUuid('${ul.userUuid}')"></a></td>
 														</tr>
 													</c:forEach>

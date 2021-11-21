@@ -66,12 +66,12 @@
 				
 				<c:if test="${msgs == null}">
 				<div class="col-md-12" >
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=1"><button type="button" class="btn btn-primary">Personal KYC</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=2"><button type="button" class="btn btn-secondary">Business Details</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=3"><button type="button" class="btn btn-success">Bank Details</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=4"><button type="button" class="btn btn-danger">Deactivate</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=5"><button type="button" class="btn btn-warning">Billing Charges</button></a>
-					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&id=6"><button type="button" class="btn btn-info">White List IP</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=1"><button type="button" class="btn btn-primary">Personal KYC</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=2"><button type="button" class="btn btn-secondary">Business Details</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=3"><button type="button" class="btn btn-success">Bank Details</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=4"><button type="button" class="btn btn-danger">Deactivate</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=5"><button type="button" class="btn btn-warning">Billing Charges</button></a>
+					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=6"><button type="button" class="btn btn-info">White List IP</button></a>
 				
 				</div>
 					
@@ -91,6 +91,8 @@
 													style="color: Blue; cursor: pointer;">Personal KYC</font>
 												</strong>
 											</div>
+
+<input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
 
 											<div class="col-lg-12">
 												<div class="col-lg-6">
@@ -156,6 +158,8 @@
 											</strong>
 										</div>
 <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+
+<input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
 										<div class="col-lg-12">
 												<div class="col-lg-6">
 												<p class="comment-form-author">
@@ -407,6 +411,8 @@
 									<div class="mu-contact-right">
 										<form class="contactform" action="/api/v1/user-bank-account-update"	 enctype = "multipart/form-data" method="post">
                                    <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+                                   
+<input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
 											<div class="col-lg-12">
 											<strong> <font style="color: Blue; cursor: pointer;">Bank Details</font>
 											</strong>
@@ -477,6 +483,8 @@
 									<div class="mu-contact-right">
 										<form class="contactform" action="/api/v1/deactivateUser"	method="post">
                                      <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+                                     
+<input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
 											<div class="col-lg-6">
 												<p class="comment-form-comment">
 													<label for="comment">Deactivate Account 
@@ -522,6 +530,8 @@
 									<div class="mu-contact-right">
 										<form class="contactform" action="/api/v1/add-Payment-mode"	method="post">
 										<input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+										
+<input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
                                           <div class="col-lg-9">
                                               <p class="comment-form-author">
 													<label for="author">Product<span
@@ -666,6 +676,8 @@
 									<div class="mu-contact-right">
 										<form class="contactform" action="/api/v1/admin-whitelist-update"	method="post">
                                      <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+                                     
+<input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
 												<div class="col-lg-6">
 										<p class="comment-form-url">
 											<label for="subject">Enter IP<span class="mandate">*</span></label>
