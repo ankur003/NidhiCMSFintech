@@ -9,7 +9,7 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Insert title here</title>
-<link rel="shortcut icon" href="/assets/img/favicon.ico"
+<link rel="shortcut icon" href="assets/img/favicon.ico"
 	type="image/x-icon">
 	
 	
@@ -34,7 +34,6 @@
   <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
   
   <link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="/resources/demos/style.css">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -69,13 +68,13 @@
 <c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
-<body onload="javascript:loaddata('${userLoginDetails.userUuid}')">
- <div class="sidebar close">
+<body >
+ <div class="sidebar close" >
    <!--  <div class="logo-details">
       <i class='bx bxl-c-plus-plus'></i>
       <span class="logo_name">CodingLab</span>
     </div> -->
-    <ul class="nav-links">
+    <ul class="nav-links" >
       <!-- <li>
         <a href="#">
           <i class='bx bx-grid-alt' ></i>
@@ -86,7 +85,7 @@
         </ul>
       </li> -->
       <li>
-        <div class="iocn-link">
+        <div class="iocn-link" >
           <a href="#">
             <i class='bx bx-collection' ></i>
             <span class="link_name">Payout</span>
@@ -113,18 +112,19 @@
           <li><a href="/api/v1/fe/bankAcVerifyreport">Bank A/c Verification</a></li>
         </ul>
       </li>
+      
       <li>
-        <a href="#">
+        <a href="/api/v1/getGeneratedApiKey?userUuid=${userLoginDetails.userUuid}">
           <i class='bx bx-pie-chart-alt-2' ></i>
-          <span class="link_name">Access Setting </span>
+          <span class="link_name" >Access Setting </span>
         </a>
         <ul class="sub-menu blank">
         <!--   <li><a class="link_name" href="/api/v1/getGeneratedApiKey">Access Setting </a></li> -->
-          <li><a class="link_name" href="/api/v1/generateApiKey">Access Setting </a></li>
+          <li><a class="link_name" href="/api/v1/getGeneratedApiKey?userUuid=${userLoginDetails.userUuid}">Access Setting </a></li>
         </ul>
       </li>
       <li>
-        <a href="#">
+        <a href="/api/v1/user-wallet?userUuid=${userLoginDetails.userUuid}">
           <i class='bx bx-line-chart' ></i>
           <span class="link_name">Fund Account </span>
         </a>
@@ -166,9 +166,9 @@
         </ul>
       </li> -->
       <li>
-        <a href="#">
+        <a href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=u">
           <i class='bx bx-cog' ></i>
-           <span class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=u">Setting</span> 
+           <span class="link_name">Setting</span> 
          <%--   <li><a class="link_name" href="/api/v1/get-loggedin-info?userUuid=${userLoginDetails.userUuid}&type=a">Setting</a></li> --%>
         </a>
         <ul class="sub-menu blank">

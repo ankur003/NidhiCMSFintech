@@ -1162,10 +1162,14 @@ public class UserControllerFe {
 			String[] api_token=apiandToken.split("dev_Ankur");
 			model.addAttribute("api",api_token[0]);
 			model.addAttribute("token",api_token[1]);
+			model.addAttribute("msg","Press view to show Data");
+			User userLoginDetails = userservice.getUserByUserUuid(userUuid);
+			model.addAttribute("userLoginDetails", userLoginDetails);
 		}
 		else {
 			model.addAttribute("msgs","Your KYC is not verified");
 		}
+		
 		return new ModelAndView("AccessSetting");
 	}
 	
@@ -1179,7 +1183,7 @@ public class UserControllerFe {
 			model.addAttribute("api",api_token[0]);
 			model.addAttribute("token",api_token[1]);
 		}
-		
+	
 		return new ModelAndView("AccessSetting");
 	}
 	

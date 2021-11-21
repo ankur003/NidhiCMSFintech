@@ -111,9 +111,21 @@
 										
 									  <c:choose>
 										<c:when test="${msgs==null}">
+										<%--  <a href="/api/v1/generateApiKey?userUuid=${userLoginDetails.userUuid}" data-target="#pwdModal"
+												data-toggle="modal" style="margin-left: 15%;">
+												<button type="button" class="btn btn-info">Generate API Keys</button></a> --%>
+												
+												
+											<c:if test="${userLoginDetails.apiKey!=null}">	
 										 <a href="#" data-target="#pwdModal"
 												data-toggle="modal" style="margin-left: 25%;">
-												<button type="button" class="btn btn-info">Generate</button></a>
+												<button type="button" class="btn btn-info">Show API Keys</button></a>
+												</c:if>
+													<c:if test="${userLoginDetails.apiKey==null}">	
+													<a href="/api/v1/generateApiKey?userUuid=${userLoginDetails.userUuid}" >
+												<button type="button" class="btn btn-info">Generate API Keys</button></a>
+													
+													</c:if>
 										</c:when>
 										<c:otherwise>
 										<a href="#"
