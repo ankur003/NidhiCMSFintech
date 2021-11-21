@@ -44,13 +44,32 @@
 	  var myTxtArea = document.getElementById("kycRejectReason");
 	  myTxtArea.value = myTxtArea.value.replace(/^\s*|\s*$/g," ");
 	  }
+  
+  
+  function loaddata(userUuid)
+  {
+		var datas = {"userUuid":userUuid};
+			$.ajax({
+			type : "POST",
+			url :  "/api/v1/refresh",
+			data : datas,
+			success : function(data)
+			{
+				
+			},
+			error : function(e) {
+				//alert('Error: ' + e);
+			}
+		});
+  }
+  
 </script>
 
 </head>
 <c:if test="${sessionScope.authtoken eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if> 
-<body>
+<body onload="javascript:loaddata('${userLoginDetails.userUuid}')">
  <div class="sidebar close">
    <!--  <div class="logo-details">
       <i class='bx bxl-c-plus-plus'></i>

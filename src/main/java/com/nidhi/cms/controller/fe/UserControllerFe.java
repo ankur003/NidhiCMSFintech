@@ -126,6 +126,9 @@ public class UserControllerFe {
 		return null;
 	}
 
+	
+	
+	
 	@PostMapping(value = "/login")
 	public ModelAndView login(@Valid @ModelAttribute LoginRequestModal loginRequestModal, Model model,
 			HttpServletRequest request) {
@@ -1169,4 +1172,7 @@ public class UserControllerFe {
         request.getSession().invalidate();
         return new ModelAndView("login");
 	}
+
+
+
 }
