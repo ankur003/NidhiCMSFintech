@@ -141,21 +141,20 @@ public class UserControllerFe {
 			}
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
-			// session.getServletContext().setAttribute(AUTH_TOKEN, authtoken);
 			session.setAttribute(AUTH_TOKEN, authtoken);
-			User userLoginDetails = userController.getUserDetail();
+			User userLoginDetails = userController.getUserDetail(usr.getUserUuid());
 			model.addAttribute("userLoginDetails", userLoginDetails);
 
 			session.setAttribute("userLoginDetails", userLoginDetails);
 
-			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN);
-			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR);
-			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST);
+			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN, usr.getUserUuid());
+			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR, usr.getUserUuid());
+			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST, usr.getUserUuid());
 
 			session.setAttribute("userDoc", userDoc);
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
-			UserBusinessKycModal bkyc= userController.getUserBusnessKyc();
+			UserBusinessKycModal bkyc= userController.getUserBusnessKyc(usr.getUserUuid());
 			session.setAttribute("bkyc", bkyc);
 			UserBankDetails bank= userController.getUserBankDetails(userLoginDetails.getUserUuid());
 					session.setAttribute("bank", bank);
@@ -254,24 +253,24 @@ public class UserControllerFe {
 }
 
 	@PostMapping(value = "/pkycupload")
-	public ModelAndView pkyc(Model model, HttpServletRequest request, @RequestParam MultipartFile[] fileUpload) {
+	public ModelAndView pkyc(Model model, HttpServletRequest request, @RequestParam MultipartFile[] fileUpload, @RequestParam String userUuid) {
 		try {
 			HttpSession session = request.getSession();
 			if (fileUpload[0] != null) {
-				userController.saveOrUpdateUserDoc(fileUpload[0], DocType.DOCUMENT_PAN);
+				userController.saveOrUpdateUserDoc(fileUpload[0], DocType.DOCUMENT_PAN, userUuid);
 			}
 			if (fileUpload[1] != null) {
-				userController.saveOrUpdateUserDoc(fileUpload[1], DocType.DOCUMENT_AADHAR);
+				userController.saveOrUpdateUserDoc(fileUpload[1], DocType.DOCUMENT_AADHAR, userUuid);
 			}
 			model.addAttribute("msg", "Pan & Aadhar card successfully uploaded");
 
-			List<UserDoc> getUserAllKyc = userController.getUserAllKyc();
+			List<UserDoc> getUserAllKyc = userController.getUserAllKyc(userUuid);
 			if (getUserAllKyc.size() == 3 || getUserAllKyc.size() > 3) {
 				session.setAttribute("kyc", "Done");
 			} else {
 				session.setAttribute("kyc", "Pending");
 			}
-			User userLoginDetails = userController.getUserDetail();
+			User userLoginDetails = userController.getUserDetail(userUuid);
 			session.setAttribute("userLoginDetails", userLoginDetails);
 
 			return new ModelAndView("Bkyc");
@@ -285,7 +284,7 @@ public class UserControllerFe {
 			@ModelAttribute UserBusinessKycRequestModal userBusinessKycRequestModal) {
 		try {
 			if (fileUpload != null) {
-				userController.saveOrUpdateUserDoc(fileUpload, DocType.DOCUMENT_GST);
+				userController.saveOrUpdateUserDoc(fileUpload, DocType.DOCUMENT_GST, userBusinessKycRequestModal.getUserUuid());
 			}
 			HttpSession session = request.getSession();
 
@@ -295,15 +294,15 @@ public class UserControllerFe {
 				model.addAttribute("msgs", "Duplicate Pan Number");
 				return new ModelAndView("Bkyc");
 			}
-			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN);
-			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR);
-			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST);
+			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN, userBusinessKycRequestModal.getUserUuid());
+			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR, userBusinessKycRequestModal.getUserUuid());
+			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST, userBusinessKycRequestModal.getUserUuid());
 
 			session.setAttribute("userDoc", userDoc);
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
 
-			User userLoginDetails = userController.getUserDetail();
+			User userLoginDetails = userController.getUserDetail(userBusinessKycRequestModal.getUserUuid());
 			session.removeAttribute("userLoginDetails");
 			session.setAttribute("userLoginDetails", userLoginDetails);
 
@@ -320,7 +319,7 @@ public class UserControllerFe {
 	@PostMapping(value = "/user-bank-account")
 	public ModelAndView saveOrUpdateUserBankDetail(Model model,@ModelAttribute UserBankModal userBankModal,HttpServletRequest request) {
 		UserBankDetails bank=userController.saveOrUpdateUserBankDetails(userBankModal);
-		User userLoginDetails = userController.getUserDetail();
+		User userLoginDetails = userController.getUserDetail(userBankModal.getUserUuid());
 		HttpSession session = request.getSession();
 		session.setAttribute("userLoginDetails", userLoginDetails);
 
@@ -339,11 +338,11 @@ public class UserControllerFe {
 	
 	
 	@PostMapping(value = "/updateEmailpass")
-	public ModelAndView updateEmailpass(Model model, HttpServletRequest request) {
+	public ModelAndView updateEmailpass(Model model, HttpServletRequest request, @RequestParam String userUuid) {
 		User users=null;
 		String email = request.getParameter("userEmail");
 		String password = request.getParameter("password");
-		String respose = userController.changeEmailOrPassword(email, password);
+		String respose = userController.changeEmailOrPassword(email, password, userUuid);
 		String firstName = request.getParameter("firstName");
 		String lastName = request.getParameter("lastName");
 		String fullName = request.getParameter("fullName");
@@ -368,11 +367,11 @@ public class UserControllerFe {
 	}
 
 	@PostMapping(value = "/get-user-account-statement")
-	public ModelAndView getUserAccountStatementService(Model model, HttpServletRequest request) {
+	public ModelAndView getUserAccountStatementService(Model model, HttpServletRequest request,@RequestParam String userUuid) {
 		String fromDate = request.getParameter("fromDate");
 		String toDate = request.getParameter("toDate");
 		List<UserAccountStatement> userAccountStatement = userController.getUserAccountStatementService(fromDate,
-				toDate);
+				toDate,userUuid);
 		if (!CollectionUtils.isEmpty(userAccountStatement)) {
 			model.addAttribute("fromDate", fromDate);
 			model.addAttribute("toDate", toDate);
@@ -510,7 +509,7 @@ public class UserControllerFe {
 	}
 
 	@PostMapping(value = "/get-user-search")
-	public ModelAndView getAllClintss(Model model, HttpServletRequest request) {
+	public ModelAndView getAllClintss(Model model, HttpServletRequest request, @RequestParam("adminUuid") String adminUuid) {
 		String merchantId = request.getParameter("merchantId");
 		String pancard = request.getParameter("pancard");
 		
@@ -519,7 +518,7 @@ public class UserControllerFe {
 		
 		
 		if (StringUtils.isAllBlank(merchantId, pancard, userEmail, contactNumber)) {
-			List<User> list = userController.getAllUsers();
+			List<User> list = userController.getAllUsers(adminUuid);
 			if (CollectionUtils.isNotEmpty(list)) {
 				 model.addAttribute("init", true);
 					
@@ -536,8 +535,8 @@ public class UserControllerFe {
 		}
 		
 		
-		List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId);
-			list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber));
+		List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, adminUuid);
+			list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, adminUuid));
 		if (CollectionUtils.isNotEmpty(list)) {
            model.addAttribute("init", true);
 			
@@ -688,10 +687,10 @@ public class UserControllerFe {
 	
 	
 	@GetMapping(value = "/get-privilegeList")
-	public ModelAndView getListOfPrivilege(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request, HttpSession session) {
+	public ModelAndView getListOfPrivilege(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid,Model model, HttpServletRequest request, HttpSession session) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		model.addAttribute("user",user);
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 		model.addAttribute("privilegeList",list);
 		model.addAttribute("init",list.size());
 		return new ModelAndView("AdminAddPrivilege");
@@ -699,11 +698,11 @@ public class UserControllerFe {
 	
 	
 	@PostMapping(value = "/admin-add-privilege")
-	public ModelAndView addAccessPrivilegesIntoSystem(Model model, HttpServletRequest request) {
+	public ModelAndView addAccessPrivilegesIntoSystem(Model model, HttpServletRequest request, @RequestParam("adminUuid") String adminUuid) {
 		String privilegeName = request.getParameter("privilegeName");
 		SystemPrivilege systemPrivilege = null;
-			systemPrivilege = userController.addAccessPrivilegesIntoSystem(privilegeName);
-			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+			systemPrivilege = userController.addAccessPrivilegesIntoSystem(privilegeName, adminUuid);
+			List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 			model.addAttribute("privilegeList",list);
 			model.addAttribute("init",list.size());
 		if (systemPrivilege!=null) {
@@ -715,12 +714,12 @@ public class UserControllerFe {
 	
 //	deleteAccessPrivilegesIntoSystem
 	@PostMapping(value = "/admin-update-privilege")
-	public ModelAndView updateAccessPrivilegesIntoSystem(Model model, HttpServletRequest request) {
+	public ModelAndView updateAccessPrivilegesIntoSystem(Model model, HttpServletRequest request, @RequestParam("adminUuid") String adminUuid) {
 		String privilegeName = request.getParameter("privilegeName");
 		String nprivilegeName = request.getParameter("nprivilegeName");
 		SystemPrivilege systemPrivilege = null;
-			systemPrivilege = userController.updateAccessPrivilegesIntoSystem(privilegeName,nprivilegeName);
-			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+			systemPrivilege = userController.updateAccessPrivilegesIntoSystem(privilegeName,nprivilegeName, adminUuid);
+			List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 			model.addAttribute("privilegeList",list);
 			model.addAttribute("init",list.size());
 		if (systemPrivilege!=null) {
@@ -732,9 +731,9 @@ public class UserControllerFe {
 
 	
 	@GetMapping(value = "/deletePrivlege")
-	public ModelAndView deleteAccessPrivilegesIntoSystem(@RequestParam("privilegeName") String privilegeName,Model model, HttpServletRequest request, HttpSession session) {
-		userController.deleteAccessPrivilegesIntoSystem(privilegeName);
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+	public ModelAndView deleteAccessPrivilegesIntoSystem(@RequestParam("privilegeName") String privilegeName,@RequestParam("adminUuid") String adminUuid,Model model, HttpServletRequest request, HttpSession session) {
+		userController.deleteAccessPrivilegesIntoSystem(privilegeName,adminUuid);
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 		model.addAttribute("privilegeList",list);
 		model.addAttribute("init",list.size());
 		return new ModelAndView("AdminAddPrivilege");
@@ -748,10 +747,10 @@ public class UserControllerFe {
 	}
 	
 	@PostMapping(value = "/subadmin-add")
-	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal, Model model,
+	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal,@RequestParam("adminUuid") String adminUuid, Model model,
 			HttpServletRequest request) {
-		User user=userController.createSubAdmin(subAdminCreateModal);
-			List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		User user=userController.createSubAdmin(subAdminCreateModal,adminUuid);
+			List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 			model.addAttribute("privilegeList",list);
 			if(user!=null)
 			model.addAttribute("msg", "Subadmin has been created");
@@ -769,23 +768,23 @@ public class UserControllerFe {
 	
 	
 	@GetMapping(value = "/get-userDetails")
-	public ModelAndView userDetails(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request, HttpSession session) {
+	public ModelAndView userDetails(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid,Model model, HttpServletRequest request, HttpSession session) {
 		User user = userservice.getUserDetailByUserUuid(userUuid);
 		String[] userPrivilages = user.getPrivilageNames().split(",");
 		model.addAttribute("privilegeList",userPrivilages);
 		model.addAttribute("user",user);
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 		model.addAttribute("listprivlege",list);
 		model.addAttribute("plist",user.getPrivilageNames());
 		return new ModelAndView("SubAdminAccountUpdate");
 	}
 	
 	@PostMapping(value = "/subadminUpdate")
-	public ModelAndView subadminUpdate(Model model, HttpServletRequest request) {
+	public ModelAndView subadminUpdate(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid, Model model, HttpServletRequest request) {
 		User users=null;
 		String email = request.getParameter("userEmail");
 		String password = request.getParameter("password");
-		String respose = userController.changeEmailOrPassword(email, password);
+		String respose = userController.changeEmailOrPassword(email, password, userUuid);
 		String mobileNumber = request.getParameter("mobileNumber");
 		String fullName = request.getParameter("fullName");
 		String[] privilageNames = request.getParameterValues("privilageNames");
@@ -800,7 +799,7 @@ public class UserControllerFe {
 		String[] userPrivilages = user.getPrivilageNames().split(",");
 		model.addAttribute("privilegeList",userPrivilages);
 		model.addAttribute("user",user);
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(adminUuid);
 		model.addAttribute("listprivlege",list);
 		model.addAttribute("plist",user.getPrivilageNames());
 		return new ModelAndView("SubAdminAccountUpdate");
@@ -836,7 +835,7 @@ public class UserControllerFe {
 	}
 	
 	@GetMapping(value = "/get-div-kyc")
-	public ModelAndView kycDivData(@RequestParam("userUuid") String userUuid,@RequestParam("id") int id,Model model, HttpServletRequest request)
+	public ModelAndView kycDivData(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid,@RequestParam("id") int id,Model model, HttpServletRequest request)
 	{
 		
 		User user = userservice.getUserByUserUuid(userUuid);
@@ -852,7 +851,7 @@ public class UserControllerFe {
 		model.addAttribute("bank",bank);
 		model.addAttribute("bkyc",business);
 		model.addAttribute("user",user);
-		List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(userUuid);
+		List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(adminUuid, userUuid);
 		model.addAttribute("paylist",paylist);
 		
 		for (UserPaymentMode userPaymentMode : paylist) 
@@ -1072,7 +1071,7 @@ public class UserControllerFe {
 			model.addAttribute("bank",bank);
 			model.addAttribute("bkyc",business);
 			model.addAttribute("user",userservice.getUserByUserUuid(userUuid));
-			List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(userUuid);
+			List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(userPaymentModeModalReqModal.getAdminUuid(), userUuid);
 			model.addAttribute("paylist",paylist);
 			
 			for (UserPaymentMode userPaymentMode : paylist) 
@@ -1130,8 +1129,8 @@ public class UserControllerFe {
 	
 	
 	@GetMapping(value = "/generateApiKey")
-	public ModelAndView generateApiKey( Model model,HttpServletRequest request) {
-		String apiandToken = userController.generateApiKey();
+	public ModelAndView generateApiKey(@RequestParam("userUuid") String userUuid, Model model,HttpServletRequest request) {
+		String apiandToken = userController.generateApiKey(userUuid);
 		
 		if(apiandToken!=null)
 		{
@@ -1146,8 +1145,8 @@ public class UserControllerFe {
 	}
 	
 	@GetMapping(value = "/getGeneratedApiKey")
-	public ModelAndView getGeneratedApiKey( Model model,HttpServletRequest request) {
-		String apiandToken = userController.getGeneratedApiKey();
+	public ModelAndView getGeneratedApiKey( @RequestParam("userUuid") String userUuid, Model model,HttpServletRequest request) {
+		String apiandToken = userController.getGeneratedApiKey(userUuid);
 		
 		if(apiandToken!=null)
 		{

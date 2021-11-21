@@ -10,7 +10,7 @@ public class UserBankModal {
 
 	private String bankName;
 
-	final String userUuid;
+	private String userUuid;
 
 	public String getAccountNumber() {
 		return accountNumber;

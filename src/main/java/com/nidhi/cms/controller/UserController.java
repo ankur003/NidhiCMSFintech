@@ -859,4 +859,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		return userservice.getAllUsers();
 	}
+
+	public User getUserDetail(String userUuid) {
+		return userservice.getUserByUserUuid(userUuid);
+	}
 }

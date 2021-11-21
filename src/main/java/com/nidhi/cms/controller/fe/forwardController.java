@@ -135,7 +135,7 @@ public class forwardController {
 	
 	@GetMapping(value = "/SubAdminAccount")
 	public ModelAndView SubAdminAccount(Model model) {
-		List<SystemPrivilege> list= userController.getSystemPrivlegeList();
+		List<SystemPrivilege> list= userController.getSystemPrivlegeList(null);
        	model.addAttribute("privilegeList",list);
 	    model.addAttribute("init",list.size());
 		return new ModelAndView("SubAdminAccount");
