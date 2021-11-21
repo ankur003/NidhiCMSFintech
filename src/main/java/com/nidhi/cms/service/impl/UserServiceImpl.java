@@ -1,7 +1,5 @@
 package com.nidhi.cms.service.impl;
 
-import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,6 +11,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,6 +92,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private SystemPrivilegeRepo systemPrivilegeRepo;
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
@@ -379,7 +382,29 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		}
 		systemPrivilegeRepo.delete(systemPrivilege);
 		systemPrivilege.setPrivilegeName(null);
+		
+		revokeUserPrivilege(privilegeName);
+		
 		return systemPrivilege;
+	}
+
+	private void revokeUserPrivilege(String privilegeName) {
+		List<User> users = userRepository.findByPrivilageNamesContaining(privilegeName);
+		if (CollectionUtils.isEmpty(users)) {
+			return;
+		}
+		for (User user : users) {
+			try {
+				if (user.getPrivilageNames() != null && user.getPrivilageNames().contains(privilegeName)) {
+					String removedPrivilege = StringUtils.remove(user.getPrivilageNames(), privilegeName);
+					user.setPrivilageNames(StringUtils.removeEnd(removedPrivilege, ","));
+					userRepository.save(user);
+				}
+			} catch (Exception e) {
+				LOGGER.error("[UserServiceImpl.revokeUserPrivilege] erorr occured during revoking privileges , userId - {}",
+						user.getUserId());
+			}
+		}
 	}
 
 	@Override
