@@ -1167,8 +1167,6 @@ public class UserControllerFe {
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-        HttpSession session = request.getSession();
-        session.getServletContext().removeAttribute((String) session.getServletContext().getAttribute(AUTH_TOKEN));
         request.getSession().invalidate();
         return new ModelAndView("login");
 	}
