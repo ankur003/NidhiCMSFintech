@@ -11,10 +11,12 @@ public class UserUpdateModal {
 	private String lastName;
 
 	private String middleName;
-	
+
 	private String dob;
-	
+
 	private String[] userPrivileges;
+
+	private String userUuid;
 
 	public String getFullName() {
 		return fullName;
@@ -64,6 +66,14 @@ public class UserUpdateModal {
 		this.userPrivileges = userPrivileges;
 	}
 
+	public String getUserUuid() {
+		return userUuid;
+	}
+
+	public void setUserUuid(String userUuid) {
+		this.userUuid = userUuid;
+	}
+
 	/*
 	 * public List<String> getUserPrivileges() { return userPrivileges; }
 	 * 
@@ -71,5 +81,4 @@ public class UserUpdateModal {
 	 * this.userPrivileges = userPrivileges; }
 	 */
 
-	
 }

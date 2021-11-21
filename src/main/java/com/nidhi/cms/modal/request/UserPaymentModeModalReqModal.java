@@ -5,6 +5,8 @@ import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 
 public class UserPaymentModeModalReqModal {
 
+	private String adminUuid;
+
 	private String userUuid;
 
 	private PaymentMode paymentMode;
@@ -53,6 +55,14 @@ public class UserPaymentModeModalReqModal {
 
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	public String getAdminUuid() {
+		return adminUuid;
+	}
+
+	public void setAdminUuid(String adminUuid) {
+		this.adminUuid = adminUuid;
 	}
 
 }

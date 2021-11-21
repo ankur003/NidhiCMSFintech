@@ -39,6 +39,9 @@ public class UserBusinessKycRequestModal {
 
 	@NotBlank
 	private String city;
+	
+	@NotBlank
+	private String userUuid;
 
 	public String getEntityType() {
 		return entityType;
@@ -135,5 +138,14 @@ public class UserBusinessKycRequestModal {
 	public void setCity(String city) {
 		this.city = city;
 	}
+
+	public String getUserUuid() {
+		return userUuid;
+	}
+
+	public void setUserUuid(String userUuid) {
+		this.userUuid = userUuid;
+	}
+	
 
 }
