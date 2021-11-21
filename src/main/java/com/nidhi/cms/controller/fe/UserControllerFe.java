@@ -144,7 +144,7 @@ public class UserControllerFe {
 			}
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
-			session.getServletContext().setAttribute(AUTH_TOKEN, authtoken);
+			// session.getServletContext().setAttribute(AUTH_TOKEN, authtoken);
 			session.setAttribute(AUTH_TOKEN, authtoken);
 			User userLoginDetails = userController.getUserDetail();
 			model.addAttribute("userLoginDetails", userLoginDetails);
@@ -660,7 +660,7 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/user-payment-mode")
 	public ModelAndView userPaymentModes(@ModelAttribute UserPaymentModeModal userPaymentModeModal,Model model, HttpServletRequest request) {
-		     userController.userPaymentMode(userPaymentModeModal);
+		   //  userController.userPaymentMode(userPaymentModeModal);
 		     model.addAttribute("msg", "payment Mode has been added");
 		return new ModelAndView("AdminProductFeaturing");
 	}
@@ -1168,7 +1168,6 @@ public class UserControllerFe {
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-        Enumeration<String> abc = request.getServletContext().getAttributeNames();
         HttpSession session = request.getSession();
         session.getServletContext().removeAttribute((String) session.getServletContext().getAttribute(AUTH_TOKEN));
         request.getSession().invalidate();

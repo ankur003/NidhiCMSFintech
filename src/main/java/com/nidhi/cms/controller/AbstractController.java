@@ -25,7 +25,7 @@ public class AbstractController {
     @Autowired
     public LoggedInUserUtil loggedInUserUtil;
     
-    public User getLoggedInUserDetails() {
+    public User getLoggedInUserDetails1() {
     	return loggedInUserUtil.getLoggedInUserDetails();
     }
 

@@ -27,18 +27,6 @@ public class UserWalletServiceImpl implements UserWalletService {
 		if (userWallet == null || amount == null) {
 			return Boolean.FALSE;
 		}
-		userWallet.setAdminAllocatedFund(Double.sum(userWallet.getAdminAllocatedFund(), amount));
-		userWalletRepo.save(userWallet);
-		return Boolean.TRUE;
-	}
-
-	@Override
-	public Boolean updateUserPaymentMode(User user, PaymentMode paymentMode) {
-		UserWallet userWallet = findByUserId(user.getUserId());
-		if (userWallet == null || paymentMode == null) {
-			return Boolean.FALSE;
-		}
-		userWallet.setPaymentMode(paymentMode);
 		userWalletRepo.save(userWallet);
 		return Boolean.TRUE;
 	}

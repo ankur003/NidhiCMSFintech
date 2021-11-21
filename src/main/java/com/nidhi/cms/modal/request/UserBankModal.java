@@ -1,14 +1,16 @@
 package com.nidhi.cms.modal.request;
 
 public class UserBankModal {
-	
+
 	private String accountNumber;
-	
+
 	private String ifsc;
-	
+
 	private String bankAccHolderName;
-	
+
 	private String bankName;
+
+	final String userUuid;
 
 	public String getAccountNumber() {
 		return accountNumber;
@@ -41,5 +43,9 @@ public class UserBankModal {
 	public void setBankName(String bankName) {
 		this.bankName = bankName;
 	}
-	
+
+	public String getUserUuid() {
+		return userUuid;
+	}
+
 }

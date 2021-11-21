@@ -57,7 +57,6 @@ import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserBusinessKycRequestModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
-import com.nidhi.cms.modal.request.UserPaymentModeModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
@@ -145,9 +144,6 @@ public class UserController extends AbstractController {
 //	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 //	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
-	public User getUserDetail() {
-		return getLoggedInUserDetails();
-	}
 
 	public User getUserByEmailOrMobile(
 			@RequestParam(required = true, name = "emailOrMobile") final String emailOrMobile) {
@@ -159,7 +155,7 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
 	public Map<String, Object> getAllUser(@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
-		if(BooleanUtils.isTrue(getLoggedInUserDetails().getIsAdmin())) {
+		if(BooleanUtils.isTrue(userservice.getUserByUserUuid(userRequestFilterModel.getUserUuid()).getIsAdmin())) {
 			Page<User> users = userservice.getAllUsers(userRequestFilterModel);
 			if (users == null || CollectionUtils.isEmpty(users.getContent())) {
 				return null;
@@ -174,8 +170,8 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserDoc(@RequestParam("file") final MultipartFile multiipartFile,
-			@RequestParam(required = true, name = "docType") final DocType docType) throws IOException {
-		User user = getLoggedInUserDetails();
+			@RequestParam(required = true, name = "docType") final DocType docType, @RequestParam("file") final String userUuid) throws IOException {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (multiipartFile == null) {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
@@ -194,8 +190,8 @@ public class UserController extends AbstractController {
 //	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 //	@ApiOperation(value = "get user doc", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
-	public UserDoc getUserDoc(@RequestParam(required = true, name = "docType") final DocType docType) {
-		User user = getLoggedInUserDetails();
+	public UserDoc getUserDoc(@RequestParam(required = true, name = "docType") final DocType docType, final String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		return docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
 	}
 
@@ -217,7 +213,7 @@ public class UserController extends AbstractController {
 //	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") }, hidden = true)
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc(UserBusinessKycRequestModal userBusunessKycRequestModal) {
-		User user = getLoggedInUserDetails();
+		User user = userservice.getUserByUserUuid(userBusunessKycRequestModal.getUserUuid());
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());
 		ErrorResponse errorResponse = validatePan(user.getUserId(), userBusunessKycRequestModal.getIndividualPan());
@@ -251,8 +247,8 @@ public class UserController extends AbstractController {
 //	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 //	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
-	public UserBusinessKycModal getUserBusnessKyc() {
-		User user = getLoggedInUserDetails();
+	public UserBusinessKycModal getUserBusnessKyc(final String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
 		if (userBusinessKyc == null) {
 			return null;
@@ -264,8 +260,8 @@ public class UserController extends AbstractController {
 //	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@ApiOperation(value = "get business kyc", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") }, hidden = true)
-	public List<UserDoc> getUserAllKyc() {
-		User user = getLoggedInUserDetails();
+	public List<UserDoc> getUserAllKyc(final String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		return docService.getUserAllKyc(user.getUserId());
 	}
 
@@ -274,8 +270,8 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "change Email Or Password", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange,
-			@RequestParam(name = "password", required = false) String passwordToChange) {
-		User user = getLoggedInUserDetails();
+			@RequestParam(name = "password", required = false) String passwordToChange, final String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (StringUtils.isBlank(emailToChange) && StringUtils.isBlank(passwordToChange)) {
 			return "please provide either email or password";
 		}
@@ -321,8 +317,8 @@ public class UserController extends AbstractController {
 //	@ApiOperation(value = "get-user-account-statement", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
 	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate,
-			@RequestParam("toDate") String toDate) {
-		User user = getLoggedInUserDetails();
+			@RequestParam("toDate") String toDate, @RequestParam("userUuid") final String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		List<UserAccountStatement> userAccountStatement = userAccountStatementService.getUserAccountStatements(
 				user.getUserId(), Utility.stringToLocalDate(fromDate), Utility.stringToLocalDate(toDate));
 		if (CollectionUtils.isEmpty(userAccountStatement)) {
@@ -367,20 +363,12 @@ public class UserController extends AbstractController {
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
 
-	public Boolean userPaymentMode(@RequestBody UserPaymentModeModal userPaymentModeModal) {
-		User user = userservice.getUserByUserUuid(userPaymentModeModal.getUserUuid());
-		if (user == null) {
-			return false;
-		}
-		return userWalletService.updateUserPaymentMode(user, userPaymentModeModal.getPaymentMode());
-	}
-
 //	@PutMapping(value = "/user-bank-account")
 //	@PreAuthorize("hasAnyRole('ADMIN')")
 //	@ApiOperation(value = "save or update user bank details", authorizations = { @Authorization(value = "accessToken"),
 //			@Authorization(value = "oauthToken") })
 	public UserBankDetails saveOrUpdateUserBankDetails(@RequestBody UserBankModal userBankModal) {
-		User user = getLoggedInUserDetails();
+		User user = userservice.getUserByUserUuid(userBankModal.getUserUuid());
 		UserBankDetails response = userservice.saveOrUpdateUserBankDetails(user, userBankModal);
 		if (response != null ) {
 			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
@@ -450,14 +438,14 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		if (StringUtils.isBlank(apiKey)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - apiKey is reuired");
-			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired - please provide apiKey in header");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 		}
 		
 		User user = userservice.findByApiKey(apiKey);
 		if (user == null) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied - invalid apiKey");
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "invalid apiKey - please contact admin");
 			errorResponse.addError("errorCode", "" +ErrorCode.AUTHENTICATION_REQUIRED.value());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
@@ -478,7 +466,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (userWallet == null) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "user wallet not created");
 			errorResponse.addError("errorCode", "" +ErrorCode.ENTITY_NOT_FOUND.value());
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errorResponse);
 		}
 		
 		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(userTxWoOtpReqModal.getMerchantId())) {
@@ -486,15 +474,23 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		
-		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, EnumUtils.getEnum(PaymentMode.class, userTxWoOtpReqModal.getTxntype()));
-		if (userPaymentMode == null) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is in-valid");
+		if (StringUtils.isBlank(userTxWoOtpReqModal.getTxntype())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is missing.");
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		if (BooleanUtils.isNotTrue(userPaymentMode.getIsActive())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "permission not granted for txntype - " + userTxWoOtpReqModal.getTxntype());
+		
+		PaymentMode txType = EnumUtils.getEnum(PaymentMode.class, userTxWoOtpReqModal.getTxntype());
+		
+		if (txType == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is in-valid.");
+			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		
+		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, txType);
+		if (userPaymentMode == null || BooleanUtils.isNotTrue(userPaymentMode.getIsActive())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "permission not granted by admin for txntype - " +userTxWoOtpReqModal.getTxntype());
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
@@ -505,7 +501,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 			}
-		if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < (getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount())) + userTxWoAmount.doubleValue()) {
+		if ((userWallet.getAmount()) < (getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount())) + userTxWoAmount.doubleValue()) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
 			errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
@@ -516,7 +512,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
 	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 				}
-			if ((userWallet.getAmount() + userWallet.getAdminAllocatedFund()) < (userTxWoAmount.doubleValue() + userPaymentMode.getFee())) {
+			if ((userWallet.getAmount()) < (userTxWoAmount.doubleValue() + userPaymentMode.getFee())) {
 				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
 				errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
 	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
@@ -535,7 +531,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@ApiOperation(value = "transaction inquiry", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public Object txStatusInquiry(@Valid @RequestBody TxStatusInquiry txStatusInquiry) {
-		User user = getLoggedInUserDetails();
+		User user = getLoggedInUserDetails1();
 		return userservice.txStatusInquiry(user, txStatusInquiry);
 	}
 
@@ -545,7 +541,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@ApiOperation(value = "NEFT Incremental status API", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public Object txNEFTStatus(@Valid @RequestBody NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
-		User user = getLoggedInUserDetails();
+		User user = getLoggedInUserDetails1();
 		return userservice.txNEFTStatus(user, nEFTIncrementalStatusReqModal);
 	}
 	
@@ -559,7 +555,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 
 	public User updateUserDetails(UserUpdateModal userUpdateModal)  {
-		User user = getLoggedInUserDetails();
+		User user = userservice.getUserByUserUuid(userUpdateModal.getUserUuid());
 		return userservice.updateUserDetails(user, userUpdateModal);
 	}
 	
@@ -567,16 +563,16 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return userservice.updateUserDetails(user, userUpdateModal);
 	}
 	
-	public SystemPrivilege addAccessPrivilegesIntoSystem(String privilegeName) {
-		User user = getLoggedInUserDetails();
+	public SystemPrivilege addAccessPrivilegesIntoSystem(String privilegeName, String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
 			return userservice.addAccessPrivilegesIntoSystem(privilegeName);
 		}
 		return null;
 	}
 	
-	public SystemPrivilege updateAccessPrivilegesIntoSystem(String oldPrivilegeName, String newPrivilegeName) {
-		User user = getLoggedInUserDetails();
+	public SystemPrivilege updateAccessPrivilegesIntoSystem(String oldPrivilegeName, String newPrivilegeName, String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
 			return userservice.updateAccessPrivilegesIntoSystem(oldPrivilegeName, newPrivilegeName);
 		}
@@ -587,16 +583,16 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	
-	public SystemPrivilege deleteAccessPrivilegesIntoSystem(String privilegeName) {
-		User user = getLoggedInUserDetails();
+	public SystemPrivilege deleteAccessPrivilegesIntoSystem(String privilegeName, String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
 			return userservice.deleteAccessPrivilegesIntoSystem(privilegeName);
 		}
 		return null;
 	}
 	
-	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
-		User user = getLoggedInUserDetails();
+	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal, String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (CollectionUtils.isEmpty(subAdminCreateModal.getPrivilageNames())) {
 			return null;
 		}
@@ -606,16 +602,16 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return null;
 	}
 	
-	public List<User> getSubAdminList() {
-		User user = getLoggedInUserDetails();
+	public List<User> getSubAdminList(String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
 			return userservice.getSubAdminList();
 		}
 		return Collections.emptyList();
 	}
 	
-	public List<SystemPrivilege> getSystemPrivlegeList() {
-		User user = getLoggedInUserDetails();
+	public List<SystemPrivilege> getSystemPrivlegeList(String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (BooleanUtils.isTrue(user.getIsAdmin())) {
 			return userservice.getSystemPrivilegeList();
 		}
@@ -636,7 +632,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (userPaymentModeModalReqModal.getPaymentModeFeeType() == null || userPaymentModeModalReqModal.getPaymentMode() == null) {
 			return null;
 		}
-		User userAdmin = getLoggedInUserDetails();
+		User userAdmin = userservice.getUserByUserUuid(userPaymentModeModalReqModal.getAdminUuid());
 		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
 			return null;
 		}
@@ -648,8 +644,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 	
-	public UserPaymentMode activateOrDeActivateUserPaymentMode(String userUuid, PaymentMode paymentMode,  Boolean isActivate) {
-		User userAdmin = getLoggedInUserDetails();
+	public UserPaymentMode activateOrDeActivateUserPaymentMode(String userUuid, String adminUuid, PaymentMode paymentMode,  Boolean isActivate) {
+		User userAdmin = userservice.getUserByUserUuid(adminUuid);
 		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
 			return null;
 		}
@@ -661,8 +657,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 	
-	public UserPaymentMode getUserPaymentModeDetailsByPaymentMode(String userUuid, PaymentMode paymentMode) {
-		User userAdmin = getLoggedInUserDetails();
+	public UserPaymentMode getUserPaymentModeDetailsByPaymentMode(String userUuid, String adminUuid, PaymentMode paymentMode) {
+		User userAdmin = userservice.getUserByUserUuid(adminUuid);
 		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
 			return null;
 		}
@@ -673,8 +669,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return userPaymentModeService.getUserPaymentMode(user, paymentMode);
 	}
 	
-	public List<UserPaymentMode> getUserAllPaymentModeDetails(String userUuid) {
-		User userAdmin = getLoggedInUserDetails();
+	public List<UserPaymentMode> getUserAllPaymentModeDetails(String adminUuid, String userUuid) {
+		User userAdmin = userservice.getUserByUserUuid(adminUuid);
 		if (BooleanUtils.isNotTrue(userAdmin.getIsAdmin())) {
 			return null;
 		}
@@ -769,8 +765,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 	
-	public String generateApiKey() {
-		User user = getLoggedInUserDetails();
+	public String generateApiKey(String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null || BooleanUtils.isNotTrue(user.getIsActive()) || BooleanUtils.isNotTrue(user.getIsUserVerified())
 				|| !user.getKycStatus().equals(KycStatus.VERIFIED)) {
 			return null;
@@ -783,8 +779,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 	
-	public String getGeneratedApiKey() {
-		User user = getLoggedInUserDetails();
+	public String getGeneratedApiKey(String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
 		String apiKey = user.getApiKey();
 		String token = user.getToken();
 		
@@ -794,8 +790,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return null;
 	}
 	
-	public List<Object> getUserByPanAndMarchantId(String pan, String marchantId) {
-		User user = getLoggedInUserDetails();
+	public List<Object> getUserByPanAndMarchantId(String pan, String marchantId, String adminUuid) {
+		User user = userservice.getUserByUserUuid(adminUuid);
 		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
 			return Collections.emptyList();
 		}
@@ -826,8 +822,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 
-	public List<Object> getUserByUserEmailAndContactNumber(String userEmail, String contactNumber) {
-		User user = getLoggedInUserDetails();
+	public List<Object> getUserByUserEmailAndContactNumber(String userEmail, String contactNumber, String adminUuid) {
+		User user = userservice.getUserByUserUuid(adminUuid);
 		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
 			return Collections.emptyList();
 		}
@@ -856,8 +852,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return userList;
 	}
 
-	public List<User> getAllUsers() {
-		User user = getLoggedInUserDetails();
+	public List<User> getAllUsers(String adminUuid) {
+		User user = userservice.getUserByUserUuid(adminUuid);
 		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
 			return Collections.emptyList();
 		}
