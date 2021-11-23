@@ -155,6 +155,7 @@ public class CheckNEFTjson {
 			DataOutputStream requestWriter = new DataOutputStream(connection.getOutputStream());
 			requestWriter.writeBytes(encyptedJson);
 			requestWriter.close();
+			System.out.println(connection.getResponseCode() +"  -  " + connection.getResponseMessage());
 			InputStream is = connection.getInputStream();
 			BufferedReader responseReader = new BufferedReader(new InputStreamReader(is));
 			String inputLine;
@@ -167,6 +168,7 @@ public class CheckNEFTjson {
 			return response.toString();
 
 		} catch (Exception exception) {
+			System.out.println(exception);
 		}
 
 		return null;
@@ -193,12 +195,16 @@ public class CheckNEFTjson {
 			return cipher.doFinal(messageBytes);
 
 		} catch (Exception e) {
+			System.out.println(e);
 		}
 		return null;
 
 	}
 
 	public static String deCryptResponse(String jsonResponse) {
+		if (jsonResponse == null) {
+			System.out.println("***************************************************jsonResponse is null************************************");
+		}
 		String keyFile = "/home/nidhicms/public_html/keys/privateKey.txt";
 		try (InputStream inStream = new FileInputStream(keyFile);) {
 			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
@@ -213,6 +219,7 @@ public class CheckNEFTjson {
 			cipher.init(Cipher.DECRYPT_MODE, priv, secureRandom);
 			return new String(cipher.doFinal(cipherByte));
 		} catch (Exception e) {
+			System.out.println(e);
 		}
 		return null;
 	}
