@@ -207,16 +207,25 @@ public class CheckNEFTjson {
 		}
 		String keyFile = "/home/nidhicms/public_html/keys/privateKey.txt";
 		try (InputStream inStream = new FileInputStream(keyFile);) {
+			System.out.println("inStream ==> " +inStream);
 			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			System.out.println("cipher ==> " +cipher);
 			byte[] encKey = new byte[inStream.available()];
 			inStream.read(encKey);
 			String pvtKey = new String(encKey);
+			System.out.println("pvtKey ==> " +pvtKey);
 			PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pvtKey));
+			System.out.println("privKeySpec ==> " +privKeySpec);
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			System.out.println("keyFactory ==> " +keyFactory);
 			PrivateKey priv = keyFactory.generatePrivate(privKeySpec);
+			System.out.println("priv ==> " +priv);
 			byte[] cipherByte = org.bouncycastle.util.encoders.Base64.decode(jsonResponse.getBytes("UTF-8"));
+			System.out.println("cipherByte ==> " +cipherByte);
 			SecureRandom secureRandom = new SecureRandom();
+			System.out.println("secureRandom ==> " +secureRandom);
 			cipher.init(Cipher.DECRYPT_MODE, priv, secureRandom);
+			System.out.println("cipher ==> " +cipher);
 			return new String(cipher.doFinal(cipherByte));
 		} catch (Exception e) {
 			System.out.println(e);

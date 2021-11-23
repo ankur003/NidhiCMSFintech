@@ -303,6 +303,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
 				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
+		System.out.println("msg --> " +encryptedJsonResponse);
 		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 	}
 
