@@ -349,6 +349,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setUniqueId(userTxWoOtpReqModal.getUniqueid());
 		txn.setUrn(userTxWoOtpReqModal.getUrn());
 		txn.setUserId(user.getUserId());
+		txn.setTxType("Dr.");
 		txRepository.save(txn);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
 		updateBalance(txn.getAmountPlusfee(), userWallet);

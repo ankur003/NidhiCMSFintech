@@ -58,6 +58,8 @@ public class Transaction extends BaseDomain {
 
 	private LocalDate txDate;
 
+	private String txType;
+
 	public Long getTransactionId() {
 		return transactionId;
 	}
@@ -232,6 +234,14 @@ public class Transaction extends BaseDomain {
 
 	public void setTxDate(LocalDate txDate) {
 		this.txDate = txDate;
+	}
+
+	public String getTxType() {
+		return txType;
+	}
+
+	public void setTxType(String txType) {
+		this.txType = txType;
 	}
 
 }
