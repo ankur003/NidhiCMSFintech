@@ -1279,8 +1279,6 @@ public ModelAndView findbyMerchantId(Model model,HttpServletRequest request) thr
 	
 	String[] cname=clientname.split("-");
 	String mids=cname[0];
-//	String merchantIdt=removeLastChar(mids);
-//	String merchantId=merchantIdt.substring(1);
 	List<Transaction> trans=userController.findByMerchantIdAndTxDateBetween(mids,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
 	if(!trans.isEmpty())
 	{
@@ -1297,9 +1295,7 @@ public ModelAndView findbyMerchantId(Model model,HttpServletRequest request) thr
 }
 
 
-private String removeLastChar(String str) {
-    return str.substring(0, str.length() - 1);
-}
+
 
 @PostMapping(value = "/getUserNameByMarchantIds")
 public ModelAndView getUserNameByMarchantIds(Model model,HttpServletRequest request)  {
