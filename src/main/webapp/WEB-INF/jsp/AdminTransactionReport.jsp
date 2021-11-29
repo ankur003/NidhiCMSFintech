@@ -36,6 +36,38 @@
 	         maxDate: "today"
 	    });
 	  } );
+  
+  
+
+  function getmgrname()
+  {
+         var emp_rmanager=document.getElementById("firstname").value;
+         var dataemployeeid = {
+                 "emp_rmanager" : emp_rmanager
+          };
+         $.ajax({
+             type : "POST",
+             url : "/api/v1/getUserNameByMarchantIds",
+             data : dataemployeeid,
+             success : function(data) {
+         $( function() {
+      	    var availableTags=new Array();
+  			for(var i=0;i<data.length;i++)
+  				{
+  				availableTags=data.split(",");
+  	         	} 
+      	    $( "#firstname" ).autocomplete({
+      	      source: availableTags
+      	    });
+      	  } );   
+         	},
+  		error : function(e) {
+  			alert('Error: ' + e);
+  		}
+  	});
+  	}
+         
+
   </script>
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
@@ -76,29 +108,29 @@
 							
 								<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform">
+									<form class="contactform" method="post" action="/api/v1/findbyMerchantId">
 
 
 										<div class="col-lg-12">
 										<div class="col-lg-3">
 												<p class="comment-form-author">
 													<label for="author">Client Name<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
-														name="clientname" id="clientname" autocomplete="off">
+													<input type="text" required="required" value="${clientname}"
+														name="clientname" id="firstname" oninput='getmgrname()'>
 												</p>
 											</div>
 											<div class="col-lg-3">
 												<p class="comment-form-author">
 													<label for="author">From date<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
-														name="fullName" id="datepicker" autocomplete="off">
+													<input type="text" required="required" value="${startDate}"
+														name="startDate" id="datepicker" autocomplete="off" >
 												</p>
 											</div>
 											<div class="col-lg-3">
 												<p class="comment-form-author">
 													<label for="author">To date<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
-														name="fullName" id="datepicker1" autocomplete="off">
+													<input type="text" required="required" value="${endDate}"
+														name="endDate" id="datepicker1" autocomplete="off">
 												</p>
 											</div>
 										</div>
@@ -113,33 +145,42 @@
 
 
 
-										<table class="table">
-											<thead class="thead-dark">
-												<tr>
-													<th scope="col">#</th>
-													<th scope="col">Conatct</th>
-													<th scope="col">Description</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<th scope="row">1</th>
-													<td>Mark</td>
-													<td>Otto</td>
-												</tr>
-												<tr>
-													<th scope="row">2</th>
-													<td>Jacob</td>
-													<td>Thornton</td>
-												</tr>
-												<tr>
-													<th scope="row">3</th>
-													<td>Larry</td>
-													<td>the Bird</td>
-												</tr>
-											</tbody>
-										</table>
-
+											<c:if test="${init }">
+											<table class="table" style="margin-top: 2%;">
+												<thead class="thead-light" style="background-color: gray;">
+													<tr>
+														<th scope="col">#</th>
+														<th scope="col">Date</th>
+														<th scope="col">UniqueId</th>
+														<th scope="col">Amount</th>
+													    <th scope="col">Fee</th>
+														<th scope="col">Currency</th>
+														<th scope="col">Type</th>
+														<th scope="col">Status</th>
+														
+													</tr>
+												</thead>
+												<tbody>
+													<c:forEach items="${trans}" var="us"
+														varStatus="counter">
+														<tr>
+															<th scope="row">${counter.count}</th>
+															<td><fmt:parseDate value="${us.txDate}"
+																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
+																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
+															<td>${us.uniqueId}</td>
+															<td>${us.amount}</td>
+															<td>${us.fee}</td>
+															 <td>${us.currency}</td> 
+															<td>${us.txType}</td>
+															<td>${us.status}</td>
+															
+															
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										</c:if>
 
 
 									</form>

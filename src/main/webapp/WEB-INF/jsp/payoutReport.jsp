@@ -18,7 +18,6 @@
 <link rel="stylesheet" href="/resources/demos/style.css">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js", type="text/javascript">
 
 <script>
   $( function() {
@@ -46,12 +45,12 @@
   	var today = new Date();
   	var date = today.getFullYear()+'_'+(today.getMonth()+1)+'_'+today.getDate()+'_';
   	var time = today.getHours() + "_" + today.getMinutes() + "_" + today.getSeconds();
-      var sFileName = 'OverDuaReport_'+date+time+'.xlsx';
-      let table = document.getElementsByTagName("table");
+      var sFileName = 'ProcessingFeeReport_'+date+time+'.xlsx';alert('s');
+      let table = document.getElementsByTagName("table");alert('s1');
       TableToExcel.convert(table[0], {
           name: sFileName,
           sheet: {
-            name: 'OverDuaReport_ Report'
+            name: 'ProcessingFeeReport_ Report'
           }
       });
   }
@@ -139,8 +138,8 @@
 										<c:if test="${init }">
 										 <div align="right">
                                         <a href=""> <img src="/assets/img/exl.png" style="height: 50px; width: 90px; " alt="logo"  onclick="Export();"></a>
-                                          <button class="btn btn-primary" type="submit" onclick="fnExcelReport()">Xls</button>
                                           <a href="">  <img src="/assets/img/pdf.png" style="height: 40px; width: 40px; " alt="logo"></a>
+                                         <!--    <button class="btn btn-primary" type="submit" onclick="fnExcelReport()">Xls</button> -->
                                           </div>
 										
 											<table class="table" style="margin-top: 2%;">

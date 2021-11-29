@@ -54,7 +54,7 @@ public class UserWalletServiceImpl implements UserWalletService {
 			if (userWallet.getUserId() != null) {
 				User user = userRepository.findByUserId(userWallet.getUserId());
 				if (user != null) {
-					list.add(user.getFullName() + " (" +userWallet.getMerchantId() + " )");
+					list.add(userWallet.getMerchantId() + "-(" +user.getFullName()+ ")");
 				}
 			}
 		});

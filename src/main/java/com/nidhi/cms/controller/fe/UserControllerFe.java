@@ -1271,4 +1271,46 @@ public ModelAndView userPayoutReport(Model model,HttpServletRequest request) thr
 	return new ModelAndView("payoutReport");
 }
 
+@PostMapping(value = "/findbyMerchantId")
+public ModelAndView findbyMerchantId(Model model,HttpServletRequest request) throws ParseException {
+	String clientname=request.getParameter("clientname");
+	String startDate=request.getParameter("startDate");
+	String endDate=request.getParameter("endDate");
+	
+	String[] cname=clientname.split("-");
+	String mids=cname[0];
+//	String merchantIdt=removeLastChar(mids);
+//	String merchantId=merchantIdt.substring(1);
+	List<Transaction> trans=userController.findByMerchantIdAndTxDateBetween(mids,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("trans",trans);
+		model.addAttribute("init",true);
+	}
+	else {
+		model.addAttribute("init",false);
+	}
+	model.addAttribute("startDate",startDate);
+	model.addAttribute("endDate",endDate);
+	model.addAttribute("clientname",clientname);
+	return new ModelAndView("AdminTransactionReport");
+}
+
+
+private String removeLastChar(String str) {
+    return str.substring(0, str.length() - 1);
+}
+
+@PostMapping(value = "/getUserNameByMarchantIds")
+public ModelAndView getUserNameByMarchantIds(Model model,HttpServletRequest request)  {
+	String   emp_rmanager=request.getParameter("emp_rmanager");
+	
+	List<String> merchant=userController.getUserNameByMarchantId(emp_rmanager);
+	if(!merchant.isEmpty())
+	{
+		model.addAttribute("merchant",merchant);
+	}
+	
+	return new ModelAndView("allsupervisor");
+}
 }
