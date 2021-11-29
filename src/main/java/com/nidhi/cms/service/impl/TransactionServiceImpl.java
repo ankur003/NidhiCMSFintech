@@ -36,5 +36,12 @@ public class TransactionServiceImpl implements TransactionService{
 		return txRepository.findByUserIdAndUniqueIdAndTxDateBetween(userId, uniqueId, startDate, endDate);
 	}
 
+	@Override
+	public List<Transaction> findByMerchantIdAndTxDateBetween(String marchantId, LocalDate startDate,
+			LocalDate endDate) {
+		return txRepository.findByMerchantIdAndTxDateBetween(marchantId, startDate, endDate);
+
+	}
+
 
 }

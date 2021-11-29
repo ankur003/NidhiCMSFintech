@@ -22,4 +22,6 @@ public interface TxRepository extends JpaRepository<Transaction, Long> , PagingA
 	List<Transaction> findByUserIdAndUniqueIdAndTxDateBetween(Long userId, String uniqueId, LocalDate startDate,
 			LocalDate endDate);
 
+	List<Transaction> findByMerchantIdAndTxDateBetween(String marchantId, LocalDate startDate, LocalDate endDate);
+
 }

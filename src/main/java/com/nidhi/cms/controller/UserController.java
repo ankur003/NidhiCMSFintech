@@ -913,4 +913,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return transactionService.findByUserIdAndUniqueIdAndTxDateBetween(user.getUserId(), uniqueId, startDate, endDate);
 	}
 	
+	public List<Transaction> findByMerchantIdAndTxDateBetween(String marchantId, LocalDate startDate, LocalDate endDate) {
+		return transactionService.findByMerchantIdAndTxDateBetween(marchantId, startDate, endDate);
+	}
+	
+	public List<String> getUserNameByMarchantId(String marchantId) {
+		return userWalletService.getUserNameByMarchantId(marchantId);
+		
+	}
+	
 }
