@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -297,9 +298,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
 		userTxWoOtpReqModal.setUrn(CmsConfig.URN);
 		userTxWoOtpReqModal.setUserid(CmsConfig.USER);
-		userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
+		//userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
+		userTxWoOtpReqModal.setUniqueid(RandomStringUtils.randomAlphabetic(15));
 		userTxWoOtpReqModal.setDebitacc("065205004534");
-		userTxWoOtpReqModal.setRemark("transaction remark");
+		userTxWoOtpReqModal.setRemarks("transaction remark");
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 		
 		
