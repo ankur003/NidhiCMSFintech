@@ -325,7 +325,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			return null;
 		}
 		performPostAction(user, userTxWoOtpReqModal, response, userWallet);
-		return response;
+		return createResponse(response, userTxWoOtpReqModal);
+	}
+
+	private Object createResponse(String response, UserTxWoOtpReqModal userTxWoOtpReqModal) {
+		JSONObject jsonObject = new JSONObject(response);
+		jsonObject.remove("CORP_ID");
+		jsonObject.remove("USER_ID");
+		jsonObject.remove("AGGR_ID");
+		jsonObject.remove("AGGR_NAME");
+		jsonObject.remove("URN");
+		jsonObject.put("CURRENCY", userTxWoOtpReqModal.getCurrency());
+		jsonObject.put("MERCHANT_ID", userTxWoOtpReqModal.getMerchantId());
+		return jsonObject;
 	}
 
 	private void performPostAction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, String response, UserWallet userWallet) {
