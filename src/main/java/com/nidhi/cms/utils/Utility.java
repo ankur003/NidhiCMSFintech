@@ -118,6 +118,10 @@ public class Utility {
 			Field[] fields = cls.getDeclaredFields();
 			for (Field field : fields) {
 				field.setAccessible(true);
+				if (field.getName().equals("merchantId")) {
+					System.out.println(" merchantId == " +field.getName());
+					continue;
+				}
 				request = request + "\"" + field.getName().toUpperCase() + "\"" + ":";
 				if (field.get(clazz) != null) {
 					request = request + "\"" + field.get(clazz) + "\"" + ",";

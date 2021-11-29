@@ -25,7 +25,7 @@ public class UserTxWoOtpReqModal {
 	@JsonIgnore
 	private String uniqueid;
 
-	@NotBlank(message = "debitacc : debitacc is invalid or missing")
+	@JsonIgnore
 	private String debitacc;
 
 	@NotBlank(message = "creditacc : creditacc is invalid or missing")
