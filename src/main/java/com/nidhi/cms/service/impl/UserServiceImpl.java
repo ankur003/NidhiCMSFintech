@@ -299,6 +299,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		userTxWoOtpReqModal.setUserid(CmsConfig.USER);
 		userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
+		
+		
+		System.out.println("jsonAsString --->  " +jsonAsString);
+		
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
 				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
