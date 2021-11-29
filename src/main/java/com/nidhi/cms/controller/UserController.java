@@ -919,7 +919,6 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	public List<String> getUserNameByMarchantId(String marchantId) {
 		return userWalletService.getUserNameByMarchantId(marchantId);
-		
 	}
 	
 }
