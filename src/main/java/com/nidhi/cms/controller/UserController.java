@@ -905,6 +905,14 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return transactionService.getUserTransactionsByDates(user.getUserId(), startDate, endDate);
 	}
 	
+	public List<Transaction> getUserTransactionsBytoadyDate(String userUuid, LocalDate date) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return Collections.emptyList();
+		}
+		return transactionService.getUserTransactionsBytoadyDate(user.getUserId(), date);
+	}
+	
 	public List<Transaction> findByUserIdAndUniqueIdAndTxDateBetween(String userUuid, String uniqueId, LocalDate startDate, LocalDate endDate) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {

@@ -85,32 +85,32 @@
 							
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-                                  <form class="contactform"  method="post" action="/api/v1/get-user-account-statement" >
+                                  <form class="contactform"  method="post" action="/api/v1/userTransactionOnDates" >
                                           <div class="col-sm-12">
                                             <p class="comment-form-comment">
 													<label for="comment">Transaction Details</label>
 												</p>
 												</div>
-
+	                                    <input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
 
 										<div class="col-lg-12">
 											<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">From date<span class="mandate">*</span></label>
-													<input type="text" required="required" value="${fromDate}"
-														name="fromDate" id="datepicker" autocomplete="off">
+													<input type="text" required="required" value="${startDate}"
+														name="startDate" id="datepicker" autocomplete="off">
 												</p>
 											</div>
 											<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">To date<span class="mandate">*</span></label>
-													<input type="text" required="required" value="${toDate}"
-														name="toDate" id="datepicker1" autocomplete="off">
+													<input type="text" required="required" value="${endDate}"
+														name="endDate" id="datepicker1" autocomplete="off">
 												</p>
 											</div>
 										</div>
 
-										<p class="form-submit" align="right">
+										<p class="form-submit" align="left">
 											<input type="submit" value="Submit" class="btn btn-success"
 												name="Submit" onclick> <input
 												
@@ -120,33 +120,36 @@
 
 
 										<c:if test="${init }">
-											<table class="table">
-												<thead class="thead-dark">
+											<table class="table" style="margin-top: 2%;">
+												<thead class="thead-light" style="background-color: gray;">
 													<tr>
 														<th scope="col">#</th>
-														<th scope="col">Transaction id</th>
-														<th scope="col">Contact</th>
-														<th scope="col">Desc</th>
-														<th scope="col">Statement Id</th>
-														<th scope="col">Amount</th>
 														<th scope="col">Date</th>
+														<th scope="col">UniqueId</th>
+														<th scope="col">Amount</th>
+													    <th scope="col">Fee</th>
+														<th scope="col">Currency</th>
 														<th scope="col">Type</th>
+														<th scope="col">Status</th>
+														
 													</tr>
 												</thead>
 												<tbody>
-													<c:forEach items="${userAccountStatement}" var="us"
+													<c:forEach items="${trans}" var="us"
 														varStatus="counter">
 														<tr>
 															<th scope="row">${counter.count}</th>
-															<td>${us.cmsTxId}</td>
-															<td>${us.contact}</td>
-															<td>${us.description}</td>
-															<td>${us.statementId}</td>
-															<td>${us.txAmount}</td>
 															<td><fmt:parseDate value="${us.txDate}"
 																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
 																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
+															<td>${us.uniqueId}</td>
+															<td>${us.amount}</td>
+															<td>${us.fee}</td>
+															 <td>${us.currency}</td> 
 															<td>${us.txType}</td>
+															<td>${us.status}</td>
+															
+															
 														</tr>
 													</c:forEach>
 												</tbody>

@@ -5,6 +5,12 @@ package com.nidhi.cms.controller.fe;
 
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +50,7 @@ import com.nidhi.cms.controller.UserController;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Role;
 import com.nidhi.cms.domain.SystemPrivilege;
+import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBankDetails;
@@ -63,6 +70,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.service.UserService;
+import com.nidhi.cms.utils.Utility;
 
 /**
  * @author Devendra Gread
@@ -1200,5 +1208,67 @@ public class UserControllerFe {
 	}
 
 
+@GetMapping(value = "/getTransactionToday")
+public ModelAndView getTransactionToday( @RequestParam("userUuid") String userUuid, Model model,HttpServletRequest request) {
+	LocalDate toady   = LocalDate.now();
+	UserWallet userWallet = userController.getUserWallet(userUuid);
+	List<Transaction> trans=userController.getUserTransactionsBytoadyDate(userUuid, toady);
+	double total=0.0;
+	for (Transaction transaction : trans) {
+		total=total+transaction.getAmountPlusfee();
+	}
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("todayAmt",total);
+		model.addAttribute("todayCount",trans.size());
+		model.addAttribute("avFund",userWallet.getAmount());
+	}
+	return new ModelAndView("PayOutSummary");
+}
+
+@PostMapping(value = "/userTransactionOnDates")
+public ModelAndView userTransactionDates(Model model,HttpServletRequest request) throws ParseException {
+	String userUuid=request.getParameter("userUuid");
+	String startDate=request.getParameter("startDate");
+	String endDate=request.getParameter("endDate");
+	
+	
+	List<Transaction> trans=userController.getUserTransactionsByDates(userUuid,   Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("trans",trans);
+		model.addAttribute("init",true);
+	}
+	else {
+		model.addAttribute("init",false);
+	}
+	model.addAttribute("startDate",startDate);
+	model.addAttribute("endDate",endDate);
+	
+	return new ModelAndView("AccountStatement");
+}
+//userPayoutReport
+
+@PostMapping(value = "/userPayoutReport")
+public ModelAndView userPayoutReport(Model model,HttpServletRequest request) throws ParseException {
+	String userUuid=request.getParameter("userUuid");
+	String startDate=request.getParameter("startDate");
+	String endDate=request.getParameter("endDate");
+	
+	
+	List<Transaction> trans=userController.getUserTransactionsByDates(userUuid,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("trans",trans);
+		model.addAttribute("init",true);
+	}
+	else {
+		model.addAttribute("init",false);
+	}
+	model.addAttribute("startDate",startDate);
+	model.addAttribute("endDate",endDate);
+	
+	return new ModelAndView("payoutReport");
+}
 
 }
