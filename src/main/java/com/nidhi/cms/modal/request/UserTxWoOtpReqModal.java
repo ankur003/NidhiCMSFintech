@@ -51,6 +51,12 @@ public class UserTxWoOtpReqModal {
 
 	private String remarks;
 
+	@JsonIgnore
+	private Double fee;
+
+	@JsonIgnore
+	private String feeType;
+
 	public String getRemarks() {
 		return remarks;
 	}
@@ -169,6 +175,22 @@ public class UserTxWoOtpReqModal {
 
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
+	}
+
+	public Double getFee() {
+		return fee;
+	}
+
+	public void setFee(Double fee) {
+		this.fee = fee;
+	}
+
+	public String getFeeType() {
+		return feeType;
+	}
+
+	public void setFeeType(String feeType) {
+		this.feeType = feeType;
 	}
 
 }

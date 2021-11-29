@@ -15,5 +15,7 @@ public class CmsConfig {
 	public static final String URN = "SR188085192";
 	
 	public static final String USER = "USER1";
+	
+	public static final String DBIT_ACC = "065205004534";
 
 }

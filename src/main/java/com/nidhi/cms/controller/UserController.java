@@ -3,6 +3,7 @@ package com.nidhi.cms.controller;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,7 @@ import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.SystemPrivilege;
+import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserAccountStatement;
 import com.nidhi.cms.domain.UserBankDetails;
@@ -64,6 +66,7 @@ import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
+import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserAccountStatementService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserPaymentModeService;
@@ -108,6 +111,9 @@ public class UserController extends AbstractController {
 	
 	@Autowired
 	private UserPaymentModeService userPaymentModeService;
+	
+	@Autowired
+	private TransactionService transactionService;
 	
 //	@PostMapping(value = "")
 	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal) {
@@ -516,11 +522,25 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				}
 		}
 		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
-		return userservice.txWithoutOTP(user, userTxWoOtpReqModal);
+		setFeeRelatedInfo(userPaymentMode, userTxWoOtpReqModal);
+		return userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet);
 	}
 	
+	private void setFeeRelatedInfo(UserPaymentMode userPaymentMode, UserTxWoOtpReqModal userTxWoOtpReqModal) {
+		userTxWoOtpReqModal.setFeeType(userPaymentMode.getPaymentModeFeeType().name());
+		if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
+			Double fee = getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount());
+			userTxWoOtpReqModal.setFee(fee);
+		} else if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
+			BigDecimal fee = new BigDecimal(userTxWoOtpReqModal.getFee()).setScale(2, RoundingMode.HALF_DOWN);
+			userTxWoOtpReqModal.setFee(fee.doubleValue());
+		}
+	}
+		
 	private Double getFee(Double feePercent, Double amount) {
-		return (amount * feePercent) / 100;
+		BigDecimal amt = new BigDecimal(amount).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal feePer = new BigDecimal(feePercent).setScale(2, RoundingMode.HALF_DOWN);
+		return new BigDecimal((amt.doubleValue() * feePer.doubleValue()) / 100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
 	}
 
 	@PostMapping(value = "/transaction/inquiry")
@@ -860,4 +880,37 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	public User getUserDetail(String userUuid) {
 		return userservice.getUserByUserUuid(userUuid);
 	}
+	
+	public List<Transaction> getUserTransactions(String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return Collections.emptyList();
+		}
+		return transactionService.getUserTransactions(user.getUserId());
+	}
+	
+	public List<Transaction> getUserTransactionsByUniqueId(String userUuid, String uniqueId) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return Collections.emptyList();
+		}
+		return transactionService.getUserTransactionsByUniqueId(user.getUserId(), uniqueId);
+	}
+	
+	public List<Transaction> getUserTransactionsByDates(String userUuid, LocalDate startDate, LocalDate endDate) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return Collections.emptyList();
+		}
+		return transactionService.getUserTransactionsByDates(user.getUserId(), startDate, endDate);
+	}
+	
+	public List<Transaction> findByUserIdAndUniqueIdAndTxDateBetween(String userUuid, String uniqueId, LocalDate startDate, LocalDate endDate) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return Collections.emptyList();
+		}
+		return transactionService.findByUserIdAndUniqueIdAndTxDateBetween(user.getUserId(), uniqueId, startDate, endDate);
+	}
+	
 }

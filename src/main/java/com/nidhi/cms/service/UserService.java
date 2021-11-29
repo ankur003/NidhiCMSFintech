@@ -13,6 +13,7 @@ import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
+import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
@@ -53,7 +54,7 @@ public interface UserService {
 
 	Boolean apiWhiteListing(User user, String ip);
 
-	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal);
+	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet);
 
 	User updateUserDetails(User user, UserUpdateModal userUpdateModal);
 

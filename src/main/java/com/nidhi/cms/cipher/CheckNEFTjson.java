@@ -204,6 +204,7 @@ public class CheckNEFTjson {
 	public static String deCryptResponse(String jsonResponse) {
 		if (jsonResponse == null) {
 			System.out.println("***************************************************jsonResponse is null************************************");
+			return null;
 		}
 		String keyFile = "/home/nidhicms/public_html/keys/privateKey.txt";
 		try (InputStream inStream = new FileInputStream(keyFile);) {

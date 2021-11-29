@@ -1,6 +1,8 @@
 package com.nidhi.cms.service.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,7 @@ import com.nidhi.cms.constants.enums.SearchOperation;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.SystemPrivilege;
+import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
@@ -49,6 +53,7 @@ import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.DocRepository;
 import com.nidhi.cms.repository.SystemPrivilegeRepo;
+import com.nidhi.cms.repository.TxRepository;
 import com.nidhi.cms.repository.UserBankDetailsRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.repository.UserWalletRepository;
@@ -93,6 +98,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private SystemPrivilegeRepo systemPrivilegeRepo;
+	
+	@Autowired
+	private TxRepository txRepository;
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -292,27 +300,103 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal) {
+	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet) {
 		userTxWoOtpReqModal.setAggrid(CmsConfig.CUST_ID);
 		userTxWoOtpReqModal.setAggrname(CmsConfig.AGGR_NAME);
 		userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
 		userTxWoOtpReqModal.setUrn(CmsConfig.URN);
 		userTxWoOtpReqModal.setUserid(CmsConfig.USER);
-		//userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		userTxWoOtpReqModal.setUniqueid(RandomStringUtils.randomAlphabetic(15));
-		userTxWoOtpReqModal.setDebitacc("065205004534");
-		userTxWoOtpReqModal.setRemarks("transaction remark");
+		userTxWoOtpReqModal.setDebitacc(CmsConfig.DBIT_ACC);
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
-		
-		
-		System.out.println("jsonAsString --->  " +jsonAsString);
+		LOGGER.info("[UserServiceImpl.txWithoutOTP] jsonAsString - {}", jsonAsString);
 		
 		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
 				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
-		System.out.println("msg --> " +encryptedJsonResponse);
-		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		LOGGER.info("[UserServiceImpl.txWithoutOTP] msg - {}", encryptedJsonResponse);
+		Boolean isValid = isResponseValid(encryptedJsonResponse);
+		if (BooleanUtils.isFalse(isValid)) {
+			return encryptedJsonResponse;
+		}
+		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		if (response == null) {
+			return null;
+		}
+		performPostAction(user, userTxWoOtpReqModal, response, userWallet);
+		return response;
+	}
+
+	private void performPostAction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, String response, UserWallet userWallet) {
+		
+		Transaction txn = new Transaction();
+		txn.setAggrId(userTxWoOtpReqModal.getAggrid());
+		txn.setAggrName(userTxWoOtpReqModal.getAggrname());
+		txn.setAmount(userTxWoOtpReqModal.getAmount());
+		BigDecimal amountPlusfee = BigDecimal.valueOf(userTxWoOtpReqModal.getAmount() + userTxWoOtpReqModal.getFee()).setScale(2, RoundingMode.HALF_DOWN);
+		txn.setAmountPlusfee(amountPlusfee.doubleValue());
+		txn.setCorpId(userTxWoOtpReqModal.getCorpid());
+		txn.setCreditAcc(userTxWoOtpReqModal.getCreditacc());
+		txn.setCurrency(userTxWoOtpReqModal.getCurrency());
+		txn.setDebitAcc(userTxWoOtpReqModal.getDebitacc());
+		txn.setFee(userTxWoOtpReqModal.getFee());
+		txn.setIfsc(userTxWoOtpReqModal.getIfsc());
+		txn.setMerchantId(userTxWoOtpReqModal.getMerchantId());
+		txn.setPayeeName(userTxWoOtpReqModal.getPayeename());
+		txn.setTxnType(userTxWoOtpReqModal.getTxntype());
+		setIciciResponse(txn, response);
+		txn.setUniqueId(userTxWoOtpReqModal.getUniqueid());
+		txn.setUrn(userTxWoOtpReqModal.getUrn());
+		txn.setUserId(user.getUserId());
+		txRepository.save(txn);
+		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
+		updateBalance(txn.getAmountPlusfee(), userWallet);
+	}
+
+	private void updateBalance(Double amountPlusfee, UserWallet userWallet) {
+		LOGGER.info("[UserServiceImpl.updateBalance] ===============================amt ==================== {} - ", userWallet.getAmount());
+		LOGGER.info("[UserServiceImpl.updateBalance] ===============================amountPlusfee ==================== {} - ", amountPlusfee);
+		BigDecimal amt = BigDecimal.valueOf(userWallet.getAmount() - amountPlusfee).setScale(2, RoundingMode.HALF_DOWN);
+		userWallet.setAmount(amt.doubleValue());
+		userWalletRepository.save(userWallet);
+		LOGGER.info("[UserServiceImpl.updateBalance] ===============================balace updated ==================== {} - ", amt.doubleValue());
+	}
+
+	private void setIciciResponse(Transaction txn, String response) {
+		try {
+			JSONObject jsonObject = new JSONObject(response);
+			if (jsonObject.has("REQID")) {
+				txn.setReqId(jsonObject.getString("REQID"));
+			}
+			if (jsonObject.has("RESPONSE")) {
+				txn.setResponse(jsonObject.getString("RESPONSE"));
+			}
+			if (jsonObject.has("STATUS")) {
+				txn.setStatus(jsonObject.getString("STATUS"));
+			}
+			if (jsonObject.has("UTRNUMBER")) {
+				txn.setUtrNumber(jsonObject.getString("UTRNUMBER"));
+			} 
+		} catch (Exception e) {
+			LOGGER.error("[UserServiceImpl.setIciciResponse]  {} - ", e);
+		}
+
+	}
+
+	private Boolean isResponseValid(String encryptedJsonResponse) {
+		try {
+			JSONObject jsonObject = new JSONObject(encryptedJsonResponse);
+			LOGGER.info("[UserServiceImpl.isResponseValid]  {} - ", jsonObject);
+			LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.has(\"success\") {} - ", jsonObject.has("success"));
+			if (jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success"))) {
+				LOGGER.info("[UserServiceImpl.isResponseValid] BooleanUtils.isFalse(jsonObject.getBoolean(\"success\")) {} " , BooleanUtils.isFalse(jsonObject.getBoolean("success")));
+				return Boolean.FALSE;
+			}
+		}catch (Exception e) {
+			LOGGER.error("[UserServiceImpl.isResponseValid]  {} - ", e);
+		}
+		return Boolean.TRUE;
 	}
 
 	@Override
