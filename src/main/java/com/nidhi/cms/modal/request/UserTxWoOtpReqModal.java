@@ -49,6 +49,8 @@ public class UserTxWoOtpReqModal {
 	@NotBlank(message = "merchantId : merchantId is invalid or missing")
 	private String merchantId;
 
+	private String remark;
+
 	public String getUniqueid() {
 		return uniqueid;
 	}
@@ -159,6 +161,14 @@ public class UserTxWoOtpReqModal {
 
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }

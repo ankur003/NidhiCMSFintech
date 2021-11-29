@@ -299,6 +299,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		userTxWoOtpReqModal.setUserid(CmsConfig.USER);
 		userTxWoOtpReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
 		userTxWoOtpReqModal.setDebitacc("065205004534");
+		userTxWoOtpReqModal.setRemark("transaction remark");
 		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 		
 		
