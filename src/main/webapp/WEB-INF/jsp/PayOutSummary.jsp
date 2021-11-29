@@ -69,15 +69,15 @@
 													<label for="comment">Today Payment Amount </label> 
 												</p>
 												<p class="comment-form-comment">
-													<label for="comment"><font color="#FFA500" size="6">100 &#8377;</font></label> 
+													<label for="comment"><font color="#FFA500" size="6">${todayAmt} &#8377;</font></label> 
 												</p>
 											</div>
 											<div class="col-sm-4">
 												<p class="comment-form-comment">
 													<label for="comment">Today's Payout Count </label> 
 												</p>
-												<p class="comment-form-comment">
-													<label for="comment"><font color="green" size="6">100</font></label> 
+												<p class="comment-form-comment" style="margin-left: 15%;">
+													<label for="comment"><font color="green" size="6" >${todayCount}</font></label> 
 												</p>
 											</div>
 											<div class="col-sm-4">
@@ -85,7 +85,7 @@
 													<label for="comment">Available Fund</label>
 												</p>
 												<p class="comment-form-comment">
-													<label for="comment"><font color="blue" size="6">100 &#8377;</font></label> 
+													<label for="comment"><font color="blue" size="6">${avFund} &#8377;</font></label> 
 												</p>
 											</div>
 											<!-- <div class="col-sm-2" style="margin-top: 25px;">

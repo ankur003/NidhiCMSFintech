@@ -94,7 +94,7 @@
         </div>
         <ul class="sub-menu">
           <li><a class="link_name" href="#">Payout</a></li>
-          <li><a href="/api/v1/fe/PayOutSummary">Summary</a></li>
+          <li><a href="/api/v1/getTransactionToday?userUuid=${userLoginDetails.userUuid}">Summary</a></li>
           <li><a href="/api/v1/fe/AccountStatement"> Account Statement</a></li>
         </ul>
       </li>

@@ -16,4 +16,6 @@ public interface TransactionService {
 	List<Transaction> findByUserIdAndUniqueIdAndTxDateBetween(Long userId, String uniqueId, LocalDate startDate,
 			LocalDate endDate);
 
+	List<Transaction> getUserTransactionsBytoadyDate(Long userId, LocalDate date);
+
 }
