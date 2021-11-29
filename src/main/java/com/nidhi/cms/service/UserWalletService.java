@@ -1,5 +1,7 @@
 package com.nidhi.cms.service;
 
+import java.util.List;
+
 import com.nidhi.cms.domain.UserWallet;
 
 public interface UserWalletService {
@@ -9,5 +11,7 @@ public interface UserWalletService {
 	Boolean allocateFund(Long userId, Double amount);
 
 	UserWallet findByMerchantId(String marchantId);
+
+	List<String> getUserNameByMarchantId(String marchantId);
 
 }

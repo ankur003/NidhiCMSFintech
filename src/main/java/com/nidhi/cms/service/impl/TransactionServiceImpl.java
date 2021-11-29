@@ -40,6 +40,12 @@ public class TransactionServiceImpl implements TransactionService{
 	public List<Transaction> getUserTransactionsBytoadyDate(Long userId, LocalDate date) {
 		return txRepository.findByUserIdAndTxDate(userId, date);
 	}
+		@Override
+		public List<Transaction> findByMerchantIdAndTxDateBetween(String marchantId, LocalDate startDate,
+			LocalDate endDate) {
+		return txRepository.findByMerchantIdAndTxDateBetween(marchantId, startDate, endDate);
+
+	}
 
 
 }

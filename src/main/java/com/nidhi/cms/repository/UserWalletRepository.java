@@ -1,5 +1,7 @@
 package com.nidhi.cms.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,5 +17,7 @@ public interface UserWalletRepository extends JpaRepository<UserWallet, Long> , 
 	UserWallet findFirstByOrderByUserWalletIdDesc();
 
 	UserWallet findByMerchantId(String marchantId);
+
+	List<UserWallet> findByMerchantIdContaining(String marchantId);
 
 }
