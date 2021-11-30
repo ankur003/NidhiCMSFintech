@@ -1295,6 +1295,68 @@ public ModelAndView findbyMerchantId(Model model,HttpServletRequest request) thr
 }
 
 
+@PostMapping(value = "/adminBillingReport")
+public ModelAndView adminBillingReport(Model model,HttpServletRequest request) throws ParseException {
+	String clientname=request.getParameter("clientname");
+	String startDate=request.getParameter("startDate");
+	String endDate=request.getParameter("endDate");
+	
+	String[] cname=clientname.split("-");
+	String mids=cname[0];
+	List<Transaction> trans=userController.findByMerchantIdAndTxDateBetween(mids,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("trans",trans);
+		model.addAttribute("init",true);
+	}
+	else {
+		model.addAttribute("init",false);
+	}
+	model.addAttribute("startDate",startDate);
+	model.addAttribute("endDate",endDate);
+	model.addAttribute("clientname",clientname);
+	return new ModelAndView("AdminBillingReport");
+}
+
+
+
+@PostMapping(value = "/findByUnique")
+public ModelAndView findByUnique(Model model,HttpServletRequest request) throws ParseException {
+	String uniqueNum=request.getParameter("uniqueNum");
+	String userUuid=request.getParameter("userUuid");
+	List<Transaction> trans=userController.getTransactionsByUniqueId(userUuid, uniqueNum);
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("trans",trans);
+		model.addAttribute("init",true);
+	}
+	else {
+		model.addAttribute("init",false);
+	}
+	model.addAttribute("uniqueNum",uniqueNum);
+	return new ModelAndView("AdminTransactionInqReport");
+}
+
+
+@PostMapping(value = "/getAllTranaction")
+public ModelAndView getAllTranaction(Model model,HttpServletRequest request) throws ParseException {
+	String userUuid=request.getParameter("userUuid");
+	String startDate=request.getParameter("startDate");
+	String endDate=request.getParameter("endDate");
+	
+	List<Transaction> trans=userController.getAllTransactionsByDates(userUuid,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("trans",trans);
+		model.addAttribute("init",true);
+	}
+	else {
+		model.addAttribute("init",false);
+	}
+	model.addAttribute("startDate",startDate);
+	model.addAttribute("endDate",endDate);
+	return new ModelAndView("AdminACStatement");
+}
 
 
 @PostMapping(value = "/getUserNameByMarchantIds")

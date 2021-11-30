@@ -929,4 +929,19 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return userWalletService.getUserNameByMarchantId(marchantId);
 	}
 	
+	public List<Transaction> getAllTransactionsByDates(String adminuserUuid, LocalDate startDate, LocalDate endDate) {
+		User user = userservice.getUserByUserUuid(adminuserUuid);
+		if (user == null || BooleanUtils.isNotTrue(user.getIsAdmin())) {
+			return Collections.emptyList();
+		}
+		return transactionService.getAllTransactionsByDates(startDate, endDate);
+	}
+	
+	public List<Transaction> getTransactionsByUniqueId(String adminuserUuid, String uniqueId) {
+		User user = userservice.getUserByUserUuid(adminuserUuid);
+		if (user == null || BooleanUtils.isNotTrue(user.getIsAdmin())) {
+			return Collections.emptyList();
+		}
+		return transactionService.getTransactionsByUniqueId(uniqueId);
+	}
 }
