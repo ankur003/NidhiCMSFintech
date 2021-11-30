@@ -21,4 +21,8 @@ public interface TransactionService {
 
 	List<Transaction> findByMerchantIdAndTxDateBetween(String marchantId, LocalDate startDate, LocalDate endDate);
 
+	List<Transaction> getAllTransactionsByDates(LocalDate startDate, LocalDate endDate);
+
+	List<Transaction> getTransactionsByUniqueId(String uniqueId);
+
 }

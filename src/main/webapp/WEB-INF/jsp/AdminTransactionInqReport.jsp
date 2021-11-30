@@ -56,32 +56,15 @@
 						<div class="row">
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform">
+									<form class="contactform"  method="post" action="/api/v1/findByUnique">
 
+                                    <input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
 
-
-										<!-- <div class="col-lg-12">
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">From date<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
-														name="fullName" id="datepicker" autocomplete="off">
-												</p>
-											</div>
-											<div class="col-lg-6">
-												<p class="comment-form-author">
-													<label for="author">To date<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
-														name="fullName" id="datepicker1" autocomplete="off">
-												</p>
-											</div>
-										</div>
- -->
  										<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">Unique Number<span class="mandate">*</span></label>
-													<input type="text" required="required" value=""
-														name="fullName" id="datepicker" autocomplete="off">
+													<input type="text" required="required" value="${uniqueNum}"
+														name="uniqueNum" id="uniqueNum" autocomplete="off">
 												</p>
 											</div>
 											<br>
@@ -97,33 +80,42 @@
 
 
 
-										<table class="table">
-											<thead class="thead-dark">
-												<tr>
-													<th scope="col">#</th>
-													<th scope="col">Conatct</th>
-													<th scope="col">Description</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<th scope="row">1</th>
-													<td>Mark</td>
-													<td>Otto</td>
-												</tr>
-												<tr>
-													<th scope="row">2</th>
-													<td>Jacob</td>
-													<td>Thornton</td>
-												</tr>
-												<tr>
-													<th scope="row">3</th>
-													<td>Larry</td>
-													<td>the Bird</td>
-												</tr>
-											</tbody>
-										</table>
-
+										<c:if test="${init }">
+											<table class="table" style="margin-top: 2%;">
+												<thead class="thead-light" style="background-color: gray;">
+													<tr>
+														<th scope="col">#</th>
+														<th scope="col">Date</th>
+														<th scope="col">Tx Type</th>
+														<th scope="col">Amount</th>
+													    <th scope="col">Fee</th>
+														<th scope="col">Currency</th>
+														<th scope="col">Transaction</th>
+														<th scope="col">Status</th>
+														
+													</tr>
+												</thead>
+												<tbody>
+													<c:forEach items="${trans}" var="us"
+														varStatus="counter">
+														<tr>
+															<th scope="row">${counter.count}</th>
+															<td><fmt:parseDate value="${us.txDate}"
+																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
+																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
+															<td>${us.txType}</td>
+															<td>${us.amount}</td>
+															<td>${us.fee}</td>
+															 <td>${us.currency}</td> 
+															<td>${us.txnType}</td>
+															<td>${us.status}</td>
+															
+															
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										</c:if>
 
 
 									</form>

@@ -41,7 +41,11 @@
 
   function getmgrname()
   {
+	  
          var emp_rmanager=document.getElementById("firstname").value;
+         
+         if(emp_rmanager.length>3)
+        	 {
          var dataemployeeid = {
                  "emp_rmanager" : emp_rmanager
           };
@@ -65,7 +69,7 @@
   			alert('Error: ' + e);
   		}
   	});
-  	}
+  	}}
          
 
   </script>
@@ -109,7 +113,7 @@
 								<div class="col-md-12">
 								<div class="mu-contact-right">
 									<form class="contactform" method="post" action="/api/v1/findbyMerchantId">
-
+                                    <input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
 
 										<div class="col-lg-12">
 										<div class="col-lg-3">
