@@ -301,31 +301,37 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet) {
-		userTxWoOtpReqModal.setAggrid(CmsConfig.CUST_ID);
-		userTxWoOtpReqModal.setAggrname(CmsConfig.AGGR_NAME);
-		userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
-		userTxWoOtpReqModal.setUrn(CmsConfig.URN);
-		userTxWoOtpReqModal.setUserid(CmsConfig.USER);
-		userTxWoOtpReqModal.setUniqueid(RandomStringUtils.randomAlphabetic(15));
-		userTxWoOtpReqModal.setDebitacc(CmsConfig.DBIT_ACC);
-		String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
-		LOGGER.info("[UserServiceImpl.txWithoutOTP] jsonAsString - {}", jsonAsString);
-		
-		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
-				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
-				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
-		LOGGER.info("[UserServiceImpl.txWithoutOTP] msg - {}", encryptedJsonResponse);
-		Boolean isValid = isResponseValid(encryptedJsonResponse);
-		if (BooleanUtils.isFalse(isValid)) {
-			return encryptedJsonResponse;
+		try {
+			userTxWoOtpReqModal.setAggrid(CmsConfig.CUST_ID);
+			userTxWoOtpReqModal.setAggrname(CmsConfig.AGGR_NAME);
+			userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
+			userTxWoOtpReqModal.setUrn(CmsConfig.URN);
+			userTxWoOtpReqModal.setUserid(CmsConfig.USER);
+			userTxWoOtpReqModal.setUniqueid(RandomStringUtils.randomAlphabetic(15));
+			userTxWoOtpReqModal.setDebitacc(CmsConfig.DBIT_ACC);
+			String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
+			LOGGER.info("[UserServiceImpl.txWithoutOTP] jsonAsString - {}", jsonAsString);
+
+			byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
+			String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
+					new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
+					"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
+			LOGGER.info("[UserServiceImpl.txWithoutOTP] msg - {}", encryptedJsonResponse);
+			Boolean isValid = isResponseValid(encryptedJsonResponse);
+			if (BooleanUtils.isFalse(isValid)) {
+				
+				return encryptedJsonResponse;
+			}
+			String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+			if (response == null) {
+				return null;
+			}
+			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
+			return createResponse(response, userTxWoOtpReqModal);
+		} catch (Exception e) {
+			LOGGER.error("[UserServiceImpl.txWithoutOTP] Exception - {}", e);
 		}
-		String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
-		if (response == null) {
-			return null;
-		}
-		performPostAction(user, userTxWoOtpReqModal, response, userWallet);
-		return createResponse(response, userTxWoOtpReqModal);
+		return null;
 	}
 
 	private Object createResponse(String response, UserTxWoOtpReqModal userTxWoOtpReqModal) {
@@ -398,7 +404,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	private Boolean isResponseValid(String encryptedJsonResponse) {
-		try {
 			JSONObject jsonObject = new JSONObject(encryptedJsonResponse);
 			LOGGER.info("[UserServiceImpl.isResponseValid]  {} - ", jsonObject);
 			LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.has(\"success\") {} - ", jsonObject.has("success"));
@@ -406,30 +411,33 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				LOGGER.info("[UserServiceImpl.isResponseValid] BooleanUtils.isFalse(jsonObject.getBoolean(\"success\")) {} " , BooleanUtils.isFalse(jsonObject.getBoolean("success")));
 				return Boolean.FALSE;
 			}
-		}catch (Exception e) {
-			LOGGER.error("[UserServiceImpl.isResponseValid]  {} - ", e);
-		}
 		return Boolean.TRUE;
 	}
 
 	@Override
 	public Object txStatusInquiry(User user, TxStatusInquiry txStatusInquiry) {
-		txStatusInquiry.setAggrid(CmsConfig.CUST_ID);
-		txStatusInquiry.setCorpid(CmsConfig.CORP_ID);
-		txStatusInquiry.setUrn(CmsConfig.URN);
-		txStatusInquiry.setUserid(CmsConfig.USER);
-		txStatusInquiry.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
-		String jsonAsString = Utility.createJsonRequestAsString(txStatusInquiry);
-		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
-				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
-				"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
-		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		try {
+			txStatusInquiry.setAggrid(CmsConfig.CUST_ID);
+			txStatusInquiry.setCorpid(CmsConfig.CORP_ID);
+			txStatusInquiry.setUrn(CmsConfig.URN);
+			txStatusInquiry.setUserid(CmsConfig.USER);
+			txStatusInquiry.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
+			String jsonAsString = Utility.createJsonRequestAsString(txStatusInquiry);
+			byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
+			String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
+					new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
+					"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
+			return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		} catch (Exception e) {
+		
+		}
+		return null;
 	}
 
 	@Override
 	public Object txNEFTStatus(User user, NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
-		nEFTIncrementalStatusReqModal.setAggrid(CmsConfig.CUST_ID);
+		try {
+					nEFTIncrementalStatusReqModal.setAggrid(CmsConfig.CUST_ID);
 		nEFTIncrementalStatusReqModal.setCorpid(CmsConfig.CORP_ID);
 		nEFTIncrementalStatusReqModal.setUrn(CmsConfig.URN);
 		nEFTIncrementalStatusReqModal.setUserid(CmsConfig.USER);
@@ -440,6 +448,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 				"https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus", "POST");
 		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+		} catch (Exception e) {
+			
+		}
+		return null;
 	}
 
 	@Override

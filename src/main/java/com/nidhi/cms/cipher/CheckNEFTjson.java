@@ -3,22 +3,32 @@ package com.nidhi.cms.cipher;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Map;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class CheckNEFTjson {
 
@@ -143,8 +153,7 @@ public class CheckNEFTjson {
 		return jsonResponse;
 	}
 
-	public static String sendThePostRequest(String encyptedJson, String url, String method) {
-		try {
+	public static String sendThePostRequest(String encyptedJson, String url, String method) throws IOException {
 			URL apiUrl = new URL(url);
 			HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
 			connection.setRequestMethod(method.toUpperCase());
@@ -167,17 +176,12 @@ public class CheckNEFTjson {
 			responseReader.close();
 			return response.toString();
 
-		} catch (Exception exception) {
-			System.out.println(exception);
-		}
-
-		return null;
 	}
 
-	public static byte[] encryptJsonRequest(String jsonAsString) {
+	public static byte[] encryptJsonRequest(String jsonAsString) throws NoSuchAlgorithmException, NoSuchPaddingException, CertificateException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, FileNotFoundException {
 		String certFile = "/home/nidhicms/public_html/keys/publicKey.txt";
 		// The source of randomness
-		try (InputStream inStream = new FileInputStream(certFile)) {
+		InputStream inStream = new FileInputStream(certFile);
 			// Obtain a RSA Cipher Object
 			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -193,21 +197,15 @@ public class CheckNEFTjson {
 
 			// Encrypt the message
 			return cipher.doFinal(messageBytes);
-
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return null;
-
 	}
 
-	public static String deCryptResponse(String jsonResponse) {
+	public static String deCryptResponse(String jsonResponse) throws NoSuchAlgorithmException, NoSuchPaddingException, IOException, InvalidKeySpecException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		if (jsonResponse == null) {
 			System.out.println("***************************************************jsonResponse is null************************************");
 			return null;
 		}
 		String keyFile = "/home/nidhicms/public_html/keys/privateKey.txt";
-		try (InputStream inStream = new FileInputStream(keyFile);) {
+		InputStream inStream = new FileInputStream(keyFile);
 			System.out.println("inStream ==> " +inStream);
 			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			System.out.println("cipher ==> " +cipher);
@@ -228,10 +226,6 @@ public class CheckNEFTjson {
 			cipher.init(Cipher.DECRYPT_MODE, priv, secureRandom);
 			System.out.println("cipher ==> " +cipher);
 			return new String(cipher.doFinal(cipherByte));
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return null;
 	}
 
 }
