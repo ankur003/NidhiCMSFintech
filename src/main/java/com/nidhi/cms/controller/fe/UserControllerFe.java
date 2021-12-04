@@ -1359,6 +1359,30 @@ public ModelAndView getAllTranaction(Model model,HttpServletRequest request) thr
 }
 
 
+@PostMapping(value = "/AdminAcstatement")
+public ModelAndView adminAcStatement(Model model,HttpServletRequest request) throws ParseException {
+	String clientname=request.getParameter("clientname");
+	String startDate=request.getParameter("startDate");
+	String endDate=request.getParameter("endDate");
+	
+	String[] cname=clientname.split("-");
+	String mids=cname[0];
+	List<Transaction> trans=userController.findByMerchantIdAndTxDateBetween(mids,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
+	if(!trans.isEmpty())
+	{
+		model.addAttribute("trans",trans);
+		model.addAttribute("init",true);
+	}
+	else {
+		model.addAttribute("init",false);
+	}
+	model.addAttribute("startDate",startDate);
+	model.addAttribute("endDate",endDate);
+	model.addAttribute("clientname",clientname);
+	return new ModelAndView("AdminACStatement");
+}
+
+
 @PostMapping(value = "/getUserNameByMarchantIds")
 public ModelAndView getUserNameByMarchantIds(Model model,HttpServletRequest request)  {
 	String   emp_rmanager=request.getParameter("emp_rmanager");

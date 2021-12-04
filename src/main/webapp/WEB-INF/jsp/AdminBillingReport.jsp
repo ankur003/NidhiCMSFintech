@@ -158,11 +158,8 @@
 													<tr>
 														<th scope="col">#</th>
 														<th scope="col">Date</th>
-														<th scope="col">Tx Type</th>
-														<th scope="col">Amount</th>
 													    <th scope="col">Fee</th>
-														<th scope="col">Currency</th>
-														<th scope="col">Transaction</th>
+														<th scope="col">Charge Detail</th>
 														<th scope="col">UTR</th>
 														
 													</tr>
@@ -175,10 +172,7 @@
 															<td><fmt:parseDate value="${us.txDate}"
 																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
 																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
-															<td>${us.txType}</td>
-															<td>${us.amount}</td>
 															<td>${us.fee}</td>
-															 <td>${us.currency}</td> 
 															<td>${us.txnType}</td>
 															<td>${us.utrNumber}</td>
 															

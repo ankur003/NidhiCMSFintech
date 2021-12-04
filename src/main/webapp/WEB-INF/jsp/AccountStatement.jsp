@@ -125,31 +125,31 @@
 													<tr>
 														<th scope="col">#</th>
 														<th scope="col">Date</th>
-														<th scope="col">UniqueId</th>
-														<th scope="col">Amount</th>
-													    <th scope="col">Fee</th>
-														<th scope="col">Currency</th>
-														<th scope="col">Type</th>
-														<th scope="col">Status</th>
+														<th scope="col">Unique Id</th>
+														<th scope="col">Description</th>
+													    <th scope="col">Dr</th>
+														<th scope="col">Cr</th>
+														<th scope="col">Balance</th>
 														
 													</tr>
 												</thead>
 												<tbody>
-													<c:forEach items="${trans}" var="us"
+														<c:forEach items="${trans}" var="us"
 														varStatus="counter">
 														<tr>
 															<th scope="row">${counter.count}</th>
 															<td><fmt:parseDate value="${us.txDate}"
 																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
 																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
-															<td>${us.uniqueId}</td>
+																<td>${us.uniqueId}</td>		
+															<td>${us.utrNumber}/${us.payeeName}/
+															<c:if test="${us.txnType eq 'RTG'}">RTGS</c:if>
+																<c:if test="${us.txnType eq 'IFS'}">IMPS</c:if>
+																	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
+															</td>		
+															  <c:choose><c:when test="${us.txType eq 'Dr'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
+															<c:choose><c:when test="${us.txType eq 'Cr'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      
 															<td>${us.amount}</td>
-															<td>${us.fee}</td>
-															 <td>${us.currency}</td> 
-															<td>${us.txType}</td>
-															<td>${us.status}</td>
-															
-															
 														</tr>
 													</c:forEach>
 												</tbody>

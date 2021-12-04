@@ -36,6 +36,37 @@
 	         maxDate: "today"
 	    });
 	  } );
+  function getmgrname()
+  {
+	  
+         var emp_rmanager=document.getElementById("firstname").value;
+         
+         if(emp_rmanager.length>3)
+        	 {
+         var dataemployeeid = {
+                 "emp_rmanager" : emp_rmanager
+          };
+         $.ajax({
+             type : "POST",
+             url : "/api/v1/getUserNameByMarchantIds",
+             data : dataemployeeid,
+             success : function(data) {
+         $( function() {
+      	    var availableTags=new Array();
+  			for(var i=0;i<data.length;i++)
+  				{
+  				availableTags=data.split(",");
+  	         	} 
+      	    $( "#firstname" ).autocomplete({
+      	      source: availableTags
+      	    });
+      	  } );   
+         	},
+  		error : function(e) {
+  			alert('Error: ' + e);
+  		}
+  	});
+  	}}
   </script>
 
 </head>
@@ -83,24 +114,31 @@
 							
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform" method="post" action="/api/v1/getAllTranaction">
+									<form class="contactform" method="post" action="/api/v1/AdminAcstatement">
 
                                           <div class="col-sm-12">
                                             <p class="comment-form-comment">
-													<label for="comment">Transaction Details</label>
+													<label for="comment">Account Statement</label>
 												</p>
 												</div>
   <input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
-
-										<div class="col-lg-12">
-											<div class="col-lg-6">
+                                         <div class="col-lg-12">
+                                         <div class="col-lg-4">
+												<p class="comment-form-author">
+													<label for="author">Client Name<span class="mandate">*</span></label>
+													<input type="text" required="required" value="${clientname}"
+														name="clientname" id="firstname" oninput='getmgrname()'>
+												</p>
+											</div>
+										
+											<div class="col-lg-4">
 												<p class="comment-form-author">
 													<label for="author">From date<span class="mandate">*</span></label>
 													<input type="text" required="required" value="${startDate}"
 														name="startDate" id="datepicker" autocomplete="off" >
 												</p>
 											</div>
-											<div class="col-lg-6">
+											<div class="col-lg-4">
 												<p class="comment-form-author">
 													<label for="author">To date<span class="mandate">*</span></label>
 													<input type="text" required="required" value="${endDate}"
@@ -124,17 +162,11 @@
 													<tr>
 														<th scope="col">#</th>
 														<th scope="col">Date</th>
-														<th scope="col">Merchant Id</th>
-														<th scope="col">Amount</th>
-													    <th scope="col">Fee</th>
-														<th scope="col">Currency</th>
-														<th scope="col">Type</th>
-														<th scope="col">Debit AC</th>
-														<th scope="col">Credit Ac</th>
-														<th scope="col">IFSC</th>
-														<th scope="col">Status</th>
-														
-														
+														<th scope="col">Unique Id</th>
+														<th scope="col">Description</th>
+													    <th scope="col">Dr</th>
+														<th scope="col">Cr</th>
+														<th scope="col">Balance</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -145,17 +177,15 @@
 															<td><fmt:parseDate value="${us.txDate}"
 																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
 																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
-															<td>${us.merchantId}</td>
+																<td>${us.uniqueId}</td>		
+															<td>${us.utrNumber}/${us.payeeName}/
+															<c:if test="${us.txnType eq 'RTG'}">RTGS</c:if>
+																<c:if test="${us.txnType eq 'IFS'}">IMPS</c:if>
+																	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
+															</td>		
+															  <c:choose><c:when test="${us.txType eq 'Dr'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
+															<c:choose><c:when test="${us.txType eq 'Cr'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      
 															<td>${us.amount}</td>
-															<td>${us.fee}</td>
-															 <td>${us.currency}</td> 
-															<td>${us.txType}</td>
-															<td>${us.debitAcc}</td>
-															<td>${us.creditAcc}</td>
-															<td>${us.ifsc}</td>
-															<td>${us.status}</td>
-															
-															
 														</tr>
 													</c:forEach>
 												</tbody>

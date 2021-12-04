@@ -92,6 +92,7 @@
 														<th scope="col">Currency</th>
 														<th scope="col">Transaction</th>
 														<th scope="col">Status</th>
+														<th scope="col">Txn Status</th>
 														
 													</tr>
 												</thead>
@@ -109,7 +110,7 @@
 															 <td>${us.currency}</td> 
 															<td>${us.txnType}</td>
 															<td>${us.status}</td>
-															
+															<td> <input	type="button" value="call" class="btn btn-info"	name="Call"></td>
 															
 														</tr>
 													</c:forEach>

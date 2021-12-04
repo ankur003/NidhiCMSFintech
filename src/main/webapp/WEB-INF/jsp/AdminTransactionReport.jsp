@@ -156,7 +156,8 @@
 														<th scope="col">#</th>
 														<th scope="col">Date</th>
 														<th scope="col">UniqueId</th>
-														<th scope="col">Amount</th>
+														<th scope="col">Amount(Dr)</th>
+														<th scope="col">Amount(Cr)</th>
 													    <th scope="col">Fee</th>
 														<th scope="col">Currency</th>
 														<th scope="col">Type</th>
@@ -165,23 +166,38 @@
 													</tr>
 												</thead>
 												<tbody>
+													<c:set var="totalDr" value="${0}" />
+						                            <c:set var="totalCr" value="${0}" />
 													<c:forEach items="${trans}" var="us"
 														varStatus="counter">
 														<tr>
 															<th scope="row">${counter.count}</th>
-															<td><fmt:parseDate value="${us.txDate}"
-																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
-																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
+															<td><fmt:parseDate value="${us.txDate}" 	pattern="yyyy-MM-dd" var="disbDate" /> 
+															<fmt:formatDate	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
 															<td>${us.uniqueId}</td>
-															<td>${us.amount}</td>
+		                                                    <c:choose><c:when test="${us.txType eq 'Dr'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
+															<c:choose><c:when test="${us.txType eq 'Cr'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      
 															<td>${us.fee}</td>
 															 <td>${us.currency}</td> 
 															<td>${us.txType}</td>
 															<td>${us.status}</td>
-															
-															
 														</tr>
 													</c:forEach>
+														<tr>
+														<td></td>
+							                            <td></td>
+							<td>Total</td>
+							<c:if test="${totalDr gt 0}">
+								<td><b>${totalDr}</b></td>
+							</c:if>
+							<c:if test="${totalCr gt 0}">
+								<td><b>${totalCr}</b></td>
+							</c:if>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
 												</tbody>
 											</table>
 										</c:if>
