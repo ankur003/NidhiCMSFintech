@@ -111,9 +111,8 @@ public class Utility {
 		return null;
 	}
 
-	public static String createJsonRequestAsString(Object clazz) {
+	public static String createJsonRequestAsString(Object clazz) throws IllegalArgumentException, IllegalAccessException {
 		String request = "{";
-		try {
 			Class<? extends Object> cls = clazz.getClass();
 			Field[] fields = cls.getDeclaredFields();
 			for (Field field : fields) {
@@ -129,9 +128,6 @@ public class Utility {
 			}
 			request = StringUtils.removeEnd(request, ",");
 			request = request + "}";
-		} catch (Exception e) {
-			System.out.println(e);
-		}
 		return request;
 	}
 
