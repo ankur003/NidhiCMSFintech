@@ -51,19 +51,19 @@ public class TransactionServiceImpl implements TransactionService{
 		@Override
 		public List<Transaction> findByMerchantIdAndTxDateBetween(String marchantId, LocalDate startDate,
 			LocalDate endDate) {
-			List<Long> userIds = new ArrayList<>();
+	//		List<Long> userIds = new ArrayList<>();
 			List<Transaction> txns =  txRepository.findByMerchantIdAndTxDateBetween(marchantId, startDate, endDate);
 			if (CollectionUtils.isEmpty(txns)) {
 				return Collections.emptyList();
 			}
-			txns.forEach(tx -> userIds.add(tx.getUserId()));
-			
-			List<UserWallet> users= userWalletRepository.findByUserIdIn(userIds);
-			txns.forEach(txn -> users.forEach(user -> {
-	            if (txn.getUserId().equals(user.getUserId())) {
-	            	txn.setAmt(user.getAmount());
-	            }
-	        }));
+//			txns.forEach(tx -> userIds.add(tx.getUserId()));
+//			
+//			List<UserWallet> users= userWalletRepository.findByUserIdIn(userIds);
+//			txns.forEach(txn -> users.forEach(user -> {
+//	            if (txn.getUserId().equals(user.getUserId())) {
+//	            	txn.setAmt(user.getAmount());
+//	            }
+//	        }));
 			return txns;
 	}
 

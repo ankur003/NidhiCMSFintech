@@ -63,8 +63,6 @@ public class Transaction extends BaseDomain {
 
 	private String txType;
 
-	@JsonInclude()
-	@Transient
 	private Double amt;
 
 	public Long getTransactionId() {

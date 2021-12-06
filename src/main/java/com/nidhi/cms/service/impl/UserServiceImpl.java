@@ -368,6 +368,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setUrn(userTxWoOtpReqModal.getUrn());
 		txn.setUserId(user.getUserId());
 		txn.setTxType("Dr.");
+		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txRepository.save(txn);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
 		updateBalance(txn.getAmountPlusfee(), userWallet);
