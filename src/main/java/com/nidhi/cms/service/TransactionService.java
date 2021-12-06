@@ -3,6 +3,7 @@ package com.nidhi.cms.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.domain.Transaction;
 
 public interface TransactionService {
@@ -24,5 +25,11 @@ public interface TransactionService {
 	List<Transaction> getAllTransactionsByDates(LocalDate startDate, LocalDate endDate);
 
 	List<Transaction> getTransactionsByUniqueId(String uniqueId);
+
+	Object getTransactionStatus(String uniqueId, PaymentMode paymentMode);
+
+	Object transactionStatusInquiry(String uniqueId);
+
+	Object neftIncrementalStatusAPi(String utrNumber);
 
 }

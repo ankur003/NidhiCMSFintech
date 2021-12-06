@@ -1,19 +1,25 @@
 package com.nidhi.cms.service.impl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.nidhi.cms.cipher.CheckNEFTjson;
+import com.nidhi.cms.config.CmsConfig;
+import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.domain.Transaction;
-import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.NeftIncrementalStatus;
+import com.nidhi.cms.modal.request.TransactionStatusInquiry;
 import com.nidhi.cms.repository.TxRepository;
 import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.TransactionService;
+import com.nidhi.cms.utils.Utility;
 
 @Service
 public class TransactionServiceImpl implements TransactionService{
@@ -23,6 +29,9 @@ public class TransactionServiceImpl implements TransactionService{
 	
 	@Autowired
 	private UserWalletRepository userWalletRepository;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionServiceImpl.class);
+
 
 	@Override
 	public List<Transaction> getUserTransactions(Long userId) {
@@ -75,6 +84,68 @@ public class TransactionServiceImpl implements TransactionService{
 		@Override
 		public List<Transaction> getTransactionsByUniqueId(String uniqueId) {
 			return txRepository.findByUniqueId(uniqueId);
+		}
+
+		@Override
+		public Object getTransactionStatus(String uniqueId, PaymentMode paymentMode) {
+			if (paymentMode == PaymentMode.RGS) {
+				return neftIncrementalStatusAPi(uniqueId);
+			} else if (paymentMode == PaymentMode.IFS || paymentMode == PaymentMode.RTG){
+				return transactionStatusInquiry(uniqueId);
+			}
+			return paymentMode;
+		}
+		
+		@Override
+		public Object transactionStatusInquiry(String uniqueId) {
+			try {
+				TransactionStatusInquiry transactionStatusInquiry = new TransactionStatusInquiry();
+				transactionStatusInquiry.setAggrid(CmsConfig.CUST_ID);
+				transactionStatusInquiry.setCorpid(CmsConfig.CORP_ID);
+				transactionStatusInquiry.setUrn(CmsConfig.URN);
+				transactionStatusInquiry.setUserid(CmsConfig.USER);
+				transactionStatusInquiry.setUniqueid(uniqueId);
+				String jsonAsString = Utility.createJsonRequestAsString(transactionStatusInquiry);
+				LOGGER.info("[TransactionServiceImpl.transactionStatusInquiry] jsonAsString - {}", jsonAsString);
+
+				byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
+				String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
+						new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
+						"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
+				LOGGER.info("[TransactionServiceImpl.transactionStatusInquiry] msg - {}", encryptedJsonResponse);
+				String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+				LOGGER.info("[TransactionServiceImpl.transactionStatusInquiry] response - {}", response);
+				return response;
+			} catch (Exception e) {
+				LOGGER.error("[TransactionServiceImpl.transactionStatusInquiry] Exception - {}", e);
+			}
+			return null;
+		}
+
+		@Override
+		public Object neftIncrementalStatusAPi(String utrNumber) {
+			try {
+				NeftIncrementalStatus neftIncrementalStatus = new NeftIncrementalStatus();
+				neftIncrementalStatus.setAggrid(CmsConfig.CUST_ID);
+				neftIncrementalStatus.setCorpid(CmsConfig.CORP_ID);
+				neftIncrementalStatus.setUrn(CmsConfig.URN);
+				neftIncrementalStatus.setUserid(CmsConfig.USER);
+				neftIncrementalStatus.setUtrnumber(utrNumber);
+				String jsonAsString = Utility.createJsonRequestAsString(neftIncrementalStatus);
+				LOGGER.info("[TransactionServiceImpl.neftIncrementalStatusAPi] jsonAsString - {}", jsonAsString);
+
+				byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
+				String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
+						new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
+						"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
+				LOGGER.info("[TransactionServiceImpl.neftIncrementalStatusAPi] msg - {}", encryptedJsonResponse);
+				String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+				LOGGER.info("[TransactionServiceImpl.neftIncrementalStatusAPi] response - {}", response);
+				return response;
+			} catch (Exception e) {
+				LOGGER.error("[TransactionServiceImpl.neftIncrementalStatusAPi] Exception - {}", e);
+			}
+			return null;
 		}
 
 

@@ -44,6 +44,7 @@ import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
+import com.nidhi.cms.modal.request.TransactionStatusInquiry;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -59,6 +60,7 @@ import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
+import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.Utility;
@@ -101,6 +103,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	
 	@Autowired
 	private TxRepository txRepository;
+	
+	@Autowired
+	private TransactionService transactionService;
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -417,42 +422,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public Object txStatusInquiry(User user, TxStatusInquiry txStatusInquiry) {
-		try {
-			txStatusInquiry.setAggrid(CmsConfig.CUST_ID);
-			txStatusInquiry.setCorpid(CmsConfig.CORP_ID);
-			txStatusInquiry.setUrn(CmsConfig.URN);
-			txStatusInquiry.setUserid(CmsConfig.USER);
-			txStatusInquiry.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
-			String jsonAsString = Utility.createJsonRequestAsString(txStatusInquiry);
-			byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-			String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
-					new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
-					"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
-			return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
-		} catch (Exception e) {
 		
-		}
-		return null;
+		return transactionService.transactionStatusInquiry(txStatusInquiry.getUniqueid());
 	}
 
 	@Override
 	public Object txNEFTStatus(User user, NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
-		try {
-					nEFTIncrementalStatusReqModal.setAggrid(CmsConfig.CUST_ID);
-		nEFTIncrementalStatusReqModal.setCorpid(CmsConfig.CORP_ID);
-		nEFTIncrementalStatusReqModal.setUrn(CmsConfig.URN);
-		nEFTIncrementalStatusReqModal.setUserid(CmsConfig.USER);
-		nEFTIncrementalStatusReqModal.setUniqueid(LocalDateTime.now().getNano() + "_" + RandomUtils.nextInt());
-		String jsonAsString = Utility.createJsonRequestAsString(nEFTIncrementalStatusReqModal);
-		byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
-		String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
-				new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
-				"https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus", "POST");
-		return CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
-		} catch (Exception e) {
-			
-		}
-		return null;
+		return transactionService.neftIncrementalStatusAPi(nEFTIncrementalStatusReqModal.getUtrnumber());
 	}
 
 	@Override

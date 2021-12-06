@@ -547,8 +547,53 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "transaction inquiry", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Object txStatusInquiry(@Valid @RequestBody TxStatusInquiry txStatusInquiry) {
-		User user = getLoggedInUserDetails1();
+	public Object txStatusInquiry(@Valid @RequestBody TxStatusInquiry txStatusInquiry, final HttpServletRequest httpServletRequest) {
+
+		String apiKey = httpServletRequest.getHeader("apiKey");
+		String authorizationToken = httpServletRequest.getHeader("Authorization");
+		if (StringUtils.isBlank(apiKey)) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired - please provide apiKey in header");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+		}
+		
+		User user = userservice.findByApiKey(apiKey);
+		if (user == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "invalid apiKey - please contact admin");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		if (authorizationToken == null || !user.getToken().equals(authorizationToken)) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "authorization Token is invalid");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		if (BooleanUtils.isNotTrue(user.getIsActive())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over de-activated account");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		boolean isValid = getRemoteIpAddress(user, httpServletRequest);
+		if (!isValid) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over ip");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+		}
+		
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "user wallet not created");
+			errorResponse.addError("errorCode", "" + ErrorCode.ENTITY_NOT_FOUND.value());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errorResponse);
+		}
+		
+		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(txStatusInquiry.getMerchantId())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "merchantId not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
 		return userservice.txStatusInquiry(user, txStatusInquiry);
 	}
 
@@ -557,8 +602,52 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "NEFT Incremental status API", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Object txNEFTStatus(@Valid @RequestBody NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal) {
-		User user = getLoggedInUserDetails1();
+	public Object txNEFTStatus(@Valid @RequestBody NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal, final HttpServletRequest httpServletRequest) {
+		String apiKey = httpServletRequest.getHeader("apiKey");
+		String authorizationToken = httpServletRequest.getHeader("Authorization");
+		if (StringUtils.isBlank(apiKey)) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired - please provide apiKey in header");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+		}
+		
+		User user = userservice.findByApiKey(apiKey);
+		if (user == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "invalid apiKey - please contact admin");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		if (authorizationToken == null || !user.getToken().equals(authorizationToken)) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "authorization Token is invalid");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		if (BooleanUtils.isNotTrue(user.getIsActive())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over de-activated account");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		boolean isValid = getRemoteIpAddress(user, httpServletRequest);
+		if (!isValid) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over ip");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+		}
+		
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "user wallet not created");
+			errorResponse.addError("errorCode", "" + ErrorCode.ENTITY_NOT_FOUND.value());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errorResponse);
+		}
+		
+		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(nEFTIncrementalStatusReqModal.getMerchantId())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "merchantId not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
 		return userservice.txNEFTStatus(user, nEFTIncrementalStatusReqModal);
 	}
 	
@@ -943,5 +1032,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return Collections.emptyList();
 		}
 		return transactionService.getTransactionsByUniqueId(uniqueId);
+	}
+	
+	public Object getTransactionStatus(String adminuserUuid, String uniqueIdOrUtrNumber, PaymentMode paymentMode) {
+		User user = userservice.getUserByUserUuid(adminuserUuid);
+		if (user == null || BooleanUtils.isNotTrue(user.getIsAdmin())) {
+			return Collections.emptyList();
+		}
+		return transactionService.getTransactionStatus(uniqueIdOrUtrNumber, paymentMode);
 	}
 }
