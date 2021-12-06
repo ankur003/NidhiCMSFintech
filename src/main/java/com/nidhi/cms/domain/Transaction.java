@@ -6,6 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Entity
 public class Transaction extends BaseDomain {
@@ -59,6 +62,10 @@ public class Transaction extends BaseDomain {
 	private LocalDate txDate;
 
 	private String txType;
+
+	@JsonInclude()
+	@Transient
+	private Double amt;
 
 	public Long getTransactionId() {
 		return transactionId;
@@ -242,6 +249,14 @@ public class Transaction extends BaseDomain {
 
 	public void setTxType(String txType) {
 		this.txType = txType;
+	}
+
+	public Double getAmt() {
+		return amt;
+	}
+
+	public void setAmt(Double amt) {
+		this.amt = amt;
 	}
 
 }

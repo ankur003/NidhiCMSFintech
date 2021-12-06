@@ -20,4 +20,6 @@ public interface UserWalletRepository extends JpaRepository<UserWallet, Long> , 
 
 	List<UserWallet> findByMerchantIdContaining(String marchantId);
 
+	List<UserWallet> findByUserIdIn(List<Long> userIds);
+
 }

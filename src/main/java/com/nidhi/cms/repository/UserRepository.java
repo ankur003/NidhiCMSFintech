@@ -37,4 +37,6 @@ public interface UserRepository extends JpaRepository<User, Long> , PagingAndSor
 	User findByApiKey(String apiKey);
 
 	List<User> findByPrivilageNamesContaining(String privilegeName);
+
+	List<User> findByUserIdIn(List<Long> userIds);
 }
