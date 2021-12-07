@@ -333,7 +333,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				return response;
 			}
 			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
-			return createResponse(response, userTxWoOtpReqModal);
+			return response;//createResponse(response, userTxWoOtpReqModal);
 		} catch (Exception e) {
 			LOGGER.error("[UserServiceImpl.txWithoutOTP] Exception - {}", e);
 		}
