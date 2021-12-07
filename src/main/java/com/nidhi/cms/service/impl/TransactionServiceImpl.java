@@ -137,7 +137,7 @@ public class TransactionServiceImpl implements TransactionService{
 				byte[] ciphertextBytes = CheckNEFTjson.encryptJsonRequest(jsonAsString);
 				String encryptedJsonResponse = CheckNEFTjson.sendThePostRequest(
 						new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
-						"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
+						"https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus", "POST");
 				LOGGER.info("[TransactionServiceImpl.neftIncrementalStatusAPi] msg - {}", encryptedJsonResponse);
 				String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 				LOGGER.info("[TransactionServiceImpl.neftIncrementalStatusAPi] response - {}", response);
