@@ -322,14 +322,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 					new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 					"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
 			LOGGER.info("[UserServiceImpl.txWithoutOTP] msg - {}", encryptedJsonResponse);
-			Boolean isValid = isResponseValid(encryptedJsonResponse);
+			String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
+			LOGGER.info("[UserServiceImpl.txWithoutOTP] response - {}", response);
+			if (response == null) {
+				return null;
+			}
+			Boolean isValid = isResponseValid(response);
 			if (BooleanUtils.isFalse(isValid)) {
 				
 				return encryptedJsonResponse;
-			}
-			String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
-			if (response == null) {
-				return null;
 			}
 			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
 			return createResponse(response, userTxWoOtpReqModal);
@@ -409,8 +410,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	}
 
-	private Boolean isResponseValid(String encryptedJsonResponse) {
-			JSONObject jsonObject = new JSONObject(encryptedJsonResponse);
+	private Boolean isResponseValid(String response) {
+			JSONObject jsonObject = new JSONObject(response);
 			LOGGER.info("[UserServiceImpl.isResponseValid]  {} - ", jsonObject);
 			LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.has(\"success\") {} - ", jsonObject.has("success"));
 			if (jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success"))) {
