@@ -329,7 +329,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			}
 			Boolean isValid = isResponseValid(response);
 			if (BooleanUtils.isFalse(isValid)) {
-				
+				LOGGER.info("[UserServiceImpl.txWithoutOTP] isValid - {}", isValid);
 				return response;
 			}
 			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
@@ -418,7 +418,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				LOGGER.info("[UserServiceImpl.isResponseValid] BooleanUtils.isFalse(jsonObject.getBoolean(\"success\")) {} " , BooleanUtils.isFalse(jsonObject.getBoolean("success")));
 				return Boolean.FALSE;
 			}
-		return Boolean.TRUE;
+			if (jsonObject.has("RESPONSE") && jsonObject.getString("RESPONSE").equals("FAILURE")) {
+				LOGGER.info("[UserServiceImpl.isResponseValid] BooleanUtils.isFalse(jsonObject.getBoolean(\"success\")) {} " , BooleanUtils.isFalse(jsonObject.getBoolean("success")));
+				return Boolean.FALSE;
+			}
+			if (jsonObject.getString("RESPONSE").equals("SUCCESS")) {
+				return Boolean.TRUE;
+			}
+		return Boolean.FALSE;
 	}
 
 	@Override
