@@ -594,6 +594,12 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
+		List<Transaction> transactions = transactionService.findByUserIdAndUniqueId(user.getUserId(), txStatusInquiry.getUniqueid());
+		if (CollectionUtils.isEmpty(transactions)) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "unique id not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
 		return userservice.txStatusInquiry(user, txStatusInquiry);
 	}
 
@@ -645,6 +651,12 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(nEFTIncrementalStatusReqModal.getMerchantId())) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "merchantId not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+		}
+		List<Transaction> transactions = transactionService.findByUserIdAndUniqueId(user.getUserId(), nEFTIncrementalStatusReqModal.getUtrnumber());
+		if (CollectionUtils.isEmpty(transactions)) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Utrnumber not valid.");
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}

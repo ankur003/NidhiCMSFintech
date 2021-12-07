@@ -148,5 +148,9 @@ public class TransactionServiceImpl implements TransactionService{
 			return null;
 		}
 
+		@Override
+		public List<Transaction> findByUserIdAndUniqueId(Long userId, String uniqueid) {
+			return txRepository.findByUserIdAndUniqueId(userId, uniqueid);
+		}
 
 }

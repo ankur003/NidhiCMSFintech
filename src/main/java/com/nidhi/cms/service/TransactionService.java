@@ -32,4 +32,6 @@ public interface TransactionService {
 
 	Object neftIncrementalStatusAPi(String utrNumber);
 
+	List<Transaction> findByUserIdAndUniqueId(Long userId, String uniqueid);
+
 }
