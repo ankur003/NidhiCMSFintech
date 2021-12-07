@@ -419,7 +419,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				return Boolean.FALSE;
 			}
 			if (jsonObject.has("RESPONSE") && jsonObject.getString("RESPONSE").equals("FAILURE")) {
-				LOGGER.info("[UserServiceImpl.isResponseValid] BooleanUtils.isFalse(jsonObject.getBoolean(\"success\")) {} " , BooleanUtils.isFalse(jsonObject.getBoolean("success")));
+				LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.getString(\"RESPONSE\").equals(\"FAILURE\") {} " , jsonObject.getString("RESPONSE").equals("FAILURE"));
 				return Boolean.FALSE;
 			}
 			if (jsonObject.getString("RESPONSE").equals("SUCCESS")) {
