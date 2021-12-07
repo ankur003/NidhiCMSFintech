@@ -532,7 +532,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			Double fee = getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount());
 			userTxWoOtpReqModal.setFee(fee);
 		} else if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
-			BigDecimal fee = new BigDecimal(userTxWoOtpReqModal.getFee()).setScale(2, RoundingMode.HALF_DOWN);
+			BigDecimal fee = new BigDecimal(userPaymentMode.getFee()).setScale(2, RoundingMode.HALF_DOWN);
 			userTxWoOtpReqModal.setFee(fee.doubleValue());
 		}
 	}
