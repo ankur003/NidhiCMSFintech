@@ -137,9 +137,9 @@
 
 										<c:if test="${init }">
 										 <div align="right">
-                                        <a href=""> <img src="/assets/img/exl.png" style="height: 50px; width: 90px; " alt="logo"  onclick="Export();"></a>
+                                  <!--       <a href=""> <img src="/assets/img/exl.png" style="height: 50px; width: 90px; " alt="logo"  onclick="Export();"></a>
                                           <a href="">  <img src="/assets/img/pdf.png" style="height: 40px; width: 40px; " alt="logo"></a>
-                                         <!--    <button class="btn btn-primary" type="submit" onclick="fnExcelReport()">Xls</button> -->
+ -->                                         <!--    <button class="btn btn-primary" type="submit" onclick="fnExcelReport()">Xls</button> -->
                                           </div>
 										
 											<table class="table" style="margin-top: 2%;">

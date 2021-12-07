@@ -185,7 +185,7 @@
 															</td>		
 															  <c:choose><c:when test="${us.txType eq 'Dr'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
 															<c:choose><c:when test="${us.txType eq 'Cr'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      
-															<td>${us.amount}</td>
+															<td>${us.amt}</td>
 														</tr>
 													</c:forEach>
 												</tbody>

@@ -12,7 +12,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NIDHI CMS | ADMIN DASHBOARD</title>
 
+<link rel="stylesheet"	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+<script type="text/javascript">
+  function callforStatus(userUuid,utr,transtype,uniqueId)
+  {
+      var dataemployeeid = {"userUuid":userUuid,"utr" : utr,"transtype":transtype,"uniqueId":uniqueId};
+      alert(dataemployeeid);
+      $.ajax({
+          type : "POST",
+          url : "/api/v1/getStatus",
+          data : dataemployeeid,
+          success : function(data) {
+        	  alert(data); 
+        	 
+        	  document.getElementById("kycRejectReason").value = data;
+      	},
+		error : function(e) {
+			alert('Error: ' + e);
+		}
+	});
+      
+  }
+  
+</script>
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
@@ -110,7 +136,9 @@
 															 <td>${us.currency}</td> 
 															<td>${us.txnType}</td>
 															<td>${us.status}</td>
-															<td> <input	type="button" value="call" class="btn btn-info"	name="Call"></td>
+															<td> <input type="button" value="Call" class="btn btn-success"	name="Call"
+											            data-target="#allotedmodel" data-toggle="modal" onclick="javascript:callforStatus('${userLoginDetails.userUuid}','${us.utrNumber}','${us.txnType}','${us.uniqueId}')">
+															  </td>
 															
 														</tr>
 													</c:forEach>
@@ -137,51 +165,42 @@
 
 	<!--modal-->
 	<div id="allotedmodel" class="modal fade" tabindex="-1" role="dialog"	aria-hidden="true">
+<form class="contactform" action="#" method="post">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">×</button>
-					<h1 class="text-center">Alloted Batch Timeings</h1>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h1 class="text-center"> Response</h1>
 				</div>
 				<div class="modal-body">
+				
+				<input type="hidden" name="userUuid" id="userUuid">
 					<div class="col-md-12">
 						<div class="panel panel-default">
-							<div class="panel-body">
-								<div class="text-center" id="showallotedtiming"></div>
-							</div>
+							<!-- <div class="panel-body"> -->
+							<!-- 	<div  id="batchtimelist"></div> -->
+								<textarea required="required"
+								id="kycRejectReason" name="kycRejectReason" rows="4" cols="65">
+								
+								</textarea>
+								
+							<!-- </div> -->
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
 					<div class="col-md-12">
-						<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+					<!-- <input type="Submit" value="Submit" class="btn btn-success" name="Submit"> -->
+						<button class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
 					</div>
 				</div>
 			</div>
 		</div>
+		</form>
 	</div>
-
 	<!-- Start footer -->
 	<jsp:include page="footer.jsp" />
 	<!-- End footer -->
-
-	<!-- jQuery library -->
-	<!-- <script src="assets/js/jquery.min.js"></script> -->
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="/assets/js/bootstrap.js"></script>
-	<!-- Slick slider -->
-	<script type="text/javascript" src="/assets/js/slick.js"></script>
-	<!-- Counter -->
-	<script type="text/javascript" src="/assets/js/waypoints.js"></script>
-	<script type="text/javascript" src="/assets/js/jquery.counterup.js"></script>
-	<!-- Mixit slider -->
-	<script type="text/javascript" src="/assets/js/jquery.mixitup.js"></script>
-	<!-- Add fancyBox -->
-	<script type="text/javascript" src="/assets/js/jquery.fancybox.pack.js"></script>
-
-	<!-- Custom js -->
-	<script src="/assets/js/custom.js"></script>
 
 </body>
 </html>

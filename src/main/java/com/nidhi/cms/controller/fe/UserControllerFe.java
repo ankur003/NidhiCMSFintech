@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -1394,5 +1395,28 @@ public ModelAndView getUserNameByMarchantIds(Model model,HttpServletRequest requ
 	}
 	
 	return new ModelAndView("allsupervisor");
+}
+
+//<c:if test="${us.txnType eq 'RTG'}">RTGS</c:if>
+//<c:if test="${us.txnType eq 'IFS'}">IMPS</c:if>
+//	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
+
+@PostMapping(value = "/getStatus")
+public @ResponseBody Object getStatus(HttpServletRequest request)  {
+	String   userUuid=request.getParameter("userUuid");
+	String   utr=request.getParameter("utr");
+	String   transtype=request.getParameter("transtype");
+	String   uniqueId=request.getParameter("uniqueId");
+	Object obj=null;
+	if( transtype.equalsIgnoreCase("RTG"))
+	  obj=userController.getTransactionStatus(userUuid,uniqueId,PaymentMode.RTG);
+	if( transtype.equalsIgnoreCase("IFS"))
+	  obj=userController.getTransactionStatus(userUuid,uniqueId,PaymentMode.IFS);
+	if( transtype.equalsIgnoreCase("RGS"))
+	  obj=userController.getTransactionStatus(userUuid,utr,PaymentMode.RGS);
+	
+	System.out.println("============================="+obj);
+	return obj;
+	
 }
 }
