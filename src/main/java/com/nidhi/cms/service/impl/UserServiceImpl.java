@@ -330,7 +330,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			Boolean isValid = isResponseValid(response);
 			if (BooleanUtils.isFalse(isValid)) {
 				
-				return encryptedJsonResponse;
+				return response;
 			}
 			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
 			return createResponse(response, userTxWoOtpReqModal);
