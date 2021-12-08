@@ -93,7 +93,7 @@ public class TransactionServiceImpl implements TransactionService{
 			} else if (paymentMode == PaymentMode.IFS || paymentMode == PaymentMode.RTG){
 				return transactionStatusInquiry(uniqueId);
 			}
-			return paymentMode;
+			return null;
 		}
 		
 		@Override
