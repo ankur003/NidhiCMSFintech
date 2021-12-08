@@ -121,6 +121,10 @@ public class Utility {
 					System.out.println(" skipped == " +field.getName());
 					continue;
 				}
+				if (field.getName().equals("remarks") && field.get(clazz) == null) {
+					System.out.println(" field.get(clazz) === " +field.get(clazz));
+					continue;
+				}
 				request = request + "\"" + field.getName().toUpperCase() + "\"" + ":";
 				if (field.get(clazz) != null) {
 					request = request + "\"" + field.get(clazz) + "\"" + ",";
