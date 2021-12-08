@@ -885,16 +885,21 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	public String generateApiKey(String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
-		if (user == null || BooleanUtils.isNotTrue(user.getIsActive()) || BooleanUtils.isNotTrue(user.getIsUserVerified())
+		if (user == null 
+				|| BooleanUtils.isNotTrue(user.getIsActive())
+				|| BooleanUtils.isNotTrue(user.getIsUserVerified())
 				|| !user.getKycStatus().equals(KycStatus.VERIFIED)) {
 			return null;
 		}
-		user.setApiKey(Utility.getUniqueUuid());
-		userRepo.save(user);
+		if (user.getApiKey() == null) {
+			user.setApiKey(Utility.getUniqueUuid());
+			userRepo.save(user);
+		}
+
 		String apiKey = user.getApiKey();
 		String token = user.getToken();
-		return apiKey + "dev_Ankur" +token;
-		
+		return apiKey + "dev_Ankur" + token;
+
 	}
 	
 	public String getGeneratedApiKey(String userUuid) {

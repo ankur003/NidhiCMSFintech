@@ -48,8 +48,10 @@ public class LoginServiceImpl implements LoginService {
 		final String authToken = jwtTokenUtil.generateToken(authentication);
 		String userUuid = ApplicationConfig.loggedInUsers.get(authentication.getName()); // userUuid
 		User user = userRepo.findByUserUuid(userUuid);
-		user.setToken(TOKEN_PREFIX + authToken);
-		userRepo.save(user);
+		if (user.getToken() == null) {
+			user.setToken(TOKEN_PREFIX + authToken);
+			userRepo.save(user);
+		}
 		return new AuthToken(TOKEN_PREFIX + authToken, userUuid, LocalDateTime.now(), applicationConfig.getTokenValiditySeconds());
 	}
 }

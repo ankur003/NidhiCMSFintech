@@ -3,6 +3,7 @@ package com.nidhi.cms.service.impl;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -374,6 +375,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setUrn(userTxWoOtpReqModal.getUrn());
 		txn.setUserId(user.getUserId());
 		txn.setTxType("Dr.");
+		txn.setTxDate(LocalDate.now());
 		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txRepository.save(txn);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
