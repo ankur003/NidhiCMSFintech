@@ -27,7 +27,7 @@
           url : "/api/v1/getStatus",
           data : dataemployeeid,
           success : function(data) {
-        	  alert(data); 
+        	//  alert(data); 
         	 
         	  document.getElementById("kycRejectReason").value = data;
       	},
