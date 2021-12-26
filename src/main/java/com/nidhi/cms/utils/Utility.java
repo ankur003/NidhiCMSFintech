@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -173,6 +174,10 @@ public class Utility {
 
 	public static String getMerchantId() {
 		return null;
+	}
+
+	public static String getVirtualId() {
+		return "Z" + RandomStringUtils.random(5, true, false) + RandomStringUtils.random(6, true, false);
 	}
 
 }

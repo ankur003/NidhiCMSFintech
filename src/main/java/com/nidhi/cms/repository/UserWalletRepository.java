@@ -17,6 +17,8 @@ public interface UserWalletRepository extends JpaRepository<UserWallet, Long> , 
 	UserWallet findFirstByOrderByUserWalletIdDesc();
 
 	UserWallet findByMerchantId(String marchantId);
+	
+	UserWallet findByWalletUuid(String virtualID);
 
 	List<UserWallet> findByMerchantIdContaining(String marchantId);
 

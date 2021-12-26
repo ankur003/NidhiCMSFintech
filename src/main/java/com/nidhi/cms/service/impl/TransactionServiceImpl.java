@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,8 @@ import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.modal.request.NeftIncrementalStatus;
 import com.nidhi.cms.modal.request.TransactionStatusInquiry;
+import com.nidhi.cms.modal.request.WebhookRequest;
 import com.nidhi.cms.repository.TxRepository;
-import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.utils.Utility;
 
@@ -27,11 +29,7 @@ public class TransactionServiceImpl implements TransactionService{
 	@Autowired
 	private TxRepository txRepository;
 	
-	@Autowired
-	private UserWalletRepository userWalletRepository;
-	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionServiceImpl.class);
-
 
 	@Override
 	public List<Transaction> getUserTransactions(Long userId) {
@@ -151,6 +149,17 @@ public class TransactionServiceImpl implements TransactionService{
 		@Override
 		public List<Transaction> findByUserIdAndUniqueId(Long userId, String uniqueid) {
 			return txRepository.findByUserIdAndUniqueId(userId, uniqueid);
+		}
+
+		@Override
+		public Transaction findByVirtualTxId(String txId) {
+			return txRepository.findByVirtualTxId(txId);
+		}
+
+		@Override
+		public Transaction saveVirtualTxId(Long userId, @Valid WebhookRequest webhookRequest) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 }

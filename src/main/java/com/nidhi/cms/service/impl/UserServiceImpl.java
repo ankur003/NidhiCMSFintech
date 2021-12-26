@@ -304,7 +304,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userWallet = new UserWallet();
 			userWallet.setUserId(user.getUserId());
 			userWallet.setAmount(0.0);
-			userWallet.setWalletUuid(Utility.getUniqueUuid());
+			userWallet.setWalletUuid(Utility.getVirtualId());
 			userWallet.setMerchantId(getMerchantId());
 			return userWalletRepository.save(userWallet);
 		}

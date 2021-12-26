@@ -20,6 +20,8 @@ public class EmailTemplateConstants {
     
     public static final String DEBIT_ACC = "debit-acc.ftl";
     
+    public static final String CREDIT_ACC = "credit-acc.ftl";
+    
     public static final String BILLING_CHARGE_SET = "billing-charge-set.ftl";
     
     public static final String USER_UPDATE_DETAILS = "user-update-details.ftl";
