@@ -67,7 +67,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	public void runOninit() {
 		createAdmin();
 		createSystemPrivilages();
-		testEmails();
+		// testEmails();
 	}
 	
 	private void testEmails() {

@@ -26,9 +26,16 @@
           url : "/api/v1/getStatus",
           data : dataemployeeid,
           success : function(data) {
-        	//  alert(data); 
-        	 
-        	  document.getElementById("kycRejectReason").value = data;
+        	//  {"STATUS":"FAILURE","Message":"UTR Number is Mandatory","ErrorCode":"999993","Response":"Failure"}
+        	  const myObj =data;
+        	  const myJSON = JSON.stringify(myObj);
+        	  localStorage.setItem("testJSON", myJSON);
+
+        	  // Retrieving data:
+        	  let text = localStorage.getItem("testJSON");
+        	  let obj = JSON.parse(text);
+        	 var response=" Status : "+obj.STATUS+'\r\n'+" Message : "+obj.Message+'\r\n'+" ErrorCode : "+obj.ErrorCode+'\r\n'+" Response : "+obj.Response;
+        	  document.getElementById("kycRejectReason").value = response;
       	},
 		error : function(e) {
 			alert('Error: ' + e);
