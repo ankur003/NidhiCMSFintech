@@ -21,7 +21,6 @@
   function callforStatus(userUuid,utr,transtype,uniqueId)
   {
       var dataemployeeid = {"userUuid":userUuid,"utr" : utr,"transtype":transtype,"uniqueId":uniqueId};
-      alert(dataemployeeid);
       $.ajax({
           type : "POST",
           url : "/api/v1/getStatus",
