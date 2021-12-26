@@ -65,6 +65,8 @@ public class Transaction extends BaseDomain {
 
 	private Double amt;
 
+	private String remarks;
+
 	public Long getTransactionId() {
 		return transactionId;
 	}
@@ -255,6 +257,14 @@ public class Transaction extends BaseDomain {
 
 	public void setAmt(Double amt) {
 		this.amt = amt;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
 	}
 
 }

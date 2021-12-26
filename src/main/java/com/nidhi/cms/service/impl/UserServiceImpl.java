@@ -5,15 +5,16 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nidhi.cms.cipher.CheckNEFTjson;
 import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.config.CmsConfig;
+import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.constants.enums.SearchOperation;
@@ -43,9 +45,9 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
-import com.nidhi.cms.modal.request.TransactionStatusInquiry;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -64,6 +66,7 @@ import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
+import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -108,6 +111,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Autowired
 	private TransactionService transactionService;
 	
+	@Autowired
+	private EmailService emailService;
+	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -137,7 +143,23 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setRoles(Utility.getRole(RoleEum.USER));
 		user.setIsUserCreatedByAdmin(isCreatedByAdim);
 		User savedUser = userRepository.save(user);
+		triggerSignUpNotification(user);
 		return otpService.sendingOtp(savedUser);
+	}
+
+	private void triggerSignUpNotification(User user) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerSignUpNotification] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Your NidhiCMS Account | Sign Up");
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		emailService.sendEmail(request, model, null, EmailTemplateConstants.SIGN_UP);
+
 	}
 
 	@Override
@@ -229,12 +251,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				if (doc != null && doc.size() >= 3 && user.getKycStatus() != KycStatus.VERIFIED) {
 					user.setKycStatus(KycStatus.VERIFIED);
 					userRepository.save(user);
-					createUserWallet(user);
+					UserWallet wallet = createUserWallet(user);
+					triggerKycNotifications(user, wallet, kycResponse, null);
 				}
 			}
 			if (BooleanUtils.isFalse(kycResponse)) {
 				user.setKycStatus(KycStatus.REJECTED);
 				userRepository.save(user);
+				triggerKycNotifications(user, null, kycResponse, kycRejectReason);
 				return Boolean.TRUE;
 			}
 
@@ -245,7 +269,36 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	}
 
-	private void createUserWallet(User user) {
+	private void triggerKycNotifications(User user, UserWallet wallet, Boolean kycResponse, String kycRejectReason) {
+		if (StringUtils.isBlank(user.getUserEmail()) || (BooleanUtils.isTrue(kycResponse) && wallet == null)) {
+			LOGGER.error("[UserServiceImpl.triggerKycNotifications] user email is blank - {} or wallet is null {} ", user.getUserEmail(), wallet);
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setTo(new String[] { user.getUserEmail() });
+		if (BooleanUtils.isTrue(kycResponse)) {
+			UserBankDetails bankDetails = getUserBankDetails(user);
+			request.setSubject("Account Activation");
+			Map<String, Object> model = new HashMap<>();
+			model.put("name", user.getFullName());
+			model.put("clientId", wallet.getMerchantId());
+			model.put("contactPerson", bankDetails.getBankAccHolderName());
+			model.put("accountNo", bankDetails.getAccountNumber());
+			model.put("ifsc", bankDetails.getIfsc());
+			model.put("bankName", bankDetails.getBankName());
+			emailService.sendEmail(request, model, null, EmailTemplateConstants.KYC_APPROVED);
+		} else if (BooleanUtils.isFalse(kycResponse)) {
+			request.setSubject("Issue with Account");
+			Map<String, Object> model = new HashMap<>();
+			model.put("name", user.getFullName());
+			model.put("remarks", kycRejectReason);
+			emailService.sendEmail(request, model, null, EmailTemplateConstants.KYC_REJACTED);
+		}
+		
+	}
+
+	private UserWallet createUserWallet(User user) {
 		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
 		if (userWallet == null) {
 			userWallet = new UserWallet();
@@ -253,8 +306,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userWallet.setAmount(0.0);
 			userWallet.setWalletUuid(Utility.getUniqueUuid());
 			userWallet.setMerchantId(getMerchantId());
-			userWalletRepository.save(userWallet);
+			return userWalletRepository.save(userWallet);
 		}
+		return userWallet;
 	}
 
 	private String getMerchantId() {
@@ -273,7 +327,24 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public Boolean userActivateOrDeactivate(User user, Boolean isActivate) {
 		user.setIsActive(isActivate);
 		userRepository.save(user);
+		triggerUserDeactivateNotifications(user, isActivate);
 		return Boolean.TRUE;
+	}
+
+	private void triggerUserDeactivateNotifications(User user, Boolean isActivate) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerUserDeactivateNotifications] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		if (BooleanUtils.isTrue(isActivate)) {
+			MailRequest request = new MailRequest();
+			request.setName(user.getFullName());
+			request.setSubject("Your NidhiCMS Account Suspended");
+			request.setTo(new String[] { user.getUserEmail() });
+			Map<String, Object> model = new HashMap<>();
+			model.put("name", user.getFullName());
+			emailService.sendEmail(request, model, null, EmailTemplateConstants.TERMINATE_ACCOUNT);
+		}
 	}
 
 	@Override
@@ -334,23 +405,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				return response;
 			}
 			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
-			return response;//createResponse(response, userTxWoOtpReqModal);
+			return response;
 		} catch (Exception e) {
 			LOGGER.error("[UserServiceImpl.txWithoutOTP] Exception - {}", e);
 		}
 		return null;
-	}
-
-	private Object createResponse(String response, UserTxWoOtpReqModal userTxWoOtpReqModal) {
-		JSONObject jsonObject = new JSONObject(response);
-		jsonObject.remove("CORP_ID");
-		jsonObject.remove("USER_ID");
-		jsonObject.remove("AGGR_ID");
-		jsonObject.remove("AGGR_NAME");
-		jsonObject.remove("URN");
-		jsonObject.put("CURRENCY", userTxWoOtpReqModal.getCurrency());
-		jsonObject.put("MERCHANT_ID", userTxWoOtpReqModal.getMerchantId());
-		return jsonObject;
 	}
 
 	private void performPostAction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, String response, UserWallet userWallet) {
@@ -377,9 +436,62 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setTxType("Dr.");
 		txn.setTxDate(LocalDate.now());
 		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
+		txn.setRemarks(userTxWoOtpReqModal.getRemarks());
 		txRepository.save(txn);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
 		updateBalance(txn.getAmountPlusfee(), userWallet);
+		triggerPayoutNotifications(user, txn);
+	}
+
+	private void triggerPayoutNotifications(User user, Transaction txn) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerPayoutNotifications] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		UserBankDetails bankDetails = getUserBankDetails(user);
+		payoutRequestInitionNotifications(bankDetails, user, txn);
+		triggerDebitAccountNotification(bankDetails, user, txn);
+		
+	}
+
+	private void triggerDebitAccountNotification(UserBankDetails bankDetails, User user, Transaction txn) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerDebitAccountNotification] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Your NidhiCMS Account Debited with Rs." +txn.getAmountPlusfee());
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		model.put("txAmt", txn.getAmountPlusfee());
+		model.put("accNo", bankDetails.getAccountNumber());
+		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
+		model.put("amt", txn.getAmt());
+		emailService.sendEmail(request, model, null, EmailTemplateConstants.DEBIT_ACC);
+		
+	}
+
+	private void payoutRequestInitionNotifications(UserBankDetails bankDetails, User user, Transaction txn) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.payoutRequestInitionNotifications] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Payment Request Initiation");
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		model.put("amt", txn.getAmountPlusfee());
+		model.put("beneficiary_name", txn.getPayeeName());
+		model.put("account_number", bankDetails.getAccountNumber());
+		model.put("ifsc", txn.getIfsc());
+		model.put("remark", StringUtils.isNotBlank(txn.getRemarks()) ? txn.getRemarks() : "-");
+		model.put("utr", txn.getUtrNumber());
+		model.put("Status", txn.getStatus());
+		emailService.sendEmail(request, model, null, EmailTemplateConstants.PAYOUT_REQUEST_INITIATION);
 	}
 
 	private void updateBalance(Double amountPlusfee, UserWallet userWallet) {
@@ -443,30 +555,51 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public User updateUserDetails(User user, UserUpdateModal userUpdateModal) {
-		if (userUpdateModal.getFirstName() != null) {
+		if (StringUtils.isNotBlank(userUpdateModal.getFirstName())) {
 			user.setFirstName(userUpdateModal.getFirstName());
 		}
 
-		if (userUpdateModal.getLastName() != null) {
+		if (StringUtils.isNotBlank(userUpdateModal.getLastName())) {
 			user.setLastName(userUpdateModal.getLastName());
 		}
 
-		if (userUpdateModal.getMiddleName() != null) {
+		if (StringUtils.isNotBlank(userUpdateModal.getMiddleName())) {
 			user.setMiddleName(userUpdateModal.getMiddleName());
 		}
 
-		if (userUpdateModal.getFullName() != null) {
+		if (StringUtils.isNotBlank(userUpdateModal.getFullName())) {
 			user.setFullName(userUpdateModal.getFullName());
 		}
 
-		if (userUpdateModal.getDob() != null) {
+		if (StringUtils.isNotBlank(userUpdateModal.getDob())) {
 			user.setDob(Utility.stringToLocalDate(userUpdateModal.getDob()));
 		}
 
 		if ((userUpdateModal.getUserPrivileges() != null)) {
 			user.setPrivilageNames(String.join(",", userUpdateModal.getUserPrivileges()));
 		}
-		return userRepository.save(user);
+		User savedUser = userRepository.save(user);
+		triggerUserUpdateNotifications(savedUser, userUpdateModal);
+		return savedUser;
+	}
+
+	private void triggerUserUpdateNotifications(User user, UserUpdateModal userUpdateModal) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerUserUpdateNotifications] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+			MailRequest request = new MailRequest();
+			request.setName(user.getFullName());
+			request.setSubject("Account Update");
+			request.setTo(new String[] { user.getUserEmail() });
+			Map<String, Object> model = new HashMap<>();
+			model.put("name", user.getFullName());
+			model.put("fname", StringUtils.isNotBlank(userUpdateModal.getFirstName()) ? userUpdateModal.getFirstName() : "-");
+			model.put("lname", StringUtils.isNotBlank(userUpdateModal.getLastName()) ? userUpdateModal.getLastName() : "-");
+			model.put("mname", StringUtils.isNotBlank(userUpdateModal.getMiddleName()) ? userUpdateModal.getMiddleName() : "-");
+			model.put("dob", StringUtils.isNotBlank(userUpdateModal.getDob()) ? userUpdateModal.getDob() : "-");
+			model.put("fullname", StringUtils.isNotBlank(userUpdateModal.getFullName()) ? userUpdateModal.getFullName() : "-");
+			emailService.sendEmail(request, model, null, EmailTemplateConstants.USER_UPDATE_DETAILS);
 	}
 
 	@Override

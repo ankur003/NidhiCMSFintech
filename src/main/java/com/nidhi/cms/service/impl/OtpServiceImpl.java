@@ -3,16 +3,16 @@ package com.nidhi.cms.service.impl;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.nidhi.cms.config.ApplicationConfig;
+import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
@@ -39,7 +39,9 @@ public class OtpServiceImpl implements OtpService {
 
 	@Autowired
 	private EmailService emailService;
-
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtpServiceImpl.class);
+	
 	@Override
 	public Boolean sendingOtp(User existingUser) {
 		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
@@ -79,34 +81,37 @@ public class OtpServiceImpl implements OtpService {
 		 saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
 	}
 	
-	private void sendOtpOnEmail(User existingUser, String emailOtp, String password) {
+	private void sendOtpOnEmail(User user, String emailOtp, String password) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[OtpServiceImpl.sendOtpOnEmail ] user email is blank - {}", user.getUserEmail());
+			return;
+		}
 		MailRequest request = new MailRequest();
-		request.setFrom("ankurbanssla@gmail.com");
-		request.setName(existingUser.getFullName());
+		request.setName(user.getFullName());
 		request.setSubject("Email Verification | Nidhi CMS");
-		request.setTo(new String[] { existingUser.getUserEmail() });
+		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> modal = new HashMap<>();
+		modal.put("name", user.getFullName());
 		modal.put("OTP", emailOtp);
 		modal.put("password", password);
-		sendMailAsync(request, modal, "", "email-template.ftl");
+		emailService.sendMailAsync(request, modal, "", EmailTemplateConstants.OTP_PASSWORD);
 
 	}
 
-	private void sendMailAsync(MailRequest request, Map<String, Object> modal, String attach, String templateName) {
-		CompletableFuture.runAsync(() -> 
-			CompletableFuture.runAsync(() -> emailService.sendEmail(request, modal, attach, templateName))
-		 );
-	}
 
-	private void sendOtpOnEmail(User existingUser, String emailOtp) {
+	private void sendOtpOnEmail(User user, String emailOtp) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[OtpServiceImpl.sendOtpOnEmail] user email is blank - {}", user.getUserEmail());
+			return;
+		}
 		MailRequest request = new MailRequest();
-		request.setFrom("ankurbanssla@gmail.com");
-		request.setName(existingUser.getFullName());
-		request.setSubject("Email Verification | Nidhi CMS");
-		request.setTo(new String[] { existingUser.getUserEmail() });
+		request.setName(user.getFullName());
+		request.setSubject("Email Verification | Nidhi CMS Account");
+		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> modal = new HashMap<>();
+		modal.put("name", user.getFullName());
 		modal.put("OTP", emailOtp);
-		sendMailAsync(request, modal, null, "email-template.ftl");
+		emailService.sendMailAsync(request, modal, null, EmailTemplateConstants.OTP);
 	}
 
 	private Boolean saveOtpDetails(String mobileOtp, String emailOtp, User existingUser, Otp existingOtp) {

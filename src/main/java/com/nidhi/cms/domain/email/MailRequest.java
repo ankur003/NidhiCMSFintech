@@ -10,8 +10,6 @@ public class MailRequest {
 
 	private String[] bcc;
 
-	private String from;
-
 	private String subject;
 
 	public String getName() {
@@ -28,14 +26,6 @@ public class MailRequest {
 
 	public void setTo(String[] to) {
 		this.to = to;
-	}
-
-	public String getFrom() {
-		return from;
-	}
-
-	public void setFrom(String from) {
-		this.from = from;
 	}
 
 	public String getSubject() {
