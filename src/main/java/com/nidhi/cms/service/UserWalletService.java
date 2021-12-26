@@ -14,4 +14,8 @@ public interface UserWalletService {
 
 	List<String> getUserNameByMarchantId(String marchantId);
 
+	UserWallet findByVirtualId(String virtualWalletId);
+
+	Boolean updateBalance(UserWallet userWallet, Double amt);
+
 }

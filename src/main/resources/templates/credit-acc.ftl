@@ -97,7 +97,7 @@
                                             <tr>
                                                 <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;">
 												Hi ${name},<br><br>
-                                                Greetings from NidhiCMS! This is to inform you that your account is debited with INR ${txAmt} on ${createdAt}. Your available balance is INR ${amt}
+                                                Greetings from NidhiCMS! This is to inform you that your account ${accNo} is debited with INR ${txAmt} on ${createdAt}. Your available balance is INR ${amt}
 												
 
                                                </td>

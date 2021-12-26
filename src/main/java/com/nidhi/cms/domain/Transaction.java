@@ -67,6 +67,8 @@ public class Transaction extends BaseDomain {
 
 	private String remarks;
 
+	private String virtualTxId;
+
 	public Long getTransactionId() {
 		return transactionId;
 	}
@@ -265,6 +267,14 @@ public class Transaction extends BaseDomain {
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
+	}
+
+	public String getVirtualTxId() {
+		return virtualTxId;
+	}
+
+	public void setVirtualTxId(String virtualTxId) {
+		this.virtualTxId = virtualTxId;
 	}
 
 }

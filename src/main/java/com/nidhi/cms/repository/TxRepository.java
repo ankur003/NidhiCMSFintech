@@ -29,4 +29,6 @@ public interface TxRepository extends JpaRepository<Transaction, Long> , PagingA
 
 	List<Transaction> findByUniqueId(String uniqueId);
 
+	Transaction findByVirtualTxId(String virtualTxId);
+
 }

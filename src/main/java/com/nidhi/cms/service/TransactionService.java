@@ -3,8 +3,11 @@ package com.nidhi.cms.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.domain.Transaction;
+import com.nidhi.cms.modal.request.WebhookRequest;
 
 public interface TransactionService {
 
@@ -33,5 +36,9 @@ public interface TransactionService {
 	Object neftIncrementalStatusAPi(String utrNumber);
 
 	List<Transaction> findByUserIdAndUniqueId(Long userId, String uniqueid);
+
+	Transaction findByVirtualTxId(String txId);
+
+	Transaction saveVirtualTxId(Long userId, WebhookRequest webhookRequest);
 
 }
