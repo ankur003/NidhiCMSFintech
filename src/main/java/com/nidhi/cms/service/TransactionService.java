@@ -3,10 +3,12 @@ package com.nidhi.cms.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.validation.Valid;
+import org.w3c.dom.Document;
 
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.domain.Transaction;
+import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.WebhookRequest;
 
 public interface TransactionService {
@@ -40,5 +42,7 @@ public interface TransactionService {
 	Transaction findByVirtualTxId(String txId);
 
 	Transaction saveVirtualTxId(Long userId, WebhookRequest webhookRequest);
+
+	void saveCreditTransaction(Document docWithContent, int i, User user, UserWallet userWallet);
 
 }

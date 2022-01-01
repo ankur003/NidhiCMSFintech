@@ -49,7 +49,6 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 		userPaymentMode.setIsActive(userPaymentModeModalReqModal.isActive());
 		if (userPaymentModeModalReqModal.getPaymentMode() != null) {
 			userPaymentMode.setPaymentMode(userPaymentModeModalReqModal.getPaymentMode());
-
 		}
 		if (userPaymentModeModalReqModal.getFee() != null) {
 			userPaymentMode.setFee(userPaymentModeModalReqModal.getFee());

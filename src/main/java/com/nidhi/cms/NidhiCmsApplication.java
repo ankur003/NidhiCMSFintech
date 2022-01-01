@@ -5,28 +5,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.RejectedExecutionException;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
-import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.email.MailRequest;
-import com.nidhi.cms.domain.email.MailResponse;
-import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.repository.SystemPrivilegeRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.email.EmailService;
@@ -71,7 +64,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 	
 	private void testEmails() {
-		signUp();
+	//	signUp();
 //		terminateAcc();
 //		payout();
 //		debitAcc();

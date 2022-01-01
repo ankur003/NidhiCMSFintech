@@ -60,7 +60,6 @@ import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
-import com.nidhi.cms.modal.request.WebhookRequest;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
@@ -1059,21 +1058,5 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		return transactionService.getTransactionStatus(uniqueIdOrUtrNumber, paymentMode);
 	}
-	
-	@PostMapping(value = "/webhook")
-	public Object webhook(@Valid @RequestBody WebhookRequest webhookRequest, final HttpServletRequest httpServletRequest) {
-		UserWallet userWallet = userWalletService.findByVirtualId(webhookRequest.getVirtualWalletId());
-		if (userWallet == null) {
-			
-		}
-		Transaction transaction = transactionService.findByVirtualTxId(webhookRequest.getTxId());
-		if (transaction != null) {
-			
-		}
-		Transaction savedTransaction = transactionService.saveVirtualTxId(userWallet.getUserId(), webhookRequest);
-		Boolean isUpdated = userWalletService.updateBalance(userWallet, webhookRequest.getAmount());
-		return null;
-	}
-	
 	
 }
