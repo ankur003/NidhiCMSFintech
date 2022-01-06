@@ -90,42 +90,42 @@
                     <tr>
                         <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
                             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
-                                
-								
-								
-								
-								 <tr>
-                                                <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;">
-												Hi ${name},<br><br>
+                                 <tr>
+                                               <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 50; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;text-align: justify;">
+												Hi ${name},<br>
 												You have initiate a payment request for amounting Rs. ${amt} Kindly find the below details for payment :
                                                </td>
                                             </tr>
 								
                                 <tr>
                                     <td align="left" style="padding-top: 20px;">
-                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
-                                            <tr>
-                                                <td width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;"> Beneficiary Name   </td>
-                                                <td width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;"> ${beneficiary_name} </td>
+                                        <table cellspacing="0" cellpadding="0" border="1" width="100%">
+                                           
+											
+											 <tr >
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Beneficiary Name  </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${beneficiary_name} </td>
+                                            </tr>
+                                           
+											  <tr>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Account Number </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${account_number} </td>
                                             </tr>
                                             <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> Account Number    </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> ${account_number}</td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> IFSC </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${ifsc} </td>
                                             </tr>
+											
                                             <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> IFSC </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${ifsc} </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Remark </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${remark} </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Remark </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${remark} </td>
                                             </tr>
 											  <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> UTR/RRN </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${utr} </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> UTR/RRN </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${utr} </td>
                                             </tr> <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Status  </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${Status}</td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Status  </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${Status} </td>
                                             </tr>
                                         </table>
                                     </td>
@@ -139,11 +139,10 @@
                         <td align="center" style="padding: 35px; background-color: #ffffff;" bgcolor="#ffffff">
                             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                                
-                               
                                 <tr>
-                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px;">
-                                        <p style="font-size: 14px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this payment if you find it to be suspicious
-                                         or fraudulent Payment Powered By Nidhi Fintech Consultancy </p>
+                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 24px;">
+                                        <p style="font-size: 12px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this payment if you find it to be suspicious
+                                         or fraudulent Payment.<br>Powered By  <img src="https://nidhicms.com/images/logo.png" width="100" height="100" style="display: block; border: 0px;" /> </p>
                                     </td>
                                 </tr>
                             </table>

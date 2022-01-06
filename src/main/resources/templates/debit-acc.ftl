@@ -95,9 +95,9 @@
                                     <td align="left" style="padding-top: 20px;">
                                         <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                             <tr>
-                                                <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;">
-												Hi ${name},<br><br>
-                                                Greetings from NidhiCMS! This is to inform you that your account is debited with INR ${txAmt} on ${createdAt}. Your available balance is INR ${amt}
+                                              <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 50; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;">
+												Hi ${name},<br>
+                                                Greetings from NidhiCMS! This is to inform you that your account ${accNo} is debited with INR ${txAmt} on ${createdAt}. Your available balance is INR ${amt}.
 												
 
                                                </td>
@@ -114,10 +114,10 @@
                             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                                
                                
-                                <tr>
-                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px;">
-                                        <p style="font-size: 14px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this payment if you find it to be suspicious
-                                         or fraudulent Payment Powered By Nidhi Fintech Consultancy </p>
+                                  <tr>
+                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 24px;">
+                                        <p style="font-size: 12px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this payment if you find it to be suspicious
+                                         or fraudulent Payment.<br>Powered By  <img src="https://nidhicms.com/images/logo.png" width="100" height="100" style="display: block; border: 0px;" /> </p>
                                     </td>
                                 </tr>
                             </table>

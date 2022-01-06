@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nidhi.cms.constants.ApiConstants;
+import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
@@ -58,6 +60,7 @@ import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.LoginRequestModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
@@ -71,6 +74,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.service.UserService;
+import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -93,6 +97,9 @@ public class UserControllerFe {
 	
 	@Autowired
 	private UserService userservice;
+	
+	@Autowired
+	private EmailService emailService;
 	
 	@PostMapping(value = "/user")
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
@@ -1104,10 +1111,12 @@ public class UserControllerFe {
 			model.addAttribute("gst",gst);
 			model.addAttribute("bank",bank);
 			model.addAttribute("bkyc",business);
-			model.addAttribute("user",userservice.getUserByUserUuid(userUuid));
+			User user = userservice.getUserByUserUuid(userUuid);
+			model.addAttribute("user",user);
 			List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(userPaymentModeModalReqModal.getAdminUuid(), userUuid);
 			model.addAttribute("paylist",paylist);
 			
+			Map<String, Object> modelMap = new HashMap<>();
 			for (UserPaymentMode userPaymentMode : paylist) 
 			{
 				if(userPaymentMode.getPaymentMode()==PaymentMode.RTG)
@@ -1115,22 +1124,46 @@ public class UserControllerFe {
 					model.addAttribute("RTGfeePercent",userPaymentMode.getFee());
 					model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
 					model.addAttribute("billChargeType",userPaymentMode.getPaymentModeFeeType());
+					modelMap.put("RTGfeePercent", userPaymentMode.getFee());
+					modelMap.put("RTGbillChargeType", userPaymentMode.getPaymentModeFeeType());
+					modelMap.put("RTGStatus", userPaymentMode.getIsActive() == null ? Boolean.FALSE : userPaymentMode.getIsActive());
 				}
 				if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
 				{
 					model.addAttribute("RGSfeePercent",userPaymentMode.getFee());
 					model.addAttribute("neftstatus",userPaymentMode.getIsActive());
 					model.addAttribute("billChargeType1",userPaymentMode.getPaymentModeFeeType());
+					modelMap.put("RGSfeePercent", userPaymentMode.getFee());
+					modelMap.put("RGSbillChargeType", userPaymentMode.getPaymentModeFeeType());
+					modelMap.put("RGSStatus", userPaymentMode.getIsActive() == null ? Boolean.FALSE : userPaymentMode.getIsActive());
+
 				}
 				if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
 				{
 					model.addAttribute("IFSfeePercent",userPaymentMode.getFee());
 					model.addAttribute("impsstatus",userPaymentMode.getIsActive());
 					model.addAttribute("billChargeType2",userPaymentMode.getPaymentModeFeeType());
+					modelMap.put("IFSfeePercent", userPaymentMode.getFee());
+					modelMap.put("IFSbillChargeType", userPaymentMode.getPaymentModeFeeType());
+					modelMap.put("IFSStatus", userPaymentMode.getIsActive() == null ? Boolean.FALSE : userPaymentMode.getIsActive());
+
 				}
 			}
+			triggerBillingChargesNotifications(user, modelMap);
 			return new ModelAndView("UserUpdateAdmin");
 		
+	}
+	
+	private void triggerBillingChargesNotifications(User user, Map<String, Object> modelMap) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			return;
+		}
+			MailRequest request = new MailRequest();
+			request.setName(user.getFullName());
+			request.setSubject("Billing Charges Updated on your NidhiCMS Account");
+			request.setTo(new String[] { user.getUserEmail() });
+			modelMap.put("name", user.getFullName());
+			emailService.sendMailAsync(request, modelMap, null, EmailTemplateConstants.BILLING_CHARGE_SET);
 	}
 	
 	@PostMapping(value = "/admin-whitelist-update")

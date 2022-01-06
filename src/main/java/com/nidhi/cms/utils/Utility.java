@@ -14,17 +14,23 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.google.gson.Gson;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.Role;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.response.TextLocalResponseModal;
+import com.nidhi.cms.utils.indsind.UPISecurity;
 
 /**
  * 
@@ -178,6 +184,24 @@ public class Utility {
 
 	public static String getVirtualId() {
 		return "Z" + RandomStringUtils.random(5, true, false) + RandomStringUtils.random(6, true, false);
+	}
+
+	public static String getEncyptedReqBody(@Valid IndsIndRequestModal indsIndRequestModal, String indBankKey) throws Exception {
+		UPISecurity uPISecurity = new UPISecurity();
+		Gson gson = new Gson();
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("pgMerchantId", indsIndRequestModal.getPgMerchantId());
+		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(indsIndRequestModal), indBankKey));
+		return jsonObject.toString();
+	}
+
+	public static String decryptResponse(String encBodyContent, String responseKey, String indBankKey) throws  Exception {
+		JSONObject json = new JSONObject(encBodyContent);
+		UPISecurity uPISecurity = new UPISecurity();
+		if (json.has(responseKey)) {
+			return uPISecurity.decrypt(json.getString(responseKey), indBankKey);
+		}
+		return null;
 	}
 
 }

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.constants.SwaggerConstant;
 import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.constants.enums.ForgotPassType;
@@ -48,6 +50,7 @@ import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
@@ -78,6 +81,10 @@ import com.nidhi.cms.utils.Utility;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * @author Devendra Gread
@@ -114,6 +121,12 @@ public class UserController extends AbstractController {
 	
 	@Autowired
 	private TransactionService transactionService;
+	
+	@Autowired
+	private ApplicationConfig applicationConfig;
+	
+	OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(5, TimeUnit.MINUTES).build();
+	MediaType mediaType = MediaType.parse("application/json");
 	
 //	@PostMapping(value = "")
 	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal) {
@@ -1059,4 +1072,32 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return transactionService.getTransactionStatus(uniqueIdOrUtrNumber, paymentMode);
 	}
 	
+
+	@PostMapping(value = "/indsind/onBoardSubMerchant")
+	public ResponseEntity<Object> indsind(@Valid @RequestBody IndsIndRequestModal indsIndRequestModal,
+			final HttpServletRequest httpServletRequest) {
+		try {
+			
+			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBody(indsIndRequestModal, applicationConfig.getIndBankKey()), mediaType);
+			Request request = new Request.Builder()
+					.url("https://ibluatapig.indusind.com/app/uat/web/onBoardSubMerchant").method("POST", body)
+					.addHeader("X-IBM-Client-Id", httpServletRequest.getHeader("X-IBM-Client-Id"))
+					.addHeader("X-IBM-Client-Secret", httpServletRequest.getHeader("X-IBM-Client-Secret"))
+					.addHeader("Accept", "application/json")
+					.addHeader("Content-Type", "application/json").build();
+			Response response = client.newCall(request).execute();
+			String responseBody = response.body().string();
+			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", applicationConfig.getIndBankKey());
+			if (decryptedResponse == null) {
+				return ResponseEntity.ok(responseBody);
+			}
+			return ResponseEntity.ok(decryptedResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(e);
+		}
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+	}
+
 }

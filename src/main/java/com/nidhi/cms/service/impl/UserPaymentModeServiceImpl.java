@@ -43,7 +43,6 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 			userPaymentMode.setPaymentModeFeeType(userPaymentModeModalReqModal.getPaymentModeFeeType());
 			userPaymentMode.setIsActive(userPaymentModeModalReqModal.isActive());
 			UserPaymentMode savedUserPaymentMode =  userPaymentModeRepo.save(userPaymentMode);
-			triggerBillingChargesNotifications(user, savedUserPaymentMode);
 			return savedUserPaymentMode;
 		}
 		userPaymentMode.setIsActive(userPaymentModeModalReqModal.isActive());
@@ -61,25 +60,7 @@ public class UserPaymentModeServiceImpl implements UserPaymentModeService {
 			return null;
 		}
 		UserPaymentMode savedUserPaymentMode = userPaymentModeRepo.save(userPaymentMode);
-		triggerBillingChargesNotifications(user, savedUserPaymentMode);
 		return savedUserPaymentMode;
-	}
-
-	private void triggerBillingChargesNotifications(User user, UserPaymentMode userPaymentMode) {
-		if (StringUtils.isBlank(user.getUserEmail())) {
-			LOGGER.error("[UserPaymentModeServiceImpl.triggerBillingChargesNotifications] user email is blank - {}", user.getUserEmail());
-			return;
-		}
-			MailRequest request = new MailRequest();
-			request.setName(user.getFullName());
-			request.setSubject("Billing Charges Updated on your NidhiCMS Account");
-			request.setTo(new String[] { user.getUserEmail() });
-			Map<String, Object> model = new HashMap<>();
-			model.put("name", user.getFullName());
-			model.put("fee", userPaymentMode.getFee());
-			model.put("type", userPaymentMode.getPaymentModeFeeType().name());
-			model.put("mode", userPaymentMode.getPaymentMode().name());
-			emailService.sendEmail(request, model, null, EmailTemplateConstants.BILLING_CHARGE_SET);
 	}
 
 	@Override

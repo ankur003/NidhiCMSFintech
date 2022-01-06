@@ -87,56 +87,75 @@
                            
                         </td>
                     </tr>
-                    
-					
-					
-					<tr>
+                    <tr>
                         <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
                             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
-                                
-								
-								
-								
-								 <tr>
-                                                <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;">
-												Hi ${name},<br><br>
-												We have successfully revamped billing charges on your account as below:
-                                               </td>
-                                            </tr>
-								
+                              
                                 <tr>
                                     <td align="left" style="padding-top: 20px;">
                                         <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                             <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> Fee    </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> ${fee}</td>
-                                            </tr>
-                                            <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Type </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${type} </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Mode </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${mode} </td>
+                                                   <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 50; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;text-align: justify;">
+												Hi ${name},<br>
+                                                We have successfully revamped billing charges on your account as below: :
+												<br>
+                                                Details :
+
+                                               </td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
-                               
+								   <tr>
+                                    <td align="left" style="padding-top: 0px;">
+                                        <table cellspacing="0" cellpadding="0" border="1" width="100%">
+                                           
+											  <tr>
+												<th>Payment Mode</th>
+												<th>Fee</th>
+												<th>Fee Type</th>
+												<th>Active Status</th>
+											</tr>
+											 <tr >
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> RTGS  </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${RTGfeePercent} </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${RTGbillChargeType} </td>
+												<td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${RTGStatus} </td>
+                                                             
+										   </tr>
+                                           
+											  <tr>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> RGS </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${RGSfeePercent} </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${RGSbillChargeType} </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${RGSStatus} </td>
+
+										   </tr>
+                                            
+                                            <tr>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> IFS </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${IFSfeePercent} </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${IFSbillChargeType} </td>
+                                                <td width="33%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${IFSStatus} </td>
+
+											</tr>
+									
+                                        </table>
+                                    </td>
+                                </tr>
                             </table>
                         </td>
                     </tr>
-                                    
                   
                     <tr>
                         <td align="center" style="padding: 35px; background-color: #ffffff;" bgcolor="#ffffff">
                             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                                
                                
-                                <tr>
-                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px;">
-                                        <p style="font-size: 14px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this activity if you find it to be suspicious
-                                         or fraudulent Payment Powered By Nidhi Fintech Consultancy </p>
+                               <tr>
+                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 24px;">
+                                        <p style="font-size: 12px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this payment if you find it to be suspicious
+                                         or fraudulent Payment.<br>Powered By  <img src="https://nidhicms.com/images/logo.png" width="100" height="100" style="display: block; border: 0px;" /> </p>
                                     </td>
                                 </tr>
                             </table>

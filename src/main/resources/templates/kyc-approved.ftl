@@ -95,54 +95,67 @@
 								
 								
 								 <tr>
-                                                <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;">
-												Hi ${name},<br><br>
+                                           <td width="100%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 50; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 0px solid #eeeeee;text-align: justify;">
+												Hi ${name},<br>
 												Your KYC documents have been successfully verified and you can now start your CMS services. Followings  are your merchant details :
                                                </td>
                                             </tr>
 								
                                 <tr>
                                     <td align="left" style="padding-top: 20px;">
-                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <table cellspacing="0" cellpadding="0" border="1" width="100%">
                                             <tr>
-                                                <td width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;"> Client ID/ MID   </td>
-                                                <td width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;"> ${clientId} </td>
-                                            </tr>
-                                            <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> Company Name  </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;"> ${name}</td>
+                                                <td width="50%" align="left"  style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Client ID/ MID   </td>
+                                                <td width="50%" align="left"  style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${clientId} </td>
                                             </tr>
                                             <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Contact Person </td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${contactPerson} </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Company Name  </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> - </td>
                                             </tr>
                                             <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Account number</td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${accountNo} </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Contact Person </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${contactPerson} </td>
                                             </tr>
-											   <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> IFSC</td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${ifsc} </td>
-                                            </tr>   <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Bank Name</td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> ${bankName} </td>
-                                            </tr>
-											 </tr>   <tr>
-                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Status</td>
-                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;"> Approved </td>
-                                            </tr>
+                                           
 											 
                                         </table>
                                     </td>
                                 </tr>
+								 <tr>
+                                                <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Company Bank Details:</td>
+                                            </tr>
+								   <tr>
+                                    <td align="left" style="padding-top: 0px;">
+                                        <table cellspacing="0" cellpadding="0" border="1" width="100%">
+                                           
+											
+											 <tr >
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;">A/C Number  </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${accountNo} </td>
+                                            </tr>
+                                           
+											  <tr>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Bank Name </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${bankName} </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> IFSC </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${ifsc} </td>
+                                            </tr>
+											
+                                           
+                                        </table>
+                                    </td>
+                                </tr>
+								
                                 <tr>
                                     <td align="left" style="padding-top: 20px;">
                                         <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                             <tr>
-                                                <td width="100%" align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 0px solid #eeeeee;"> Team NIDHICMS congratulates you on your new start and wishes you a great time ahead!</td>
+                                                <td width="100%" align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 0px solid #eeeeee;"> Team NIDHICMS congratulates you on your new start and wishes you a great time ahead!</td>
                                                                                         </tr>
 											 <tr>
-                                                <td width="100%" align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 3px solid #eeeeee;"> Here’s to new beginnings! </td> 
+                                                <td width="100%" align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; line-height: 24px; padding: 10px; border-top: 0px solid #eeeeee; border-bottom: 3px solid #eeeeee;"> Here’s to new beginnings! </td> 
                                             </tr>
                                         </table>
                                     </td>
@@ -156,10 +169,10 @@
                             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                                
                                
-                                <tr>
-                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px;">
-                                        <p style="font-size: 14px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this activity if you find it to be suspicious
-                                         or fraudulent Payment Powered By Nidhi Fintech Consultancy </p>
+                                 <tr>
+                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 24px;">
+                                        <p style="font-size: 12px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this payment if you find it to be suspicious
+                                         or fraudulent Payment.<br>Powered By  <img src="https://nidhicms.com/images/logo.png" width="100" height="100" style="display: block; border: 0px;" /> </p>
                                     </td>
                                 </tr>
                             </table>

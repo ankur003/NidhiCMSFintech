@@ -24,6 +24,9 @@ public class ApplicationConfig {
 	@Value("${text.local.api.sender}")
 	private String textLocalApiSender;
 
+	@Value("${inds.ind.bank.key}")
+	private String indBankKey;
+
 	public static Map<String, String> loggedInUsers = new ConcurrentHashMap<>();
 
 	public String getOtpExpireMinutes() {
@@ -64,6 +67,10 @@ public class ApplicationConfig {
 
 	public void setTextLocalApiSender(String textLocalApiSender) {
 		this.textLocalApiSender = textLocalApiSender;
+	}
+
+	public String getIndBankKey() {
+		return indBankKey;
 	}
 
 }

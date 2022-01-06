@@ -52,7 +52,7 @@ public class CheckCreditAmountScheduler {
     		OkHttpClient client = new OkHttpClient().newBuilder().build();
     		MediaType mediaType = MediaType.parse("text/xml");
     		RequestBody body = RequestBody.create(
-    				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\n    <soapenv:Header/>\n    <soapenv:Body>\n        <tem:FetchIecData>\n            <!--Optional:-->\n            <tem:RequestData>\n                <!--Optional:-->\n                <eten:CustomerTenderId>?</eten:CustomerTenderId>\n            </tem:RequestData>\n        </tem:FetchIecData>\n    </soapenv:Body>\n</soapenv:Envelope>",
+    				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\n    <soapenv:Header/>\n    <soapenv:Body>\n        <tem:FetchIecData>\n            <!--Optional:-->\n            <tem:RequestData>\n                <!--Optional:-->\n                <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\n            </tem:RequestData>\n        </tem:FetchIecData>\n    </soapenv:Body>\n</soapenv:Envelope>",
     				mediaType);
     		Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
     				.method("POST", body).addHeader("X-IBM-CLIENT-ID", "847b2573-6729-4129-ade9-e2f9aa439edc")

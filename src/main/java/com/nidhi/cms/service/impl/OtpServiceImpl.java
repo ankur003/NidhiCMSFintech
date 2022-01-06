@@ -110,7 +110,7 @@ public class OtpServiceImpl implements OtpService {
 		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> modal = new HashMap<>();
 		modal.put("name", user.getFullName());
-		modal.put("OTP", emailOtp);
+		modal.put("otp", emailOtp);
 		emailService.sendMailAsync(request, modal, null, EmailTemplateConstants.OTP);
 	}
 

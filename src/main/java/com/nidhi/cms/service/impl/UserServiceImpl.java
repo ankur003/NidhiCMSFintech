@@ -293,6 +293,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			Map<String, Object> model = new HashMap<>();
 			model.put("name", user.getFullName());
 			model.put("remarks", kycRejectReason);
+			model.put("date", LocalDate.now());
 			emailService.sendEmail(request, model, null, EmailTemplateConstants.KYC_REJACTED);
 		}
 		
