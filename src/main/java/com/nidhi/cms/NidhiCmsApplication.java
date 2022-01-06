@@ -60,20 +60,20 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	public void runOninit() {
 		createAdmin();
 		createSystemPrivilages();
-		// testEmails();
+		//testEmails();
 	}
 	
 	private void testEmails() {
-	//	signUp();
-//		terminateAcc();
-//		payout();
-//		debitAcc();
-//		billingChargesSet();
-//		UserUpdateDetails();
-//		kycApproved();
-//		rejected();
-//		otp();
-//		otpPass();
+		signUp();
+		terminateAcc();
+		payout();
+		debitAcc();
+		billingChargesSet();
+		UserUpdateDetails();
+		kycApproved();
+		rejected();
+		otp();
+		otpPass();
 		
 		
 	}
@@ -100,7 +100,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 		request.setTo(new String[] {"ankurbanssla@gmail.com", "devendra.gread@gmail.com"  });
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", "Dev-Ankur");
-		model.put("OTP", "7248");
+		model.put("otp", "7248");
 		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.OTP);
 		
 	}

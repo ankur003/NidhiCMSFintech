@@ -124,7 +124,7 @@
                                 <tr>
                                     <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px;">
                                         <p style="font-size: 14px; font-weight: 400; line-height: 20px; color: #777777;"> Please report this payment if you find it to be suspicious
-                                         or fraudulent Activity Powered By Nidhi Fintech Consultancy </p>
+                                         or fraudulent Activity <br> Powered By  <img src="https://nidhicms.com/images/logo.png" width="100" height="100" style="display: block; border: 0px;" /></p>
                                     </td>
                                 </tr>
                             </table>
