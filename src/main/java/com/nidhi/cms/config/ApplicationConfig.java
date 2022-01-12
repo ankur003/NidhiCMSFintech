@@ -27,6 +27,12 @@ public class ApplicationConfig {
 	@Value("${inds.ind.bank.key}")
 	private String indBankKey;
 
+	@Value("${X-IBM-CLIENT-ID}")
+	private String xIBMClientId;
+
+	@Value("${X-IBM-CLIENT-SECRET}")
+	private String xIBMClientSecret;
+
 	public static Map<String, String> loggedInUsers = new ConcurrentHashMap<>();
 
 	public String getOtpExpireMinutes() {
@@ -71,6 +77,14 @@ public class ApplicationConfig {
 
 	public String getIndBankKey() {
 		return indBankKey;
+	}
+
+	public String getxIBMClientId() {
+		return xIBMClientId;
+	}
+
+	public String getxIBMClientSecret() {
+		return xIBMClientSecret;
 	}
 
 }

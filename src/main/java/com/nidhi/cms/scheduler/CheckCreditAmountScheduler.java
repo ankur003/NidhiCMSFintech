@@ -18,6 +18,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
@@ -44,6 +45,9 @@ public class CheckCreditAmountScheduler {
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private ApplicationConfig applicationConfig;
 
     @Scheduled(cron = "0 0/30 * * * ?")
     public void checkCreditAmountScheduler() {
@@ -55,8 +59,9 @@ public class CheckCreditAmountScheduler {
     				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\n    <soapenv:Header/>\n    <soapenv:Body>\n        <tem:FetchIecData>\n            <!--Optional:-->\n            <tem:RequestData>\n                <!--Optional:-->\n                <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\n            </tem:RequestData>\n        </tem:FetchIecData>\n    </soapenv:Body>\n</soapenv:Envelope>",
     				mediaType);
     		Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
-    				.method("POST", body).addHeader("X-IBM-CLIENT-ID", "847b2573-6729-4129-ade9-e2f9aa439edc")
-    				.addHeader("X-IBM-CLIENT-SECRET", "H1bQ3gP1iH4mS6wN8aJ7dH1mN8mC7bR5wJ1mC6qY5kO1lE6qY5")
+    				.method("POST", body)
+					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
+					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
     				.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/FetchIecData")
     				.addHeader("Content-Type", "text/xml").build();
 			Response response = client.newCall(request).execute();
@@ -111,6 +116,35 @@ public class CheckCreditAmountScheduler {
 		User user = userService.findByUserId(userWallet.getUserId());
 		txService.saveCreditTransaction(docWithContent, i, user, userWallet);
 		userWalletService.updateBalance(userWallet, Double.valueOf(docWithContent.getElementsByTagName("Amount").item(i).getTextContent()));
+		
+		updateStatusCallBack(docWithContent, i);
+		
+	}
+
+	private void updateStatusCallBack(Document docWithContent, int i) {
+		try {
+			String reqId = docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent();
+			if (StringUtils.isBlank(reqId)) {
+				LOGGER.error("reqId is not valid   =  {}, escaping update client status SOAP CALL ", reqId);
+				return;
+			}
+			OkHttpClient client = new OkHttpClient().newBuilder().build();
+			MediaType mediaType = MediaType.parse("text/xml");
+			RequestBody body = RequestBody.create(
+					"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <tem:UpdateClientResponse>\r\n         <!--Optional:-->\r\n         <tem:RequestData>\r\n            <!--Optional:-->\r\n            <eten:CustomerResponse>\r\n                <![CDATA[<IECResponse>\r\n                    <TRANSACTION>\r\n                        "
+					+ "<RequestId>"+reqId+"</RequestId>\r\n                        <ResponseCode>000</ResponseCode>\r\n                        <ResponseDesc>success</ResponseDesc>\r\n                        <ResponseId>R000</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
+					mediaType);
+			Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
+					.method("POST", body).addHeader("Content-Type", "text/xml")
+					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
+					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
+					.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/UpdateClientResponse").build();
+			 client.newCall(request).execute();
+			 LOGGER.info("successfully update for reqId ............................   =  {} ", reqId);
+		} catch (Exception e) {
+			LOGGER.error("error ocuured during client status update call, {} , ", e);
+		}
+		
 	}
 
 	private static Document convertStringToXMLDocument(String xmlString)
@@ -118,9 +152,7 @@ public class CheckCreditAmountScheduler {
 		// Parser that produces DOM object trees from XML content
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		// API to obtain DOM Document instance
-		DocumentBuilder builder = null;
-		// Create DocumentBuilder with default configuration
-		builder = factory.newDocumentBuilder();
+		DocumentBuilder builder = factory.newDocumentBuilder();
 		// Parse the content to Document object
 		return  builder.parse(new InputSource(new StringReader(xmlString)));
 	}

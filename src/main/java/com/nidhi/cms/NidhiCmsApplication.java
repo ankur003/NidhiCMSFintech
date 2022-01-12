@@ -13,6 +13,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
@@ -32,6 +33,7 @@ import com.nidhi.cms.utils.Utility;
  */
 
 @SpringBootApplication
+@EnableScheduling
 public class NidhiCmsApplication extends SpringBootServletInitializer {
 
 	@Autowired
