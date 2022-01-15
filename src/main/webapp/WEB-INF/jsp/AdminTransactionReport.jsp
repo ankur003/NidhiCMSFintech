@@ -175,8 +175,8 @@
 															<td><fmt:parseDate value="${us.txDate}" 	pattern="yyyy-MM-dd" var="disbDate" /> 
 															<fmt:formatDate	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
 															<td>${us.uniqueId}</td>
-		                                                    <c:choose><c:when test="${us.txType eq 'Dr'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
-															<c:choose><c:when test="${us.txType eq 'Cr'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      
+		                                                    <c:choose><c:when test="${us.txType eq 'Dr.'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
+															<c:choose><c:when test="${us.txType eq 'Cr.'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      
 															<td>${us.fee}</td>
 															 <td>${us.currency}</td> 
 															<td>${us.txType}</td>
