@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +26,7 @@ import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.repository.SystemPrivilegeRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.email.EmailService;
+import com.nidhi.cms.service.impl.UserServiceImpl;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -47,6 +50,9 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(NidhiCmsApplication.class);
+
 
 	@Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
@@ -63,8 +69,15 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 		createAdmin();
 		createSystemPrivilages();
 		//testEmails();
+		test();
 	}
 	
+	private void test() {
+		LOGGER.info("******************************** {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+		
+	}
+
+
 	private void testEmails() {
 		signUp();
 		terminateAcc();

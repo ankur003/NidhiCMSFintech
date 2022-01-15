@@ -485,7 +485,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
-		model.put("amt", txn.getAmountPlusfee());
+		model.put("amt", txn.getAmount());
 		model.put("beneficiary_name", txn.getPayeeName());
 		model.put("account_number", bankDetails.getAccountNumber());
 		model.put("ifsc", txn.getIfsc());

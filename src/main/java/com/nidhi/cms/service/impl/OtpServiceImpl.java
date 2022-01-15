@@ -48,10 +48,8 @@ public class OtpServiceImpl implements OtpService {
 		if (BooleanUtils.isFalse(doesOtpExpired(otp))) {
 			return null;
 		}
-		String mobileOtp = "123456";/*
-									 * Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),
-									 * applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
-									 */
+		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
+									 
 		if (StringUtils.isBlank(mobileOtp)) {
 			return Boolean.FALSE;
 		}
@@ -66,10 +64,8 @@ public class OtpServiceImpl implements OtpService {
 	@Override
 	public void sendingOtp(User existingUser, String password) {
 		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
-		String mobileOtp = "123456";/*
-									 * Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),
-									 * applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
-									 */
+		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),  applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
+									 
 		if (StringUtils.isBlank(mobileOtp)) {
 			return ;
 		}

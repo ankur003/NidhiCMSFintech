@@ -183,7 +183,8 @@ public class Utility {
 	}
 
 	public static String getVirtualId() {
-		return "Z" + RandomStringUtils.random(5, true, false) + RandomStringUtils.random(6, true, false);
+		return RandomStringUtils.random(15, false, true);
+		// return "Z" + RandomStringUtils.random(5, true, false) + RandomStringUtils.random(6, true, false);
 	}
 
 	public static String getEncyptedReqBody(@Valid IndsIndRequestModal indsIndRequestModal, String indBankKey) throws Exception {
