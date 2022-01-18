@@ -83,11 +83,11 @@ public class CheckCreditAmountScheduler {
 	private void parseXmlDoc(Document doc) throws ParserConfigurationException, SAXException, IOException {
 		doc.getDocumentElement().normalize();
 		String value = doc.getElementsByTagName("a:ResponseIecData").item(0).getFirstChild().getTextContent();
-		if (value != null && value.equalsIgnoreCase("NODATA")) {
+		if (value != null && value.contains("NODATA")) {
 			LOGGER.info("value =  '{}'", value);
 			return;
 		} 
-		parseXmlDocWithContent(convertStringToXMLDocument(value));
+		parseXmlDocWithContent(doc);
 	}
 
 	private void parseXmlDocWithContent(Document docWithContent) {

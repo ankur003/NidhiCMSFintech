@@ -176,7 +176,7 @@ public class TransactionServiceImpl implements TransactionService{
 		transaction.setCreditAcc(docWithContent.getElementsByTagName("Credit_AccountNo").item(i).getTextContent());
 		transaction.setAmount(Double.valueOf(docWithContent.getElementsByTagName("Amount").item(i).getTextContent()));
 		transaction.setAmountPlusfee(Double.valueOf(docWithContent.getElementsByTagName("Amount").item(i).getTextContent()));
-		transaction.setFee(0.0);
+		transaction.setFee(BigDecimal.valueOf(transaction.getAmountPlusfee() - transaction.getAmount()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		transaction.setIfsc(docWithContent.getElementsByTagName("Remitter_IFSC").item(i).getTextContent());
 		transaction.setPayeeName(docWithContent.getElementsByTagName("Remitter_Name").item(i).getTextContent());
 		transaction.setUtrNumber(docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent());
