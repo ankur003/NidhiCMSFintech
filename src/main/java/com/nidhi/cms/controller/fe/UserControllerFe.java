@@ -158,7 +158,7 @@ public class UserControllerFe {
 			User userLoginDetails=userservice.getUserByUserEmailOrMobileNumber(loginRequestModal.getUsername(), loginRequestModal.getUsername());
 			if(userLoginDetails!=null && BooleanUtils.isTrue( userLoginDetails.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(userLoginDetails.getIsUserVerified()))
 			{
-				// otpService.sendingOtp(userLoginDetails);
+				model.addAttribute("otpUuid", otpService.sendingOtp(userLoginDetails));
 				return new ModelAndView("VerifyOtp");
 			}
 			HttpSession session = request.getSession();
