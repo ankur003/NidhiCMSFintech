@@ -12,12 +12,14 @@ import javax.validation.constraints.Pattern;
 public class VerifyOtpRequestModal {
 
 	@NotBlank(message = "mobileOtp : mobileOtp is blank")
-    @Pattern(regexp = "^[0-9]{6}$", message = "Only numbers allowed with length 6")
+	@Pattern(regexp = "^[0-9]{6}$", message = "Only numbers allowed with length 6")
 	private String mobileOtp;
 
 	@NotBlank(message = "emailOtp : emailOtp is blank")
-	 @Pattern(regexp = "^[0-9]{6}$", message = "Only numbers allowed with length 6")
+	@Pattern(regexp = "^[0-9]{6}$", message = "Only numbers allowed with length 6")
 	private String emailOtp;
+
+	private String otpUuid;
 
 	public String getMobileOtp() {
 		return mobileOtp;
@@ -33,6 +35,14 @@ public class VerifyOtpRequestModal {
 
 	public void setEmailOtp(String emailOtp) {
 		this.emailOtp = emailOtp;
+	}
+
+	public String getOtpUuid() {
+		return otpUuid;
+	}
+
+	public void setOtpUuid(String otpUuid) {
+		this.otpUuid = otpUuid;
 	}
 
 }

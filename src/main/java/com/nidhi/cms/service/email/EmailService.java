@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.StringUtils;
@@ -86,7 +87,7 @@ public class EmailService {
 			addRecipients(request, helper);
 			helper.setText(html, true);
 			helper.setSubject(request.getSubject());
-			helper.setFrom(mailConfig.getFrom());
+			helper.setFrom(new InternetAddress(mailConfig.getFrom(), "CS Support"));
 			sender.send(message);
 
 			response.setMessage("mail send to : " + request.getTo());

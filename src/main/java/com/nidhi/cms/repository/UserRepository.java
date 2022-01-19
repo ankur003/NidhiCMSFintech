@@ -26,6 +26,8 @@ public interface UserRepository extends JpaRepository<User, Long> , PagingAndSor
 	
 	List<User> findByIsSubAdminAndIsAdmin(Boolean isSubAdmin, Boolean isAdmin);
 	
+	List<User> findByIsSubAdminAndIsAdminAndKycStatusIn(Boolean isSubAdmin, Boolean isAdmin, List<String> kycStatus);
+	
 	User findByUserUuid(String userUuid);
 	
 	User findByUserId(Long userId);

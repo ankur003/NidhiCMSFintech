@@ -5,12 +5,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -43,6 +45,7 @@ import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
+import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.domain.email.MailRequest;
@@ -64,6 +67,7 @@ import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.TransactionService;
+import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.service.email.EmailService;
@@ -114,6 +118,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Autowired
 	private EmailService emailService;
 	
+	@Autowired
+	private UserBusnessKycService userBusnessKycService;
+	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -135,31 +142,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Boolean createUser(User user, Boolean isCreatedByAdim) {
+	public String createUser(User user, Boolean isCreatedByAdim) {
+		String rowPassword = user.getPassword();
 		user.setUserUuid(Utility.getUniqueUuid());
-		user.setPassword(encoder.encode(user.getPassword()));
+		user.setPassword(encoder.encode(rowPassword));
 		user.setIsAdmin(false);
 		user.setIsUserVerified(false);
 		user.setRoles(Utility.getRole(RoleEum.USER));
 		user.setIsUserCreatedByAdmin(isCreatedByAdim);
 		User savedUser = userRepository.save(user);
-		triggerSignUpNotification(user);
 		return otpService.sendingOtp(savedUser);
-	}
-
-	private void triggerSignUpNotification(User user) {
-		if (StringUtils.isBlank(user.getUserEmail())) {
-			LOGGER.error("[UserServiceImpl.triggerSignUpNotification] user email is blank - {}", user.getUserEmail());
-			return;
-		}
-		MailRequest request = new MailRequest();
-		request.setName(user.getFullName());
-		request.setSubject("Your NidhiCMS Account | Sign Up");
-		request.setTo(new String[] { user.getUserEmail() });
-		Map<String, Object> model = new HashMap<>();
-		model.put("name", user.getFullName());
-		emailService.sendEmail(request, model, null, EmailTemplateConstants.SIGN_UP);
-
 	}
 
 	@Override
@@ -213,6 +205,22 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		User user = userRepository.getOne(otp.getUserId());
 		user.setIsUserVerified(true);
 		userRepository.save(user);
+		triggerSignUpNotification(user);
+	}
+	
+	private void triggerSignUpNotification(User user) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerSignUpNotification] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Your NidhiCMS Account | Sign Up");
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		emailService.sendEmail(request, model, null, EmailTemplateConstants.SIGN_UP);
+
 	}
 
 	@Override
@@ -270,6 +278,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	private void triggerKycNotifications(User user, UserWallet wallet, Boolean kycResponse, String kycRejectReason) {
+		CompletableFuture.runAsync(() -> 
+			triggerKycNotification(user, wallet, kycResponse, kycRejectReason));
+	}
+
+	private void triggerKycNotification(User user, UserWallet wallet, Boolean kycResponse, String kycRejectReason) {
+		final UserBusinessKyc userBusnessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
+		if (userBusnessKyc == null) {
+			LOGGER.error("[UserServiceImpl.triggerKycNotifications] userBusnessKyc is blank - {} against userId - ", user.getUserId());
+			return;
+
+		}
 		if (StringUtils.isBlank(user.getUserEmail()) || (BooleanUtils.isTrue(kycResponse) && wallet == null)) {
 			LOGGER.error("[UserServiceImpl.triggerKycNotifications] user email is blank - {} or wallet is null {} ", user.getUserEmail(), wallet);
 			return;
@@ -287,6 +306,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			model.put("accountNo", bankDetails.getAccountNumber());
 			model.put("ifsc", bankDetails.getIfsc());
 			model.put("bankName", bankDetails.getBankName());
+			model.put("companyName", userBusnessKyc.getCompnayName());
 			emailService.sendEmail(request, model, null, EmailTemplateConstants.KYC_APPROVED);
 		} else if (BooleanUtils.isFalse(kycResponse)) {
 			request.setSubject("Issue with Account");
@@ -296,7 +316,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			model.put("date", LocalDate.now());
 			emailService.sendEmail(request, model, null, EmailTemplateConstants.KYC_REJACTED);
 		}
-		
 	}
 
 	private UserWallet createUserWallet(User user) {
@@ -441,17 +460,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txRepository.save(txn);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
 		updateBalance(txn.getAmountPlusfee(), userWallet);
-		triggerPayoutNotifications(user, txn);
+		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal);
 	}
 
-	private void triggerPayoutNotifications(User user, Transaction txn) {
+	private void triggerPayoutNotifications(User user, Transaction txn, UserTxWoOtpReqModal userTxWoOtpReqModal) {
 		if (StringUtils.isBlank(user.getUserEmail())) {
 			LOGGER.error("[UserServiceImpl.triggerPayoutNotifications] user email is blank - {}", user.getUserEmail());
 			return;
 		}
-		UserBankDetails bankDetails = getUserBankDetails(user);
-		payoutRequestInitionNotifications(bankDetails, user, txn);
-		triggerDebitAccountNotification(bankDetails, user, txn);
+		CompletableFuture.runAsync(() -> {
+			UserBankDetails bankDetails = getUserBankDetails(user);
+			payoutRequestInitionNotifications(bankDetails, user, txn, userTxWoOtpReqModal);
+			triggerDebitAccountNotification(bankDetails, user, txn);
+		});
 		
 	}
 
@@ -474,7 +495,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		
 	}
 
-	private void payoutRequestInitionNotifications(UserBankDetails bankDetails, User user, Transaction txn) {
+	private void payoutRequestInitionNotifications(UserBankDetails bankDetails, User user, Transaction txn, UserTxWoOtpReqModal userTxWoOtpReqModal) {
 		if (StringUtils.isBlank(user.getUserEmail())) {
 			LOGGER.error("[UserServiceImpl.payoutRequestInitionNotifications] user email is blank - {}", user.getUserEmail());
 			return;
@@ -485,9 +506,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
-		model.put("amt", txn.getAmount());
+		model.put("amt", userTxWoOtpReqModal.getAmount());
 		model.put("beneficiary_name", txn.getPayeeName());
-		model.put("account_number", bankDetails.getAccountNumber());
+		model.put("account_number", userTxWoOtpReqModal.getCreditacc());
 		model.put("ifsc", txn.getIfsc());
 		model.put("remark", StringUtils.isNotBlank(txn.getRemarks()) ? txn.getRemarks() : "-");
 		model.put("utr", txn.getUtrNumber());
@@ -725,7 +746,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public List<User> getAllUsers() {
-		return userRepository.findByIsSubAdminAndIsAdmin(false, false);
+		return userRepository.findByIsSubAdminAndIsAdminAndKycStatusIn(false, false, Arrays.asList(KycStatus.UNDER_REVIEW.name(),KycStatus.VERIFIED.name(), KycStatus.REJECTED.name()));
 	}
 
 }

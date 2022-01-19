@@ -29,7 +29,7 @@ public class OtpController extends AbstractController {
 	private UserService userService;
 
 	public String verifyOTP(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) {
-		Otp otp = otpService.getOtpDetails(verifyOtpRequestModal.getMobileOtp(), verifyOtpRequestModal.getEmailOtp());
+		Otp otp = otpService.getOtpDetails(verifyOtpRequestModal);
 		if (Objects.isNull(otp)) {
 			return "Either email or mobile OTP is incorrect, please try again.";
 		}

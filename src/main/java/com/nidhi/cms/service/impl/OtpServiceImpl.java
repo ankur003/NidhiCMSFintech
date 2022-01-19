@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.nidhi.cms.config.ApplicationConfig;
@@ -17,6 +18,7 @@ import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.email.MailRequest;
+import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.repository.OtpRepository;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.email.EmailService;
@@ -40,10 +42,13 @@ public class OtpServiceImpl implements OtpService {
 	@Autowired
 	private EmailService emailService;
 	
+	@Autowired
+	private BCryptPasswordEncoder encoder;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtpServiceImpl.class);
 	
 	@Override
-	public Boolean sendingOtp(User existingUser) {
+	public String sendingOtp(User existingUser) {
 		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
 		if (BooleanUtils.isFalse(doesOtpExpired(otp))) {
 			return null;
@@ -51,13 +56,10 @@ public class OtpServiceImpl implements OtpService {
 		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
 									 
 		if (StringUtils.isBlank(mobileOtp)) {
-			return Boolean.FALSE;
+			return mobileOtp;
 		}
 		String emailOtp = Utility.getRandomNumberString();
 		sendOtpOnEmail(existingUser, emailOtp);
-		if (StringUtils.isBlank(emailOtp)) {
-			return Boolean.FALSE;
-		}
 		return saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
 	}
 	
@@ -110,23 +112,25 @@ public class OtpServiceImpl implements OtpService {
 		emailService.sendMailAsync(request, modal, null, EmailTemplateConstants.OTP);
 	}
 
-	private Boolean saveOtpDetails(String mobileOtp, String emailOtp, User existingUser, Otp existingOtp) {
+	private String saveOtpDetails(String mobileOtp, String emailOtp, User existingUser, Otp existingOtp) {
 		if (existingOtp == null) {
 			Otp otp = new Otp();
-			otp.setMobileOtp(mobileOtp);
-			otp.setEmailOtp(emailOtp);
+			otp.setMobileOtp(encoder.encode(mobileOtp));
+			otp.setEmailOtp(encoder.encode(emailOtp));
 			otp.setUserId(existingUser.getUserId());
 			otp.setOtpUuid(Utility.getUniqueUuid());
 			otp.setIsActive(true);
-			return otpRepository.save(otp) != null;
+			Otp savedOtp = otpRepository.save(otp);
+			return savedOtp.getOtpUuid();
 		}
 		if (mobileOtp != null ) {
-			existingOtp.setMobileOtp(mobileOtp);
+			existingOtp.setMobileOtp(encoder.encode(mobileOtp));
 		}
 		if (emailOtp != null ) {
-			existingOtp.setEmailOtp(emailOtp);
+			existingOtp.setEmailOtp(encoder.encode(emailOtp));
 		}
-		return otpRepository.save(existingOtp) != null;
+		Otp savedOtp = otpRepository.save(existingOtp);
+		return savedOtp.getOtpUuid();
 	}
 
 	@Override
@@ -146,12 +150,24 @@ public class OtpServiceImpl implements OtpService {
 	}
 
 	@Override
-	public Otp getOtpDetails(String mobileOtp, String emailOtp) {
-		return otpRepository.findByMobileOtpAndEmailOtp(mobileOtp, emailOtp);
+	public Otp getOtpDetails(VerifyOtpRequestModal verifyOtpRequestModal) {
+		Otp otp = otpRepository.findByOtpUuid(verifyOtpRequestModal.getOtpUuid());
+		if (otp == null) {
+			return null;
+		}
+		boolean isMatched = encoder.matches(verifyOtpRequestModal.getMobileOtp(), otp.getMobileOtp());
+		if (!isMatched) {
+			return null;
+		}
+		isMatched = encoder.matches(verifyOtpRequestModal.getEmailOtp(), otp.getEmailOtp());
+		if (!isMatched) {
+			return null;
+		}
+		return otp;
 	}
 
 	@Override
-	public Boolean sendingOtp(User user, ForgotPassType forgotPassType) {
+	public String sendingOtp(User user, ForgotPassType forgotPassType) {
 		Otp otp = otpRepository.findByUserId(user.getUserId());
 		if (forgotPassType.equals(ForgotPassType.EMAIL)) {
 			String emailOtp = Utility.getRandomNumberString();
@@ -161,12 +177,12 @@ public class OtpServiceImpl implements OtpService {
 			String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), user.getMobileNumber());
 			return saveOtpDetails(mobileOtp, null, user, otp);
 		}
-		return false;
+		return null;
 	}
 
 	@Override
-	public Otp findByMobileOtpOrEmailOtp(String mobileOtp, String emailOtp) {
-		return otpRepository.findByMobileOtpOrEmailOtp(mobileOtp, emailOtp);
+	public Otp findByOtpUuid(String otpUuid) {
+		return otpRepository.findByOtpUuid(otpUuid);
 	}
 
 }

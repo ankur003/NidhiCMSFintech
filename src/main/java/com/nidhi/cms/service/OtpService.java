@@ -3,6 +3,7 @@ package com.nidhi.cms.service;
 import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 
 /**
  * 
@@ -11,17 +12,17 @@ import com.nidhi.cms.domain.User;
  */
 
 public interface OtpService {
+	
+	Otp findByOtpUuid(String otpUuid);
 
-	Boolean sendingOtp(User existingUser);
+	String sendingOtp(User existingUser);
 
 	Boolean doesOtpExpired(Otp otp);
 
-	Otp getOtpDetails(String mobileOtp, String emailOtp);
+	Otp getOtpDetails(VerifyOtpRequestModal verifyOtpRequestModal);
 
 	void sendingOtp(User savedUser, String password);
 
-	Boolean sendingOtp(User user, ForgotPassType forgotPassType);
-
-	Otp findByMobileOtpOrEmailOtp(String mobileOtp, String emailOtp);
+	String sendingOtp(User user, ForgotPassType forgotPassType);
 
 }

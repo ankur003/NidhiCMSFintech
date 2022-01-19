@@ -18,11 +18,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -125,11 +129,17 @@ public class UserController extends AbstractController {
 	@Autowired
 	private ApplicationConfig applicationConfig;
 	
+	@Autowired
+	private BCryptPasswordEncoder encoder;
+	
 	OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(5, TimeUnit.MINUTES).build();
 	MediaType mediaType = MediaType.parse("application/json");
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
+	
 //	@PostMapping(value = "")
-	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal) {
+	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model) {
 		final User user = beanMapper.map(userCreateModal, User.class);
 		User existingUser = userservice.getUserByUserEmailOrMobileNumber(user.getUserEmail(), user.getMobileNumber());
 		if (Objects.nonNull(existingUser) && BooleanUtils.isTrue(existingUser.getIsUserVerified())) {
@@ -139,20 +149,21 @@ public class UserController extends AbstractController {
 		// in that case - user is available in our system but not veryfied
 		// So, we are triggering again OTP to mobile & email
 		if (Objects.nonNull(existingUser) && BooleanUtils.isFalse(existingUser.getIsUserVerified())) {
-			Boolean isOtpSent = otpService.sendingOtp(existingUser);
-			if (BooleanUtils.isTrue(isOtpSent)) {
-				return "Otp-Resent, please verify the email & mobile otp";
-			}
-			if (isOtpSent == null) {
+			String otpUuid = otpService.sendingOtp(existingUser);
+			if (otpUuid == null) {
 				return "Otp-already sent, please verify the email & mobile otp."
 						+ "if you have lost the OTP , please try again in 30 min";
+			} else if (StringUtils.isNotBlank(otpUuid)) {
+				model.addAttribute("otpUuid", otpUuid);
+				return "Otp-Resent, please verify the email & mobile otp";
 			}
 			return "please try again in some time or reach to the support";
 		}
-		Boolean isCreated = userservice.createUser(user, userCreateModal.getIsCreatedByAdmin());
-		if (BooleanUtils.isFalse(isCreated)) {
+		String otpUuid = userservice.createUser(user, userCreateModal.getIsCreatedByAdmin());
+		if (StringUtils.isBlank(otpUuid)) {
 			return "please try again in some time or reach to the support";
 		}
+		model.addAttribute("otpUuid", otpUuid);
 		return "please verify the email & mobile otp";
 	}
 
@@ -752,6 +763,9 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 
 	public UserBusinessKycModal getUserBusnessKybyid(@RequestParam("userUuid") String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return null;
+		}
 		UserBusinessKyc userBusinessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
 		if (userBusinessKyc == null) {
 			return null;
@@ -857,30 +871,44 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	
-	public Boolean sendOTPForgotPassword(String mobileOrEmail, ForgotPassType forgotPassType) {
+	public String sendOTPForgotPassword(String mobileOrEmail, ForgotPassType forgotPassType) {
 		if (forgotPassType == null || mobileOrEmail == null) {
-			return false;
+			return null;
 		}
 		User user = null;
 		if (forgotPassType.equals(ForgotPassType.EMAIL)) {
 			user  = userservice.findByUserEmail(mobileOrEmail);
-			if (user == null || user.getUserEmail() == null || BooleanUtils.isNotTrue(user.getIsActive())) {
-				return false;
+			if (user == null || user.getUserEmail() == null || BooleanUtils.isNotTrue(user.getIsActive()) || BooleanUtils.isNotTrue(user.getIsUserVerified())) {
+				return null;
 			}
 			
 		} else if (forgotPassType.equals(ForgotPassType.PHONE)) {
 			user = userservice.findByUserMobileNumber(mobileOrEmail);
-			if (user == null || user.getMobileNumber() == null || BooleanUtils.isNotTrue(user.getIsActive())) {
-				return false;
+			if (user == null || user.getMobileNumber() == null || BooleanUtils.isNotTrue(user.getIsActive()) || BooleanUtils.isNotTrue(user.getIsUserVerified())) {
+				return null;
 			}
 			
 		}
 		return otpService.sendingOtp(user, forgotPassType);
 	}
 	
-	public Boolean matchOtpForgotPassword(String otp) {
-		Otp otpDetails = otpService.findByMobileOtpOrEmailOtp(otp, otp);
-		return otpDetails != null;
+	public Boolean matchOtpForgotPassword(String otp, String otpUuid, String mediam) {
+		if (otpUuid == null) {
+			LOGGER.error(" error ocured while matching the otp with mediam {} and otp {}", otp, mediam);
+			return false;
+		}
+		Otp otpDetails = otpService.findByOtpUuid(otpUuid);
+		if (otpDetails == null) {
+			LOGGER.error(" error ocured while matching the otp with otp details and otpuuid is {} and mediam {} and otp {}", otpUuid, otp, mediam);
+			return false;
+		}
+		boolean isMatched = false;
+		if (mediam.equalsIgnoreCase("byPhone")) {
+			isMatched = encoder.matches(otp, otpDetails.getMobileOtp());
+		} else {
+			isMatched = encoder.matches(otp, otpDetails.getEmailOtp());
+		}
+		return isMatched;
 		
 	}
 	

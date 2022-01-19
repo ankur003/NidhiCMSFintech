@@ -30,7 +30,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 
 public interface UserService {
 
-	Boolean createUser(User user, Boolean isCreatedByAdim);
+	String createUser(User user, Boolean isCreatedByAdim);
 	
 	User getUserByUserEmailOrMobileNumber(String email, String mobile);
 	

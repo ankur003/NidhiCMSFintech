@@ -73,6 +73,7 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
+import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
@@ -91,6 +92,9 @@ public class UserControllerFe {
 
 	@Autowired
 	private OtpController otpController;
+	
+	@Autowired
+	private OtpService otpService;
 
 	@Autowired
 	private LoginController loginController;
@@ -105,7 +109,7 @@ public class UserControllerFe {
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
 			HttpServletRequest request) {
 		userCreateModal.setIsCreatedByAdmin(false);
-		String respose = userController.userSignUp(userCreateModal);
+		String respose = userController.userSignUp(userCreateModal, model);
 		model.addAttribute("msg", respose);
 		if (respose != null && respose.equalsIgnoreCase("Either Email or Mobile already Exist.")) {
 			return new ModelAndView("Signup");
@@ -154,6 +158,7 @@ public class UserControllerFe {
 			User userLoginDetails=userservice.getUserByUserEmailOrMobileNumber(loginRequestModal.getUsername(), loginRequestModal.getUsername());
 			if(userLoginDetails!=null && BooleanUtils.isTrue( userLoginDetails.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(userLoginDetails.getIsUserVerified()))
 			{
+				// otpService.sendingOtp(userLoginDetails);
 				return new ModelAndView("VerifyOtp");
 			}
 			HttpSession session = request.getSession();
@@ -198,16 +203,15 @@ public class UserControllerFe {
 	} else if (loginRequestModal.getOtpflag().equalsIgnoreCase("yes"))
 
 	{
-
 		try {
 			String emailorphone = request.getParameter("emailorphone");
 			String byemail = null;
 			String byphone = null;
-			boolean flag = false;
+			String flag = null;
 			if (emailorphone.equalsIgnoreCase("EMAIL")) {
 				byemail = request.getParameter("byemail");
 				flag = userController.sendOTPForgotPassword(byemail, ForgotPassType.EMAIL);
-				if (flag)
+				if (flag != null)
 					model.addAttribute("msg", "OTP has sent to Your Email");
 				else
 					model.addAttribute("msgs", "Email Not Registered with us");
@@ -215,14 +219,15 @@ public class UserControllerFe {
 			} else {
 				byphone = request.getParameter("byphone");
 				flag = userController.sendOTPForgotPassword(byphone, ForgotPassType.PHONE);
-				if (flag)
+				if (flag != null)
 					model.addAttribute("msg", "OTP has sent to Your Phone");
 				else
 					model.addAttribute("msgs", "Mobile Number Not Registered with us");
 				model.addAttribute("byphone", byphone);
 			}
 
-			if (flag) {
+			if (flag != null) {
+				model.addAttribute("otpUuid", flag);
 				model.addAttribute("otp", "otp");
 			}
 		} catch (Exception e) {
@@ -233,6 +238,7 @@ public class UserControllerFe {
 	}
 
 	else if (loginRequestModal.getOtpflag().equalsIgnoreCase("verifytp")) {
+		String otpUuid = request.getParameter("otpUuid");
 		String emailphOtp = request.getParameter("emailphOtp");
 		String newPass = request.getParameter("npassword");
 		String confirmPass = request.getParameter("cpassword");
@@ -244,7 +250,7 @@ public class UserControllerFe {
 		if (byphone != null)
 			model.addAttribute("byphone", byphone);
 
-		flag = userController.matchOtpForgotPassword(emailphOtp);
+		flag = userController.matchOtpForgotPassword(emailphOtp, otpUuid, model.containsAttribute("byphone") ? "byPhone" : "byEmail");
 		if (flag) {
 			boolean Flag2 = false;
 			if (byemail != null)
@@ -519,24 +525,22 @@ public class UserControllerFe {
 	
 	
 	@PostMapping(value = "/userbyAdmin")
-	public ModelAndView userSavebyadmin(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,HttpServletRequest request) {
-		String userUuid=request.getParameter("userUuid");
+	public ModelAndView userSavebyadmin(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
+			HttpServletRequest request) {
+		String userUuid = request.getParameter("userUuid");
 		User user = userservice.getUserByUserUuid(userUuid);
-		if(user.getIsAdmin() || user.getIsSubAdmin())
-		{
-		userCreateModal.setIsCreatedByAdmin(true);
-		String respose = userController.userSignUp(userCreateModal);
-		model.addAttribute("msg", respose);
-		if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
-			return new ModelAndView("AdminCreateNew");
-		} else {
-			model.addAttribute("msg", "user has been created");
-			return new ModelAndView("AdminCreateNew");
+		if (user.getIsAdmin() || user.getIsSubAdmin()) {
+			userCreateModal.setIsCreatedByAdmin(true);
+			String respose = userController.userSignUp(userCreateModal, model);
+			model.addAttribute("msg", respose);
+			if (respose != null && respose.equalsIgnoreCase("username : user already exist by mobile or email.")) {
+				return new ModelAndView("AdminCreateNew");
+			} else {
+				model.addAttribute("msg", "user has been created");
+				return new ModelAndView("AdminCreateNew");
 
-		}
-		}
-		else
-		{
+			}
+		} else {
 			model.addAttribute("msgs", "Admin or Subadmin can create User");
 			return new ModelAndView("AdminCreateNew");
 		}

@@ -339,7 +339,7 @@ function passwordmatch()
 
 										
                                       <input type="hidden" name="otpflag" value="verifytp">
-
+										<input type="hidden" name="otpUuid" value="${otpUuid}">
 										<p class="form-submit">
 											<input type="submit" value="Verify" class="btn btn-success"
 												name="submit"> <input type="reset" value="Reset"
