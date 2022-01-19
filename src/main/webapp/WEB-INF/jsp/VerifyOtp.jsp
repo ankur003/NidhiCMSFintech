@@ -189,6 +189,7 @@
 											</c:otherwise>
 										</c:choose>
 										<label id="fpass" style="display: none; color: red;"></label>
+										<input type="hidden" name="otpUuid" value="${otpUuid}">
 										<p class="comment-form-email">
 											<label for="email">Email OTP <span
 												class="mandate">*</span></label> <input type="text"
