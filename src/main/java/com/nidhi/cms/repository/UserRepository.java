@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.domain.User;
 
 /**
@@ -26,7 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> , PagingAndSor
 	
 	List<User> findByIsSubAdminAndIsAdmin(Boolean isSubAdmin, Boolean isAdmin);
 	
-	List<User> findByIsSubAdminAndIsAdminAndKycStatusIn(Boolean isSubAdmin, Boolean isAdmin, List<String> kycStatus);
+	List<User> findByIsSubAdminAndIsAdminAndKycStatusIn(Boolean isSubAdmin, Boolean isAdmin, List<KycStatus> kycStatus);
 	
 	User findByUserUuid(String userUuid);
 	

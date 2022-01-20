@@ -747,7 +747,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	public List<User> getAllUsers() {
-		return userRepository.findByIsSubAdminAndIsAdminAndKycStatusIn(false, false, Arrays.asList(KycStatus.UNDER_REVIEW.name(),KycStatus.VERIFIED.name(), KycStatus.REJECTED.name()));
+		return userRepository.findByIsSubAdminAndIsAdminAndKycStatusIn(false, false, Arrays.asList(KycStatus.UNDER_REVIEW,KycStatus.VERIFIED, KycStatus.REJECTED));
 	}
 
 }

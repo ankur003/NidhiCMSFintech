@@ -73,7 +73,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 	
 	private void test() {
-		LOGGER.info("******************************** {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+		LOGGER.info("@@@@@@@@@@@@@@@@@@@ ------ {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 		
 	}
 

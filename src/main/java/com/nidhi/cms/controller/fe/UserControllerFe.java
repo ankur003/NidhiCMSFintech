@@ -899,28 +899,29 @@ public class UserControllerFe {
 		List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(adminUuid, userUuid);
 		model.addAttribute("paylist",paylist);
 		
-		for (UserPaymentMode userPaymentMode : paylist) 
-		{
-			if(userPaymentMode.getPaymentMode()==PaymentMode.RTG)
+		if (paylist != null) {
+			for (UserPaymentMode userPaymentMode : paylist) 
 			{
-				model.addAttribute("RTGfeePercent",userPaymentMode.getFee());
-				model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
-				model.addAttribute("billChargeType",userPaymentMode.getPaymentModeFeeType());
-			}
-			if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
-			{
-				model.addAttribute("RGSfeePercent",userPaymentMode.getFee());
-				model.addAttribute("neftstatus",userPaymentMode.getIsActive());
-				model.addAttribute("billChargeType1",userPaymentMode.getPaymentModeFeeType());
-			}
-			if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
-			{
-				model.addAttribute("IFSfeePercent",userPaymentMode.getFee());
-				model.addAttribute("impsstatus",userPaymentMode.getIsActive());
-				model.addAttribute("billChargeType2",userPaymentMode.getPaymentModeFeeType());
+				if(userPaymentMode.getPaymentMode()==PaymentMode.RTG)
+				{
+					model.addAttribute("RTGfeePercent",userPaymentMode.getFee());
+					model.addAttribute("rtgsstatus",userPaymentMode.getIsActive());
+					model.addAttribute("billChargeType",userPaymentMode.getPaymentModeFeeType());
+				}
+				if(userPaymentMode.getPaymentMode()==PaymentMode.RGS)
+				{
+					model.addAttribute("RGSfeePercent",userPaymentMode.getFee());
+					model.addAttribute("neftstatus",userPaymentMode.getIsActive());
+					model.addAttribute("billChargeType1",userPaymentMode.getPaymentModeFeeType());
+				}
+				if(userPaymentMode.getPaymentMode()==PaymentMode.IFS)
+				{
+					model.addAttribute("IFSfeePercent",userPaymentMode.getFee());
+					model.addAttribute("impsstatus",userPaymentMode.getIsActive());
+					model.addAttribute("billChargeType2",userPaymentMode.getPaymentModeFeeType());
+				}
 			}
 		}
-		
 		
 		if(pan==null && aadhar==null && gst==null && bank==null && business==null)
 		{
