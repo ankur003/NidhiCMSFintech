@@ -1,6 +1,7 @@
 package com.nidhi.cms.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -65,6 +66,8 @@ public class Transaction extends BaseDomain {
 	private String remarks;
 
 	private String virtualTxId;
+
+	private LocalDateTime creditTime;
 
 	public Long getTransactionId() {
 		return transactionId;
@@ -272,6 +275,14 @@ public class Transaction extends BaseDomain {
 
 	public void setVirtualTxId(String virtualTxId) {
 		this.virtualTxId = virtualTxId;
+	}
+
+	public LocalDateTime getCreditTime() {
+		return creditTime;
+	}
+
+	public void setCreditTime(LocalDateTime creditTime) {
+		this.creditTime = creditTime;
 	}
 
 }

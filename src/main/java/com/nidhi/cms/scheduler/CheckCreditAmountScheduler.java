@@ -22,9 +22,11 @@ import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.service.CreditAmountTransactionsService;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
+import com.nidhi.cms.utils.Utility;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -48,6 +50,9 @@ public class CheckCreditAmountScheduler {
     
     @Autowired
     private ApplicationConfig applicationConfig;
+    
+    @Autowired
+    private  CreditAmountTransactionsService creditAmountTransactionsService;
 
     @Scheduled(cron = "0 0/30 * * * ?")
     public void checkCreditAmountScheduler() {
@@ -80,7 +85,7 @@ public class CheckCreditAmountScheduler {
         }
     }
     
-	private void parseXmlDoc(Document doc) throws ParserConfigurationException, SAXException, IOException {
+	private void parseXmlDoc(Document doc)  {
 		doc.getDocumentElement().normalize();
 		String value = doc.getElementsByTagName("a:ResponseIecData").item(0).getFirstChild().getTextContent();
 		if (value != null && value.contains("NODATA")) {
@@ -103,25 +108,36 @@ public class CheckCreditAmountScheduler {
 	}
 
 	private void createTransactionAndUpdateBalance(Document docWithContent, int i) {
-		Transaction txn = txService.findByVirtualTxId(docWithContent.getElementsByTagName("Inward_Ref_Num").item(i).getTextContent());
-		if (txn != null) {
-			LOGGER.warn("txn already credited  =  '{}'", txn.getVirtualTxId());
+		LocalDateTime creditTime = Utility.getDateTime(docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent());
+		if (creditTime == null) {
+			LOGGER.warn("creditTime is null against =  {}", docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent());
+			return;
+		}
+		Transaction txn = txService.findByCreditTime(creditTime);
+		if (txn != null 
+				&& txn.getCreditTime() != null 
+				&& txn.getCreditTime().isEqual(creditTime)
+				&& txn.getUtrNumber() != null 
+				&& txn.getUtrNumber().equals(docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent())) {
+			LOGGER.warn("txn already credited  with Inward_Ref_Num - {} and created date time - {} ", txn.getVirtualTxId(), txn.getCreditTime());
 			return;
 		}
 		UserWallet userWallet = userWalletService.findByVirtualId(docWithContent.getElementsByTagName("Credit_AccountNo").item(i).getTextContent());
 		if (userWallet == null) {
 			LOGGER.warn("userWallet  =  {}", userWallet);
+			creditAmountTransactionsService.save(docWithContent, i, "FAILED");
+			updateStatusFailedCallBack(docWithContent, i);
 			return;
 		}
 		User user = userService.findByUserId(userWallet.getUserId());
 		txService.saveCreditTransaction(docWithContent, i, user, userWallet);
 		userWalletService.updateBalance(userWallet, Double.valueOf(docWithContent.getElementsByTagName("Amount").item(i).getTextContent()));
-		
-		updateStatusCallBack(docWithContent, i);
+		creditAmountTransactionsService.save(docWithContent, i, "SUCCESS");
+		updateStatusSuccessCallBack(docWithContent, i);
 		
 	}
 
-	private void updateStatusCallBack(Document docWithContent, int i) {
+	private void updateStatusSuccessCallBack(Document docWithContent, int i) {
 		try {
 			String reqId = docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent();
 			if (StringUtils.isBlank(reqId)) {
@@ -132,7 +148,39 @@ public class CheckCreditAmountScheduler {
 			MediaType mediaType = MediaType.parse("text/xml");
 			RequestBody body = RequestBody.create(
 					"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <tem:UpdateClientResponse>\r\n         <!--Optional:-->\r\n         <tem:RequestData>\r\n            <!--Optional:-->\r\n            <eten:CustomerResponse>\r\n                <![CDATA[<IECResponse>\r\n                    <TRANSACTION>\r\n                        "
-					+ "<RequestId>"+reqId+"</RequestId>\r\n                        <ResponseCode>000</ResponseCode>\r\n                        <ResponseDesc>success</ResponseDesc>\r\n                        <ResponseId>R000</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
+					+ "<RequestId>"+reqId+"</RequestId>\r\n                        "
+							+ "<ResponseCode>000</ResponseCode>\r\n                        "
+							+ "<ResponseDesc>success</ResponseDesc>\r\n                        "
+							+ "<ResponseId>R000</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
+					mediaType);
+			Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
+					.method("POST", body).addHeader("Content-Type", "text/xml")
+					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
+					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
+					.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/UpdateClientResponse").build();
+			 client.newCall(request).execute();
+			 LOGGER.info("successfully update for reqId ............................   =  {} ", reqId);
+		} catch (Exception e) {
+			LOGGER.error("error ocuured during client status update call, {} , ", e);
+		}
+		
+	}
+	
+	private void updateStatusFailedCallBack(Document docWithContent, int i) {
+		try {
+			String reqId = docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent();
+			if (StringUtils.isBlank(reqId)) {
+				LOGGER.error("reqId is not valid   =  {}, escaping update client status SOAP CALL ", reqId);
+				return;
+			}
+			OkHttpClient client = new OkHttpClient().newBuilder().build();
+			MediaType mediaType = MediaType.parse("text/xml");
+			RequestBody body = RequestBody.create(
+					"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <tem:UpdateClientResponse>\r\n         <!--Optional:-->\r\n         <tem:RequestData>\r\n            <!--Optional:-->\r\n            <eten:CustomerResponse>\r\n                <![CDATA[<IECResponse>\r\n                    <TRANSACTION>\r\n                        "
+					+ "<RequestId>"+reqId+"</RequestId>\r\n                        "
+							+ "<ResponseCode>001</ResponseCode>\r\n                        "
+							+ "<ResponseDesc>failed</ResponseDesc>\r\n                        "
+							+ "<ResponseId>R006</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
 					mediaType);
 			Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
 					.method("POST", body).addHeader("Content-Type", "text/xml")

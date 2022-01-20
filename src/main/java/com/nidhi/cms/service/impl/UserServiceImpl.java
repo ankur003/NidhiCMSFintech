@@ -458,6 +458,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setTxDate(LocalDate.now());
 		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txn.setRemarks(userTxWoOtpReqModal.getRemarks());
+		txn.setCreditTime(LocalDateTime.now());
 		txRepository.save(txn);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
 		updateBalance(txn.getAmountPlusfee(), userWallet);

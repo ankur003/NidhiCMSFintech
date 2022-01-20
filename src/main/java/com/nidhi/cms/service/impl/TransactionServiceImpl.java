@@ -181,11 +181,18 @@ public class TransactionServiceImpl implements TransactionService{
 		transaction.setPayeeName(docWithContent.getElementsByTagName("Remitter_Name").item(i).getTextContent());
 		transaction.setUtrNumber(docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent());
 		transaction.setCreatedAt(LocalDateTime.now());
-		transaction.setTxDate(LocalDate.now());
+		transaction.setCreditTime(Utility.getDateTime(docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent()));
+		transaction.setTxDate(Utility.getLocalDateFromDateTime(docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent()));
 		transaction.setTxnType(docWithContent.getElementsByTagName("Pay_Method").item(i).getTextContent());
 		transaction.setTxType("Cr.");
+		transaction.setStatus("success");
 		transaction.setAmt(BigDecimal.valueOf(userWallet.getAmount() + transaction.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txRepository.save(transaction);
+	}
+
+	@Override
+	public Transaction findByCreditTime(LocalDateTime creditTime) {
+		return txRepository.findByCreditTime(creditTime);
 	}
 
 }

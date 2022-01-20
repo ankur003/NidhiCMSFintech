@@ -6,7 +6,9 @@ import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
@@ -18,8 +20,9 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -28,7 +31,6 @@ import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.Role;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
-import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.response.TextLocalResponseModal;
 import com.nidhi.cms.utils.indsind.UPISecurity;
 
@@ -39,6 +41,9 @@ import com.nidhi.cms.utils.indsind.UPISecurity;
  */
 
 public class Utility {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(Utility.class);
+
 
 	private Utility() {
 		// Utility
@@ -200,6 +205,26 @@ public class Utility {
 			return uPISecurity.decrypt(json.getString(responseKey), indBankKey);
 		}
 		return null;
+	}
+
+	public static LocalDateTime getDateTime(String dateTimeString) {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); 
+			LocalDateTime dateAndTime = LocalDateTime.parse(dateTimeString, formatter);
+			LOGGER.info("parsed dateAndTime --- {}", dateAndTime);
+			return dateAndTime;
+		} catch (Exception e) {
+			LOGGER.error("Error ocurred during parsing localDatetime while geting response from credit amount --- {}", e);
+		}
+		return null;
+	}
+
+	public static LocalDate getLocalDateFromDateTime(String dateTimeString) {
+		LocalDateTime localDateTime = getDateTime(dateTimeString);
+		if (localDateTime == null) {
+			return null;
+		}
+		return localDateTime.toLocalDate();
 	}
 
 }

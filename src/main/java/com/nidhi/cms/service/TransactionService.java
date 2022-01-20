@@ -1,6 +1,7 @@
 package com.nidhi.cms.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.w3c.dom.Document;
@@ -40,6 +41,8 @@ public interface TransactionService {
 	List<Transaction> findByUserIdAndUniqueId(Long userId, String uniqueid);
 
 	Transaction findByVirtualTxId(String txId);
+	
+	Transaction findByCreditTime(LocalDateTime creditTime);
 
 	Transaction saveVirtualTxId(Long userId, WebhookRequest webhookRequest);
 

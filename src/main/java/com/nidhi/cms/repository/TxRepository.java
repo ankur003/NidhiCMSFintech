@@ -1,6 +1,7 @@
 package com.nidhi.cms.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,5 +31,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> , PagingA
 	List<Transaction> findByUniqueId(String uniqueId);
 
 	Transaction findByVirtualTxId(String virtualTxId);
+
+	Transaction findByCreditTime(LocalDateTime creditTime);
 
 }
