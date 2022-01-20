@@ -87,7 +87,7 @@ public class EmailService {
 			addRecipients(request, helper);
 			helper.setText(html, true);
 			helper.setSubject(request.getSubject());
-			helper.setFrom(new InternetAddress(mailConfig.getFrom(), "CS Support"));
+			helper.setFrom(new InternetAddress(mailConfig.getFrom(), "cms support"));
 			sender.send(message);
 
 			response.setMessage("mail send to : " + request.getTo());
