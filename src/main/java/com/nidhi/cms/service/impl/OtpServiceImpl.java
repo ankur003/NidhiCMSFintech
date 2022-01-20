@@ -59,7 +59,11 @@ public class OtpServiceImpl implements OtpService {
 			return mobileOtp;
 		}
 		String emailOtp = Utility.getRandomNumberString();
-		sendOtpOnEmail(existingUser, emailOtp);
+		if (BooleanUtils.isTrue(existingUser.getIsUserCreatedByAdmin())) {
+			sendOtpOnEmail(existingUser, emailOtp, existingUser.getPassword());
+		} else {
+			sendOtpOnEmail(existingUser, emailOtp);
+		}
 		return saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
 	}
 	

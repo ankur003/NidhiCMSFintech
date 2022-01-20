@@ -151,6 +151,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setRoles(Utility.getRole(RoleEum.USER));
 		user.setIsUserCreatedByAdmin(isCreatedByAdim);
 		User savedUser = userRepository.save(user);
+		savedUser.setPassword(rowPassword);
 		return otpService.sendingOtp(savedUser);
 	}
 
