@@ -5,9 +5,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.nidhi.cms.domain.CreditAmountTransactions;
+import com.nidhi.cms.domain.VirtualTxn;
 
 @Repository
-public interface CreditAmountTransactionsRepo extends JpaRepository<CreditAmountTransactions, Long> , PagingAndSortingRepository<CreditAmountTransactions, Long>, JpaSpecificationExecutor<CreditAmountTransactions> {
+public interface CreditAmountTransactionsRepo extends JpaRepository<VirtualTxn, Long> , PagingAndSortingRepository<VirtualTxn, Long>, JpaSpecificationExecutor<VirtualTxn> {
 
 }

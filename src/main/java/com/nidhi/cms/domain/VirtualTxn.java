@@ -6,7 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class CreditAmountTransactions extends BaseDomain {
+public class VirtualTxn extends BaseDomain {
 
 	private static final long serialVersionUID = -7824944373343786102L;
 
