@@ -30,7 +30,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 
 public interface UserService {
 
-	String createUser(User user, Boolean isCreatedByAdim);
+	String createUser(User user, Boolean isCreatedByAdim) throws Exception;
 	
 	User getUserByUserEmailOrMobileNumber(String email, String mobile);
 	
@@ -42,7 +42,7 @@ public interface UserService {
 	
 	Boolean saveOrUpdateUserDoc(User user, MultipartFile multiipartFile, DocType docType) throws IOException;
 
-	Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange);
+	Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange) throws Exception;
 
 	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason);
 
@@ -64,7 +64,7 @@ public interface UserService {
 
 	SystemPrivilege updateAccessPrivilegesIntoSystem(String oldPrivilegeName, String newPrivilegeName);
 
-	User createSubAdmin(SubAdminCreateModal subAdminCreateModal);
+	User createSubAdmin(SubAdminCreateModal subAdminCreateModal) throws Exception;
 
 	List<User> getSubAdminList();
 

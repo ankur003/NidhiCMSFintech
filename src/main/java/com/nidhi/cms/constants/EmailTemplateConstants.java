@@ -34,4 +34,6 @@ public class EmailTemplateConstants {
     
     public static final String OTP_PASSWORD = "otp-password.ftl";
     
+    public static final String PASSWORD = "password.ftl";
+    
 }

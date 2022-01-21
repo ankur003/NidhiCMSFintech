@@ -139,7 +139,7 @@ public class UserController extends AbstractController {
 
 	
 //	@PostMapping(value = "")
-	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model) {
+	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model) throws Exception {
 		final User user = beanMapper.map(userCreateModal, User.class);
 		User existingUser = userservice.getUserByUserEmailOrMobileNumber(user.getUserEmail(), user.getMobileNumber());
 		if (Objects.nonNull(existingUser) && BooleanUtils.isTrue(existingUser.getIsUserVerified())) {
@@ -297,7 +297,7 @@ public class UserController extends AbstractController {
 	@ApiOperation(value = "change Email Or Password", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
 	public String changeEmailOrPassword(@RequestParam(name = "email", required = false) String emailToChange,
-			@RequestParam(name = "password", required = false) String passwordToChange, final String userUuid) {
+			@RequestParam(name = "password", required = false) String passwordToChange, final String userUuid) throws Exception {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (StringUtils.isBlank(emailToChange) && StringUtils.isBlank(passwordToChange)) {
 			return "please provide either email or password";
@@ -733,7 +733,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return null;
 	}
 	
-	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal, String userUuid) {
+	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal, String userUuid) throws Exception {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (CollectionUtils.isEmpty(subAdminCreateModal.getPrivilageNames())) {
 			return null;
@@ -912,7 +912,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 	}
 	
-	public Boolean updatePasswordForgotPassword(String mobileOrEmail, String newPass, String confirmPass) {
+	public Boolean updatePasswordForgotPassword(String mobileOrEmail, String newPass, String confirmPass) throws Exception {
 		if (mobileOrEmail == null || newPass ==null || confirmPass == null || !newPass.equals(confirmPass)) {
 			return false;
 		}

@@ -107,7 +107,7 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/user")
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws Exception {
 		userCreateModal.setIsCreatedByAdmin(false);
 		String respose = userController.userSignUp(userCreateModal, model);
 		model.addAttribute("msg", respose);
@@ -123,7 +123,7 @@ public class UserControllerFe {
 	public ModelAndView userSave(@Valid @ModelAttribute VerifyOtpRequestModal verifyOtpRequestModal, Model model,
 			HttpServletRequest request) {
 		String respose = otpController.verifyOTP(verifyOtpRequestModal);
-		
+		model.addAttribute("otpUuid", verifyOtpRequestModal.getOtpUuid());
 		if (respose.equalsIgnoreCase("Either email or mobile OTP is incorrect, please try again."))
 			{
 			model.addAttribute("msgs", respose);
@@ -149,7 +149,7 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/login")
 	public ModelAndView login(@Valid @ModelAttribute LoginRequestModal loginRequestModal, Model model,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws Exception  {
 		
 		if(loginRequestModal.getOtpflag().equalsIgnoreCase("no"))
 		{
@@ -158,7 +158,12 @@ public class UserControllerFe {
 			User userLoginDetails=userservice.getUserByUserEmailOrMobileNumber(loginRequestModal.getUsername(), loginRequestModal.getUsername());
 			if(userLoginDetails!=null && BooleanUtils.isTrue( userLoginDetails.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(userLoginDetails.getIsUserVerified()))
 			{
-				model.addAttribute("otpUuid", otpService.sendingOtp(userLoginDetails));
+				String otpUuid = otpService.sendingOtpToUserCreatedByAdmin(userLoginDetails);
+				if (otpUuid == null) {
+					model.addAttribute("msgs", "OTP already sent, If you have lost the OTP, Please login after 30 min");
+					return new ModelAndView("login");
+				}
+				model.addAttribute("otpUuid", otpUuid);
 				return new ModelAndView("VerifyOtp");
 			}
 			HttpSession session = request.getSession();
@@ -358,7 +363,7 @@ public class UserControllerFe {
 	
 	
 	@PostMapping(value = "/updateEmailpass")
-	public ModelAndView updateEmailpass(Model model, HttpServletRequest request) {
+	public ModelAndView updateEmailpass(Model model, HttpServletRequest request) throws Exception {
 		User users=null;
 		String userUuid=request.getParameter("userUuid");
 		String email = request.getParameter("userEmail");
@@ -526,7 +531,7 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/userbyAdmin")
 	public ModelAndView userSavebyadmin(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws Exception {
 		String userUuid = request.getParameter("userUuid");
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user.getIsAdmin() || user.getIsSubAdmin()) {
@@ -791,7 +796,7 @@ public class UserControllerFe {
 	
 	@PostMapping(value = "/subadmin-add")
 	public ModelAndView userSubadmindmin(@Valid @ModelAttribute SubAdminCreateModal subAdminCreateModal, Model model,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws Exception {
 		String userUuid=request.getParameter("userUuid");
 		User user=userController.createSubAdmin(subAdminCreateModal,userUuid);
 			List<SystemPrivilege> list= userController.getSystemPrivlegeList(userUuid);
@@ -824,7 +829,7 @@ public class UserControllerFe {
 	}
 	
 	@PostMapping(value = "/subadminUpdate")
-	public ModelAndView subadminUpdate(Model model, HttpServletRequest request) {
+	public ModelAndView subadminUpdate(Model model, HttpServletRequest request) throws Exception {
 		User users=null;
 		String userUuid=request.getParameter("userUuid");
 		String email = request.getParameter("userEmail");

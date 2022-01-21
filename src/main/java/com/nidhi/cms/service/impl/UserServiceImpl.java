@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public String createUser(User user, Boolean isCreatedByAdim) {
+	public String createUser(User user, Boolean isCreatedByAdim) throws Exception {
 		String rowPassword = user.getPassword();
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setPassword(encoder.encode(rowPassword));
@@ -151,7 +151,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		user.setRoles(Utility.getRole(RoleEum.USER));
 		user.setIsUserCreatedByAdmin(isCreatedByAdim);
 		User savedUser = userRepository.save(user);
-		savedUser.setPassword(rowPassword);
+		savedUser.setRawp(rowPassword);
+		if (BooleanUtils.isTrue(isCreatedByAdim)) {
+			otpService.sendPasswordOnEmail(savedUser, rowPassword);
+			return Utility.getUniqueUuid();
+		}
 		return otpService.sendingOtp(savedUser);
 	}
 
@@ -231,7 +235,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange) {
+	public Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange) throws Exception {
 		if (StringUtils.isNotBlank(emailToChange)) {
 			User emailToChangeUser = userRepository.findByUserEmail(emailToChange);
 			if (emailToChangeUser == null || user.getUserId().equals(emailToChangeUser.getUserId())) {
@@ -689,7 +693,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) {
+	public User createSubAdmin(SubAdminCreateModal subAdminCreateModal) throws Exception {
 		List<SystemPrivilege> systemPrivileges = systemPrivilegeRepo
 				.findByPrivilegeNameIn(subAdminCreateModal.getPrivilageNames());
 		if (CollectionUtils.isEmpty(systemPrivileges)

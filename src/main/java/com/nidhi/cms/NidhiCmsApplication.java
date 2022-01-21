@@ -65,7 +65,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 
 	@PostConstruct
-	public void runOninit() {
+	public void runOninit() throws Exception {
 		createAdmin();
 		createSystemPrivilages();
 		//testEmails();
@@ -242,7 +242,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 
 
-	public void createAdmin() {
+	public void createAdmin() throws Exception {
 		User admin = userRepository.findByUserEmail("admin@gmail.com"); 
 		if (admin == null) 
 		{

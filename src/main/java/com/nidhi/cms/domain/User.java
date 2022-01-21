@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nidhi.cms.constants.enums.KycStatus;
@@ -86,6 +87,9 @@ public class User extends BaseDomain {
 
 	private String apiKey;
 
+	@Transient
+	private String rawp;
+
 	public Long getUserId() {
 		return userId;
 	}
@@ -154,7 +158,10 @@ public class User extends BaseDomain {
 		return password;
 	}
 
-	public void setPassword(String password) {
+	public void setPassword(String password) throws Exception {
+		if (password != null && password.length() <= 30 && !password.contains(".")) {
+			throw new Exception("password invalid");
+		}
 		this.password = password;
 	}
 
@@ -260,6 +267,14 @@ public class User extends BaseDomain {
 
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
+	}
+
+	public String getRawp() {
+		return rawp;
+	}
+
+	public void setRawp(String rawp) {
+		this.rawp = rawp;
 	}
 
 }

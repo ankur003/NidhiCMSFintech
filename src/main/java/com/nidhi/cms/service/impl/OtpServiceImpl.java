@@ -53,6 +53,7 @@ public class OtpServiceImpl implements OtpService {
 		if (BooleanUtils.isFalse(doesOtpExpired(otp))) {
 			return null;
 		}
+		
 		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
 									 
 		if (StringUtils.isBlank(mobileOtp)) {
@@ -60,11 +61,23 @@ public class OtpServiceImpl implements OtpService {
 		}
 		String emailOtp = Utility.getRandomNumberString();
 		if (BooleanUtils.isTrue(existingUser.getIsUserCreatedByAdmin())) {
-			sendOtpOnEmail(existingUser, emailOtp, existingUser.getPassword());
+			sendPasswordOnEmail(existingUser, existingUser.getRawp());
 		} else {
 			sendOtpOnEmail(existingUser, emailOtp);
 		}
 		return saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
+	}
+	
+	@Override
+	public String sendingOtpToUserCreatedByAdmin(User user) {
+		Otp otp = otpRepository.findByUserId(user.getUserId());
+		if (otp != null && BooleanUtils.isFalse(doesOtpExpired(otp))) {
+			return null;
+		}
+		String emailOtp = Utility.getRandomNumberString();
+		sendOtpOnEmail(user, emailOtp);
+		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), user.getMobileNumber());
+		return saveOtpDetails(mobileOtp, emailOtp, user, otp);
 	}
 	
 	@Override
@@ -81,6 +94,23 @@ public class OtpServiceImpl implements OtpService {
 			return ;
 		}
 		 saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
+	}
+	
+	@Override
+	public void sendPasswordOnEmail(User user, String password) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[OtpServiceImpl.sendOtpOnEmail ] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Email Verification | Nidhi CMS");
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> modal = new HashMap<>();
+		modal.put("name", user.getFullName());
+		modal.put("password", password);
+		emailService.sendMailAsync(request, modal, "", EmailTemplateConstants.PASSWORD);
+
 	}
 	
 	private void sendOtpOnEmail(User user, String emailOtp, String password) {

@@ -25,4 +25,8 @@ public interface OtpService {
 
 	String sendingOtp(User user, ForgotPassType forgotPassType);
 
+	void sendPasswordOnEmail(User user, String password);
+
+	String sendingOtpToUserCreatedByAdmin(User user);
+
 }
