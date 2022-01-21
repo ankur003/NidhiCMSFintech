@@ -6,11 +6,7 @@ package com.nidhi.cms.controller.fe;
 import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +101,10 @@ public class UserControllerFe {
 	@Autowired
 	private EmailService emailService;
 	
+	private static final String VERIFY_OTP = "VerifyOtp";
+	private static final String OTP_UUID = "otpUuid";
+	private static final String LOGIN = "login";
+	
 	@PostMapping(value = "/user")
 	public ModelAndView userSave(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model,
 			HttpServletRequest request) throws Exception {
@@ -114,7 +114,7 @@ public class UserControllerFe {
 		if (respose != null && respose.equalsIgnoreCase("Either Email or Mobile already Exist.")) {
 			return new ModelAndView("Signup");
 		} else {
-			return new ModelAndView("VerifyOtp");
+			return new ModelAndView(VERIFY_OTP);
 		}
 
 	}
@@ -123,21 +123,21 @@ public class UserControllerFe {
 	public ModelAndView userSave(@Valid @ModelAttribute VerifyOtpRequestModal verifyOtpRequestModal, Model model,
 			HttpServletRequest request) {
 		String respose = otpController.verifyOTP(verifyOtpRequestModal);
-		model.addAttribute("otpUuid", verifyOtpRequestModal.getOtpUuid());
+		model.addAttribute(OTP_UUID, verifyOtpRequestModal.getOtpUuid());
 		if (respose.equalsIgnoreCase("Either email or mobile OTP is incorrect, please try again."))
 			{
 			model.addAttribute("msgs", respose);
-			return new ModelAndView("VerifyOtp");
+			return new ModelAndView(VERIFY_OTP);
 			}
 		if (respose.equalsIgnoreCase("Otp already verified, please login"))
 			{model.addAttribute("msg", respose);
-			return new ModelAndView("login");}
+			return new ModelAndView(LOGIN);}
 		if (respose.equalsIgnoreCase("Otp expired, please signUp again."))
 			{model.addAttribute("msgs", respose);
 			return new ModelAndView("Signup");}
 		if (respose.equalsIgnoreCase("Otp verified, please proceed with login."))
 			{model.addAttribute("msg", respose);
-			return new ModelAndView("login");
+			return new ModelAndView(LOGIN);
 			
 			}
 
@@ -161,10 +161,10 @@ public class UserControllerFe {
 				String otpUuid = otpService.sendingOtpToUserCreatedByAdmin(userLoginDetails);
 				if (otpUuid == null) {
 					model.addAttribute("msgs", "OTP already sent, If you have lost the OTP, Please login after 30 min");
-					return new ModelAndView("login");
+					return new ModelAndView(LOGIN);
 				}
-				model.addAttribute("otpUuid", otpUuid);
-				return new ModelAndView("VerifyOtp");
+				model.addAttribute(OTP_UUID, otpUuid);
+				return new ModelAndView(VERIFY_OTP);
 			}
 			HttpSession session = request.getSession();
 			String authtoken = loginController.login(loginRequestModal);
@@ -206,7 +206,7 @@ public class UserControllerFe {
 
 		} catch (Exception e) {
 			model.addAttribute("msgs", "Either email or Password is incorrect, please try again.");
-			return new ModelAndView("login");
+			return new ModelAndView(LOGIN);
 		}
 	} else if (loginRequestModal.getOtpflag().equalsIgnoreCase("yes"))
 
@@ -235,18 +235,17 @@ public class UserControllerFe {
 			}
 
 			if (flag != null) {
-				model.addAttribute("otpUuid", flag);
+				model.addAttribute(OTP_UUID, flag);
 				model.addAttribute("otp", "otp");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 			System.out.println(e);
 		}
 	}
 
 	else if (loginRequestModal.getOtpflag().equalsIgnoreCase("verifytp")) {
-		String otpUuid = request.getParameter("otpUuid");
+		String otpUuid = request.getParameter(OTP_UUID);
 		String emailphOtp = request.getParameter("emailphOtp");
 		String newPass = request.getParameter("npassword");
 		String confirmPass = request.getParameter("cpassword");
@@ -278,7 +277,7 @@ public class UserControllerFe {
 		}
 	}
 
-	return new ModelAndView("login");
+	return new ModelAndView(LOGIN);
 }
 
 	@PostMapping(value = "/pkycupload")
@@ -427,7 +426,6 @@ public class UserControllerFe {
 
 	@GetMapping(value = "/get-all-user")
 	public ModelAndView getAllClint(@RequestParam("userUuid") String userUuid,Model model, HttpServletRequest request) {
-		//User user = userservice.getUserByUserUuid(userUuid);
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
@@ -1253,7 +1251,7 @@ public class UserControllerFe {
         HttpSession session = request.getSession();
         session.removeAttribute("userLoginDetails");
         request.getSession().invalidate();
-        return new ModelAndView("login");
+        return new ModelAndView(LOGIN);
 	}
 
 
@@ -1409,39 +1407,37 @@ public ModelAndView getAllTranaction(Model model,HttpServletRequest request) thr
 
 
 @PostMapping(value = "/AdminAcstatement")
-public ModelAndView adminAcStatement(Model model,HttpServletRequest request) throws ParseException {
-	String clientname=request.getParameter("clientname");
-	String startDate=request.getParameter("startDate");
-	String endDate=request.getParameter("endDate");
-	
-	String[] cname=clientname.split("-");
-	String mids=cname[0];
-	List<Transaction> trans=userController.findByMerchantIdAndTxDateBetween(mids,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
-	if(!trans.isEmpty())
-	{
-		model.addAttribute("trans",trans);
-		model.addAttribute("init",true);
+public ModelAndView adminAcStatement(Model model, HttpServletRequest request) throws ParseException {
+	String clientname = request.getParameter("clientname");
+	String startDate = request.getParameter("startDate");
+	String endDate = request.getParameter("endDate");
+
+	String[] cname = clientname.split("-");
+	String mids = cname[0];
+	List<Transaction> trans = userController.findByMerchantIdAndTxDateBetween(mids, Utility.stringToLocalDate(startDate), Utility.stringToLocalDate(endDate));
+
+	if (CollectionUtils.isNotEmpty(trans)) {
+		model.addAttribute("trans", trans);
+		model.addAttribute("init", true);
+	} else {
+		model.addAttribute("init", false);
 	}
-	else {
-		model.addAttribute("init",false);
-	}
-	model.addAttribute("startDate",startDate);
-	model.addAttribute("endDate",endDate);
-	model.addAttribute("clientname",clientname);
+	model.addAttribute("startDate", startDate);
+	model.addAttribute("endDate", endDate);
+	model.addAttribute("clientname", clientname);
 	return new ModelAndView("AdminACStatement");
 }
 
 
 @PostMapping(value = "/getUserNameByMarchantIds")
 public ModelAndView getUserNameByMarchantIds(Model model,HttpServletRequest request)  {
-	String   emp_rmanager=request.getParameter("emp_rmanager");
-	
-	List<String> merchant=userController.getUserNameByMarchantId(emp_rmanager);
-	if(!merchant.isEmpty())
-	{
-		model.addAttribute("merchant",merchant);
+	String empName = request.getParameter("emp_rmanager");
+
+	List<String> merchant = userController.getUserNameByMarchantId(empName);
+	if (!merchant.isEmpty()) {
+		model.addAttribute("merchant", merchant);
 	}
-	
+
 	return new ModelAndView("allsupervisor");
 }
 

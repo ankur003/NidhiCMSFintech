@@ -185,7 +185,7 @@ public class TransactionServiceImpl implements TransactionService{
 		transaction.setTxDate(Utility.getLocalDateFromDateTime(docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent()));
 		transaction.setTxnType(docWithContent.getElementsByTagName("Pay_Method").item(i).getTextContent());
 		transaction.setTxType("Cr.");
-		transaction.setStatus("success");
+		transaction.setStatus("SUCCESS");
 		transaction.setMerchantId(userWallet.getMerchantId());
 		transaction.setAmt(BigDecimal.valueOf(userWallet.getAmount() + transaction.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txRepository.save(transaction);
