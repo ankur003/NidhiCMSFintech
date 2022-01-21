@@ -106,8 +106,16 @@ public class forwardController {
 	}
 
 	@GetMapping(value = "/login")
-	public ModelAndView academics(Model model) {
-		return new ModelAndView("login");
+	public ModelAndView academics(Model model, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		if (session == null) {
+			return new ModelAndView("login");
+		}
+		Object screenStage = session.getAttribute("homeScreen");
+		if (screenStage == null) {
+			return new ModelAndView("login");
+		}
+		return new ModelAndView(screenStage.toString());
 	}
 
 	@GetMapping(value = "/AdminDashboard")

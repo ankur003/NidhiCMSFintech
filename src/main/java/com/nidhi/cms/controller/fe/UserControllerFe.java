@@ -191,12 +191,15 @@ public class UserControllerFe {
 
 			if (authtoken != null && roleName.equals(RoleEum.ADMIN.name())) {
 				{
+					request.getSession().setAttribute("homeScreen", "AdminDashboard");
 					return new ModelAndView("AdminDashboard");
 				}
 			} else {
 				if (!userLoginDetails.getIsSubAdmin()) {
+					request.getSession().setAttribute("homeScreen", "Dashboard");
 					return new ModelAndView("Dashboard");
 				} else {
+					request.getSession().setAttribute("homeScreen", "AdminDashboard");
 					return new ModelAndView("AdminDashboard");
 				}
 			}
@@ -350,11 +353,13 @@ public class UserControllerFe {
 			User userLoginDetails = userController.getUserDetail(userBankModal.getUserUuid());
 			session.setAttribute("userLoginDetails", userLoginDetails);
 			model.addAttribute("msg", "Bank Details Succesfully Uploaded");
+			request.getSession().setAttribute("homeScreen", "Dashboard");
 			return new ModelAndView("Dashboard");
 		}
 		else
 		{
 			model.addAttribute("msg", "Business Details Not Uploaded");
+			request.getSession().setAttribute("homeScreen", "Dashboard");
 			return new ModelAndView("Dashboard");
 		}
 		
