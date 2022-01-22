@@ -132,13 +132,16 @@ public class UserController extends AbstractController {
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 	
+	private static final String APPLICATION_JSON  = "application/json";
+	private static final String MESSAGE  = "message";
+	
+	
 	OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(5, TimeUnit.MINUTES).build();
-	MediaType mediaType = MediaType.parse("application/json");
+	MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
 	
-//	@PostMapping(value = "")
 	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model) throws Exception {
 		final User user = beanMapper.map(userCreateModal, User.class);
 		User existingUser = userservice.getUserByUserEmailOrMobileNumber(user.getUserEmail(), user.getMobileNumber());
@@ -167,20 +170,11 @@ public class UserController extends AbstractController {
 		return "please verify the email & mobile otp";
 	}
 
-//	@GetMapping(value = "/user")
-//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-//	@ApiOperation(value = "Get User Detail", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
-
 	public User getUserByEmailOrMobile(
 			@RequestParam(required = true, name = "emailOrMobile") final String emailOrMobile) {
 		return userservice.getUserByUserEmailOrMobileNumber(emailOrMobile, emailOrMobile);
 	}
 
-//	@GetMapping(value = "")
-	// @PreAuthorize("hasRole('ADMIN')")
-//	@ApiOperation(value = "Get All Users", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") }, hidden = true)
 	public Map<String, Object> getAllUser(@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
 		if(BooleanUtils.isTrue(userservice.getUserByUserUuid(userRequestFilterModel.getUserUuid()).getIsAdmin())) {
 			Page<User> users = userservice.getAllUsers(userRequestFilterModel);
@@ -192,10 +186,7 @@ public class UserController extends AbstractController {
 		return null;
 	}
 
-//	@PutMapping(value = "/doc")
-//	// @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-//	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") }, hidden = true)
+
 	public ResponseEntity<Object> saveOrUpdateUserDoc(@RequestParam("file") final MultipartFile multiipartFile,
 			@RequestParam(required = true, name = "docType") final DocType docType, @RequestParam("userUuid") final String userUuid) throws IOException {
 		User user = userservice.getUserByUserUuid(userUuid);
@@ -206,7 +197,7 @@ public class UserController extends AbstractController {
 		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
 		if (BooleanUtils.isTrue(isSaved)) {
 			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
-			return ResponseHandler.getMapResponse("message", "file saved successfully");
+			return ResponseHandler.getMapResponse(MESSAGE, "file saved successfully");
 		}
 		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 				"Please contact support, unable to persist file");
@@ -249,7 +240,7 @@ public class UserController extends AbstractController {
 		}
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
 		if (BooleanUtils.isTrue(isSaved)) {
-			return ResponseHandler.getMapResponse("message", "data saved");
+			return ResponseHandler.getMapResponse(MESSAGE, "data saved");
 		}
 		errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 				"Please contact support, unable to persist data");
@@ -307,15 +298,10 @@ public class UserController extends AbstractController {
 				: "Provided email is taken by someone, Please provide unique email";
 	}
 
-//	@PutMapping(value = "/kyc-auth")
-//	@PreAuthorize("hasAnyRole('ADMIN')")
-//	@ApiOperation(value = "save or update user doc", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
 	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse,
 			@RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
-			@RequestParam(required = true, name = "docType") final DocType docType,
-			HttpServletRequest request) {
+			@RequestParam(required = true, name = "docType") final DocType docType) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			return false;
@@ -329,10 +315,6 @@ public class UserController extends AbstractController {
 		return userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
 	}
 
-//	@GetMapping(value = "/get-user-account-statement")
-//	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-//	@ApiOperation(value = "get-user-account-statement", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
 	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate,
 			@RequestParam("toDate") String toDate, @RequestParam("userUuid") final String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
@@ -345,7 +327,6 @@ public class UserController extends AbstractController {
 	}
 
 	@PostMapping(value = "/allocate-fund")
-	//@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "allocate the fund to the user by admin", authorizations = {
 			@Authorization(value = "accessToken"), @Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean allocateFund(@RequestBody UserAllocateFundModal userAllocateFundModal) {
@@ -356,10 +337,6 @@ public class UserController extends AbstractController {
 		return userWalletService.allocateFund(user.getUserId(), userAllocateFundModal.getAmount());
 	}
 
-//	@GetMapping(value = "/user-wallet")
-//	@PreAuthorize("hasAnyRole('ADMIN')")
-//	@ApiOperation(value = "get user wallet", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
 	public UserWallet getUserWallet(String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
@@ -369,7 +346,6 @@ public class UserController extends AbstractController {
 	}
 
 	@PutMapping(value = "/user-account")
-//	@PreAuthorize("hasAnyRole('ADMIN')")
 	@ApiOperation(value = "activate - deactivate user account", authorizations = {
 			@Authorization(value = "accessToken"), @Authorization(value = "oauthToken") }, hidden = true)
 	public Boolean userActivateOrDeactivate(@RequestBody UserAccountActivateModal userAccountActivateModal) {
@@ -380,10 +356,6 @@ public class UserController extends AbstractController {
 		return userservice.userActivateOrDeactivate(user, userAccountActivateModal.getIsActivate());
 	}
 
-//	@PutMapping(value = "/user-bank-account")
-//	@PreAuthorize("hasAnyRole('ADMIN')")
-//	@ApiOperation(value = "save or update user bank details", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
 	public UserBankDetails saveOrUpdateUserBankDetails(@RequestBody UserBankModal userBankModal) {
 		User user = userservice.getUserByUserUuid(userBankModal.getUserUuid());
 		UserBankDetails response = userservice.saveOrUpdateUserBankDetails(user, userBankModal);
@@ -396,10 +368,6 @@ public class UserController extends AbstractController {
 		return response;
 	}
 
-//	@GetMapping(value = "/get-user-bank-account")
-//	@PreAuthorize("hasAnyRole('ADMIN')")
-//	@ApiOperation(value = "get user bank details", authorizations = { @Authorization(value = "accessToken"),
-//			@Authorization(value = "oauthToken") })
 	public UserBankDetails getUserBankDetails(@RequestParam("userUuid") String userUuid) {
 		User user = userservice.getUserDetailByUserUuid(userUuid);
 		return userservice.getUserBankDetails(user);
@@ -459,7 +427,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		String authorizationToken = httpServletRequest.getHeader("Authorization");
 		if (StringUtils.isBlank(apiKey)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired - please provide apiKey in header");
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired -  please provide apiKey in header");
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 		}
@@ -837,7 +805,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
 		if (BooleanUtils.isTrue(isSaved)) {
-			return ResponseHandler.getMapResponse("message", "file saved successfully");
+			return ResponseHandler.getMapResponse(MESSAGE, "file saved successfully");
 		}
 		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 				"Please contact support, unable to persist file");
@@ -854,7 +822,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
 		if (BooleanUtils.isTrue(isSaved)) {
-			return ResponseHandler.getMapResponse("message", "data saved");
+			return ResponseHandler.getMapResponse(MESSAGE, "data saved");
 		}
 		errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
 				"Please contact support, unable to persist data");
@@ -1111,8 +1079,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 					.url("https://ibluatapig.indusind.com/app/uat/web/onBoardSubMerchant").method("POST", body)
 					.addHeader("X-IBM-Client-Id", httpServletRequest.getHeader("X-IBM-Client-Id"))
 					.addHeader("X-IBM-Client-Secret", httpServletRequest.getHeader("X-IBM-Client-Secret"))
-					.addHeader("Accept", "application/json")
-					.addHeader("Content-Type", "application/json").build();
+					.addHeader("Accept", APPLICATION_JSON)
+					.addHeader("Content-Type", APPLICATION_JSON).build();
 			Response response = client.newCall(request).execute();
 			String responseBody = response.body().string();
 			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", applicationConfig.getIndBankKey());

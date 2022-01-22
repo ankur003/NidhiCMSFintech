@@ -167,6 +167,7 @@
 													    <th scope="col">Dr</th>
 														<th scope="col">Cr</th>
 														<th scope="col">Balance</th>
+														<th scope="col">Remarks</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -187,6 +188,7 @@
 															  <c:choose><c:when test="${us.txType eq 'Dr.'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
 															<c:choose><c:when test="${us.txType eq 'Cr.'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      
 															<td>${us.amt}</td>
+															<td>${us.remarks}</td>	
 														</tr>
 													</c:forEach>
 												</tbody>

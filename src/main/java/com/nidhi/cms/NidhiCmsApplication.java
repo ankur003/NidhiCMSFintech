@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -20,13 +21,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.RoleEum;
+import com.nidhi.cms.domain.Role;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.repository.SystemPrivilegeRepo;
+import com.nidhi.cms.repository.TxRepository;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.email.EmailService;
-import com.nidhi.cms.service.impl.UserServiceImpl;
 import com.nidhi.cms.utils.Utility;
 
 /**
@@ -73,8 +75,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 	
 	private void test() {
-		LOGGER.info("@@@@@@@@@@@@@@@@@@@ ------ {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-		
+		LOGGER.info("@@@@@@@@@@@@@@@@@@@ ------ {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  22 JAN 2022");
 	}
 
 
@@ -259,6 +260,12 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 			admin.setIsUserVerified(true);
 			admin.setRoles(Utility.getRole(RoleEum.ADMIN));
 			userRepository.save(admin);
+			return;
+		}
+		
+		Set<Role> roles = admin.getRoles();
+		for (Role role : roles) {
+			System.out.println(role.getName());
 		}
 	}
 	

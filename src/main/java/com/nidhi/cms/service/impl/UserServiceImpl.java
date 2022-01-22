@@ -439,6 +439,45 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	private void performPostAction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, String response, UserWallet userWallet) {
 		
+		Transaction txn = saveTransaction(user, userTxWoOtpReqModal, response, userWallet);
+		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
+		updateBalance(txn.getAmountPlusfee(), userWallet);
+		saveFeeTransaction(user, userTxWoOtpReqModal, userWallet);
+		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal);
+	}
+
+	private Transaction saveFeeTransaction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal,
+			UserWallet userWallet) {
+		Transaction txn = new Transaction();
+		txn.setAggrId(userTxWoOtpReqModal.getAggrid());
+		txn.setAggrName(userTxWoOtpReqModal.getAggrname());
+		txn.setAmount(userTxWoOtpReqModal.getFee());
+		txn.setAmountPlusfee(userTxWoOtpReqModal.getFee());
+		txn.setCorpId(userTxWoOtpReqModal.getCorpid());
+		txn.setCreditAcc(userTxWoOtpReqModal.getCreditacc());
+		txn.setCurrency(userTxWoOtpReqModal.getCurrency());
+		txn.setDebitAcc(userTxWoOtpReqModal.getDebitacc());
+		txn.setFee(userTxWoOtpReqModal.getFee());
+		txn.setIfsc(userTxWoOtpReqModal.getIfsc());
+		txn.setMerchantId(userTxWoOtpReqModal.getMerchantId());
+		//txn.setPayeeName(userTxWoOtpReqModal.getPayeename());
+		txn.setTxnType(userTxWoOtpReqModal.getTxntype());
+		// setIciciResponse(txn, response);
+		txn.setUniqueId(userTxWoOtpReqModal.getUniqueid());
+		txn.setUrn(userTxWoOtpReqModal.getUrn());
+		txn.setUserId(user.getUserId());
+		txn.setTxType("Dr.");
+		txn.setTxDate(LocalDate.now());
+		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
+		txn.setRemarks("Fee transaction");
+		txn.setCreditTime(LocalDateTime.now());
+		txn.setStatus("SUCCESS");
+		txRepository.save(txn);
+		return txn;
+	}
+
+	private Transaction saveTransaction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, String response,
+			UserWallet userWallet) {
 		Transaction txn = new Transaction();
 		txn.setAggrId(userTxWoOtpReqModal.getAggrid());
 		txn.setAggrName(userTxWoOtpReqModal.getAggrname());
@@ -464,9 +503,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setRemarks(userTxWoOtpReqModal.getRemarks());
 		txn.setCreditTime(LocalDateTime.now());
 		txRepository.save(txn);
-		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
-		updateBalance(txn.getAmountPlusfee(), userWallet);
-		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal);
+		return txn;
 	}
 
 	private void triggerPayoutNotifications(User user, Transaction txn, UserTxWoOtpReqModal userTxWoOtpReqModal) {

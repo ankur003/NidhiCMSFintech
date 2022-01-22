@@ -469,9 +469,9 @@ public class UserControllerFe {
 	public ModelAndView approveOrRejectKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse,@RequestParam("adminuid") String adminuid, @RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
 			Model model, HttpServletRequest request) {
-	boolean a=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN, request);
-	boolean b=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR, request);
-	boolean c=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST, request);
+	boolean a=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN);
+	boolean b=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR);
+	boolean c=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST);
 
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
@@ -507,9 +507,9 @@ public class UserControllerFe {
 		String userUuid=request.getParameter("userUuid");
 		String kycRejectReason=request.getParameter("kycRejectReason").trim();
 		
-		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_PAN, request );
-		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_AADHAR, request);
-		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_GST, request);
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_PAN);
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_AADHAR);
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_GST);
 
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
@@ -1255,45 +1255,43 @@ public class UserControllerFe {
 	}
 
 
-@GetMapping(value = "/getTransactionToday")
-public ModelAndView getTransactionToday( @RequestParam("userUuid") String userUuid, Model model,HttpServletRequest request) {
-	LocalDate toady   = LocalDate.now();
-	UserWallet userWallet = userController.getUserWallet(userUuid);
-	List<Transaction> trans=userController.getUserTransactionsBytoadyDate(userUuid, toady);
-	double total=0.0;
-	for (Transaction transaction : trans) {
-		total=total+transaction.getAmountPlusfee();
+	@GetMapping(value = "/getTransactionToday")
+	public ModelAndView getTransactionToday(@RequestParam("userUuid") String userUuid, Model model,
+			HttpServletRequest request) {
+		LocalDate toady = LocalDate.now();
+		UserWallet userWallet = userController.getUserWallet(userUuid);
+		List<Transaction> trans = userController.getUserTransactionsBytoadyDate(userUuid, toady);
+		double total = 0.0;
+		for (Transaction transaction : trans) {
+			total = total + transaction.getAmountPlusfee();
+		}
+		if (!trans.isEmpty()) {
+			model.addAttribute("todayAmt", total);
+			model.addAttribute("todayCount", trans.size());
+			model.addAttribute("avFund", userWallet.getAmount());
+		}
+		return new ModelAndView("PayOutSummary");
 	}
-	if(!trans.isEmpty())
-	{
-		model.addAttribute("todayAmt",total);
-		model.addAttribute("todayCount",trans.size());
-		model.addAttribute("avFund",userWallet.getAmount());
-	}
-	return new ModelAndView("PayOutSummary");
-}
 
-@PostMapping(value = "/userTransactionOnDates")
-public ModelAndView userTransactionDates(Model model,HttpServletRequest request) throws ParseException {
-	String userUuid=request.getParameter("userUuid");
-	String startDate=request.getParameter("startDate");
-	String endDate=request.getParameter("endDate");
-	
-	
-	List<Transaction> trans=userController.getUserTransactionsByDates(userUuid,   Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
-	if(!trans.isEmpty())
-	{
-		model.addAttribute("trans",trans);
-		model.addAttribute("init",true);
+	@PostMapping(value = "/userTransactionOnDates")
+	public ModelAndView userTransactionDates(Model model, HttpServletRequest request) throws ParseException {
+		String userUuid = request.getParameter("userUuid");
+		String startDate = request.getParameter("startDate");
+		String endDate = request.getParameter("endDate");
+
+		List<Transaction> trans = userController.getUserTransactionsByDates(userUuid,
+				Utility.stringToLocalDate(startDate), Utility.stringToLocalDate(endDate));
+		if (!trans.isEmpty()) {
+			model.addAttribute("trans", trans);
+			model.addAttribute("init", true);
+		} else {
+			model.addAttribute("init", false);
+		}
+		model.addAttribute("startDate", startDate);
+		model.addAttribute("endDate", endDate);
+
+		return new ModelAndView("AccountStatement");
 	}
-	else {
-		model.addAttribute("init",false);
-	}
-	model.addAttribute("startDate",startDate);
-	model.addAttribute("endDate",endDate);
-	
-	return new ModelAndView("AccountStatement");
-}
 //userPayoutReport
 
 @PostMapping(value = "/userPayoutReport")
