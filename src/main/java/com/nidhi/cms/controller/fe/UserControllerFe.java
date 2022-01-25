@@ -37,9 +37,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
 import com.nidhi.cms.constants.ApiConstants;
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.ForgotPassType;
+import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.constants.enums.RoleEum;
@@ -172,15 +174,8 @@ public class UserControllerFe {
 			session.setAttribute(AUTH_TOKEN, authtoken);
 			session.setAttribute("userLoginDetails", userLoginDetails);
 
-			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN, userLoginDetails.getUserUuid());
-			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR, userLoginDetails.getUserUuid());
-			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST, userLoginDetails.getUserUuid());
-			session.setAttribute("userDoc", userDoc);
-			session.setAttribute("userDocs", userDocs);
-			session.setAttribute("userDocx", userDocx);
+			addUserKycDetailsInSession(userLoginDetails, session);
 			
-			UserBusinessKycModal bkyc= userController.getUserBusnessKyc(userLoginDetails.getUserUuid());
-			session.setAttribute("bkyc", bkyc);
 			UserBankDetails bank= userController.getUserBankDetails(userLoginDetails.getUserUuid());
 			session.setAttribute("bank", bank);
 					
@@ -279,6 +274,25 @@ public class UserControllerFe {
 
 	return new ModelAndView(LOGIN);
 }
+
+	private void addUserKycDetailsInSession(User userLoginDetails, HttpSession session) {
+		if (userLoginDetails.getKycStatus().name().equals(KycStatus.PENDING.name())) {
+			session.setAttribute("userDoc", null);
+			session.setAttribute("userDocs", null);
+			session.setAttribute("userDocx", null);
+			session.setAttribute("bkyc", null);
+			return;
+		}
+		UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN, userLoginDetails.getUserUuid());
+		UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR, userLoginDetails.getUserUuid());
+		UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST, userLoginDetails.getUserUuid());
+		session.setAttribute("userDoc", userDoc);
+		session.setAttribute("userDocs", userDocs);
+		session.setAttribute("userDocx", userDocx);
+		
+		UserBusinessKycModal bkyc= userController.getUserBusnessKyc(userLoginDetails.getUserUuid());
+		session.setAttribute("bkyc", bkyc);
+	}
 
 	@PostMapping(value = "/pkycupload")
 	public ModelAndView pkyc(Model model, HttpServletRequest request,  MultipartFile[] fileUpload) {
@@ -1444,21 +1458,23 @@ public ModelAndView getUserNameByMarchantIds(Model model,HttpServletRequest requ
 //	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
 
 @PostMapping(value = "/getStatus")
-public @ResponseBody Object getStatus(HttpServletRequest request)  {
-	String   userUuid=request.getParameter("userUuid");
-	String   utr=request.getParameter("utr");
-	String   transtype=request.getParameter("transtype");
-	String   uniqueId=request.getParameter("uniqueId");
-	Object obj=null;
-	if( transtype.equalsIgnoreCase("RTG"))
-	  obj=userController.getTransactionStatus(userUuid,uniqueId,PaymentMode.RTG);
-	if( transtype.equalsIgnoreCase("IFS"))
-	  obj=userController.getTransactionStatus(userUuid,uniqueId,PaymentMode.IFS);
-	if( transtype.equalsIgnoreCase("RGS"))
-	  obj=userController.getTransactionStatus(userUuid,utr,PaymentMode.RGS);
+public  @ResponseBody String getStatus(HttpServletRequest request) {
+	String userUuid = request.getParameter("userUuid");
+	String utr = request.getParameter("utr");
+	String transtype = request.getParameter("transtype");
+	String uniqueId = request.getParameter("uniqueId");
+	Object obj = null;
+	if (transtype.equalsIgnoreCase("RTG"))
+		obj = userController.getTransactionStatus(userUuid, uniqueId, PaymentMode.RTG);
+	if (transtype.equalsIgnoreCase("IFS"))
+		obj = userController.getTransactionStatus(userUuid, uniqueId, PaymentMode.IFS);
+	if (transtype.equalsIgnoreCase("RGS"))
+		obj = userController.getTransactionStatus(userUuid, utr, PaymentMode.RGS);
+
+	System.out.println("=============================" + obj);
 	
-	System.out.println("============================="+obj);
-	return obj;
-	
+	Gson gson = new Gson();
+	return gson.toJson(obj);
+
 }
 }

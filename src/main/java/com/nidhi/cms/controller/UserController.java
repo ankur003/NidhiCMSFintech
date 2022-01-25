@@ -143,7 +143,12 @@ public class UserController extends AbstractController {
 
 	
 	public String userSignUp(@Valid @ModelAttribute UserCreateModal userCreateModal, Model model) throws Exception {
-		final User user = beanMapper.map(userCreateModal, User.class);
+		final User user = new User();
+		user.setUserEmail(userCreateModal.getUserEmail());
+		user.setMobileNumber(userCreateModal.getMobileNumber());
+		user.setFullName(userCreateModal.getFullName());
+		user.setReferralCode(userCreateModal.getReferralCode());
+		user.setIsUserCreatedByAdmin(userCreateModal.getIsCreatedByAdmin());
 		User existingUser = userservice.getUserByUserEmailOrMobileNumber(user.getUserEmail(), user.getMobileNumber());
 		if (Objects.nonNull(existingUser) && BooleanUtils.isTrue(existingUser.getIsUserVerified())) {
 			return "Either Email or Mobile already Exist.";
@@ -162,7 +167,7 @@ public class UserController extends AbstractController {
 			}
 			return "please try again in some time or reach to the support";
 		}
-		String otpUuid = userservice.createUser(user, userCreateModal.getIsCreatedByAdmin());
+		String otpUuid = userservice.createUser(user, userCreateModal);
 		if (StringUtils.isBlank(otpUuid)) {
 			return "please try again in some time or reach to the support";
 		}

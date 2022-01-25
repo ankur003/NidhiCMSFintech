@@ -53,6 +53,7 @@ import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
+import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
@@ -142,17 +143,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public String createUser(User user, Boolean isCreatedByAdim) throws Exception {
-		String rowPassword = user.getPassword();
+	public String createUser(User user, UserCreateModal userCreateModal) throws Exception {
+		String rowPassword = userCreateModal.getPassword();
 		user.setUserUuid(Utility.getUniqueUuid());
 		user.setPassword(encoder.encode(rowPassword));
 		user.setIsAdmin(false);
 		user.setIsUserVerified(false);
 		user.setRoles(Utility.getRole(RoleEum.USER));
-		user.setIsUserCreatedByAdmin(isCreatedByAdim);
+		user.setIsUserCreatedByAdmin(userCreateModal.getIsCreatedByAdmin());
 		User savedUser = userRepository.save(user);
 		savedUser.setRawp(rowPassword);
-		if (BooleanUtils.isTrue(isCreatedByAdim)) {
+		if (BooleanUtils.isTrue(userCreateModal.getIsCreatedByAdmin())) {
 			otpService.sendPasswordOnEmail(savedUser, rowPassword);
 			return Utility.getUniqueUuid();
 		}
@@ -224,7 +225,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
-		emailService.sendEmail(request, model, null, EmailTemplateConstants.SIGN_UP);
+		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.SIGN_UP);
 
 	}
 
@@ -312,7 +313,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			model.put("ifsc", bankDetails.getIfsc());
 			model.put("bankName", bankDetails.getBankName());
 			model.put("companyName", userBusnessKyc.getCompnayName());
-			emailService.sendEmail(request, model, null, EmailTemplateConstants.KYC_APPROVED);
+			emailService.sendMailAsync(request, model, null, EmailTemplateConstants.KYC_APPROVED);
 		} else if (BooleanUtils.isFalse(kycResponse)) {
 			request.setSubject("Issue with Account");
 			Map<String, Object> model = new HashMap<>();
@@ -442,12 +443,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		Transaction txn = saveTransaction(user, userTxWoOtpReqModal, response, userWallet);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
 		updateBalance(txn.getAmountPlusfee(), userWallet);
-		saveFeeTransaction(user, userTxWoOtpReqModal, userWallet);
+		saveFeeTransaction(user, userTxWoOtpReqModal, userWallet, response);
 		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal);
 	}
 
 	private Transaction saveFeeTransaction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal,
-			UserWallet userWallet) {
+			UserWallet userWallet, String response) {
+		JSONObject jsonObject = new JSONObject(response);
 		Transaction txn = new Transaction();
 		txn.setAggrId(userTxWoOtpReqModal.getAggrid());
 		txn.setAggrName(userTxWoOtpReqModal.getAggrname());
@@ -460,18 +462,18 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setFee(userTxWoOtpReqModal.getFee());
 		txn.setIfsc(userTxWoOtpReqModal.getIfsc());
 		txn.setMerchantId(userTxWoOtpReqModal.getMerchantId());
-		//txn.setPayeeName(userTxWoOtpReqModal.getPayeename());
+		txn.setPayeeName(userTxWoOtpReqModal.getPayeename());
 		txn.setTxnType(userTxWoOtpReqModal.getTxntype());
-		// setIciciResponse(txn, response);
 		txn.setUniqueId(userTxWoOtpReqModal.getUniqueid());
 		txn.setUrn(userTxWoOtpReqModal.getUrn());
 		txn.setUserId(user.getUserId());
 		txn.setTxType("Dr.");
 		txn.setTxDate(LocalDate.now());
 		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
-		txn.setRemarks("Fee transaction");
 		txn.setCreditTime(LocalDateTime.now());
 		txn.setStatus("SUCCESS");
+		txn.setUtrNumber(jsonObject.getString("UTRNUMBER"));
+		txn.setRemarks("Fee transaction");
 		txRepository.save(txn);
 		return txn;
 	}
@@ -526,7 +528,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		}
 		MailRequest request = new MailRequest();
 		request.setName(user.getFullName());
-		request.setSubject("Your NidhiCMS Account Debited with Rs." +txn.getAmountPlusfee());
+		request.setSubject("Your NidhiCMS Account Debited with Rs." +txn.getAmount());
 		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());

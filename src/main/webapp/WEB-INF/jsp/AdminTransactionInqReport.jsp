@@ -29,14 +29,8 @@
         	//  {"STATUS":"FAILURE","Message":"UTR Number is Mandatory","ErrorCode":"999993","Response":"Failure"}
         	//ResponseOnMain: {"STATUS":"Amount credited to Beneficiary.","UTRNUMBER":"025983655651","CreditDate":"12,01,2022 10:34:41 AM",
         		//"Response":"SUCCESS","REASON":""}
-        	  alert(data);
-        	  const myObj =data;
-        	  const myJSON = JSON.stringify(myObj);
-        	  localStorage.setItem("testJSON", myJSON);
-
-        	  // Retrieving data:
-        	  let text = localStorage.getItem("testJSON");
-        	  let obj = JSON.parse(text);
+        	  console.log(data);
+        	  var obj = JSON.parse(data);
         	 var response=" Status : "+obj.STATUS+'\r\n'+" Message : "+obj.Message+'\r\n'+" ErrorCode : "+obj.ErrorCode+'\r\n'
         	 +" Response : "+obj.Response+'\r\n'+" UTRNUMBER : "+obj.UTRNUMBER+'\r\n'+"CreditDate :"+obj.CreditDate;
         	  document.getElementById("kycRejectReason").value = response;
@@ -190,7 +184,7 @@
 							<!-- <div class="panel-body"> -->
 							<!-- 	<div  id="batchtimelist"></div> -->
 								<textarea required="required"
-								id="kycRejectReason" name="kycRejectReason" rows="4" cols="65">
+								id="kycRejectReason" name="kycRejectReason" rows="10" cols="36">
 								
 								</textarea>
 								

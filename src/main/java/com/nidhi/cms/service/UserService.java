@@ -18,6 +18,7 @@ import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserBankModal;
+import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
@@ -30,7 +31,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 
 public interface UserService {
 
-	String createUser(User user, Boolean isCreatedByAdim) throws Exception;
+	String createUser(User user, UserCreateModal userCreateModal) throws Exception;
 	
 	User getUserByUserEmailOrMobileNumber(String email, String mobile);
 	
