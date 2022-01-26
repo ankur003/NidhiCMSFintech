@@ -243,7 +243,7 @@ public class UserController extends AbstractController {
 		if (errorResponse != null) {
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
-		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
+		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc, false);
 		if (BooleanUtils.isTrue(isSaved)) {
 			return ResponseHandler.getMapResponse(MESSAGE, "data saved");
 		}
@@ -651,7 +651,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		List<Transaction> transactions = transactionService.findByUserIdAndUniqueId(user.getUserId(), nEFTIncrementalStatusReqModal.getUtrnumber());
+		List<Transaction> transactions = transactionService.findByUserIdAndUtrNumber(user.getUserId(), nEFTIncrementalStatusReqModal.getUtrnumber());
 		if (CollectionUtils.isEmpty(transactions)) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Utrnumber not valid.");
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
@@ -818,14 +818,14 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	public ResponseEntity<Object> saveOrUpdateUserBusnessKyc2(
-			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal,User user) {
+			@Valid @RequestBody UserBusinessKycRequestModal userBusunessKycRequestModal,User user, boolean isAdmin) {
 		final UserBusinessKyc userBusinessKyc = beanMapper.map(userBusunessKycRequestModal, UserBusinessKyc.class);
 		userBusinessKyc.setUserId(user.getUserId());
 		ErrorResponse errorResponse = validatePan(user.getUserId(), userBusunessKycRequestModal.getIndividualPan());
 		if (errorResponse != null) {
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
-		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc);
+		Boolean isSaved = userBusnessKycService.saveOrUpdateUserBusnessKyc(beanMapper, userBusinessKyc, isAdmin);
 		if (BooleanUtils.isTrue(isSaved)) {
 			return ResponseHandler.getMapResponse(MESSAGE, "data saved");
 		}

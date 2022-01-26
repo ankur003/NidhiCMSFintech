@@ -48,4 +48,6 @@ public interface TransactionService {
 
 	void saveCreditTransaction(Document docWithContent, int i, User user, UserWallet userWallet);
 
+	List<Transaction> findByUserIdAndUtrNumber(Long userId, String utrnumber);
+
 }

@@ -34,4 +34,6 @@ public interface TxRepository extends JpaRepository<Transaction, Long> , PagingA
 
 	Transaction findByCreditTime(LocalDateTime creditTime);
 
+	List<Transaction> findByUserIdAndUtrNumber(Long userId, String utrnumber);
+
 }

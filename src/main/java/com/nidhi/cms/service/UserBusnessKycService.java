@@ -8,7 +8,7 @@ import com.nidhi.cms.domain.UserBusinessKyc;
 
 public interface UserBusnessKycService {
 
-	Boolean saveOrUpdateUserBusnessKyc(Mapper beanMapper, UserBusinessKyc userBusinessKyc);
+	Boolean saveOrUpdateUserBusnessKyc(Mapper beanMapper, UserBusinessKyc userBusinessKyc, Boolean isAdmin);
 
 	UserBusinessKyc getUserBusnessKyc(Long userId);
 

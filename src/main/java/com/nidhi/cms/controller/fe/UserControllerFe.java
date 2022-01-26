@@ -998,7 +998,7 @@ public class UserControllerFe {
 				userController.saveOrUpdateUserDoc2(fileUpload, DocType.DOCUMENT_GST,user);
 			}
 
-			userController.saveOrUpdateUserBusnessKyc2(userBusinessKycRequestModal,user);
+			userController.saveOrUpdateUserBusnessKyc2(userBusinessKycRequestModal,user,true);
 			model.addAttribute("msg", "Business Details Succesfully Update");
 			model.addAttribute("id",2);
 			

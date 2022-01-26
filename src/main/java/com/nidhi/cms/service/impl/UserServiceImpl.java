@@ -382,12 +382,45 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		if (userBankDetails == null) {
 			userBankDetails = new UserBankDetails();
 		}
-		userBankDetails.setAccountNumber(userBankModal.getAccountNumber());
-		userBankDetails.setBankAccHolderName(userBankModal.getBankAccHolderName());
-		userBankDetails.setIfsc(userBankModal.getIfsc());
+		Map<String, Object> model = new HashMap<>();
+		model.put("AccountNumber", "-");
+		model.put("BankAccHolderName", "-");
+		model.put("Ifsc", "-");
+		model.put("BankName", "-");
+		
+		if (StringUtils.isNotBlank(userBankModal.getAccountNumber())) {
+			userBankDetails.setAccountNumber(userBankModal.getAccountNumber());
+			model.put("AccountNumber", userBankModal.getAccountNumber());
+		}
+		if (StringUtils.isNotBlank(userBankModal.getBankAccHolderName())) {
+			userBankDetails.setBankAccHolderName(userBankModal.getBankAccHolderName());
+			model.put("BankAccHolderName", userBankModal.getBankAccHolderName());
+		}
+		if (StringUtils.isNotBlank(userBankModal.getIfsc())) {
+			userBankDetails.setIfsc(userBankModal.getIfsc());
+			model.put("Ifsc", userBankModal.getIfsc());
+		}
+		if (StringUtils.isNotBlank(userBankModal.getBankName())) {
+			userBankDetails.setBankName(userBankModal.getBankName());
+			model.put("BankName", userBankModal.getBankName());
+		}
 		userBankDetails.setUserId(user.getUserId());
-		userBankDetails.setBankName(userBankModal.getBankName());
-		return userBankDetailsRepo.save(userBankDetails);
+		UserBankDetails userBankDetailsUpdated = userBankDetailsRepo.save(userBankDetails);
+		triggerUserUpdateBankDetailsListingNotifications(user, model);
+		return userBankDetailsUpdated;
+	}
+	
+	private void triggerUserUpdateBankDetailsListingNotifications(User user, Map<String, Object> model) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerUserUpdateBankDetailsListingNotifications] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+			MailRequest request = new MailRequest();
+			request.setName(user.getFullName());
+			request.setSubject("Bank Account Update");
+			request.setTo(new String[] { user.getUserEmail() });
+			model.put("name", user.getFullName());
+			emailService.sendMailAsync(request, model, null, EmailTemplateConstants.USER_BANK_UPDATE_DETAILS);
 	}
 
 	@Override
@@ -399,9 +432,25 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public Boolean apiWhiteListing(User user, String ip) {
 		user.setWhiteListIp(ip.trim());
 		userRepository.save(user);
+		triggerUserUpdateApiWhiteListingNotifications(user, ip);
 		return Boolean.TRUE;
 	}
 
+	private void triggerUserUpdateApiWhiteListingNotifications(User user, String ip) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerUserUpdateApiWhiteListingNotifications] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+			MailRequest request = new MailRequest();
+			request.setName(user.getFullName());
+			request.setSubject("Account Update");
+			request.setTo(new String[] { user.getUserEmail() });
+			Map<String, Object> model = new HashMap<>();
+			model.put("name", user.getFullName());
+			model.put("ip", ip);
+			emailService.sendMailAsync(request, model, null, EmailTemplateConstants.USER_UPDATE_DETAILS_IP_UPDATE);
+	}
+	
 	@Override
 	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet) {
 		try {
@@ -667,7 +716,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			model.put("mname", StringUtils.isNotBlank(userUpdateModal.getMiddleName()) ? userUpdateModal.getMiddleName() : "-");
 			model.put("dob", StringUtils.isNotBlank(userUpdateModal.getDob()) ? userUpdateModal.getDob() : "-");
 			model.put("fullname", StringUtils.isNotBlank(userUpdateModal.getFullName()) ? userUpdateModal.getFullName() : "-");
-			emailService.sendEmail(request, model, null, EmailTemplateConstants.USER_UPDATE_DETAILS);
+			emailService.sendMailAsync(request, model, null, EmailTemplateConstants.USER_UPDATE_DETAILS);
 	}
 
 	@Override

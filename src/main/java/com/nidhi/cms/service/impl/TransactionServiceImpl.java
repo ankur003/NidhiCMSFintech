@@ -196,4 +196,9 @@ public class TransactionServiceImpl implements TransactionService{
 		return txRepository.findByCreditTime(creditTime);
 	}
 
+	@Override
+	public List<Transaction> findByUserIdAndUtrNumber(Long userId, String utrnumber) {
+		return txRepository.findByUserIdAndUtrNumber(userId, utrnumber);
+	}
+
 }

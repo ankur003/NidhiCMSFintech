@@ -36,4 +36,8 @@ public class EmailTemplateConstants {
     
     public static final String PASSWORD = "password.ftl";
     
+    public static final String USER_UPDATE_DETAILS_IP_UPDATE = "user-update-details-ip-update.ftl";
+    
+    public static final String USER_BANK_UPDATE_DETAILS = "user-bank-update-details.ftl";
+    
 }
