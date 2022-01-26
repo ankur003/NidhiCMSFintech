@@ -474,6 +474,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setStatus("SUCCESS");
 		txn.setUtrNumber(jsonObject.getString("UTRNUMBER"));
 		txn.setRemarks("Fee transaction");
+		txn.setIsFeeTx(true);
 		txRepository.save(txn);
 		return txn;
 	}

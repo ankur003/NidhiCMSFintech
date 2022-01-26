@@ -69,6 +69,8 @@ public class Transaction extends BaseDomain {
 
 	private LocalDateTime creditTime;
 
+	private Boolean isFeeTx = false;
+
 	public Long getTransactionId() {
 		return transactionId;
 	}
@@ -283,6 +285,14 @@ public class Transaction extends BaseDomain {
 
 	public void setCreditTime(LocalDateTime creditTime) {
 		this.creditTime = creditTime;
+	}
+
+	public Boolean getIsFeeTx() {
+		return isFeeTx;
+	}
+
+	public void setIsFeeTx(Boolean isFeeTx) {
+		this.isFeeTx = isFeeTx;
 	}
 
 }

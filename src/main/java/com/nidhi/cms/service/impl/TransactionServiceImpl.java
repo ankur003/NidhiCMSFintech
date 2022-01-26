@@ -90,7 +90,7 @@ public class TransactionServiceImpl implements TransactionService{
 	}
 
 	@Override
-	public Object getTransactionStatus(String uniqueId, PaymentMode paymentMode) {
+	public String getTransactionStatus(String uniqueId, PaymentMode paymentMode) {
 		if (paymentMode == PaymentMode.RGS) {
 			return neftIncrementalStatusAPi(uniqueId);
 		} else if (paymentMode == PaymentMode.IFS || paymentMode == PaymentMode.RTG) {
@@ -100,7 +100,7 @@ public class TransactionServiceImpl implements TransactionService{
 	}
 
 	@Override
-	public Object transactionStatusInquiry(String uniqueId) {
+	public String transactionStatusInquiry(String uniqueId) {
 		try {
 			TransactionStatusInquiry transactionStatusInquiry = new TransactionStatusInquiry();
 			transactionStatusInquiry.setAggrid(CmsConfig.CUST_ID);
@@ -126,7 +126,7 @@ public class TransactionServiceImpl implements TransactionService{
 	}
 
 	@Override
-	public Object neftIncrementalStatusAPi(String utrNumber) {
+	public String neftIncrementalStatusAPi(String utrNumber) {
 		try {
 			NeftIncrementalStatus neftIncrementalStatus = new NeftIncrementalStatus();
 			neftIncrementalStatus.setAggrid(CmsConfig.CUST_ID);

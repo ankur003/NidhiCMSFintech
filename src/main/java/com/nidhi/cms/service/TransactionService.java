@@ -32,7 +32,7 @@ public interface TransactionService {
 
 	List<Transaction> getTransactionsByUniqueId(String uniqueId);
 
-	Object getTransactionStatus(String uniqueId, PaymentMode paymentMode);
+	String getTransactionStatus(String uniqueId, PaymentMode paymentMode);
 
 	Object transactionStatusInquiry(String uniqueId);
 

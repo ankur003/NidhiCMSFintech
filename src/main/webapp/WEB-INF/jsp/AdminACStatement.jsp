@@ -183,7 +183,7 @@
 															<c:if test="${us.txnType eq 'RTG'}">RTGS</c:if>
 																<c:if test="${us.txnType eq 'IFS'}">IMPS</c:if>
 																	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
-																	<c:if test="${us.remarks eq 'Fee transaction'}"> Charges</c:if>/${us.payeeName}/${us.utrNumber}
+																	<c:if test="${us.isFeeTx eq true}"> Charges</c:if>/${us.payeeName}/${us.utrNumber}
 															</td>		
 															  <c:choose><c:when test="${us.txType eq 'Dr.'}"><td>${us.amount}</td> 	<c:set var="totalDr" value="${totalDr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>											
 															<c:choose><c:when test="${us.txType eq 'Cr.'}"><td>${us.amount}</td>     <c:set var="totalCr" value="${totalCr+us.amount}" /></c:when><c:otherwise><td>0.0</td></c:otherwise></c:choose>	      

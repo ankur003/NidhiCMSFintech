@@ -1065,10 +1065,10 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return transactionService.getTransactionsByUniqueId(uniqueId);
 	}
 	
-	public Object getTransactionStatus(String adminuserUuid, String uniqueIdOrUtrNumber, PaymentMode paymentMode) {
+	public String getTransactionStatus(String adminuserUuid, String uniqueIdOrUtrNumber, PaymentMode paymentMode) {
 		User user = userservice.getUserByUserUuid(adminuserUuid);
 		if (user == null || BooleanUtils.isNotTrue(user.getIsAdmin())) {
-			return Collections.emptyList();
+			return null;
 		}
 		return transactionService.getTransactionStatus(uniqueIdOrUtrNumber, paymentMode);
 	}

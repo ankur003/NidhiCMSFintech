@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.google.gson.Gson;
 import com.nidhi.cms.constants.ApiConstants;
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.ForgotPassType;
@@ -1355,7 +1356,7 @@ public ModelAndView findbyMerchantId(Model model,HttpServletRequest request) thr
 
 
 @PostMapping(value = "/adminBillingReport")
-public ModelAndView adminBillingReport(Model model,HttpServletRequest request) throws ParseException {
+public ModelAndView adminBillingReport(Model model,HttpServletRequest request) {
 	String clientname=request.getParameter("clientname");
 	String startDate=request.getParameter("startDate");
 	String endDate=request.getParameter("endDate");
@@ -1363,9 +1364,10 @@ public ModelAndView adminBillingReport(Model model,HttpServletRequest request) t
 	String[] cname=clientname.split("-");
 	String mids=cname[0];
 	List<Transaction> trans=userController.findByMerchantIdAndTxDateBetween(mids,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
-	if(!trans.isEmpty())
+	List<Transaction> filteredList = trans.stream().filter(t -> t.getIsFeeTx()).collect(Collectors.toList());
+	if(filteredList != null && !filteredList.isEmpty())
 	{
-		model.addAttribute("trans",trans);
+		model.addAttribute("trans",filteredList);
 		model.addAttribute("init",true);
 	}
 	else {
@@ -1380,22 +1382,20 @@ public ModelAndView adminBillingReport(Model model,HttpServletRequest request) t
 
 
 @PostMapping(value = "/findByUnique")
-public ModelAndView findByUnique(Model model,HttpServletRequest request) throws ParseException {
-	String uniqueNum=request.getParameter("uniqueNum");
-	String userUuid=request.getParameter("userUuid");
-	List<Transaction> trans=userController.getTransactionsByUniqueId(userUuid, uniqueNum);
-	if(!trans.isEmpty())
-	{
-		model.addAttribute("trans",trans);
-		model.addAttribute("init",true);
+public ModelAndView findByUnique(Model model, HttpServletRequest request) throws ParseException {
+	String uniqueNum = request.getParameter("uniqueNum");
+	String userUuid = request.getParameter("userUuid");
+	List<Transaction> trans = userController.getTransactionsByUniqueId(userUuid, uniqueNum);
+	List<Transaction> filteredList = trans.stream().filter(t -> BooleanUtils.isFalse(t.getIsFeeTx())).collect(Collectors.toList());
+	if (filteredList != null && !filteredList.isEmpty()) {
+		model.addAttribute("trans", filteredList);
+		model.addAttribute("init", true);
+	} else {
+		model.addAttribute("init", false);
 	}
-	else {
-		model.addAttribute("init",false);
-	}
-	model.addAttribute("uniqueNum",uniqueNum);
+	model.addAttribute("uniqueNum", uniqueNum);
 	return new ModelAndView("AdminTransactionInqReport");
 }
-
 
 @PostMapping(value = "/getAllTranaction")
 public ModelAndView getAllTranaction(Model model,HttpServletRequest request) throws ParseException {
@@ -1458,12 +1458,12 @@ public ModelAndView getUserNameByMarchantIds(Model model,HttpServletRequest requ
 //	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
 
 @PostMapping(value = "/getStatus")
-public  @ResponseBody String getStatus(HttpServletRequest request) {
+public @ResponseBody String getStatus(HttpServletRequest request) {
 	String userUuid = request.getParameter("userUuid");
 	String utr = request.getParameter("utr");
 	String transtype = request.getParameter("transtype");
 	String uniqueId = request.getParameter("uniqueId");
-	Object obj = null;
+	String obj = null;
 	if (transtype.equalsIgnoreCase("RTG"))
 		obj = userController.getTransactionStatus(userUuid, uniqueId, PaymentMode.RTG);
 	if (transtype.equalsIgnoreCase("IFS"))
@@ -1473,8 +1473,34 @@ public  @ResponseBody String getStatus(HttpServletRequest request) {
 
 	System.out.println("=============================" + obj);
 	
-	Gson gson = new Gson();
-	return gson.toJson(obj);
+	if (obj == null) {
+		return null;
+	}
+
+	JSONObject jsonObject = new JSONObject(obj);
+	if (jsonObject.has("STATUS")) {
+		jsonObject.put("STATUS", jsonObject.getString("STATUS"));
+	}
+	if (jsonObject.has("URN")) {
+		jsonObject.put("URN", jsonObject.getString("URN"));
+	}
+	if (jsonObject.has("UNIQUEID")) {
+		jsonObject.put("UNIQUEID", jsonObject.getString("UNIQUEID"));
+	}
+	if (jsonObject.has("UTRNUMBER")) {
+		jsonObject.put("UTRNUMBER", jsonObject.getString("UTRNUMBER"));
+	}
+	if (jsonObject.has("RESPONSE")) {
+		jsonObject.put("RESPONSE", jsonObject.getString("RESPONSE"));
+	}
+	if (jsonObject.has("REASON")) {
+		jsonObject.put("REASON", jsonObject.getString("REASON"));
+	}
+	if (jsonObject.has("CreditDate")) {
+		jsonObject.put("CreditDate", jsonObject.getString("CreditDate"));
+	}
+
+	return jsonObject.toString();
 
 }
 }

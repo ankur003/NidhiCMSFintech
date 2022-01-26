@@ -142,7 +142,7 @@
 																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
 																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
 																<td>${us.uniqueId}</td>		
-															<td><c:if test="${us.remarks eq 'Fee transaction'}">Charges </c:if>${us.utrNumber}/${us.payeeName}/
+															<td><c:if test="${us.isFeeTx eq true}">Charges </c:if>${us.utrNumber}/${us.payeeName}/
 															<c:if test="${us.txnType eq 'RTG'}">RTGS</c:if>
 																<c:if test="${us.txnType eq 'IFS'}">IMPS</c:if>
 																	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
