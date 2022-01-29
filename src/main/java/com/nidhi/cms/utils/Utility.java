@@ -180,13 +180,9 @@ public class Utility {
 		return false;
 	}
 
-	public static String getMerchantId() {
-		return null;
-	}
-
 	public static String getVirtualId() {
-		return RandomStringUtils.random(15, false, true);
-		// return "Z" + RandomStringUtils.random(5, true, false) + RandomStringUtils.random(6, true, false);
+		//return RandomStringUtils.random(15, false, true);
+		return "ZNIDCMS" + String.format("%08d", 1);
 	}
 
 	public static String getEncyptedReqBody(@Valid IndsIndRequestModal indsIndRequestModal, String indBankKey) throws Exception {

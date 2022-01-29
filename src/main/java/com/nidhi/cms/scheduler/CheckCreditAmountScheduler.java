@@ -61,7 +61,7 @@ public class CheckCreditAmountScheduler {
     		OkHttpClient client = new OkHttpClient().newBuilder().build();
     		MediaType mediaType = MediaType.parse("text/xml");
     		RequestBody body = RequestBody.create(
-    				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\n    <soapenv:Header/>\n    <soapenv:Body>\n        <tem:FetchIecData>\n            <!--Optional:-->\n            <tem:RequestData>\n                <!--Optional:-->\n                <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\n            </tem:RequestData>\n        </tem:FetchIecData>\n    </soapenv:Body>\n</soapenv:Envelope>",
+    				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\n    <soapenv:Header/>\n    <soapenv:Body>\n        <tem:FetchIecData>\n            <!--Optional:-->\n            <tem:RequestData>\n                <!--Optional:-->\n                <eten:CustomerTenderId>ZNIDCM</eten:CustomerTenderId>\n            </tem:RequestData>\n        </tem:FetchIecData>\n    </soapenv:Body>\n</soapenv:Envelope>",
     				mediaType);
     		Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
     				.method("POST", body)
@@ -151,7 +151,7 @@ public class CheckCreditAmountScheduler {
 					+ "<RequestId>"+reqId+"</RequestId>\r\n                        "
 							+ "<ResponseCode>000</ResponseCode>\r\n                        "
 							+ "<ResponseDesc>success</ResponseDesc>\r\n                        "
-							+ "<ResponseId>R000</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
+							+ "<ResponseId>R000</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>ZNIDCM</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
 					mediaType);
 			Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
 					.method("POST", body).addHeader("Content-Type", "text/xml")
@@ -180,7 +180,7 @@ public class CheckCreditAmountScheduler {
 					+ "<RequestId>"+reqId+"</RequestId>\r\n                        "
 							+ "<ResponseCode>001</ResponseCode>\r\n                        "
 							+ "<ResponseDesc>failed</ResponseDesc>\r\n                        "
-							+ "<ResponseId>R006</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>NIDHI</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
+							+ "<ResponseId>R006</ResponseId>\r\n                    </TRANSACTION>\r\n                </IECResponse>]]>\r\n            </eten:CustomerResponse>\r\n            <!--Optional:-->\r\n            <eten:CustomerTenderId>ZNIDCM</eten:CustomerTenderId>\r\n         </tem:RequestData>\r\n      </tem:UpdateClientResponse>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
 					mediaType);
 			Request request = new Request.Builder().url("https://ibluatapig.indusind.com/app/uat/IBLeTender")
 					.method("POST", body).addHeader("Content-Type", "text/xml")

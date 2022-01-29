@@ -330,11 +330,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userWallet = new UserWallet();
 			userWallet.setUserId(user.getUserId());
 			userWallet.setAmount(0.0);
-			userWallet.setWalletUuid(Utility.getVirtualId());
+			userWallet.setWalletUuid(getVirtualId());
 			userWallet.setMerchantId(getMerchantId());
 			return userWalletRepository.save(userWallet);
 		}
 		return userWallet;
+	}
+
+	private String getVirtualId() {
+		UserWallet usrWallet = userWalletRepository.findFirstByOrderByUserWalletIdDesc();
+		if (usrWallet == null) {
+			return "ZNIDCMS" + "00000001";
+		}
+		return "ZNIDCMS" + String.format("%08d", usrWallet.getUserWalletId());
 	}
 
 	private String getMerchantId() {
@@ -459,7 +467,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
 			userTxWoOtpReqModal.setUrn(CmsConfig.URN);
 			userTxWoOtpReqModal.setUserid(CmsConfig.USER);
-			userTxWoOtpReqModal.setUniqueid(RandomStringUtils.randomAlphabetic(15));
+			String uniqueId = RandomStringUtils.randomAlphabetic(15);
+			userTxWoOtpReqModal.setUniqueid(uniqueId);
 			userTxWoOtpReqModal.setDebitacc(CmsConfig.DBIT_ACC);
 			String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 			LOGGER.info("[UserServiceImpl.txWithoutOTP] jsonAsString - {}", jsonAsString);
@@ -480,11 +489,20 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				return response;
 			}
 			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
-			return response;
+			return addUniqueIdIntoResponse(uniqueId, response);
 		} catch (Exception e) {
 			LOGGER.error("[UserServiceImpl.txWithoutOTP] Exception - {}", e);
 		}
 		return null;
+	}
+
+	private Object addUniqueIdIntoResponse(String uniqueId, String response) {
+		JSONObject jsonObject = new JSONObject(response);
+		jsonObject.put("uniqueId", uniqueId);
+		LOGGER.info("[UserServiceImpl.addUniqueIdIntoResponse] jsonObject - {}", jsonObject);
+		String jsonObjectToString = jsonObject.toString();
+		LOGGER.info("[UserServiceImpl.addUniqueIdIntoResponse] jsonObjectToString - {}", jsonObjectToString);
+		return jsonObjectToString;
 	}
 
 	private void performPostAction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, String response, UserWallet userWallet) {
@@ -493,7 +511,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
 		updateBalance(txn.getAmountPlusfee(), userWallet);
 		saveFeeTransaction(user, userTxWoOtpReqModal, userWallet, response);
-		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal);
+		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal, userWallet);
 	}
 
 	private Transaction saveFeeTransaction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal,
@@ -558,7 +576,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return txn;
 	}
 
-	private void triggerPayoutNotifications(User user, Transaction txn, UserTxWoOtpReqModal userTxWoOtpReqModal) {
+	private void triggerPayoutNotifications(User user, Transaction txn, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet) {
 		if (StringUtils.isBlank(user.getUserEmail())) {
 			LOGGER.error("[UserServiceImpl.triggerPayoutNotifications] user email is blank - {}", user.getUserEmail());
 			return;
@@ -566,12 +584,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		CompletableFuture.runAsync(() -> {
 			UserBankDetails bankDetails = getUserBankDetails(user);
 			payoutRequestInitionNotifications(bankDetails, user, txn, userTxWoOtpReqModal);
-			triggerDebitAccountNotification(bankDetails, user, txn);
+			triggerDebitAccountNotification(user, txn, userWallet);
 		});
 		
 	}
 
-	private void triggerDebitAccountNotification(UserBankDetails bankDetails, User user, Transaction txn) {
+	private void triggerDebitAccountNotification(User user, Transaction txn, UserWallet userWallet) {
 		if (StringUtils.isBlank(user.getUserEmail())) {
 			LOGGER.error("[UserServiceImpl.triggerDebitAccountNotification] user email is blank - {}", user.getUserEmail());
 			return;
@@ -583,10 +601,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
 		model.put("txAmt", txn.getAmount());
-		model.put("accNo", bankDetails.getAccountNumber());
+		model.put("accNo", userWallet.getWalletUuid());
 		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
 		model.put("amt", txn.getAmt());
-		emailService.sendEmail(request, model, null, EmailTemplateConstants.DEBIT_ACC);
+		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.DEBIT_ACC);
 		
 	}
 
