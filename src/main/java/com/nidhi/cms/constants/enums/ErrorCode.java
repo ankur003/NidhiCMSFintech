@@ -34,7 +34,7 @@ public enum ErrorCode {
 	GENERIC_AUTHENTICATION_ERROR(1009),
 
 	/** The parameter missing invalid. */
-	PARAMETER_MISSING_INVALID(1010),
+	PARAMETER_MISSING_OR_INVALID(1010),
 
 	/** The un-processable entity. */
 	UNPROCESSABLE_ENTITY(1011),

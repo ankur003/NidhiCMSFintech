@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -57,11 +58,16 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         RemoteException.class,
         RuntimeException.class,
         IllegalStateException.class,
+        IllegalArgumentException.class,
+        AuthenticationCredentialsNotFoundException.class,
     })
     public ResponseEntity<Object> exceptionHandler(final Exception exception, final WebRequest request) {
         logErrorMessage(exception);
         if (exception.getClass().isAssignableFrom(AccessDeniedException.class)) {
             return mapToAccessDeniedException();
+        }
+        if (exception.getClass().isAssignableFrom(AuthenticationCredentialsNotFoundException.class)) {
+            return mapToAuthenticationCredentialsNotFoundException();
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).contentType(MediaType.APPLICATION_JSON)
             .body(new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, SERVER_ERROR));
@@ -84,18 +90,29 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(errorMessage);
     }
+    
+    private ResponseEntity<Object> mapToAuthenticationCredentialsNotFoundException() {
+        final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHORIZATION_FAILURE, "Authorization header is invalid or missing.");
+        String errorMessage = "Access is denied";
+        try {
+            errorMessage = new ObjectMapper().writeValueAsString(errorResponse);
+        } catch (final JsonProcessingException e) {
+            log.error("[PropCo API] Access Denied - Request does not have required permission to access the requested API", e.getCause());
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(errorMessage);
+    }
 
     @Override
     protected ResponseEntity<Object> handleBindException(final BindException bindException, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logErrorMessage("Validation failed for one or more method parameters", bindException);
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_INVALID);
+        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_OR_INVALID);
         errorResponse.setMessage("invalid param found");
         for (final ObjectError objectError : bindException.getAllErrors()) {
             final String[] errorInfo = StringUtils.split(objectError.getDefaultMessage(), ":", 2);
             errorResponse.addError(errorInfo[0].trim(), errorInfo[1].trim());
         }
-        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_INVALID.value());
+        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
@@ -104,13 +121,13 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         logErrorMessage(exception);
         final Set<ConstraintViolation<?>> constraintViolations = exception.getConstraintViolations();
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_INVALID);
+        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_OR_INVALID);
         errorResponse.setMessage(REQUIRED_PARAM_ERROR_MESSAGE);
         for (final ConstraintViolation<?> constraintViolation : constraintViolations) {
             final String[] errorInfo = StringUtils.split(constraintViolation.getMessage(), ":", 2);
             errorResponse.addError(errorInfo[0].trim(), errorInfo[1].trim());
         }
-        errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_INVALID.value());
+        errorResponse.addError("errorCode", "" +ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
@@ -118,10 +135,10 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     ResponseEntity<Object> handleMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException exception) {
         logErrorMessage(exception);
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_INVALID);
+        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_OR_INVALID);
         errorResponse.setMessage(REQUIRED_PARAM_ERROR_MESSAGE);
         errorResponse.addError(exception.getName(), exception.getName() + ": invalid or missing");
-        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_INVALID.value());
+        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
@@ -130,10 +147,10 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         final MissingServletRequestParameterException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logErrorMessage("Validation failed for one or more method parameters", ex);
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_INVALID);
+        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_OR_INVALID);
         errorResponse.setMessage(REQUIRED_PARAM_ERROR_MESSAGE);
         errorResponse.addError(ex.getParameterName(), ex.getMessage());
-        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_INVALID.value());
+        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
         
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
@@ -143,13 +160,13 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         final WebRequest request) {
         logErrorMessage(ex);
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_INVALID);
+        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_OR_INVALID);
         errorResponse.setMessage(REQUIRED_PARAM_ERROR_MESSAGE);
         for (final ObjectError objectError : ex.getBindingResult().getAllErrors()) {
             final String[] errorInfo = StringUtils.split(objectError.getDefaultMessage(), ":", 2);
             errorResponse.addError(errorInfo[0].trim(), errorInfo[1].trim());
         }
-        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_INVALID.value());
+        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
@@ -161,10 +178,10 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             || exception.getMostSpecificCause().getClass().isAssignableFrom(InvalidFormatException.class)) {
             final String errorFieldName = StringUtils.remove(StringUtils.removeEnd(StringUtils.split(exception.getCause().getMessage(), "[", 2)[1], "])"), "\"");
             final ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_INVALID);
+            errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_OR_INVALID);
             errorResponse.setMessage(REQUIRED_PARAM_ERROR_MESSAGE);
             errorResponse.addError(errorFieldName, errorFieldName + GLOBAL_PARAM_ERROR_SUFFIX);
-            errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_INVALID.value());
+            errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
 
         }
@@ -174,11 +191,11 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<Object> mapToApiBaseErrorResponse(final String errorMessage, final HttpStatus status) {
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_INVALID);
+        errorResponse.setErrorDesc(ErrorCode.PARAMETER_MISSING_OR_INVALID);
         errorResponse.setMessage(REQUIRED_PARAM_ERROR_MESSAGE);
         final String[] errorInfo = StringUtils.split(errorMessage, ":", 2);
         errorResponse.addError("errors", errorInfo[0].trim());
-        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_INVALID.value());
+        errorResponse.addError("errorCode", ""+ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 

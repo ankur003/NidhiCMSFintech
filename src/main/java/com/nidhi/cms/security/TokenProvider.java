@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,7 +55,13 @@ public class TokenProvider implements Serializable {
 	}
 
 	private Claims getAllClaimsFromToken(String token) {
-		return Jwts.parser().setSigningKey(getSecretKey()).parseClaimsJws(token).getBody();
+		Claims claims = null;
+		try {
+			claims = Jwts.parser().setSigningKey(getSecretKey()).parseClaimsJws(token).getBody();
+			return claims;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("");
+		}
 	}
 
 	private String getSecretKey() {

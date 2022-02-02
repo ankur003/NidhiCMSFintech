@@ -174,7 +174,7 @@ public class OtpServiceImpl implements OtpService {
 		}
 		String expireMin = applicationConfig.getOtpExpireMinutes();
 		if (StringUtils.isBlank(expireMin)) {
-			expireMin = "30";
+			expireMin = "05";
 		}
 		if (otp.getUpdatedAt().plusMinutes(Long.valueOf(expireMin)).isAfter(LocalDateTime.now())) {
 			return Boolean.FALSE;

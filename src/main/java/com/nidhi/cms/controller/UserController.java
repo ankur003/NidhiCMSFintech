@@ -196,7 +196,7 @@ public class UserController extends AbstractController {
 			@RequestParam(required = true, name = "docType") final DocType docType, @RequestParam("userUuid") final String userUuid) throws IOException {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (multiipartFile == null) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "file is blank");
+			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
 		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
@@ -261,7 +261,7 @@ public class UserController extends AbstractController {
 			return null;
 		}
 		if (pan.equals(userBusinessKyc.getIndividualPan()) && !userId.equals(userBusinessKyc.getUserId())) {
-			return new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "pan number should be unique");
+			return new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "pan number should be unique");
 		}
 		return null;
 	}
@@ -427,13 +427,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Object txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal, final HttpServletRequest httpServletRequest) {
+	public ResponseEntity<Object> txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal, final HttpServletRequest httpServletRequest) {
 		
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		String authorizationToken = httpServletRequest.getHeader("Authorization");
 		if (StringUtils.isBlank(apiKey)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired -  please provide apiKey in header");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "apiKey is reuired -  please provide apiKey in header");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 		}
 		
@@ -470,57 +470,58 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		
 		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(userTxWoOtpReqModal.getMerchantId())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "merchantId not valid.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "merchantId not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		if (StringUtils.isBlank(userTxWoOtpReqModal.getTxntype())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is missing.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "txntype is missing.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		
 		PaymentMode txType = EnumUtils.getEnum(PaymentMode.class, userTxWoOtpReqModal.getTxntype());
 		
 		if (txType == null) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "txntype is in-valid.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "txntype is in-valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		
 		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, txType);
 		if (userPaymentMode == null || BooleanUtils.isNotTrue(userPaymentMode.getIsActive())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "permission not granted by admin for txntype - " +userTxWoOtpReqModal.getTxntype());
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "permission not granted by admin for txntype - " +userTxWoOtpReqModal.getTxntype());
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		BigDecimal userTxWoAmount = new BigDecimal(userTxWoOtpReqModal.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
 		if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
 			if ((userPaymentMode.getFee() == null)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 			}
 		if ((userWallet.getAmount()) < (getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount())) + userTxWoAmount.doubleValue()) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 			}
 		} else if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
 			if (userPaymentMode.getFee() == null) {
-				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance");
-				errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance");
+				errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
 	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 				}
 			if ((userWallet.getAmount()) < (userTxWoAmount.doubleValue() + userPaymentMode.getFee())) {
-				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "low balance.");
-				errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+				final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
+				errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
 	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 				}
 		}
 		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
 		setFeeRelatedInfo(userPaymentMode, userTxWoOtpReqModal);
-		return userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet);
+		Object response = userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 	private void setFeeRelatedInfo(UserPaymentMode userPaymentMode, UserTxWoOtpReqModal userTxWoOtpReqModal) {
@@ -549,8 +550,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		String authorizationToken = httpServletRequest.getHeader("Authorization");
 		if (StringUtils.isBlank(apiKey)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired - please provide apiKey in header");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "apiKey is reuired - please provide apiKey in header");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 		}
 		
@@ -587,14 +588,14 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		
 		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(txStatusInquiry.getMerchantId())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "merchantId not valid.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "merchantId not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		List<Transaction> transactions = transactionService.findByUserIdAndUniqueId(user.getUserId(), txStatusInquiry.getUniqueid());
 		if (CollectionUtils.isEmpty(transactions)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "unique id not valid.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "unique id not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		return userservice.txStatusInquiry(user, txStatusInquiry);
@@ -609,8 +610,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		String authorizationToken = httpServletRequest.getHeader("Authorization");
 		if (StringUtils.isBlank(apiKey)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "apiKey is reuired - please provide apiKey in header");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "apiKey is reuired - please provide apiKey in header");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 		}
 		
@@ -647,14 +648,14 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		
 		if (userWallet.getMerchantId() == null || !userWallet.getMerchantId().equals(nEFTIncrementalStatusReqModal.getMerchantId())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "merchantId not valid.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "merchantId not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		List<Transaction> transactions = transactionService.findByUserIdAndUtrNumber(user.getUserId(), nEFTIncrementalStatusReqModal.getUtrnumber());
 		if (CollectionUtils.isEmpty(transactions)) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "Utrnumber not valid.");
-			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_INVALID.value());
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Utrnumber not valid.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
 		return userservice.txNEFTStatus(user, nEFTIncrementalStatusReqModal);
@@ -805,7 +806,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			@RequestParam(required = true, name = "docType") final DocType docType,User user) throws IOException {
 		
 		if (multiipartFile == null) {
-			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_INVALID, "file is blank");
+			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
 		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);

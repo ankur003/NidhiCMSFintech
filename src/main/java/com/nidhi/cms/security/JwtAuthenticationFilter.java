@@ -50,6 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String header = extractAuthToken(req);
 		String username = null;
 		String authToken = null;
+		
+//		if (StringUtils.isBlank(header)) {
+//			throw new IllegalArgumentException("Authorization header not found");
+//		}
+		
 		if (header != null && header.startsWith(TOKEN_PREFIX)) {
 			authToken = header.replace(TOKEN_PREFIX, "");
 			try {

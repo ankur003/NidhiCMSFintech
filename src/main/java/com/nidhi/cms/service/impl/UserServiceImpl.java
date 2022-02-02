@@ -498,6 +498,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	private Object addUniqueIdIntoResponse(String uniqueId, String response) {
 		JSONObject jsonObject = new JSONObject(response);
+		if (jsonObject.has("uniqueId")) {
+			return response;
+		}
 		jsonObject.put("uniqueId", uniqueId);
 		LOGGER.info("[UserServiceImpl.addUniqueIdIntoResponse] jsonObject - {}", jsonObject);
 		String jsonObjectToString = jsonObject.toString();
