@@ -380,19 +380,22 @@ public class UserController extends AbstractController {
 	
 	public static boolean getRemoteIpAddress(User user, final HttpServletRequest httpServletRequest) {
 		String ip = user.getWhiteListIp();
+		System.out.println("ip ----> "+ip);
 		if (ip == null) {
 			return false;
 		}
 		String remoteIpAddress = httpServletRequest.getHeader("X-FORWARDED-FOR");
-
+		System.out.println("X-FORWARDED-FOR ----> "+remoteIpAddress);
 		if (ip.equals(remoteIpAddress)) {
 			return true;
 		}
 		remoteIpAddress = httpServletRequest.getHeader("X-REAL-IP");
+		System.out.println("X-REAL-IP ----> " +remoteIpAddress);
 		if (ip.equals(remoteIpAddress)) {
 			return true;
 		}
 		remoteIpAddress = httpServletRequest.getRemoteAddr();
+		System.out.println("getRemoteAddr() ----> " +remoteIpAddress);
 		if(ip.equals(remoteIpAddress)) {
 			return true;
 		}
@@ -414,8 +417,14 @@ public class UserController extends AbstractController {
 
 private static boolean getClientIpAddress(String ip2, HttpServletRequest request) {
     for (String header : HEADERS_TO_TRY) {
+    	System.out.println("header ----> " +header);
         String ip = request.getHeader(header);
+        System.out.println("ip ----> " +ip);
+        System.out.println();
+        System.out.println();
         if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip) && ip.equalsIgnoreCase(ip2)) {
+        	System.out.println(ip);
+        	System.out.println(ip2);
             	 return true;
         }
     }

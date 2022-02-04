@@ -51,10 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String username = null;
 		String authToken = null;
 		
-//		if (StringUtils.isBlank(header)) {
-//			throw new IllegalArgumentException("Authorization header not found");
-//		}
-		
 		if (header != null && header.startsWith(TOKEN_PREFIX)) {
 			authToken = header.replace(TOKEN_PREFIX, "");
 			try {
@@ -81,23 +77,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		chain.doFilter(req, res);
 	}
 
-	private void validateWhiteListIp(HttpServletRequest req, String username) {
-		if (username == null) {
-			return;
-		}
-		String ip = getRemoteIpAddress(req);
-		if (StringUtils.isBlank(ip)) {
-			throw new IllegalArgumentException("Ip not found exception");
-		}
-		User user = userservice.getUserByUserEmailOrMobileNumber(username, username);
-		if (user == null) {
-			throw new IllegalArgumentException("Auth Token not valid");
-		}
-		if (!ip.equals(user.getWhiteListIp())) {
-			throw new IllegalArgumentException("please white list the Ip - " + ip);
-		}
-	}
-
 	public static String getRemoteIpAddress(final HttpServletRequest httpServletRequest) {
 		String remoteIpAddress = httpServletRequest.getHeader("X-FORWARDED-FOR");
 
@@ -115,10 +94,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (StringUtils.isNotBlank(header)) {
 			return header;
 		}
-		Object token = req.getServletContext().getAttribute(AUTH_TOKEN);
-		if (token != null) {
-			return token.toString();
-		}
-		return StringUtils.EMPTY;
+		return null;
 	}
 }
