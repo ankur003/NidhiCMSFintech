@@ -488,8 +488,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				LOGGER.info("[UserServiceImpl.txWithoutOTP] isValid - {}", isValid);
 				return response;
 			}
-			performPostAction(user, userTxWoOtpReqModal, response, userWallet);
-			return addUniqueIdIntoResponse(uniqueId, response);
+			Object returnTOBeResponse = addUniqueIdIntoResponse(uniqueId, response);
+			CompletableFuture.runAsync(() -> {
+				performPostAction(user, userTxWoOtpReqModal, response, userWallet);
+			});
+			return returnTOBeResponse;
 		} catch (Exception e) {
 			LOGGER.error("[UserServiceImpl.txWithoutOTP] Exception - {}", e);
 		}
@@ -512,9 +515,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		
 		Transaction txn = saveTransaction(user, userTxWoOtpReqModal, response, userWallet);
 		LOGGER.info("[UserServiceImpl.performPostAction] ===============================TX saved ==================== ");
-		updateBalance(txn.getAmountPlusfee(), userWallet);
-		saveFeeTransaction(user, userTxWoOtpReqModal, userWallet, response);
-		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal, userWallet);
+		UserWallet savedWallet = updateBalance(txn.getAmount(), userWallet);
+		saveFeeTransaction(user, userTxWoOtpReqModal, savedWallet, response);
+		savedWallet = updateBalance(txn.getFee(), userWallet);
+		triggerPayoutNotifications(user, txn, userTxWoOtpReqModal, savedWallet);
 	}
 
 	private Transaction saveFeeTransaction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal,
@@ -539,7 +543,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setUserId(user.getUserId());
 		txn.setTxType("Dr.");
 		txn.setTxDate(LocalDate.now());
-		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
+		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getFee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txn.setCreditTime(LocalDateTime.now());
 		txn.setStatus("SUCCESS");
 		txn.setUtrNumber(jsonObject.getString("UTRNUMBER"));
@@ -572,7 +576,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setUserId(user.getUserId());
 		txn.setTxType("Dr.");
 		txn.setTxDate(LocalDate.now());
-		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmountPlusfee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
+		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmount()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txn.setRemarks(userTxWoOtpReqModal.getRemarks());
 		txn.setCreditTime(LocalDateTime.now());
 		txRepository.save(txn);
@@ -632,13 +636,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		emailService.sendEmail(request, model, null, EmailTemplateConstants.PAYOUT_REQUEST_INITIATION);
 	}
 
-	private void updateBalance(Double amountPlusfee, UserWallet userWallet) {
+	private UserWallet updateBalance(Double amountPlusfee, UserWallet userWallet) {
 		LOGGER.info("[UserServiceImpl.updateBalance] ===============================amt ==================== {} - ", userWallet.getAmount());
 		LOGGER.info("[UserServiceImpl.updateBalance] ===============================amountPlusfee ==================== {} - ", amountPlusfee);
 		BigDecimal amt = BigDecimal.valueOf(userWallet.getAmount() - amountPlusfee).setScale(2, RoundingMode.HALF_DOWN);
 		userWallet.setAmount(amt.doubleValue());
-		userWalletRepository.save(userWallet);
+		UserWallet savedWallet = userWalletRepository.save(userWallet);
 		LOGGER.info("[UserServiceImpl.updateBalance] ===============================balace updated ==================== {} - ", amt.doubleValue());
+		return savedWallet;
 	}
 
 	private void setIciciResponse(Transaction txn, String response) {
