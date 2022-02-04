@@ -2,7 +2,6 @@
 package com.nidhi.cms.exception.handler;
 
 
-import java.rmi.RemoteException;
 import java.time.format.DateTimeParseException;
 import java.util.Set;
 
@@ -21,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -55,7 +55,6 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 	private static final String GLOBAL_PARAM_ERROR_SUFFIX = "invalid";
 
     @ExceptionHandler({
-        RemoteException.class,
         RuntimeException.class,
         IllegalStateException.class,
         IllegalArgumentException.class,
@@ -69,11 +68,30 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         if (exception.getClass().isAssignableFrom(AuthenticationCredentialsNotFoundException.class)) {
             return mapToAuthenticationCredentialsNotFoundException();
         }
+        if (exception.getClass().isAssignableFrom(UsernameNotFoundException.class)) {
+            return mapToUsernameNotFoundExceptionException();
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).contentType(MediaType.APPLICATION_JSON)
             .body(new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, SERVER_ERROR));
     }
+    
+	@ExceptionHandler(value = UsernameNotFoundException.class)
+	public ResponseEntity<Object> handle(final UsernameNotFoundException exception) {
+		return mapToUsernameNotFoundExceptionException();
+	}
 
-    @ExceptionHandler(Exception.class)
+    private ResponseEntity<Object> mapToUsernameNotFoundExceptionException() {
+    	   final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHORIZATION_FAILURE, "username or password invalid or not verfied user.");
+           String errorMessage = "";
+           try {
+               errorMessage = new ObjectMapper().writeValueAsString(errorResponse);
+           } catch (final JsonProcessingException e) {
+               log.error("mapToUsernameNotFoundExceptionException - username or password invalid or not verfied user.", e.getCause());
+           }
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON).body(errorMessage);
+	}
+
+	@ExceptionHandler(Exception.class)
     public final ResponseEntity<Object> handleAllExceptions(final Exception exception, final WebRequest request) {
         logErrorMessage(exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).contentType(MediaType.APPLICATION_JSON)
