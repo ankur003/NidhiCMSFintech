@@ -468,8 +468,8 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">Year Of INC
 													 <input type="text"
-														required="required" size="30" value="${bkyc.yearofInc }"
-														name="yearofInc" id="yearofInc">
+														required="required" size="30" value="${bkyc.yearOfInc }"
+														name="yearOfInc" id="yearOfInc">
 												</p>
 											</div>
 										</div>
@@ -507,14 +507,7 @@ function showhidetext()
 													</p>
 												</c:if>
 											</div>
-											
-											
 											<div class="col-lg-6">
-											
-											
-											
-											
-											
 											</div>
 										</div>
 
