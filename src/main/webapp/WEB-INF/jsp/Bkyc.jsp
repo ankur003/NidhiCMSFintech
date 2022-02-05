@@ -387,7 +387,7 @@
 											<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">GST Number<span class="mandate">*</span></label>
-													<input type="text" required="required" maxlength="15"
+													<input type="text" required="required" maxlength="30"
 														value="${bkyc.gstNo }" name="gstNo" id="gstNo">
 												</p>
 											</div>

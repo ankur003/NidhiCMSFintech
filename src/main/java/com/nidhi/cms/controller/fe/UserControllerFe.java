@@ -517,7 +517,7 @@ public class UserControllerFe {
 
 	
 	@PostMapping(value = "/kyc-authReject")
-	public ModelAndView approveOrRejectKycReject(Model model, HttpServletRequest request) {
+	public ModelAndView approveOrRejectKycReject(Model model, HttpServletRequest request, @RequestParam(required = false, name = "adminuid") String adminUuid) {
 		
 		String userUuid=request.getParameter("userUuid");
 		String kycRejectReason=request.getParameter("kycRejectReason").trim();
@@ -531,6 +531,8 @@ public class UserControllerFe {
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
 		userRequestFilterModel.setIsAdmin(false);
 		userRequestFilterModel.setIsSubAdmin(false);
+		userRequestFilterModel.setUserUuid(userUuid);
+		userRequestFilterModel.setAdminUuid(adminUuid);
 		
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
@@ -1317,9 +1319,11 @@ public ModelAndView userPayoutReport(Model model,HttpServletRequest request) thr
 	
 	
 	List<Transaction> trans=userController.getUserTransactionsByDates(userUuid,  Utility.stringToLocalDate(startDate),   Utility.stringToLocalDate(endDate));
-	if(!trans.isEmpty())
+	List<Transaction> filteredList = trans.stream().filter(t -> BooleanUtils.isNotTrue(t.getIsFeeTx())).collect(Collectors.toList());
+
+	if(!filteredList.isEmpty())
 	{
-		model.addAttribute("trans",trans);
+		model.addAttribute("trans",filteredList);
 		model.addAttribute("init",true);
 	}
 	else {

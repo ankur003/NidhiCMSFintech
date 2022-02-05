@@ -181,7 +181,7 @@ public class UserController extends AbstractController {
 	}
 
 	public Map<String, Object> getAllUser(@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
-		if(BooleanUtils.isTrue(userservice.getUserByUserUuid(userRequestFilterModel.getUserUuid()).getIsAdmin())) {
+		if(BooleanUtils.isTrue(userservice.getUserByUserUuid(userRequestFilterModel.getAdminUuid()).getIsAdmin())) {
 			Page<User> users = userservice.getAllUsers(userRequestFilterModel);
 			if (users == null || CollectionUtils.isEmpty(users.getContent())) {
 				return null;
@@ -433,7 +433,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
     return false;
 }
 
-	@PostMapping(value = "/transaction/payout")
+	@PostMapping(value = "/transaction/payout", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE )
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "tx without otp", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
@@ -460,8 +460,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
 		
-		if (BooleanUtils.isNotTrue(user.getIsActive())) {
-			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over de-activated account");
+		if (BooleanUtils.isNotTrue(user.getIsActive()) || !user.getKycStatus().name().equals(KycStatus.VERIFIED.name())) {
+			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "access denied over de-activated account or KYC is - " + user.getKycStatus().name());
 			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
@@ -531,7 +531,10 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
 		setFeeRelatedInfo(userPaymentMode, userTxWoOtpReqModal);
 		Object response = userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+		if (response == null) {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(response.toString());
 	}
 	
 	private void setFeeRelatedInfo(UserPaymentMode userPaymentMode, UserTxWoOtpReqModal userTxWoOtpReqModal) {
@@ -551,7 +554,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return new BigDecimal((amt.doubleValue() * feePer.doubleValue()) / 100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
 	}
 
-	@PostMapping(value = "/transaction/inquiry")
+	@PostMapping(value = "/transaction/inquiry", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "transaction inquiry", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
@@ -612,7 +615,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 
 	
-	@PostMapping(value = "/transaction/NEFT-status")
+	@PostMapping(value = "/transaction/NEFT-status", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "NEFT Incremental status API", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })

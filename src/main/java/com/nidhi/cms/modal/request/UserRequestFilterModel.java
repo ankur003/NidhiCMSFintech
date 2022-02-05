@@ -26,11 +26,21 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 
 	private String userUuid;
 
+	private String adminUuid;
+
 	private Boolean isSubAdmin;
 
 	private Boolean isAdmin;
 
 	private String mobileNumber;
+
+	public String getAdminUuid() {
+		return adminUuid;
+	}
+
+	public void setAdminUuid(String adminUuid) {
+		this.adminUuid = adminUuid;
+	}
 
 	public String getUsername() {
 		return username;

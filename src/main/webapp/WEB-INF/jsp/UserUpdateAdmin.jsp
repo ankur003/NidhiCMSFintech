@@ -316,7 +316,7 @@
 												<p class="comment-form-author">
 													<label for="author">GST Certificate<span
 														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
+														 size="30" value="" name="fileUpload"
 														id="fileUpload">
 												</p>
 												
