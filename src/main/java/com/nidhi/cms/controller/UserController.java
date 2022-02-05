@@ -306,7 +306,7 @@ public class UserController extends AbstractController {
 	public Boolean approveOrDisApproveKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse,
 			@RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
-			@RequestParam(required = true, name = "docType") final DocType docType) {
+			@RequestParam(required = true, name = "docType") final DocType docType, @RequestParam(required = true, name = "isNotify") final Boolean isNotify) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			return false;
@@ -317,7 +317,7 @@ public class UserController extends AbstractController {
 		if (BooleanUtils.isNotTrue(kycResponse) && kycRejectReason == null) {
 			return false;
 		}
-		return userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
+		return userservice.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason, isNotify);
 	}
 
 	public List<UserAccountStatement> getUserAccountStatementService(@RequestParam("fromDate") String fromDate,

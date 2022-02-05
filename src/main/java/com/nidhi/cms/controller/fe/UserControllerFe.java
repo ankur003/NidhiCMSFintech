@@ -484,9 +484,9 @@ public class UserControllerFe {
 	public ModelAndView approveOrRejectKyc(@RequestParam("userUuid") String userUuid,
 			@RequestParam("kycResponse") Boolean kycResponse,@RequestParam("adminuid") String adminuid, @RequestParam(name = "kycRejectReason", required = false) String kycRejectReason,
 			Model model, HttpServletRequest request) {
-	boolean a=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN);
-	boolean b=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR);
-	boolean c=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST);
+	boolean a=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_PAN, false);
+	boolean b=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_AADHAR, false);
+	boolean c=	userController.approveOrDisApproveKyc(userUuid, kycResponse, kycRejectReason, DocType.DOCUMENT_GST, true);
 
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
@@ -508,7 +508,6 @@ public class UserControllerFe {
 			}
 			model.addAttribute("userList", users.get("data"));
 			model.addAttribute("init", true);
-			return new ModelAndView("AdminPendingClient");
 		} else {
 			model.addAttribute("init", false);
 		}
@@ -522,9 +521,9 @@ public class UserControllerFe {
 		String userUuid=request.getParameter("userUuid");
 		String kycRejectReason=request.getParameter("kycRejectReason").trim();
 		
-		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_PAN);
-		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_AADHAR);
-		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_GST);
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_PAN, false);
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_AADHAR, false);
+		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_GST, true);
 
 		UserRequestFilterModel userRequestFilterModel = new UserRequestFilterModel();
 		userRequestFilterModel.setPage(1);
@@ -540,7 +539,6 @@ public class UserControllerFe {
 			model.addAttribute("msgs", user.getFullName() ==null ? "record has been Rejected" : user.getFullName() + " has been Rejected");
 			model.addAttribute("userList", users.get("data"));
 			model.addAttribute("init", true);
-			return new ModelAndView("AdminPendingClient");
 		} else {
 			model.addAttribute("init", false);
 		}

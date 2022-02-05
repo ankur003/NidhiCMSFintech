@@ -45,7 +45,7 @@ public interface UserService {
 
 	Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange) throws Exception;
 
-	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason);
+	Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason, Boolean isNotify);
 
 	Boolean userActivateOrDeactivate(User user, Boolean isActivate);
 

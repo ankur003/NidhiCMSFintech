@@ -257,7 +257,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason) {
+	public Boolean approveOrDisApproveKyc(User user, Boolean kycResponse, DocType docType, String kycRejectReason,Boolean isNotify) {
 		Boolean isDone = docService.approveOrDisApproveKyc(user, kycResponse, docType, kycRejectReason);
 		if (BooleanUtils.isTrue(isDone)) {
 			if (BooleanUtils.isTrue(kycResponse)) {
@@ -266,13 +266,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 					user.setKycStatus(KycStatus.VERIFIED);
 					userRepository.save(user);
 					UserWallet wallet = createUserWallet(user);
-					triggerKycNotifications(user, wallet, kycResponse, null);
+					triggerKycNotifications(user, wallet, kycResponse, null,isNotify);
 				}
 			}
 			if (BooleanUtils.isFalse(kycResponse)) {
 				user.setKycStatus(KycStatus.REJECTED);
 				userRepository.save(user);
-				triggerKycNotifications(user, null, kycResponse, kycRejectReason);
+				triggerKycNotifications(user, null, kycResponse, kycRejectReason, isNotify);
 				return Boolean.TRUE;
 			}
 
@@ -283,12 +283,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	}
 
-	private void triggerKycNotifications(User user, UserWallet wallet, Boolean kycResponse, String kycRejectReason) {
+	private void triggerKycNotifications(User user, UserWallet wallet, Boolean kycResponse, String kycRejectReason, Boolean isNotify) {
 		CompletableFuture.runAsync(() -> 
-			triggerKycNotification(user, wallet, kycResponse, kycRejectReason));
+			triggerKycNotification(user, wallet, kycResponse, kycRejectReason,isNotify));
 	}
 
-	private void triggerKycNotification(User user, UserWallet wallet, Boolean kycResponse, String kycRejectReason) {
+	private void triggerKycNotification(User user, UserWallet wallet, Boolean kycResponse, String kycRejectReason, Boolean isNotify) {
+		if (BooleanUtils.isFalse(isNotify)) {
+			return;
+		}
 		final UserBusinessKyc userBusnessKyc = userBusnessKycService.getUserBusnessKyc(user.getUserId());
 		if (userBusnessKyc == null) {
 			LOGGER.error("[UserServiceImpl.triggerKycNotifications] userBusnessKyc is blank - {} against userId - ", user.getUserId());
@@ -320,7 +323,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			model.put("name", user.getFullName());
 			model.put("remarks", kycRejectReason);
 			model.put("date", LocalDate.now());
-			emailService.sendEmail(request, model, null, EmailTemplateConstants.KYC_REJACTED);
+			emailService.sendMailAsync(request, model, null, EmailTemplateConstants.KYC_REJACTED);
 		}
 	}
 
