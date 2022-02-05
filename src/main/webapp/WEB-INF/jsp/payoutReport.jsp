@@ -147,20 +147,14 @@
 													<tr>
 														<th scope="col">#</th>
 														<th scope="col">Date</th>
-														<th scope="col">UniqueId</th>
-														<!-- <th scope="col">Aggr Id</th>
-														<th scope="col">Aggr Name</th> -->
 														<th scope="col">IFSC</th>
+														<th scope="col">Payee name</th>
 														<th scope="col">Amount</th>
-														<th scope="col">Fee</th>
+														<th scope="col"> Fee</th>
 														<th scope="col">Currency</th>
 														<th scope="col">Txn Type</th>
-														<th scope="col">Payee name</th>
-														<th scope="col">M_Id</th>
-														<th scope="col">Status</th>
 														<th scope="col">UTR</th>
 														<th scope="col">Res.</th>
-														
 													</tr>
 												</thead>
 												<tbody>
@@ -171,17 +165,16 @@
 															<td><fmt:parseDate value="${us.txDate}"
 																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
 																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
-															<td>${us.uniqueId}</td>
-															<%-- <td>${us.aggrId}</td>
-															<td>${us.aggrName}</td> --%>
-															<td>${us.ifsc}</td>
-															<td>${us.amount}</td>
-															<td>${us.fee}</td>
-															 <td>${us.currency}</td> 
-															<td>${us.txnType}</td>
-															<td>${us.payeeName}</td>
-															<td>${us.merchantId}</td>
-															<td>${us.status}</td>
+																	<td>${us.ifsc}</td>
+																	<td>${us.amount}</td>
+																	<td>${us.fee}</td>
+																	<td>${us.currency}</td> 
+																	<td>
+															<c:if test="${us.txnType eq 'RTG'}">RTGS</c:if>
+																<c:if test="${us.txnType eq 'IFS'}">IMPS</c:if>
+																	<c:if test="${us.txnType eq 'RGS'}">NEFT</c:if>
+															</td>
+																	
 															<td>${us.utrNumber}</td>
 															<td>${us.response}</td>
 															
@@ -191,7 +184,9 @@
 												</tbody>
 											</table>
 										</c:if>
-
+<c:if test="${!init }">
+<p><font color="red">No Data Found</font></p>
+</c:if>
 
 									</form>
 								</div>
