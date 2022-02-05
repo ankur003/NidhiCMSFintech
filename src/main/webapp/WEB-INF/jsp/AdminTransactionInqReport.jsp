@@ -149,7 +149,9 @@
 												</tbody>
 											</table>
 										</c:if>
-
+<c:if test="${!init }">
+<p ><font color="red">No data found</font></p>
+</c:if>
 
 									</form>
 								</div>
