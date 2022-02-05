@@ -468,7 +468,7 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">Year Of INC
 													 <input type="text"
-														required="required" size="30" value="${bkyc.yearOfInc }"
+														 size="30" value="${bkyc.yearOfInc }"
 														name="yearOfInc" id="yearOfInc">
 												</p>
 											</div>
@@ -477,7 +477,7 @@ function showhidetext()
 											<div class="col-lg-6" id="ciin" style="display: none;">
 												<p class="comment-form-author">
 													<label for="author">CIN</label> <input type="text"
-														required="required" size="30" value="${bkyc.cin }"
+														 size="30" value="${bkyc.cin }"
 														name="cin" id="cin">
 												</p>
 											</div>
@@ -516,12 +516,12 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">Company PAN<span
 														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
+														size="30" value="" name="fileUpload"
 														id="comapnypan">
 												</p>
 												<c:if test="${userDocx.docType eq 'COMPANY_PAN'}">
 													<p>
-														<font color="blue;">${userDocx.fileName }</font> <font
+														<font color="blue;">${userDocx2.fileName }</font> <font
 															color="green;">Already uploaded</font>
 													</p>
 												</c:if>
@@ -532,12 +532,12 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">COI<span
 														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
+														size="30" value="" name="fileUpload"
 														id="coi">
 												</p>
 												<c:if test="${userDocx.docType eq 'DOCUMENT_COI'}">
 													<p>
-														<font color="blue;">${userDocx.fileName }</font> <font
+														<font color="blue;">${userDocx1.fileName }</font> <font
 															color="green;">Already uploaded</font>
 													</p>
 												</c:if>

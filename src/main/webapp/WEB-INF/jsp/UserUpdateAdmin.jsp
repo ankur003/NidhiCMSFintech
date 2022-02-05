@@ -358,7 +358,7 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">Business Website Link<span
 														class="mandate">*</span></label> <input type="text"
-														required="required" size="30" value="${bkyc.websiteLink }"
+														 size="30" value="${bkyc.websiteLink }"
 														name="websiteLink" id="websiteLink"  >
 												</p>
 											</div>
@@ -366,7 +366,7 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">Year Of INC
 													 <input type="text"
-														required="required" size="30" value="${bkyc.yearofInc }"
+														 size="30" value="${bkyc.yearofInc }"
 														name="yearofInc" id="yearofInc">
 												</p>
 											</div>
@@ -376,7 +376,7 @@ function showhidetext()
 											<div class="col-lg-6" id="ciin" style="display: none;">
 												<p class="comment-form-author">
 													<label for="author">CIN</label> <input type="text"
-														required="required" size="30" value="${bkyc.cin }"
+														 size="30" value="${bkyc.cin }"
 														name="cin" id="cin">
 												</p>
 											</div>
@@ -417,7 +417,7 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">Company PAN<span
 														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
+														 size="30" value="" name="fileUpload"
 														id="comapnypan">
 												</p>
 												<c:if test="${cpan ne null}">
@@ -434,7 +434,7 @@ function showhidetext()
 												<p class="comment-form-author">
 													<label for="author">COI<span
 														class="mandate">*</span></label> <input type="file"
-														required="required" size="30" value="" name="fileUpload"
+														size="30" value="" name="fileUpload"
 														id="coi">
 												</p>
 												<c:if test="${coi ne null}">

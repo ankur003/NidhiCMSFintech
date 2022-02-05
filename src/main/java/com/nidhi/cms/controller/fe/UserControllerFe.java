@@ -459,6 +459,7 @@ public class UserControllerFe {
 		//userRequestFilterModel.setUserUuid(userUuid);
 		userRequestFilterModel.setAdminUuid(userUuid);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		model.addAttribute("adminUuid",userRequestFilterModel.getAdminUuid());
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
 			model.addAttribute("init", true);
@@ -527,9 +528,10 @@ public class UserControllerFe {
 
 	
 	@PostMapping(value = "/kyc-authReject")
-	public ModelAndView approveOrRejectKycReject(Model model, HttpServletRequest request, @RequestParam(required = false, name = "adminuid") String adminUuid) {
+	public ModelAndView approveOrRejectKycReject(Model model, HttpServletRequest request) {
 		
 		String userUuid=request.getParameter("userUuid");
+		String adminUuid=request.getParameter("adminUuid");
 		String kycRejectReason=request.getParameter("kycRejectReason").trim();
 		
 		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_PAN, false);
