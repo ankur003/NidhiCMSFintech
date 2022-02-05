@@ -32,12 +32,14 @@ public class UserBusinessKyc extends BaseDomain {
 
 	private String websiteLink;
 
-	@Lob 
-	@Column(name="address1", length=512)
+	private String cin;
+
+	@Lob
+	@Column(name = "address1", length = 512)
 	private String address1;
 
-	@Lob 
-	@Column(name="address2", length=512)
+	@Lob
+	@Column(name = "address2", length = 512)
 	private String address2;
 
 	private String pincode;
@@ -45,6 +47,16 @@ public class UserBusinessKyc extends BaseDomain {
 	private String state;
 
 	private String city;
+
+	private String yearOfInc;
+
+	public String getYearOfInc() {
+		return yearOfInc;
+	}
+
+	public void setYearOfInc(String yearOfInc) {
+		this.yearOfInc = yearOfInc;
+	}
 
 	public Long getUserBusinessKycId() {
 		return userBusinessKycId;
@@ -56,6 +68,14 @@ public class UserBusinessKyc extends BaseDomain {
 
 	public Long getUserId() {
 		return userId;
+	}
+
+	public String getCin() {
+		return cin;
+	}
+
+	public void setCin(String cin) {
+		this.cin = cin;
 	}
 
 	public void setUserId(Long userId) {

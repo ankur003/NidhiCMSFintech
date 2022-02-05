@@ -56,27 +56,6 @@ public class UserBusnessKycServiceImpl implements UserBusnessKycService {
 		return Boolean.TRUE;
 	}
 	
-	private void saveOrUpdateUserBusnessKycNotifications(UserBankDetails bankDetails, User user, Transaction txn, UserTxWoOtpReqModal userTxWoOtpReqModal) {
-		if (StringUtils.isBlank(user.getUserEmail())) {
-			LOGGER.error("[UserServiceImpl.payoutRequestInitionNotifications] user email is blank - {}", user.getUserEmail());
-			return;
-		}
-		MailRequest request = new MailRequest();
-		request.setName(user.getFullName());
-		request.setSubject("Payment Request Initiation");
-		request.setTo(new String[] { user.getUserEmail() });
-		Map<String, Object> model = new HashMap<>();
-		model.put("name", user.getFullName());
-		model.put("amt", userTxWoOtpReqModal.getAmount());
-		model.put("beneficiary_name", txn.getPayeeName());
-		model.put("account_number", userTxWoOtpReqModal.getCreditacc());
-		model.put("ifsc", txn.getIfsc());
-		model.put("remark", StringUtils.isNotBlank(txn.getRemarks()) ? txn.getRemarks() : "-");
-		model.put("utr", txn.getUtrNumber());
-		model.put("Status", txn.getStatus());
-		emailService.sendEmail(request, model, null, EmailTemplateConstants.PAYOUT_REQUEST_INITIATION);
-	}
-
 	@Override
 	public void updateKycStatus(User user, KycStatus kycStatus) {
 		if (user.getKycStatus().equals(kycStatus)) {

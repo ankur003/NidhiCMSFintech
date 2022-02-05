@@ -39,7 +39,27 @@ public class UserBusinessKycRequestModal {
 
 	@NotBlank
 	private String city;
-	
+
+	private String yearOfInc;
+
+	private String cin;
+
+	public String getCin() {
+		return cin;
+	}
+
+	public void setCin(String cin) {
+		this.cin = cin;
+	}
+
+	public String getYearOfInc() {
+		return yearOfInc;
+	}
+
+	public void setYearOfInc(String yearOfInc) {
+		this.yearOfInc = yearOfInc;
+	}
+
 	@NotBlank
 	private String userUuid;
 
@@ -146,6 +166,5 @@ public class UserBusinessKycRequestModal {
 	public void setUserUuid(String userUuid) {
 		this.userUuid = userUuid;
 	}
-	
 
 }
