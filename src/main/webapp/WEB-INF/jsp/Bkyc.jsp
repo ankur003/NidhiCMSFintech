@@ -28,7 +28,41 @@
 <link href="/assets/css/style.css" rel="stylesheet">
 <script src="/assets/js_dev/profile.js"></script>
 
+<script>
+function showhidetext()
+		{
+			
+	yofinc
+	  ciin 
+		//	cmnypan
+		var entityType=document.getElementById("entityType").value;	
+	
+	
+	if (entityType == 'Individual') 
+	    {
+		 document.getElementById("yofinc").style.display = 'none';
+		 document.getElementById("ciin").style.display = 'none';
+		}
+		if (entityType == 'Partnership') {
+			 document.getElementById("yofinc").style.display = 'block';
+			 document.getElementById("ciin").style.display = 'none';
+		}
+		if (entityType == 'Sole Proprietership') {
 
+		}
+		if (entityType == 'Public / Private Limited Company') {
+			 document.getElementById("ciin").style.display = 'block';
+			 document.getElementById("yofinc").style.display = 'block';
+			 document.getElementById("cmnypan").style.display = 'block';
+			 
+		}
+		if (entityType == 'Trust / NGO / Societies'
+				|| entityType == 'Company yet to register') {
+
+		}
+
+	}
+</script>
 
 </head>
 <c:if test="${sessionScope.authtoken eq null}">
@@ -99,7 +133,7 @@
 				src="/assets/img/logo.png"
 				style="height: 80px; width: 300px; margin-top: 0px;" alt="logo"></a>
 		</div>
-			<div id="navbar" class="navbar-collapse collapse">
+		<div id="navbar" class="navbar-collapse collapse">
 			<ul id="top-menu" class="nav navbar-nav navbar-right main-nav">
 				<li><a href="#">Hi <b>${userLoginDetails.fullName }</b></a></li>
 				<li class="dropdown active"><a href="#" class="dropdown-toggle"
@@ -205,11 +239,12 @@
 											</a>
 											</strong>
 										</div>
-										
+
 										<div class="panel-heading"
 											style="background-color: #002066; margin: 1px 0 1px 0px; border-radius: 0px;">
 											<strong> <a href="/api/v1/fe/UserBank"> <font
-													style="color: white; cursor: pointer;">3. Bank Details </font>
+													style="color: white; cursor: pointer;">3. Bank
+														Details </font>
 
 											</a>
 											</strong>
@@ -246,21 +281,32 @@
 										</div>
 
 										<div class="col-lg-12">
-										
-										<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
-										
-										<c:if test="${bkyc.userBusinessKycId ne null}">
-										<input type="hidden"
-														required="required" size="30" value="${bkyc.userBusinessKycId}"
-														name="userBusinessKycId" id="userBusinessKycId">
-										</c:if>
-										
+
+											<input type="hidden" id="userUuid" name="userUuid"
+												value="${userLoginDetails.userUuid}">
+
+											<c:if test="${bkyc.userBusinessKycId ne null}">
+												<input type="hidden" required="required" size="30"
+													value="${bkyc.userBusinessKycId}" name="userBusinessKycId"
+													id="userBusinessKycId">
+											</c:if>
+
 											<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">Business Entity Type<span
-														class="mandate">*</span></label> <Select name="entityType"
-														id="entityType" class="col-lg-12" style="height: 40px;">
-														<option value=${bkyc.entityType} Selected="selected">${bkyc.entityType}</option>
+														class="mandate">*</span></label> 
+														<Select name="entityType"
+														id="entityType" class="col-lg-12" style="height: 40px;" onchange="showhidetext();">
+														<c:choose>
+															<c:when test="${bkyc.entityType ne null}">
+																<option value=${bkyc.entityType } Selected="selected">${bkyc.entityType}</option>
+															</c:when>
+															<c:otherwise>
+																<option value="SELECT">SELECT</option>
+															</c:otherwise>
+														</c:choose>
+
+                                                        <option value="Individual">Individual</option>
 														<option value="Partnership">Partnership</option>
 														<option value="Sole Proprietership">Sole Proprietership</option>
 														<option value="Public / Private Limited Company">Public	/ Private Limited Company</option>
@@ -277,7 +323,15 @@
 													<label for="author">Industry<span class="mandate">*</span></label>
 													<Select name="industry" id="industry" class="col-lg-12"
 														style="height: 40px;">
-														<option value=${bkyc.industry} Selected="selected">${bkyc.industry}</option>
+														<c:choose>
+															<c:when test="${bkyc.industry ne null}">
+																<option value=${bkyc.industry } Selected="selected">${bkyc.industry}</option>
+															</c:when>
+															<c:otherwise>
+																<option value="SELECT">SELECT</option>
+															</c:otherwise>
+														</c:choose>
+
 														<option value="Agriculture">Agriculture</option>
 														<option value="Architect">Architect</option>
 														<option value="Automobile">Automobile</option>
@@ -351,7 +405,7 @@
 										<div class="col-lg-12">
 											<div class="col-lg-6">
 												<p class="comment-form-author">
-													<label for="author">register Company Name<span
+													<label for="author">Register Company Name<span
 														class="mandate">*</span></label> <input type="text"
 														required="required" size="30" value="${bkyc.compnayName }"
 														name="compnayName" id="compnayName">
@@ -362,7 +416,16 @@
 													<label for="author">No.of Employees<span
 														class="mandate">*</span></label> <Select name="noOfEmp"
 														id="noOfEmp" class="col-lg-12" style="height: 35px;">
-														<option value=${bkyc.noOfEmp} Selected="selected">${bkyc.noOfEmp}</option>
+
+														<c:choose>
+															<c:when test="${bkyc.noOfEmp ne null}">
+																<option value=${bkyc.noOfEmp } Selected="selected">${bkyc.noOfEmp}</option>
+															</c:when>
+															<c:otherwise>
+																<option value="SELECT">SELECT</option>
+															</c:otherwise>
+														</c:choose>
+
 														<option value="5-20">5-20</option>
 														<option value="20-50">20-50</option>
 														<option value="50-100">50-100</option>
@@ -377,9 +440,9 @@
 										<div class="col-lg-12">
 											<div class="col-lg-6">
 												<p class="comment-form-author">
-													<label for="author">Individual Pan<span
+													<label for="author">Pan<span
 														class="mandate">*</span></label> <input type="text"
-														required="required"  maxlength="10"
+														required="required" maxlength="10"
 														value="${bkyc.individualPan }" name="individualPan"
 														id="individualPan">
 												</p>
@@ -401,7 +464,26 @@
 														name="websiteLink" id="websiteLink">
 												</p>
 											</div>
-											<div class="col-lg-6"></div>
+											<div class="col-lg-6" id="yofinc" style="display: none;">
+												<p class="comment-form-author">
+													<label for="author">Year Of INC
+													 <input type="text"
+														required="required" size="30" value="${bkyc.yearofInc }"
+														name="yearofInc" id="yearofInc">
+												</p>
+											</div>
+										</div>
+                                   <div class="col-lg-12">
+											<div class="col-lg-6" id="ciin" style="display: none;">
+												<p class="comment-form-author">
+													<label for="author">CIN</label> <input type="text"
+														required="required" size="30" value="${bkyc.cin }"
+														name="cin" id="cin">
+												</p>
+											</div>
+											<div class="col-lg-6" >
+											
+											</div>
 										</div>
 
 										<div class="col-lg-12">
@@ -416,7 +498,7 @@
 													<label for="author">GST Certificate<span
 														class="mandate">*</span></label> <input type="file"
 														required="required" size="30" value="" name="fileUpload"
-														id="fileUpload">
+														id="gst">
 												</p>
 												<c:if test="${userDocx.docType eq 'DOCUMENT_GST'}">
 													<p>
@@ -425,7 +507,48 @@
 													</p>
 												</c:if>
 											</div>
-											<div class="col-lg-6"></div>
+											
+											
+											<div class="col-lg-6">
+											
+											
+											
+											
+											
+											</div>
+										</div>
+
+										<div class="col-lg-12" id="cmnypan" style="display: none;">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Company PAN<span
+														class="mandate">*</span></label> <input type="file"
+														required="required" size="30" value="" name="fileUpload"
+														id="comapnypan">
+												</p>
+												<c:if test="${userDocx.docType eq 'COMPANY_PAN'}">
+													<p>
+														<font color="blue;">${userDocx.fileName }</font> <font
+															color="green;">Already uploaded</font>
+													</p>
+												</c:if>
+											</div>
+
+
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">COI<span
+														class="mandate">*</span></label> <input type="file"
+														required="required" size="30" value="" name="fileUpload"
+														id="coi">
+												</p>
+												<c:if test="${userDocx.docType eq 'DOCUMENT_COI'}">
+													<p>
+														<font color="blue;">${userDocx.fileName }</font> <font
+															color="green;">Already uploaded</font>
+													</p>
+												</c:if>
+											</div>
 										</div>
 
 
@@ -466,8 +589,56 @@
 											<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">State<span class="mandate">*</span></label>
-													<input type="text" required="required" size="30"
-														value="${bkyc.state }" name="state" id="state">
+													<select name="state" id="state" class="form-control">
+														<c:choose>
+															<c:when test="${bkyc.state ne null}">
+																<option value=${bkyc.state } Selected="selected">${bkyc.state}</option>
+															</c:when>
+															<c:otherwise>
+																<option value="SELECT">SELECT</option>
+															</c:otherwise>
+														</c:choose>
+														<option value="Andhra Pradesh">Andhra Pradesh</option>
+														<option value="Andaman and Nicobar Islands">Andaman
+															and Nicobar Islands</option>
+														<option value="Arunachal Pradesh">Arunachal
+															Pradesh</option>
+														<option value="Assam">Assam</option>
+														<option value="Bihar">Bihar</option>
+														<option value="Chandigarh">Chandigarh</option>
+														<option value="Chhattisgarh">Chhattisgarh</option>
+														<option value="Dadar and Nagar Haveli">Dadar and
+															Nagar Haveli</option>
+														<option value="Daman and Diu">Daman and Diu</option>
+														<option value="Delhi">Delhi</option>
+														<option value="Lakshadweep">Lakshadweep</option>
+														<option value="Puducherry">Puducherry</option>
+														<option value="Goa">Goa</option>
+														<option value="Gujarat">Gujarat</option>
+														<option value="Haryana">Haryana</option>
+														<option value="Himachal Pradesh">Himachal Pradesh</option>
+														<option value="Jammu and Kashmir">Jammu and
+															Kashmir</option>
+														<option value="Jharkhand">Jharkhand</option>
+														<option value="Karnataka">Karnataka</option>
+														<option value="Kerala">Kerala</option>
+														<option value="Madhya Pradesh">Madhya Pradesh</option>
+														<option value="Maharashtra">Maharashtra</option>
+														<option value="Manipur">Manipur</option>
+														<option value="Meghalaya">Meghalaya</option>
+														<option value="Mizoram">Mizoram</option>
+														<option value="Nagaland">Nagaland</option>
+														<option value="Odisha">Odisha</option>
+														<option value="Punjab">Punjab</option>
+														<option value="Rajasthan">Rajasthan</option>
+														<option value="Sikkim">Sikkim</option>
+														<option value="Tamil Nadu">Tamil Nadu</option>
+														<option value="Telangana">Telangana</option>
+														<option value="Tripura">Tripura</option>
+														<option value="Uttar Pradesh">Uttar Pradesh</option>
+														<option value="Uttarakhand">Uttarakhand</option>
+														<option value="West Bengal">West Bengal</option>
+													</select>
 												</p>
 											</div>
 										</div>
