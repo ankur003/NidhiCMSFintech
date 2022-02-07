@@ -18,6 +18,43 @@
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
 </c:if>
+
+<script>
+function showhidetext()
+		{
+			
+	yofinc
+	  ciin 
+		//	cmnypan
+		var entityType=document.getElementById("entityType").value;	
+	
+	
+	if (entityType == 'Individual') 
+	    {
+		 document.getElementById("yofinc").style.display = 'none';
+		 document.getElementById("ciin").style.display = 'none';
+		}
+		if (entityType == 'Partnership') {
+			 document.getElementById("yofinc").style.display = 'block';
+			 document.getElementById("ciin").style.display = 'none';
+		}
+		if (entityType == 'Sole Proprietership') {
+
+		}
+		if (entityType == 'Public / Private Limited Company') {
+			 document.getElementById("ciin").style.display = 'block';
+			 document.getElementById("yofinc").style.display = 'block';
+			 document.getElementById("cmnypan").style.display = 'block';
+			 
+		}
+		if (entityType == 'Trust / NGO / Societies'
+				|| entityType == 'Company yet to register') {
+
+		}
+
+	}
+</script>
+
 <body>
 	<jsp:include page="adminmenu.jsp" />
 	<!-- Page breadcrumb -->
@@ -164,9 +201,18 @@
 												<div class="col-lg-6">
 												<p class="comment-form-author">
 													<label for="author">Business Entity Type<span
-														class="mandate">*</span></label> <Select name="entityType"
-														id="entityType" class="col-lg-12" style="height: 40px;">
-														<option value=${bkyc.entityType} Selected="selected">${bkyc.entityType}</option>
+														class="mandate">*</span></label> 
+														<Select name="entityType"
+														id="entityType" class="col-lg-12" style="height: 40px;" onchange="showhidetext();">
+													<c:choose>
+															<c:when test="${bkyc.entityType ne null}">
+																<option value=${bkyc.entityType } Selected="selected">${bkyc.entityType}</option>
+															</c:when>
+															<c:otherwise>
+																<option value="SELECT">SELECT</option>
+															</c:otherwise>
+														</c:choose>
+														 <option value="Individual">Individual</option>
 														<option value="Partnership">Partnership</option>
 														<option value="Sole Proprietership">Sole Proprietership</option>
 														<option value="Public / Private Limited Company">Public	/ Private Limited Company</option>
@@ -183,7 +229,14 @@
 													<label for="author">Industry<span class="mandate">*</span></label>
 													<Select name="industry" id="industry" class="col-lg-12"
 														style="height: 40px;">
-														<option value=${bkyc.industry} Selected="selected">${bkyc.industry}</option>
+														<c:choose>
+															<c:when test="${bkyc.industry ne null}">
+																<option value=${bkyc.industry } Selected="selected">${bkyc.industry}</option>
+															</c:when>
+															<c:otherwise>
+																<option value="SELECT">SELECT</option>
+															</c:otherwise>
+														</c:choose>
 														<option value="Agriculture">Agriculture</option>
 														<option value="Architect">Architect</option>
 														<option value="Automobile">Automobile</option>
@@ -263,7 +316,14 @@
 													<label for="author">No.of Employees<span
 														class="mandate">*</span></label> <Select name="noOfEmp"
 														id="noOfEmp" class="col-lg-12" style="height: 35px;">
-														<option value=${bkyc.noOfEmp} Selected="selected">${bkyc.noOfEmp}</option>
+														<c:choose>
+															<c:when test="${bkyc.noOfEmp ne null}">
+																<option value=${bkyc.noOfEmp } Selected="selected">${bkyc.noOfEmp}</option>
+															</c:when>
+															<c:otherwise>
+																<option value="SELECT">SELECT</option>
+															</c:otherwise>
+														</c:choose>
 														<option value="5-20">5-20</option>
 														<option value="20-50">20-50</option>
 														<option value="50-100">50-100</option>
@@ -298,11 +358,31 @@
 												<p class="comment-form-author">
 													<label for="author">Business Website Link<span
 														class="mandate">*</span></label> <input type="text"
-														required="required" size="30" value="${bkyc.websiteLink }"
+														 size="30" value="${bkyc.websiteLink }"
 														name="websiteLink" id="websiteLink"  >
 												</p>
 											</div>
-											<div class="col-lg-6"></div>
+											<div class="col-lg-6" id="yofinc" style="display: none;">
+												<p class="comment-form-author">
+													<label for="author">Year Of INC
+													 <input type="text"
+														 size="30" value="${bkyc.yearofInc }"
+														name="yearofInc" id="yearofInc">
+												</p>
+											</div>
+										</div>
+
+ <div class="col-lg-12">
+											<div class="col-lg-6" id="ciin" style="display: none;">
+												<p class="comment-form-author">
+													<label for="author">CIN</label> <input type="text"
+														 size="30" value="${bkyc.cin }"
+														name="cin" id="cin">
+												</p>
+											</div>
+											<div class="col-lg-6" >
+											
+											</div>
 										</div>
 
 										<div class="col-lg-12">
@@ -332,7 +412,40 @@
 											<div class="col-lg-6"></div>
 										</div>
 
+		<div class="col-lg-12" id="cmnypan" style="display: none;">
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">Company PAN<span
+														class="mandate">*</span></label> <input type="file"
+														 size="30" value="" name="fileUpload"
+														id="comapnypan">
+												</p>
+												<c:if test="${cpan ne null}">
+													<img src="data:image/gif;base64,${cpan.data}"
+														height="50%" width="50%" />
+													<p>
+														<font color="blue;">${cpan.fileName }</font>
+													</p>
+												</c:if>
+											</div>
 
+
+											<div class="col-lg-6">
+												<p class="comment-form-author">
+													<label for="author">COI<span
+														class="mandate">*</span></label> <input type="file"
+														size="30" value="" name="fileUpload"
+														id="coi">
+												</p>
+												<c:if test="${coi ne null}">
+													<img src="data:image/gif;base64,${coi.data}"
+														height="50%" width="50%" />
+													<p>
+														<font color="blue;">${coi.fileName }</font>
+													</p>
+												</c:if>
+											</div>
+										</div>
 
 
 

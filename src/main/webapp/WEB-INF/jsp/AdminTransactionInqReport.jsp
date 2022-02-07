@@ -29,10 +29,16 @@
         	//  {"STATUS":"FAILURE","Message":"UTR Number is Mandatory","ErrorCode":"999993","Response":"Failure"}
         	//ResponseOnMain: {"STATUS":"Amount credited to Beneficiary.","UTRNUMBER":"025983655651","CreditDate":"12,01,2022 10:34:41 AM",
         		//"Response":"SUCCESS","REASON":""}
+        //	{"URN":"SR188085192","STATUS":"SUCCESS","UNIQUEID":"MvQELAHkFHAENAk","UTRNUMBER":"203515898771","RESPONSE":"SUCCESS"}
         	  console.log(data);
         	  var obj = JSON.parse(data);
-        	 var response=" Status : "+obj.STATUS+'\r\n'+" Message : "+obj.Message+'\r\n'+" ErrorCode : "+obj.ErrorCode+'\r\n'
-        	 +" Response : "+obj.Response+'\r\n'+" UTRNUMBER : "+obj.UTRNUMBER+'\r\n'+"CreditDate :"+obj.CreditDate;
+        	 
+        	  var response=" URN : "+obj.URN+'\r\n'+" STATUS : "+obj.STATUS+'\r\n'+" UNIQUEID : "+obj.UNIQUEID+'\r\n'
+         	 +" UTRNUMBER : "+obj.UTRNUMBER+'\r\n'+" RESPONSE : "+obj.RESPONSE+'\r\n'+" Message : "+obj.Message;
+        	  
+        //	  var response=" Status : "+obj.STATUS+'\r\n'+" Message : "+obj.Message+'\r\n'+" ErrorCode : "+obj.ErrorCode+'\r\n'
+        //	 +" Response : "+obj.Response+'\r\n'+" UTRNUMBER : "+obj.UTRNUMBER+'\r\n'+"CreditDate :"+obj.CreditDate;
+        	
         	  document.getElementById("kycRejectReason").value = response;
       	},
 		error : function(e) {
@@ -149,7 +155,9 @@
 												</tbody>
 											</table>
 										</c:if>
-
+<c:if test="${!init }">
+<p ><font color="red">No data found</font></p>
+</c:if>
 
 									</form>
 								</div>

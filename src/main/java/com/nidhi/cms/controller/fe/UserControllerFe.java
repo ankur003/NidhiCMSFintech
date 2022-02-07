@@ -324,11 +324,17 @@ public class UserControllerFe {
 	}
 
 	@PostMapping(value = "/bkycupload")
-	public ModelAndView bkyc(Model model, HttpServletRequest request, @RequestParam MultipartFile fileUpload,
+	public ModelAndView bkyc(Model model, HttpServletRequest request, @RequestParam MultipartFile[] fileUpload,
 			@ModelAttribute UserBusinessKycRequestModal userBusinessKycRequestModal) {
 		try {
-			if (fileUpload != null) {
-				userController.saveOrUpdateUserDoc(fileUpload, DocType.DOCUMENT_GST, userBusinessKycRequestModal.getUserUuid());
+			if (fileUpload[0] != null) {
+				userController.saveOrUpdateUserDoc(fileUpload[0], DocType.DOCUMENT_GST, userBusinessKycRequestModal.getUserUuid());
+			}
+			if (fileUpload[1] != null) {
+				userController.saveOrUpdateUserDoc(fileUpload[1], DocType.COMPANY_PAN, userBusinessKycRequestModal.getUserUuid());
+			}
+			if (fileUpload[2] != null) {
+				userController.saveOrUpdateUserDoc(fileUpload[2], DocType.DOCUMENT_COI, userBusinessKycRequestModal.getUserUuid());
 			}
 			HttpSession session = request.getSession();
 
@@ -341,10 +347,14 @@ public class UserControllerFe {
 			UserDoc userDoc = userController.getUserDoc(DocType.DOCUMENT_PAN, userBusinessKycRequestModal.getUserUuid());
 			UserDoc userDocs = userController.getUserDoc(DocType.DOCUMENT_AADHAR, userBusinessKycRequestModal.getUserUuid());
 			UserDoc userDocx = userController.getUserDoc(DocType.DOCUMENT_GST, userBusinessKycRequestModal.getUserUuid());
+			UserDoc userDocx1 = userController.getUserDoc(DocType.DOCUMENT_COI, userBusinessKycRequestModal.getUserUuid());
+			UserDoc userDocx2 = userController.getUserDoc(DocType.COMPANY_PAN, userBusinessKycRequestModal.getUserUuid());
 
 			session.setAttribute("userDoc", userDoc);
 			session.setAttribute("userDocs", userDocs);
 			session.setAttribute("userDocx", userDocx);
+			session.setAttribute("userDocx1", userDocx1);
+			session.setAttribute("userDocx2", userDocx2);
 
 			User userLoginDetails = userController.getUserDetail(userBusinessKycRequestModal.getUserUuid());
 			session.removeAttribute("userLoginDetails");
@@ -446,8 +456,10 @@ public class UserControllerFe {
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
 		userRequestFilterModel.setIsAdmin(false);
 		userRequestFilterModel.setIsSubAdmin(false);
-		userRequestFilterModel.setUserUuid(userUuid);
+		//userRequestFilterModel.setUserUuid(userUuid);
+		userRequestFilterModel.setAdminUuid(userUuid);
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
+		model.addAttribute("adminUuid",userRequestFilterModel.getAdminUuid());
 		if (users != null) {
 			model.addAttribute("userList", users.get("data"));
 			model.addAttribute("init", true);
@@ -516,9 +528,10 @@ public class UserControllerFe {
 
 	
 	@PostMapping(value = "/kyc-authReject")
-	public ModelAndView approveOrRejectKycReject(Model model, HttpServletRequest request, @RequestParam(required = false, name = "adminuid") String adminUuid) {
+	public ModelAndView approveOrRejectKycReject(Model model, HttpServletRequest request) {
 		
 		String userUuid=request.getParameter("userUuid");
+		String adminUuid=request.getParameter("adminUuid");
 		String kycRejectReason=request.getParameter("kycRejectReason").trim();
 		
 		userController.approveOrDisApproveKyc(userUuid, false, kycRejectReason, DocType.DOCUMENT_PAN, false);
@@ -910,12 +923,16 @@ public class UserControllerFe {
 		UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
 		UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
 		UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+		UserDoc coi = userController.getUserDoc(DocType.DOCUMENT_COI, userUuid);
+		UserDoc cpan = userController.getUserDoc(DocType.COMPANY_PAN, userUuid);
 		UserBankDetails bank= userController.getUserBankDetails(userUuid);	
 		UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
 		model.addAttribute("id",id);
 		model.addAttribute("pan",pan);
 		model.addAttribute("aadhar",aadhar);
 		model.addAttribute("gst",gst);
+		model.addAttribute("coi",coi);
+		model.addAttribute("cpan",cpan);
 		model.addAttribute("bank",bank);
 		model.addAttribute("bkyc",business);
 		model.addAttribute("user",user);
