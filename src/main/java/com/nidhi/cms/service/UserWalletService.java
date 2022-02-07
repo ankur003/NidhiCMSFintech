@@ -17,5 +17,7 @@ public interface UserWalletService {
 	UserWallet findByVirtualId(String virtualWalletId);
 
 	Boolean updateBalance(UserWallet userWallet, Double amt);
+	
+	UserWallet save(UserWallet userWallet);
 
 }

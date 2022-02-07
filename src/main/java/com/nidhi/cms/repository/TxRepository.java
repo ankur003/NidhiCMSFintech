@@ -36,4 +36,9 @@ public interface TxRepository extends JpaRepository<Transaction, Long> , PagingA
 
 	List<Transaction> findByUserIdAndUtrNumber(Long userId, String utrnumber);
 
+	List<Transaction> findByStatusAndResponse(String status, String resposne);
+
+	List<Transaction> findByStatusAndResponseAndSchedulerCustomInfoAndIsFeeTx(String status, String response,
+			String schedulerCustomInfo, boolean isFeeTx);
+
 }

@@ -201,4 +201,21 @@ public class TransactionServiceImpl implements TransactionService{
 		return txRepository.findByUserIdAndUtrNumber(userId, utrnumber);
 	}
 
+	@Override
+	public List<Transaction> findByStatusAndResponse(String status, String resposne) {
+		return txRepository.findByStatusAndResponse(status, resposne);
+	}
+
+	@Override
+	public void save(Transaction transaction) {
+		txRepository.save(transaction);
+		
+	}
+
+	@Override
+	public List<Transaction> findByStatusAndResponseAndSchedulerCustomInfoAndIsFeeTx(String status, String response,
+			String schedulerCustomInfo, boolean isFeeTx) {
+		return txRepository.findByStatusAndResponseAndSchedulerCustomInfoAndIsFeeTx(status, response, schedulerCustomInfo, isFeeTx);
+	}
+
 }

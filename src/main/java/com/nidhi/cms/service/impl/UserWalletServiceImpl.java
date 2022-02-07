@@ -113,4 +113,10 @@ public class UserWalletServiceImpl implements UserWalletService {
 		
 	}
 
+	@Override
+	public UserWallet save(UserWallet userWallet) {
+		return userWalletRepo.save(userWallet);
+		
+	}
+
 }

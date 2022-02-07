@@ -38,6 +38,7 @@ import com.nidhi.cms.config.CmsConfig;
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.RoleEum;
+import com.nidhi.cms.constants.enums.SchedulerCustomInfo;
 import com.nidhi.cms.constants.enums.SearchOperation;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
@@ -57,6 +58,7 @@ import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
+import com.nidhi.cms.modal.response.TimeOutResponse;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
 import com.nidhi.cms.repository.DocRepository;
@@ -481,6 +483,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 					new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 					"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
 			LOGGER.info("[UserServiceImpl.txWithoutOTP] msg - {}", encryptedJsonResponse);
+			String timeOutResponseMsg = getTimeOutResponse(encryptedJsonResponse);
+			LOGGER.info("[UserServiceImpl.doesTimeOut] timeOutResponseMsg - {}", timeOutResponseMsg);
+			if (timeOutResponseMsg != null) {
+				TimeOutResponse timeout = new TimeOutResponse();
+				timeout.setMessage(timeOutResponseMsg);
+				timeout.setUniqueId(uniqueId);
+				CompletableFuture.runAsync(() -> 
+				performPostAction(user, userTxWoOtpReqModal, null, userWallet));
+				return timeout;
+			}
 			String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 			LOGGER.info("[UserServiceImpl.txWithoutOTP] response - {}", response);
 			if (response == null) {
@@ -489,15 +501,25 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			Boolean isValid = isResponseValid(response);
 			if (BooleanUtils.isFalse(isValid)) {
 				LOGGER.info("[UserServiceImpl.txWithoutOTP] isValid - {}", isValid);
-				return response;
+				return addUniqueIdIntoResponse(uniqueId, response);
 			}
 			Object returnTOBeResponse = addUniqueIdIntoResponse(uniqueId, response);
-			CompletableFuture.runAsync(() -> {
-				performPostAction(user, userTxWoOtpReqModal, response, userWallet);
-			});
+			CompletableFuture.runAsync(() -> 
+				performPostAction(user, userTxWoOtpReqModal, response, userWallet));
 			return returnTOBeResponse;
 		} catch (Exception e) {
 			LOGGER.error("[UserServiceImpl.txWithoutOTP] Exception - {}", e);
+		}
+		return null;
+	}
+
+	private String getTimeOutResponse(String encryptedJsonResponse) {
+		if (encryptedJsonResponse != null && encryptedJsonResponse.trim().startsWith("{")) {
+			JSONObject jsonObject = new JSONObject(encryptedJsonResponse);
+			if( jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success")) 
+					&& jsonObject.getString("errormessage").contains("BACKEND_CONNECTION_TIMEOUT")) {
+				return jsonObject.getString("errormessage");
+			}
 		}
 		return null;
 	}
@@ -513,7 +535,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		LOGGER.info("[UserServiceImpl.addUniqueIdIntoResponse] jsonObjectToString - {}", jsonObjectToString);
 		return jsonObjectToString;
 	}
-
+	
 	private void performPostAction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, String response, UserWallet userWallet) {
 		
 		Transaction txn = saveTransaction(user, userTxWoOtpReqModal, response, userWallet);
@@ -526,7 +548,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	private Transaction saveFeeTransaction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal,
 			UserWallet userWallet, String response) {
-		JSONObject jsonObject = new JSONObject(response);
+	
 		Transaction txn = new Transaction();
 		txn.setAggrId(userTxWoOtpReqModal.getAggrid());
 		txn.setAggrName(userTxWoOtpReqModal.getAggrname());
@@ -548,8 +570,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setTxDate(LocalDate.now());
 		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getFee()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txn.setCreditTime(LocalDateTime.now());
-		txn.setStatus("SUCCESS");
-		txn.setUtrNumber(jsonObject.getString("UTRNUMBER"));
+		if (response != null) {
+			JSONObject jsonObject = new JSONObject(response);
+			txn.setUtrNumber(jsonObject.getString("UTRNUMBER"));
+			txn.setStatus("SUCCESS");
+		} else {
+			txn.setResponse("BACKEND_CONNECTION_TIMEOUT");
+			txn.setStatus("FAILED");
+			txn.setSchedulerCustomInfo(SchedulerCustomInfo.SKIP_CASE_FEE.name());
+		}
 		txn.setRemarks("Fee transaction");
 		txn.setIsFeeTx(true);
 		txRepository.save(txn);
@@ -573,7 +602,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setMerchantId(userTxWoOtpReqModal.getMerchantId());
 		txn.setPayeeName(userTxWoOtpReqModal.getPayeename());
 		txn.setTxnType(userTxWoOtpReqModal.getTxntype());
-		setIciciResponse(txn, response);
+		if (response != null) {
+			setIciciResponse(txn, response);
+		} else {
+			txn.setResponse("BACKEND_CONNECTION_TIMEOUT");
+			txn.setStatus("FAILED");
+			txn.setSchedulerCustomInfo(SchedulerCustomInfo.FAILED_CHECK_AGAIN.name());
+		}
 		txn.setUniqueId(userTxWoOtpReqModal.getUniqueid());
 		txn.setUrn(userTxWoOtpReqModal.getUrn());
 		txn.setUserId(user.getUserId());
@@ -582,6 +617,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setAmt(BigDecimal.valueOf(userWallet.getAmount() - txn.getAmount()).setScale(2, RoundingMode.HALF_DOWN).doubleValue());
 		txn.setRemarks(userTxWoOtpReqModal.getRemarks());
 		txn.setCreditTime(LocalDateTime.now());
+		txn.setIsFeeTx(false);
 		txRepository.save(txn);
 		return txn;
 	}
@@ -634,15 +670,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		model.put("account_number", userTxWoOtpReqModal.getCreditacc());
 		model.put("ifsc", txn.getIfsc());
 		model.put("remark", StringUtils.isNotBlank(txn.getRemarks()) ? txn.getRemarks() : "-");
-		model.put("utr", txn.getUtrNumber());
+		model.put("utr", txn.getUtrNumber() == null ? "not available - tx under process" : txn.getUtrNumber());
 		model.put("Status", txn.getStatus());
 		emailService.sendEmail(request, model, null, EmailTemplateConstants.PAYOUT_REQUEST_INITIATION);
 	}
 
-	private UserWallet updateBalance(Double amountPlusfee, UserWallet userWallet) {
+	private UserWallet updateBalance(Double amount, UserWallet userWallet) {
 		LOGGER.info("[UserServiceImpl.updateBalance] ===============================amt ==================== {} - ", userWallet.getAmount());
-		LOGGER.info("[UserServiceImpl.updateBalance] ===============================amountPlusfee ==================== {} - ", amountPlusfee);
-		BigDecimal amt = BigDecimal.valueOf(userWallet.getAmount() - amountPlusfee).setScale(2, RoundingMode.HALF_DOWN);
+		LOGGER.info("[UserServiceImpl.updateBalance] ===============================amountPlusfee ==================== {} - ", amount);
+		BigDecimal amt = BigDecimal.valueOf(userWallet.getAmount() - amount).setScale(2, RoundingMode.HALF_DOWN);
 		userWallet.setAmount(amt.doubleValue());
 		UserWallet savedWallet = userWalletRepository.save(userWallet);
 		LOGGER.info("[UserServiceImpl.updateBalance] ===============================balace updated ==================== {} - ", amt.doubleValue());
@@ -674,22 +710,27 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			JSONObject jsonObject = new JSONObject(response);
 			LOGGER.info("[UserServiceImpl.isResponseValid]  {} - ", jsonObject);
 			LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.has(\"success\") {} - ", jsonObject.has("success"));
-			if (jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success"))) {
+			if (jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success")) && !jsonObject.has("STATUS")) {
 				LOGGER.info("[UserServiceImpl.isResponseValid] BooleanUtils.isFalse(jsonObject.getBoolean(\"success\")) {} " , BooleanUtils.isFalse(jsonObject.getBoolean("success")));
 				return Boolean.FALSE;
 			}
-			if (jsonObject.has("RESPONSE") && jsonObject.getString("RESPONSE").equals("FAILURE")) {
-				LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.getString(\"RESPONSE\").equals(\"FAILURE\") {} " , jsonObject.getString("RESPONSE").equals("FAILURE"));
+			if (jsonObject.has("RESPONSE") && jsonObject.getString("RESPONSE").equalsIgnoreCase("FAILURE")) {
+				LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.getString(\"RESPONSE\").equals(\"FAILURE\") {} " , jsonObject.getString("RESPONSE").equalsIgnoreCase("FAILURE"));
 				return Boolean.FALSE;
 			}
-			if (jsonObject.getString("RESPONSE").equals("SUCCESS")) {
+			if (jsonObject.getString("RESPONSE").equals("SUCCESS") && jsonObject.getString("STATUS").equalsIgnoreCase("FAILURE")) {
+				LOGGER.info("[UserServiceImpl.isResponseValid] If Response = Success & Status = Failure, transaction is to be reinitiated.");
+				return Boolean.FALSE;
+			}
+			
+			if (jsonObject.getString("RESPONSE").equalsIgnoreCase("SUCCESS")) {
 				return Boolean.TRUE;
 			}
 		return Boolean.FALSE;
 	}
 
 	@Override
-	public Object txStatusInquiry(User user, TxStatusInquiry txStatusInquiry) {
+	public String txStatusInquiry(User user, TxStatusInquiry txStatusInquiry) {
 		
 		return transactionService.transactionStatusInquiry(txStatusInquiry.getUniqueid());
 	}

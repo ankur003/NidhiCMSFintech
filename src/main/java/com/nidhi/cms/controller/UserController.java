@@ -558,7 +558,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "transaction inquiry", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Object txStatusInquiry(@Valid @RequestBody TxStatusInquiry txStatusInquiry, final HttpServletRequest httpServletRequest) {
+	public ResponseEntity<Object> txStatusInquiry(@Valid @RequestBody TxStatusInquiry txStatusInquiry, final HttpServletRequest httpServletRequest) {
 
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		String authorizationToken = httpServletRequest.getHeader("Authorization");
@@ -611,7 +611,9 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		return userservice.txStatusInquiry(user, txStatusInquiry);
+		Object respnse = userservice.txStatusInquiry(user, txStatusInquiry);
+		return ResponseEntity.status(HttpStatus.OK).body(respnse.toString());
+		
 	}
 
 	
@@ -619,7 +621,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 	@ApiOperation(value = "NEFT Incremental status API", authorizations = { @Authorization(value = "accessToken"),
 			@Authorization(value = "oauthToken") })
-	public Object txNEFTStatus(@Valid @RequestBody NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal, final HttpServletRequest httpServletRequest) {
+	public ResponseEntity<Object> txNEFTStatus(@Valid @RequestBody NEFTIncrementalStatusReqModal nEFTIncrementalStatusReqModal, final HttpServletRequest httpServletRequest) {
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		String authorizationToken = httpServletRequest.getHeader("Authorization");
 		if (StringUtils.isBlank(apiKey)) {
@@ -671,8 +673,10 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		return userservice.txNEFTStatus(user, nEFTIncrementalStatusReqModal);
+		Object response = userservice.txNEFTStatus(user, nEFTIncrementalStatusReqModal);
+        return ResponseEntity.status(HttpStatus.OK).body(response.toString());
 	}
+
 	
 	
 	public Boolean apiWhiteListing(@RequestParam("userUuid") String userUuid, @RequestParam("ip") String ip) {

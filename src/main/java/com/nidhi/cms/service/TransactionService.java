@@ -34,7 +34,7 @@ public interface TransactionService {
 
 	String getTransactionStatus(String uniqueId, PaymentMode paymentMode);
 
-	Object transactionStatusInquiry(String uniqueId);
+	String transactionStatusInquiry(String uniqueId);
 
 	Object neftIncrementalStatusAPi(String utrNumber);
 
@@ -49,5 +49,12 @@ public interface TransactionService {
 	void saveCreditTransaction(Document docWithContent, int i, User user, UserWallet userWallet);
 
 	List<Transaction> findByUserIdAndUtrNumber(Long userId, String utrnumber);
+
+	List<Transaction> findByStatusAndResponse(String status, String resposne);
+
+	void save(Transaction transaction);
+
+	List<Transaction> findByStatusAndResponseAndSchedulerCustomInfoAndIsFeeTx(String status, String response,
+			String schedulerCustomInfo, boolean isFeeTx);
 
 }

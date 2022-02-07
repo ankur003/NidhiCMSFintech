@@ -71,6 +71,8 @@ public class Transaction extends BaseDomain {
 
 	private Boolean isFeeTx = false;
 
+	private String schedulerCustomInfo;
+
 	public Long getTransactionId() {
 		return transactionId;
 	}
@@ -293,6 +295,14 @@ public class Transaction extends BaseDomain {
 
 	public void setIsFeeTx(Boolean isFeeTx) {
 		this.isFeeTx = isFeeTx;
+	}
+
+	public String getSchedulerCustomInfo() {
+		return schedulerCustomInfo;
+	}
+
+	public void setSchedulerCustomInfo(String schedulerCustomInfo) {
+		this.schedulerCustomInfo = schedulerCustomInfo;
 	}
 
 }
