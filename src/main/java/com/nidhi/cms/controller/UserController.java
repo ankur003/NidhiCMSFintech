@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.response.ErrorResponse;
+import com.nidhi.cms.modal.response.TimeOutResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.repository.UserRepository;
@@ -530,11 +532,15 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
 		setFeeRelatedInfo(userPaymentMode, userTxWoOtpReqModal);
-		Object response = userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet);
+		String uniqueId = RandomStringUtils.randomAlphabetic(15);
+		Object response = userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet, uniqueId);
 		if (response == null) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			TimeOutResponse outResponse = new TimeOutResponse();
+			outResponse.setUniqueId(uniqueId);
+			outResponse.setMessage("Error Occured");
+			return ResponseEntity.status(HttpStatus.OK).body(outResponse);
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(response.toString());
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 	private void setFeeRelatedInfo(UserPaymentMode userPaymentMode, UserTxWoOtpReqModal userTxWoOtpReqModal) {

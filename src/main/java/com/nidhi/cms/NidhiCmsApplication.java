@@ -26,7 +26,6 @@ import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.repository.SystemPrivilegeRepo;
-import com.nidhi.cms.repository.TxRepository;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
@@ -75,7 +74,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 	
 	private void test() {
-		LOGGER.info("@@@@@@@@@@@@@@@@@@@ ------ {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  22 JAN 2022");
+		LOGGER.info("@@@@@@@@@@@@@@@@@@@ ------ {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  09 FEB 2022");
 	}
 
 

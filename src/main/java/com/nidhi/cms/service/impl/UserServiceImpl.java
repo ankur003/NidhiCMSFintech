@@ -465,14 +465,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 	
 	@Override
-	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet) {
+	public Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet, String uniqueId) {
 		try {
 			userTxWoOtpReqModal.setAggrid(CmsConfig.CUST_ID);
 			userTxWoOtpReqModal.setAggrname(CmsConfig.AGGR_NAME);
 			userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
 			userTxWoOtpReqModal.setUrn(CmsConfig.URN);
 			userTxWoOtpReqModal.setUserid(CmsConfig.USER);
-			String uniqueId = RandomStringUtils.randomAlphabetic(15);
 			userTxWoOtpReqModal.setUniqueid(uniqueId);
 			userTxWoOtpReqModal.setDebitacc(CmsConfig.DBIT_ACC);
 			String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
@@ -498,7 +497,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			if (response == null) {
 				return null;
 			}
-			Boolean isValid = isResponseValid(response);
+			Boolean isValid = isResponseValid(response, user, userTxWoOtpReqModal, userWallet);
 			if (BooleanUtils.isFalse(isValid)) {
 				LOGGER.info("[UserServiceImpl.txWithoutOTP] isValid - {}", isValid);
 				return addUniqueIdIntoResponse(uniqueId, response);
@@ -516,8 +515,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	private String getTimeOutResponse(String encryptedJsonResponse) {
 		if (encryptedJsonResponse != null && encryptedJsonResponse.trim().startsWith("{")) {
 			JSONObject jsonObject = new JSONObject(encryptedJsonResponse);
-			if( jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success")) 
-					&& jsonObject.getString("errormessage").contains("BACKEND_CONNECTION_TIMEOUT")) {
+			if( jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success"))) {
 				return jsonObject.getString("errormessage");
 			}
 		}
@@ -706,7 +704,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	}
 
-	private Boolean isResponseValid(String response) {
+	private Boolean isResponseValid(String response, User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet) {
 			JSONObject jsonObject = new JSONObject(response);
 			LOGGER.info("[UserServiceImpl.isResponseValid]  {} - ", jsonObject);
 			LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.has(\"success\") {} - ", jsonObject.has("success"));
@@ -721,6 +719,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			if (jsonObject.getString("RESPONSE").equals("SUCCESS") && jsonObject.getString("STATUS").equalsIgnoreCase("FAILURE")) {
 				LOGGER.info("[UserServiceImpl.isResponseValid] If Response = Success & Status = Failure, transaction is to be reinitiated.");
 				return Boolean.FALSE;
+			}
+			
+			if (jsonObject.getString("RESPONSE").equalsIgnoreCase("SUCCESS") 
+					&& ((jsonObject.getString("STATUS").equalsIgnoreCase("Pending For Processing")) || (jsonObject.getString("Status").equalsIgnoreCase("PENDING")))) {
+				TimeOutResponse timeout = new TimeOutResponse();
+				timeout.setMessage("Pending For Processing or PENDING");
+				CompletableFuture.runAsync(() -> 
+				performPostAction(user, userTxWoOtpReqModal, null, userWallet));
+				return Boolean.TRUE;
 			}
 			
 			if (jsonObject.getString("RESPONSE").equalsIgnoreCase("SUCCESS")) {

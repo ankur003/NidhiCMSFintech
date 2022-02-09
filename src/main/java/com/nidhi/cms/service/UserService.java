@@ -55,7 +55,7 @@ public interface UserService {
 
 	Boolean apiWhiteListing(User user, String ip);
 
-	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet);
+	Object txWithoutOTP(User user, UserTxWoOtpReqModal userTxWoOtpReqModal, UserWallet userWallet, String uniqueId);
 
 	User updateUserDetails(User user, UserUpdateModal userUpdateModal);
 
