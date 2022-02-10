@@ -1,7 +1,9 @@
 package com.nidhi.cms.modal.request;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -23,6 +25,7 @@ public class UserTxWoOtpReqModal {
 	private String urn;
 
 	@NotBlank(message = "uniqueId : uniqueId is invalid or missing")
+	@Size(min = 15, max = 15, message = "uniqueId : uniqueId length should be 15")
 	private String uniqueId;
 
 	@JsonIgnore

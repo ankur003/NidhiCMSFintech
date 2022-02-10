@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -17,7 +19,6 @@ import javax.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.domain.DocType;
+import com.nidhi.cms.domain.MerchantUniqueDetails;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.Transaction;
@@ -74,6 +76,7 @@ import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.DocService;
+import com.nidhi.cms.service.MerchantUniqueDetailsService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserAccountStatementService;
@@ -133,6 +136,9 @@ public class UserController extends AbstractController {
 	
 	@Autowired
 	private BCryptPasswordEncoder encoder;
+	
+	@Autowired
+	private MerchantUniqueDetailsService merchantUniqueDetailsService;
 	
 	private static final String APPLICATION_JSON  = "application/json";
 	private static final String MESSAGE  = "message";
@@ -441,6 +447,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			@Authorization(value = "oauthToken") })
 	public ResponseEntity<Object> txWithoutOTP(@Valid @RequestBody UserTxWoOtpReqModal userTxWoOtpReqModal, final HttpServletRequest httpServletRequest) {
 		
+        boolean res = isSpecialCharFound(userTxWoOtpReqModal);
+        if (res) {
+        	final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "uniqueId : uniqueId contains the special character.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+		
 		String apiKey = httpServletRequest.getHeader("apiKey");
 		String authorizationToken = httpServletRequest.getHeader("Authorization");
 		if (StringUtils.isBlank(apiKey)) {
@@ -533,6 +546,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
 		setFeeRelatedInfo(userPaymentMode, userTxWoOtpReqModal);
 		String uniqueId = userTxWoOtpReqModal.getUniqueId();
+		merchantUniqueDetailsService.save(userWallet.getMerchantId(), uniqueId);
+
 		Object response = userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet, uniqueId);
 		if (response == null) {
 			TimeOutResponse outResponse = new TimeOutResponse();
@@ -541,6 +556,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return ResponseEntity.status(HttpStatus.OK).body(outResponse);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	private boolean isSpecialCharFound(UserTxWoOtpReqModal userTxWoOtpReqModal) {
+		String s1 = userTxWoOtpReqModal.getUniqueId();
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(s1);
+        return m.find();
 	}
 	
 	private void setFeeRelatedInfo(UserPaymentMode userPaymentMode, UserTxWoOtpReqModal userTxWoOtpReqModal) {
@@ -611,8 +633,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		List<Transaction> transactions = transactionService.findByUserIdAndUniqueId(user.getUserId(), txStatusInquiry.getUniqueid());
-		if (CollectionUtils.isEmpty(transactions)) {
+		List<MerchantUniqueDetails> merchantUniqueDetails = merchantUniqueDetailsService.findByMerchantIdAndUniqueId(userWallet.getMerchantId(), txStatusInquiry.getUniqueid());
+		if (CollectionUtils.isEmpty(merchantUniqueDetails)) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "unique id not valid.");
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);

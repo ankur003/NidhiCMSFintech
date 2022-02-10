@@ -116,6 +116,9 @@ public class TransactionServiceImpl implements TransactionService{
 					new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 					"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/TransactionInquiry", "POST");
 			LOGGER.info("[TransactionServiceImpl.transactionStatusInquiry] msg - {}", encryptedJsonResponse);
+			if( encryptedJsonResponse.startsWith("{")) {
+				return encryptedJsonResponse;
+			}
 			String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 			LOGGER.info("[TransactionServiceImpl.transactionStatusInquiry] response - {}", response);
 			return response;
@@ -142,6 +145,9 @@ public class TransactionServiceImpl implements TransactionService{
 					new String(org.bouncycastle.util.encoders.Base64.encode(ciphertextBytes)),
 					"https://apibankingone.icicibank.com/api/v1/CIBNEFTStatus", "POST");
 			LOGGER.info("[TransactionServiceImpl.neftIncrementalStatusAPi] msg - {}", encryptedJsonResponse);
+			if (encryptedJsonResponse.startsWith("{")) {
+				return encryptedJsonResponse;
+			}
 			String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
 			LOGGER.info("[TransactionServiceImpl.neftIncrementalStatusAPi] response - {}", response);
 			return response;
