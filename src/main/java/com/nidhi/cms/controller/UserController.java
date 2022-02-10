@@ -532,7 +532,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		}
 		userTxWoOtpReqModal.setAmount(userTxWoAmount.doubleValue());
 		setFeeRelatedInfo(userPaymentMode, userTxWoOtpReqModal);
-		String uniqueId = RandomStringUtils.randomAlphabetic(15);
+		String uniqueId = userTxWoOtpReqModal.getUniqueId();
 		Object response = userservice.txWithoutOTP(user, userTxWoOtpReqModal, userWallet, uniqueId);
 		if (response == null) {
 			TimeOutResponse outResponse = new TimeOutResponse();

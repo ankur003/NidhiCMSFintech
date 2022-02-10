@@ -22,8 +22,8 @@ public class UserTxWoOtpReqModal {
 	@JsonIgnore
 	private String urn;
 
-	@JsonIgnore
-	private String uniqueid;
+	@NotBlank(message = "uniqueId : uniqueId is invalid or missing")
+	private String uniqueId;
 
 	@JsonIgnore
 	private String debitacc;
@@ -65,12 +65,12 @@ public class UserTxWoOtpReqModal {
 		this.remarks = remarks;
 	}
 
-	public String getUniqueid() {
-		return uniqueid;
+	public String getUniqueId() {
+		return uniqueId;
 	}
 
-	public void setUniqueid(String uniqueid) {
-		this.uniqueid = uniqueid;
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
 	}
 
 	public String getDebitacc() {

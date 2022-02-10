@@ -472,7 +472,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			userTxWoOtpReqModal.setCorpid(CmsConfig.CORP_ID);
 			userTxWoOtpReqModal.setUrn(CmsConfig.URN);
 			userTxWoOtpReqModal.setUserid(CmsConfig.USER);
-			userTxWoOtpReqModal.setUniqueid(uniqueId);
+			userTxWoOtpReqModal.setUniqueId(uniqueId);
 			userTxWoOtpReqModal.setDebitacc(CmsConfig.DBIT_ACC);
 			String jsonAsString = Utility.createJsonRequestAsString(userTxWoOtpReqModal);
 			LOGGER.info("[UserServiceImpl.txWithoutOTP] jsonAsString - {}", jsonAsString);
@@ -561,7 +561,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		txn.setMerchantId(userTxWoOtpReqModal.getMerchantId());
 		txn.setPayeeName(userTxWoOtpReqModal.getPayeename());
 		txn.setTxnType(userTxWoOtpReqModal.getTxntype());
-		txn.setUniqueId(userTxWoOtpReqModal.getUniqueid());
+		txn.setUniqueId(userTxWoOtpReqModal.getUniqueId());
 		txn.setUrn(userTxWoOtpReqModal.getUrn());
 		txn.setUserId(user.getUserId());
 		txn.setTxType("Dr.");
@@ -607,7 +607,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			txn.setStatus("FAILED");
 			txn.setSchedulerCustomInfo(SchedulerCustomInfo.FAILED_CHECK_AGAIN.name());
 		}
-		txn.setUniqueId(userTxWoOtpReqModal.getUniqueid());
+		txn.setUniqueId(userTxWoOtpReqModal.getUniqueId());
 		txn.setUrn(userTxWoOtpReqModal.getUrn());
 		txn.setUserId(user.getUserId());
 		txn.setTxType("Dr.");
