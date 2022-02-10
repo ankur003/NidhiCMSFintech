@@ -722,7 +722,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			}
 			
 			if (jsonObject.getString("RESPONSE").equalsIgnoreCase("SUCCESS") 
-					&& ((jsonObject.getString("STATUS").equalsIgnoreCase("Pending For Processing")) || (jsonObject.getString("Status").equalsIgnoreCase("PENDING")))) {
+					&& ((jsonObject.getString("STATUS").equalsIgnoreCase("Pending For Processing")) || (jsonObject.getString("STATUS").equalsIgnoreCase("PENDING")))) {
 				TimeOutResponse timeout = new TimeOutResponse();
 				timeout.setMessage("Pending For Processing or PENDING");
 				CompletableFuture.runAsync(() -> 
