@@ -59,9 +59,10 @@ public class CheckCreditAmountScheduler {
     @Scheduled(cron = "0 0/10 * * * ?")
     public void checkCreditAmountScheduler() {
         LOGGER.info("check Credit Amount Scheduler has been started at '{}'", LocalDateTime.now());
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+		MediaType mediaType = MediaType.parse("text/xml");
+		Response response = null;
         try {
-    		OkHttpClient client = new OkHttpClient().newBuilder().build();
-    		MediaType mediaType = MediaType.parse("text/xml");
     		RequestBody body = RequestBody.create(
     				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" "
     				+ "xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\n    "
@@ -75,7 +76,7 @@ public class CheckCreditAmountScheduler {
 					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
     				.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/FetchIecData")
     				.addHeader("Content-Type", "text/xml").build();
-			Response response = client.newCall(request).execute();
+    		response = client.newCall(request).execute();
 			String responseXmlString = response.body().string();
 			LOGGER.info("Response as string -  '{}'",responseXmlString);
 			if (StringUtils.isBlank(responseXmlString) || responseXmlString.contains("errorResponse")) {
@@ -87,6 +88,9 @@ public class CheckCreditAmountScheduler {
         } catch (final Exception exception) {
             LOGGER.error(" check Credit Amount Scheduler An error occurred ", exception);
         } finally {
+        	if (response != null) {
+        		response.close();
+        	}
             LOGGER.info("Check Credit Amount Scheduler has been has been completed at '{}'", LocalDateTime.now());
         }
     }
@@ -149,6 +153,7 @@ public class CheckCreditAmountScheduler {
 
 	private void updateStatusSuccessCallBack(Document docWithContent, int i) {
 		String reqId = docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent();
+		Response response = null;
 		try {
 			if (StringUtils.isBlank(reqId)) {
 				LOGGER.error("reqId is not valid   =  {}, escaping update client status SOAP CALL ", reqId);
@@ -168,15 +173,20 @@ public class CheckCreditAmountScheduler {
 					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
 					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
 					.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/UpdateClientResponse").build();
-			 client.newCall(request).execute();
+			response = client.newCall(request).execute();
 			 LOGGER.info("successfully update for reqId ............................   =  {} ", reqId);
 		} catch (Exception e) {
 			LOGGER.error("error ocuured during client status update call against reqId {}, {} , ", reqId, e);
+		} finally {
+			if (response != null) {
+				response.close();
+			}
 		}
 		
 	}
 	
 	private void updateStatusFailedCallBack(Document docWithContent, int i) {
+		Response response = null;
 		try {
 			String reqId = docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent();
 			if (StringUtils.isBlank(reqId)) {
@@ -197,10 +207,14 @@ public class CheckCreditAmountScheduler {
 					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
 					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
 					.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/UpdateClientResponse").build();
-			 client.newCall(request).execute();
+			response = client.newCall(request).execute();
 			 LOGGER.info("successfully update for reqId ............................   =  {} ", reqId);
 		} catch (Exception e) {
 			LOGGER.error("error ocuured during client status update call, {} , ", e);
+		} finally {
+			if (response != null) {
+				response.close();
+			}
 		}
 		
 	}

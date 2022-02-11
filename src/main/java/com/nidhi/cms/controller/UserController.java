@@ -1123,6 +1123,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@PostMapping(value = "/indsind/onBoardSubMerchant")
 	public ResponseEntity<Object> indsind(@Valid @RequestBody IndsIndRequestModal indsIndRequestModal,
 			final HttpServletRequest httpServletRequest) {
+		Response response = null;
 		try {
 			
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBody(indsIndRequestModal, applicationConfig.getIndBankKey()), mediaType);
@@ -1132,7 +1133,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 					.addHeader("X-IBM-Client-Secret", httpServletRequest.getHeader("X-IBM-Client-Secret"))
 					.addHeader("Accept", APPLICATION_JSON)
 					.addHeader("Content-Type", APPLICATION_JSON).build();
-			Response response = client.newCall(request).execute();
+			 response = client.newCall(request).execute();
 			String responseBody = response.body().string();
 			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", applicationConfig.getIndBankKey());
 			if (decryptedResponse == null) {
@@ -1142,6 +1143,10 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e);
+		} finally {
+			if (response != null) {
+				response.close();
+			}
 		}
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
