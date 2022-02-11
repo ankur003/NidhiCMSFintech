@@ -3,6 +3,7 @@ package com.nidhi.cms.scheduler;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -117,13 +119,17 @@ public class CheckCreditAmountScheduler {
 			LOGGER.warn("creditTime is null against =  {}", docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent());
 			return;
 		}
-		Transaction txn = txService.findByCreditTime(creditTime);
-		if (txn != null 
-				&& txn.getCreditTime() != null 
-				&& txn.getCreditTime().isEqual(creditTime)
-				&& txn.getUtrNumber() != null 
-				&& txn.getUtrNumber().equals(docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent())) {
-			LOGGER.warn("txn already credited  with Inward_Ref_Num - {} and created date time - {} ", txn.getVirtualTxId(), txn.getCreditTime());
+		Transaction txn = null;
+		try {
+			txn = txService.findByUtrNumber(docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent());
+		} catch (Exception e) {
+			LOGGER.error("found same tx against Remitter_UTR  {}, exception {} ", docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent(), e);
+			return;
+		}
+		if (txn != null && txn.getReqId().equals(docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent())) {
+			LOGGER.error("txn already credited  with Remitter_UTR - {} and created date time - {} ", txn.getUtrNumber(), txn.getCreditTime());
+			LOGGER.error("txn already credited  with same request ReqId - {}  - and db reqId {} ", docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent(), txn.getReqId());
+
 			return;
 		}
 		UserWallet userWallet = userWalletService.findByVirtualId(docWithContent.getElementsByTagName("Credit_AccountNo").item(i).getTextContent());
@@ -142,13 +148,13 @@ public class CheckCreditAmountScheduler {
 	}
 
 	private void updateStatusSuccessCallBack(Document docWithContent, int i) {
+		String reqId = docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent();
 		try {
-			String reqId = docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent();
 			if (StringUtils.isBlank(reqId)) {
 				LOGGER.error("reqId is not valid   =  {}, escaping update client status SOAP CALL ", reqId);
 				return;
 			}
-			OkHttpClient client = new OkHttpClient().newBuilder().build();
+			OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(3, TimeUnit.MINUTES).build();
 			MediaType mediaType = MediaType.parse("text/xml");
 			RequestBody body = RequestBody.create(
 					"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\" xmlns:eten=\"http://schemas.datacontract.org/2004/07/ETender_Pull\">\r\n   <soapenv:Header/>\r\n   <soapenv:Body>\r\n      <tem:UpdateClientResponse>\r\n         <!--Optional:-->\r\n         <tem:RequestData>\r\n            <!--Optional:-->\r\n            <eten:CustomerResponse>\r\n                <![CDATA[<IECResponse>\r\n                    <TRANSACTION>\r\n                        "
@@ -165,7 +171,7 @@ public class CheckCreditAmountScheduler {
 			 client.newCall(request).execute();
 			 LOGGER.info("successfully update for reqId ............................   =  {} ", reqId);
 		} catch (Exception e) {
-			LOGGER.error("error ocuured during client status update call, {} , ", e);
+			LOGGER.error("error ocuured during client status update call against reqId {}, {} , ", reqId, e);
 		}
 		
 	}

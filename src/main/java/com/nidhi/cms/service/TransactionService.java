@@ -57,4 +57,6 @@ public interface TransactionService {
 	List<Transaction> findByStatusAndResponseAndSchedulerCustomInfoAndIsFeeTx(String status, String response,
 			String schedulerCustomInfo, boolean isFeeTx);
 
+	Transaction findByUtrNumber(String utrNumber);
+
 }
