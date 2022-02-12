@@ -116,7 +116,7 @@ public class CheckCreditAmountScheduler {
 		}
 	}
 
-	private void createTransactionAndUpdateBalance(Document docWithContent, int i) {
+	private synchronized void createTransactionAndUpdateBalance(Document docWithContent, int i) {
 		LocalDateTime creditTime = Utility.getDateTime(docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent());
 		String creditTimeString = docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent();
 		UserWallet userWallet = userWalletService.findByVirtualId(docWithContent.getElementsByTagName("Credit_AccountNo").item(i).getTextContent());
@@ -138,11 +138,10 @@ public class CheckCreditAmountScheduler {
 			LOGGER.error("virtualTxn found  against=  {}", virtualTxn.getRemitterUTR());
 			return;
 		}
-		
+		creditAmountTransactionsService.save(docWithContent, i, "SUCCESS");
 		User user = userService.findByUserId(userWallet.getUserId());
 		txService.saveCreditTransaction(docWithContent, i, user, userWallet);
 		userWalletService.updateBalance(userWallet, Double.valueOf(docWithContent.getElementsByTagName("Amount").item(i).getTextContent()));
-		creditAmountTransactionsService.save(docWithContent, i, "SUCCESS");
 		updateStatusSuccessCallBack(docWithContent, i);
 		
 	}
