@@ -224,9 +224,4 @@ public class TransactionServiceImpl implements TransactionService{
 		return txRepository.findByStatusAndResponseAndSchedulerCustomInfoAndIsFeeTx(status, response, schedulerCustomInfo, isFeeTx);
 	}
 
-	@Override
-	public Transaction findByUtrNumber(String utrNumber) {
-		return txRepository.findByUtrNumber(utrNumber);
-	}
-
 }

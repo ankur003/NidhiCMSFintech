@@ -10,4 +10,6 @@ import com.nidhi.cms.domain.VirtualTxn;
 @Repository
 public interface CreditAmountTransactionsRepo extends JpaRepository<VirtualTxn, Long> , PagingAndSortingRepository<VirtualTxn, Long>, JpaSpecificationExecutor<VirtualTxn> {
 
+	VirtualTxn findByRemitterUTR(String remitterUtr);
+
 }

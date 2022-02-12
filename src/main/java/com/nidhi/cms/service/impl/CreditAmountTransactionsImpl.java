@@ -40,5 +40,10 @@ public class CreditAmountTransactionsImpl implements CreditAmountTransactionsSer
 		creditAmountTransactionsRepo.save(virtualTxn);
 		
 	}
+	
+	@Override
+	public VirtualTxn findByRemitterUTR(String remitterUtr) {
+		return creditAmountTransactionsRepo.findByRemitterUTR(remitterUtr);
+	}
 
 }

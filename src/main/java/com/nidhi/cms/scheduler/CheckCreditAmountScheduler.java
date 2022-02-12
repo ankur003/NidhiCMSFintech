@@ -15,15 +15,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.nidhi.cms.config.ApplicationConfig;
-import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.domain.VirtualTxn;
 import com.nidhi.cms.service.CreditAmountTransactionsService;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserService;
@@ -119,30 +118,27 @@ public class CheckCreditAmountScheduler {
 
 	private void createTransactionAndUpdateBalance(Document docWithContent, int i) {
 		LocalDateTime creditTime = Utility.getDateTime(docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent());
-		if (creditTime == null) {
-			LOGGER.warn("creditTime is null against =  {}", docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent());
-			return;
-		}
-		Transaction txn = null;
-		try {
-			txn = txService.findByUtrNumber(docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent());
-		} catch (Exception e) {
-			LOGGER.error("found same tx against Remitter_UTR  {}, exception {} ", docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent(), e);
-			return;
-		}
-		if (txn != null && txn.getReqId().equals(docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent())) {
-			LOGGER.error("txn already credited  with Remitter_UTR - {} and created date time - {} ", txn.getUtrNumber(), txn.getCreditTime());
-			LOGGER.error("txn already credited  with same request ReqId - {}  - and db reqId {} ", docWithContent.getElementsByTagName("Request_ID").item(i).getTextContent(), txn.getReqId());
-
-			return;
-		}
+		String creditTimeString = docWithContent.getElementsByTagName("Credit_Time").item(i).getTextContent();
 		UserWallet userWallet = userWalletService.findByVirtualId(docWithContent.getElementsByTagName("Credit_AccountNo").item(i).getTextContent());
 		if (userWallet == null) {
-			LOGGER.warn("userWallet  =  {}", userWallet);
+			LOGGER.error("userWallet  =  {}", userWallet);
 			creditAmountTransactionsService.save(docWithContent, i, "FAILED");
 			updateStatusFailedCallBack(docWithContent, i);
 			return;
 		}
+		VirtualTxn virtualTxn = creditAmountTransactionsService.findByRemitterUTR(docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent());
+		LOGGER.info("creditTime  =  {}", creditTime);
+		LOGGER.info("creditTimeString  =  {}", creditTimeString);
+		if (virtualTxn != null && creditTimeString.equalsIgnoreCase(virtualTxn.getCreditTime())) {
+			LOGGER.error("virtualTxn already present against Remitter_UTR =  {}", docWithContent.getElementsByTagName("Remitter_UTR").item(i).getTextContent());
+			return;
+		}
+		// testing
+		if (virtualTxn != null) {
+			LOGGER.error("virtualTxn found  against=  {}", virtualTxn.getRemitterUTR());
+			return;
+		}
+		
 		User user = userService.findByUserId(userWallet.getUserId());
 		txService.saveCreditTransaction(docWithContent, i, user, userWallet);
 		userWalletService.updateBalance(userWallet, Double.valueOf(docWithContent.getElementsByTagName("Amount").item(i).getTextContent()));
