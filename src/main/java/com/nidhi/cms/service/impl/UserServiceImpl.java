@@ -454,12 +454,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			LOGGER.error("[UserServiceImpl.triggerUserUpdateApiWhiteListingNotifications] user email is blank - {}", user.getUserEmail());
 			return;
 		}
+			UserBusinessKyc details = userBusnessKycService.getUserBusnessKyc(user.getUserId());
 			MailRequest request = new MailRequest();
 			request.setName(user.getFullName());
 			request.setSubject("Account Update");
 			request.setTo(new String[] { user.getUserEmail() });
 			Map<String, Object> model = new HashMap<>();
 			model.put("name", user.getFullName());
+			model.put("cname", details.getCompnayName());
 			model.put("ip", ip);
 			emailService.sendMailAsync(request, model, null, EmailTemplateConstants.USER_UPDATE_DETAILS_IP_UPDATE);
 	}
