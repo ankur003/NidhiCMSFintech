@@ -53,8 +53,8 @@ public class OtpServiceImpl implements OtpService {
 		if (BooleanUtils.isFalse(doesOtpExpired(otp))) {
 			return null;
 		}
-		
-		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
+		String expireMin = StringUtils.defaultIfBlank(applicationConfig.getOtpExpireMinutes(),"5");
+		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), expireMin, existingUser.getMobileNumber());
 									 
 		if (StringUtils.isBlank(mobileOtp)) {
 			return mobileOtp;
@@ -76,14 +76,14 @@ public class OtpServiceImpl implements OtpService {
 		}
 		String emailOtp = Utility.getRandomNumberString();
 		sendOtpOnEmail(user, emailOtp);
-		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), user.getMobileNumber());
+		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), applicationConfig.getOtpExpireMinutes(), user.getMobileNumber());
 		return saveOtpDetails(mobileOtp, emailOtp, user, otp);
 	}
 	
 	@Override
 	public void sendingOtp(User existingUser, String password) {
 		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
-		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),  applicationConfig.getTextLocalApiSender(), existingUser.getMobileNumber());
+		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),  applicationConfig.getTextLocalApiSender(), applicationConfig.getOtpExpireMinutes(), existingUser.getMobileNumber());
 									 
 		if (StringUtils.isBlank(mobileOtp)) {
 			return ;
@@ -208,7 +208,8 @@ public class OtpServiceImpl implements OtpService {
 			sendOtpOnEmail(user, emailOtp);
 			return saveOtpDetails(null, emailOtp, user, otp);
 		} else if (forgotPassType.equals(ForgotPassType.PHONE)) {
-			String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), user.getMobileNumber());
+			String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), 
+					applicationConfig.getOtpExpireMinutes(), user.getMobileNumber());
 			return saveOtpDetails(mobileOtp, null, user, otp);
 		}
 		return null;

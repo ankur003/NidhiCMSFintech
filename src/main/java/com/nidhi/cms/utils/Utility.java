@@ -63,7 +63,7 @@ public class Utility {
 		return Collections.singleton(role);
 	}
 
-	public static String sendAndGetMobileOTP(String textLocalApiKey, String textLocalApiSender, String mobileNumber) {
+	public static String sendAndGetMobileOTP(String textLocalApiKey, String textLocalApiSender, String expireMin, String mobileNumber) {
 		String mobileOtp = getRandomNumberString();
 		try {
 			WebClient webClient = WebClient.create("https://api.textlocal.in");
@@ -71,7 +71,7 @@ public class Utility {
 					.queryParam("apikey", textLocalApiKey).queryParam("sender", textLocalApiSender)
 					.queryParam("numbers", mobileNumber)
 					.queryParam("message", "Use the OTP " + mobileOtp
-							+ " to verify your NidhiCMS account . This is valid for 5 minutes.%nDO NOT SHARE OTP WITH ANYONE. Regards NidhiCms")
+							+ " to verify your NidhiCMS account . This is valid for "+ expireMin.trim() +" minutes.%nDO NOT SHARE OTP WITH ANYONE. Regards NidhiCms")
 					.build()).retrieve();
 			TextLocalResponseModal responseBody = responseSpec.bodyToMono(TextLocalResponseModal.class).block();
 			if (responseBody.getStatus().equals("success")) {
