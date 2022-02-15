@@ -1,0 +1,113 @@
+.login-wrapper-outer {
+  background-image: url('../../assets/images/loginbackground.jpg');
+  background-size: contain;
+  background-position: center;
+  height: 100vh;
+  background-repeat: no-repeat;
+}
+.login-inner-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.login-inner-box .login-header {
+  padding: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--theme);
+  border-radius: 5px 5px 0 0;
+}
+.login-inner-box .login-logo {
+  height: 50px;
+  width: 120px;
+}
+.login-inner-box .login-logo img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+.login-content-box .login-body {
+  padding: 50px 35px 20px;
+  background-color: #fff;
+  /* height: 375px; */
+  width: 400px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  box-shadow: 0px 2px 2px rgb(0 0 0 / 10%);
+  border-radius: 0 0 5px 5px;
+}
+.login-content-box .form-group h5 {
+  text-align: center;
+  color: #566573;
+}
+.login-content-box .form-group p {
+  text-align: center;
+  color: #909497;
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.login-content-box .form-group-label {
+  width: 100%;
+}
+.login-content-box .form-group-label a {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+}
+.login-content-box .form-group-button {
+  text-align: center;
+}
+.login-content-box .form-group-button .btn {
+  border-radius: 5px;
+  width: 200px;
+}
+.login-content-box .input-group .input-group-text {
+  border-left: 0;
+  height: 100%;
+}
+.login-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+.login-footer p {
+  font-size: 13px;
+  color: #909497;
+}
+.login-footer p a {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.login-toggle {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+}
+.login-toggle li {
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border: 1px solid var(--borderColor);
+  border-radius: 22px;
+  font-size: 12px;
+  color: var(--labelColor);
+  margin-right: 10px;
+  transition: all 0.3 ease;
+  cursor: pointer;
+}
+.login-toggle li.active {
+  background-color: var(--theme);
+  color: #fff;
+  transition: all 0.3 ease;
+}
+.login-toggle li.active:hover {
+  color: #fff;
+}
+.login-toggle li:hover {
+  color: var(--theme);
+  font-weight: bold;
+  transition: all 0.3 ease;
+}
