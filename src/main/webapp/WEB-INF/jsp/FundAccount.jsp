@@ -91,7 +91,7 @@
 										<c:if test="${userWallet.walletUuid ne null}">
 										 <div class="col-sm-6">
 												<p class="comment-form-comment">
-													<label for="comment">Virtual Wallet</label>
+													<label for="comment">Virtual Account Number</label>
 												</p>
 												<p class="comment-form-comment">
 													<label for="comment"><font color="#FFA500" size="3">${userWallet.walletUuid}</font></label> 
@@ -105,6 +105,28 @@
 												</p>
 												<p class="comment-form-comment">
 													<label for="comment"><font color="green" size="3">${userWallet.merchantId}</font></label> 
+												</p>
+											</div>
+											</c:if>
+											</div>
+											<div class="col-sm-12">
+										<c:if test="${bankName ne null}">
+										 <div class="col-sm-6">
+												<p class="comment-form-comment">
+													<label for="comment">Bank Name</label>
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="blue" size="3">${bankName}</font></label> 
+												</p>
+											</div>
+											</c:if>
+												<c:if test="${ifsc ne null}">
+										 <div class="col-sm-6">
+												<p class="comment-form-comment">
+													<label for="comment">IFSC</label>
+												</p>
+												<p class="comment-form-comment">
+													<label for="comment"><font color="black" size="3">${ifsc}</font></label> 
 												</p>
 											</div>
 											</c:if>

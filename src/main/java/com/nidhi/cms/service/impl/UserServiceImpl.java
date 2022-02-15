@@ -318,6 +318,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			model.put("ifsc", bankDetails.getIfsc());
 			model.put("bankName", bankDetails.getBankName());
 			model.put("companyName", userBusnessKyc.getCompnayName());
+			model.put("vaccountnumber", wallet.getWalletUuid());
 			emailService.sendMailAsync(request, model, null, EmailTemplateConstants.KYC_APPROVED);
 		} else if (BooleanUtils.isFalse(kycResponse)) {
 			request.setSubject("Issue with Account");

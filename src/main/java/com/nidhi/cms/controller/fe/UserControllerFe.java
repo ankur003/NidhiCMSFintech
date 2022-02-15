@@ -444,8 +444,14 @@ public class UserControllerFe {
 		UserWallet userWallet = userController.getUserWallet(userUuid);
 		if (null != userWallet) {
 			model.addAttribute("userWallet", userWallet);
-			return new ModelAndView("FundAccount");
+		
 		}
+	  UserBankDetails bankDtl = userController.getUserBankDetails(userUuid);
+	 if(bankDtl!=null)
+	 {
+		 model.addAttribute("bankName", bankDtl.getBankName());
+		 model.addAttribute("ifsc", bankDtl.getIfsc());
+	 }
 		return new ModelAndView("FundAccount");
 	}
 
@@ -505,7 +511,8 @@ public class UserControllerFe {
 		userRequestFilterModel.setLimit(Integer.MAX_VALUE);
 		userRequestFilterModel.setIsAdmin(false);
 		userRequestFilterModel.setIsSubAdmin(false);
-		userRequestFilterModel.setUserUuid(adminuid);
+		userRequestFilterModel.setUserUuid(userUuid);
+		userRequestFilterModel.setAdminUuid(adminuid);
 		
 		Map<String, Object> users = userController.getAllUser(userRequestFilterModel);
 		if (users != null) {
@@ -1293,13 +1300,21 @@ public class UserControllerFe {
 		LocalDate toady = LocalDate.now();
 		UserWallet userWallet = userController.getUserWallet(userUuid);
 		List<Transaction> trans = userController.getUserTransactionsBytoadyDate(userUuid, toady);
+		List<Transaction> transs = trans.stream().filter(t -> BooleanUtils.isNotTrue(t.getIsFeeTx())).collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(trans))
+        {
+        	model.addAttribute("todayAmt", 0.0);
+			model.addAttribute("todayCount", 0);
+			model.addAttribute("avFund", 0.0);
+			return new ModelAndView("PayOutSummary");
+        }
 		double total = 0.0;
 		for (Transaction transaction : trans) {
-			total = total + transaction.getAmountPlusfee();
+			total = total + transaction.getAmount();
 		}
 		if (!trans.isEmpty()) {
 			model.addAttribute("todayAmt", total);
-			model.addAttribute("todayCount", trans.size());
+			model.addAttribute("todayCount", CollectionUtils.isNotEmpty(transs)?transs.size():0);
 			model.addAttribute("avFund", userWallet.getAmount());
 		}
 		return new ModelAndView("PayOutSummary");
