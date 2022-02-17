@@ -136,11 +136,11 @@
                                            
 											  <tr>
                                                 <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> Bank Name </td>
-                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${bankName} </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> IndusInd Bank </td>
                                             </tr>
                                             <tr>
                                                 <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> IFSC </td>
-                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> ${ifsc} </td>
+                                                <td width="50%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 14px; padding: 5px 10px;"> INDB0000824 </td>
                                             </tr>
 											
                                             <tr>

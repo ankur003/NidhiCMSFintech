@@ -107,6 +107,7 @@ public class UserWalletServiceImpl implements UserWalletService {
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
 		model.put("txAmt", amt);
+		model.put("vAcc", userWallet.getWalletUuid());
 		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
 		model.put("amt", userWallet.getAmount());
 		emailService.sendEmail(request, model, null, EmailTemplateConstants.CREDIT_ACC);
