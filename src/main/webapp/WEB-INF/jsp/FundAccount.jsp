@@ -110,26 +110,26 @@
 											</c:if>
 											</div>
 											<div class="col-sm-12">
-										<c:if test="${bankName ne null}">
+										<%-- <c:if test="${bankName ne null}"> --%>
 										 <div class="col-sm-6">
 												<p class="comment-form-comment">
 													<label for="comment">Bank Name</label>
 												</p>
 												<p class="comment-form-comment">
-													<label for="comment"><font color="blue" size="3">${bankName}</font></label> 
+													<label for="comment"><font color="blue" size="3">IndusInd Bank</font></label> 
 												</p>
 											</div>
-											</c:if>
-												<c:if test="${ifsc ne null}">
+											<%-- </c:if>
+												<c:if test="${ifsc ne null}"> --%>
 										 <div class="col-sm-6">
 												<p class="comment-form-comment">
 													<label for="comment">IFSC</label>
 												</p>
 												<p class="comment-form-comment">
-													<label for="comment"><font color="black" size="3">${ifsc}</font></label> 
+													<label for="comment"><font color="black" size="3">INDB0000824</font></label> 
 												</p>
 											</div>
-											</c:if>
+											<%-- </c:if> --%>
 											</div>
 										</form>
 								</div>
