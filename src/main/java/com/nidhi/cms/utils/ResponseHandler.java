@@ -11,6 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.nidhi.cms.constants.enums.ErrorCode;
+import com.nidhi.cms.modal.response.ErrorResponse;
+
 /**
  * 
  *
@@ -51,6 +54,11 @@ public class ResponseHandler {
 	
 	public static <S> List<Object> getListResponse(Mapper beanMapper, final Collection<S> srcCollection, Class<?> clazz) {
 		return DozerMapperUtil.mapCollection(beanMapper, srcCollection, clazz);
+	}
+
+	public static ResponseEntity<Object> getResponseEntity(ErrorCode errorCode, String message, HttpStatus httpStatus) {
+		final ErrorResponse errorResponse = new ErrorResponse(errorCode, message);
+        return ResponseEntity.status(httpStatus).body(errorResponse);
 	}
 
 }

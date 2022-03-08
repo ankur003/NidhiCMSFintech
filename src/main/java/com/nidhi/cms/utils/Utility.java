@@ -2,6 +2,7 @@ package com.nidhi.cms.utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -26,11 +28,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.nidhi.cms.constants.enums.RoleEum;
 import com.nidhi.cms.domain.Role;
+import com.nidhi.cms.domain.UpiRegistrationDetail;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
+import com.nidhi.cms.modal.request.UserCreateModal;
+import com.nidhi.cms.modal.request.indusind.PayeeType;
+import com.nidhi.cms.modal.request.indusind.RequestInfo;
+import com.nidhi.cms.modal.request.indusind.UpiAddressValidateReqModel;
+import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.TextLocalResponseModal;
 import com.nidhi.cms.utils.indsind.UPISecurity;
 
@@ -214,6 +223,18 @@ public class Utility {
 		}
 		return null;
 	}
+	
+	public static LocalDateTime getDateTime(String dateTimeString, String format ) {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format); 
+			LocalDateTime dateAndTime = LocalDateTime.parse(dateTimeString, formatter);
+			LOGGER.info("parsed dateAndTime --- {}", dateAndTime);
+			return dateAndTime;
+		} catch (Exception e) {
+			LOGGER.error("Error ocurred during parsing localDatetime while geting response from credit amount --- {}", e);
+		}
+		return null;
+	}
 
 	public static LocalDate getLocalDateFromDateTime(String dateTimeString) {
 		LocalDateTime localDateTime = getDateTime(dateTimeString);
@@ -221,6 +242,44 @@ public class Utility {
 			return null;
 		}
 		return localDateTime.toLocalDate();
+	}
+	
+	public static User getUser(UserCreateModal userCreateModal) {
+		User user = new User();
+		user.setIsUserCreatedByAdmin(false);
+		user.setUserEmail(userCreateModal.getUserEmail());
+		user.setMobileNumber(userCreateModal.getMobileNumber());
+		user.setFullName(userCreateModal.getFullName());
+		return user;
+	}
+
+	public static String getEncyptedReqBodyForUpiAddressValidation(String upiAddress, String indBankKey) throws Exception {
+		UPISecurity uPISecurity = new UPISecurity();
+		Gson gson = new Gson();
+		JSONObject jsonObject = new JSONObject();
+		
+		UpiAddressValidateReqModel upiAddressValidateReqModel = new UpiAddressValidateReqModel();
+		upiAddressValidateReqModel.setPayeeType(new PayeeType(upiAddress.toLowerCase()));
+		upiAddressValidateReqModel.setvAReqType("R");
+		upiAddressValidateReqModel.setRequestInfo(new RequestInfo("INDB000000003196", RandomStringUtils.random(30, true, false)));
+		
+		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(upiAddressValidateReqModel), indBankKey));
+		jsonObject.put("pgMerchantId", "INDB000000003196");
+		return jsonObject.toString();
+	}
+
+	public static  <T> T getJavaObject(String jsonObjectAsString, Class<T> clazz) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.readValue(jsonObjectAsString, clazz);
+		} catch (Exception e) {
+			LOGGER.error("Error ocurred during getJavaObject --- {}", e);
+		}
+		return null;
+	}
+	
+	public static JSONObject getJsonFromString(String jsonString) {
+		return new JSONObject(jsonString);
 	}
 
 }

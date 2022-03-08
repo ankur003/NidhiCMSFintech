@@ -20,4 +20,6 @@ public interface UserWalletService {
 	
 	UserWallet save(UserWallet userWallet);
 
+	UserWallet findByUpiVirtualAddress(String upiVirtualAddress);
+
 }

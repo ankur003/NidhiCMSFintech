@@ -4,39 +4,39 @@ public class IndsIndRequestModal {
 
 	private String pgMerchantId;
 
-	private String mebussname;
+	private String mebussname; // companyName
 
-	private String legalStrName;
+	private String legalStrName; //// companyName
 
-	private String merVirtualAdd;
+	private String merVirtualAdd; // 
 
-	private String awlmcc;
+	private String awlmcc; // dropdown on ui
 
-	private String strCntMobile;
+	private String strCntMobile; // 
 
 	private String requestUrl1;
 
 	private String requestUrl2;
 
-	private String merchantType;
+	private String merchantType = "AGGMER";
 
-	private String integrationType;
+	private String integrationType = "WEBAPI";
 
-	private String settleType;
+	private String settleType = "NET";
 
 	private String panNo;
 
-	private String extMID;
+	private String extMID; // optional
 
-	private String extTID;
+	private String extTID; // optional
 
-	private String accNo;
+	private String accNo; // optional
 
-	private String meEmailID;
+	private String meEmailID; 
 
 	private String gstin;
 
-	private String gstConsentFlag;
+	private String gstConsentFlag = "Y"; 
 
 	public String getPgMerchantId() {
 		return pgMerchantId;

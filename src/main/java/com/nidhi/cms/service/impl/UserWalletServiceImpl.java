@@ -41,6 +41,11 @@ public class UserWalletServiceImpl implements UserWalletService {
 
 
 	@Override
+	public UserWallet findByUpiVirtualAddress(String upiVirtualAddress) {
+		return userWalletRepo.findByUpiVirtualAddress(upiVirtualAddress);
+	}
+	
+	@Override
 	public UserWallet findByUserId(Long userId) {
 		return userWalletRepo.findByUserId(userId);
 	}

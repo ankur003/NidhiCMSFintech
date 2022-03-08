@@ -20,6 +20,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,7 @@ import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.MerchantUniqueDetailsService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.TransactionService;
+import com.nidhi.cms.service.UpiTxnService;
 import com.nidhi.cms.service.UserAccountStatementService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserPaymentModeService;
@@ -86,14 +88,13 @@ import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.Utility;
+import com.nidhi.cms.utils.indsind.UPISecurity;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * @author Devendra Gread
@@ -106,6 +107,9 @@ public class UserController extends AbstractController {
 
 	@Autowired
 	private UserService userservice;
+	
+	@Autowired
+	private UpiTxnService upiTxnService;
 	
 	@Autowired
 	private UserRepository userRepo;
@@ -1121,35 +1125,60 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 
 	@PostMapping(value = "/indsind/onBoardSubMerchant")
-	public ResponseEntity<Object> indsind(@Valid @RequestBody IndsIndRequestModal indsIndRequestModal,
-			final HttpServletRequest httpServletRequest) {
-		Response response = null;
-		try {
-			
-			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBody(indsIndRequestModal, applicationConfig.getIndBankKey()), mediaType);
-			Request request = new Request.Builder()
-					.url("https://ibluatapig.indusind.com/app/uat/web/onBoardSubMerchant").method("POST", body)
-					.addHeader("X-IBM-Client-Id", httpServletRequest.getHeader("X-IBM-Client-Id"))
-					.addHeader("X-IBM-Client-Secret", httpServletRequest.getHeader("X-IBM-Client-Secret"))
-					.addHeader("Accept", APPLICATION_JSON)
-					.addHeader("Content-Type", APPLICATION_JSON).build();
-			 response = client.newCall(request).execute();
-			String responseBody = response.body().string();
-			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", applicationConfig.getIndBankKey());
-			if (decryptedResponse == null) {
-				return ResponseEntity.ok(responseBody);
-			}
-			return ResponseEntity.ok(decryptedResponse);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(e);
-		} finally {
-			if (response != null) {
-				response.close();
-			}
+	public ResponseEntity<Object> onBoardSubMerchant(@Valid @RequestBody IndsIndRequestModal indsIndRequestModal) {
+		UserWallet wallet = userWalletService.findByUpiVirtualAddress(indsIndRequestModal.getMerVirtualAdd());
+		if (wallet == null)  {
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
 		}
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
+		String message = userservice.onBoardSubMerchant(wallet, indsIndRequestModal);
+		if (StringUtils.isBlank(message)) {
+			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+		}
+		return ResponseHandler.getMapResponse("message", message);
+	}
+	
+	@PostMapping(value = "/api/v1/upi-callback")
+	public ResponseEntity<Object> upiCallback(@RequestParam("meRes") String meRes) {
+		JSONObject json = Utility.getJsonFromString(meRes);
+		LOGGER.info("[upiCallback] recieved data {} ", json);
+		if(BooleanUtils.isFalse(json.has("pgMerchantId"))) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "pgMerchantId is invalid or missing", HttpStatus.BAD_REQUEST);
+		}
+		if(BooleanUtils.isFalse(json.has("resp"))) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "resp is invalid or missing", HttpStatus.BAD_REQUEST);
+		}
+		String resp = json.getString("resp");
+		LOGGER.info("resp --- {}", resp);
+		UPISecurity uPISecurity = new UPISecurity();
+		try {
+			String decrypted = uPISecurity.decrypt(resp, applicationConfig.getIndBankKey());
+			LOGGER.info("decrypted resp --- {}", decrypted);
+			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
+			LOGGER.info("decrypted Json --- {}", decryptedJson);
+			upiTxnService.saveUpiTxn(decryptedJson);
+		} catch (Exception e) {
+			LOGGER.info("Exception --- {}", e);
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "resp is invalid or cant'be de-crypted", HttpStatus.BAD_REQUEST);
+		}
+		return null;
+	}
+	
+	@GetMapping("/indsind/generate-upi-address")
+	public ResponseEntity<Object> generateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("userUuid") String userUuid) {
+		User admin = userservice.getUserDetailByUserUuid(adminUuid);
+		if (admin == null) {
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+		}
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			LOGGER.error("user incorrect {}", userUuid);
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+		}
+		String upiAddress = userservice.generateUPIAddress(user);
+		if (upiAddress == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("please try again or contact admin");
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
 	}
 
 }

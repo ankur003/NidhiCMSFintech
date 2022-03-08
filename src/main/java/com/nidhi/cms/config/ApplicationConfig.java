@@ -32,6 +32,12 @@ public class ApplicationConfig {
 
 	@Value("${X-IBM-CLIENT-SECRET}")
 	private String xIBMClientSecret;
+	
+	@Value("${X-IBM-CLIENT-ID-UAT}")
+	private String xIBMClientIdUAT;
+
+	@Value("${X-IBM-CLIENT-SECRET-UAT}")
+	private String xIBMClientSecretUAT;
 
 	public static Map<String, String> loggedInUsers = new ConcurrentHashMap<>();
 
@@ -86,5 +92,14 @@ public class ApplicationConfig {
 	public String getxIBMClientSecret() {
 		return xIBMClientSecret;
 	}
+
+	public String getxIBMClientIdUAT() {
+		return xIBMClientIdUAT;
+	}
+
+	public String getxIBMClientSecretUAT() {
+		return xIBMClientSecretUAT;
+	}
+	
 
 }

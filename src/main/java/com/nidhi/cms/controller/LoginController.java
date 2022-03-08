@@ -24,7 +24,7 @@ import io.swagger.annotations.Api;
  * @author Ankur Bansala
  */
 @Api(tags = { SwaggerConstant.ApiTag.LOGIN })
-@CrossOrigin(origins = "http://localhost:3001")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping(value = ApiConstants.API_VERSION + "/login")
 public class LoginController extends AbstractController {

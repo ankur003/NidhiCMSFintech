@@ -25,6 +25,8 @@ public class UserWallet extends BaseDomain {
 	private Double amount;
 
 	private String walletUuid;
+	
+	private String upiVirtualAddress;
 
 	private String merchantId;
 
@@ -67,4 +69,13 @@ public class UserWallet extends BaseDomain {
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
+
+	public String getUpiVirtualAddress() {
+		return upiVirtualAddress;
+	}
+
+	public void setUpiVirtualAddress(String upiVirtualAddress) {
+		this.upiVirtualAddress = upiVirtualAddress;
+	}
+	
 }

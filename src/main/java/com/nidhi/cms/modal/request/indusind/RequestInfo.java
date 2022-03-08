@@ -1,0 +1,35 @@
+package com.nidhi.cms.modal.request.indusind;
+
+public class RequestInfo {
+	
+
+	private String pgMerchantId;
+
+	private String pspRefNo;
+	
+	public RequestInfo() {
+	}
+
+	public RequestInfo(String pgMerchantId, String pspRefNo) {
+		super();
+		this.pgMerchantId = pgMerchantId;
+		this.pspRefNo = pspRefNo;
+	}
+
+	public String getPgMerchantId() {
+		return pgMerchantId;
+	}
+
+	public void setPgMerchantId(String pgMerchantId) {
+		this.pgMerchantId = pgMerchantId;
+	}
+
+	public String getPspRefNo() {
+		return pspRefNo;
+	}
+
+	public void setPspRefNo(String pspRefNo) {
+		this.pspRefNo = pspRefNo;
+	}
+
+}

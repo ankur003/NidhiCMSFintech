@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -44,12 +43,14 @@ import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.Transaction;
+import com.nidhi.cms.domain.UpiRegistrationDetail;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.domain.email.MailRequest;
+import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
@@ -70,11 +71,13 @@ import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.TransactionService;
+import com.nidhi.cms.service.UpiRegistrationDetailService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
+import com.nidhi.cms.utils.indsind.UPIHelper;
 
 /**
  * 
@@ -124,6 +127,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Autowired
 	private UserBusnessKycService userBusnessKycService;
 	
+	@Autowired
+	private UPIHelper upiHelper;
+	
+	@Autowired
+	private UpiRegistrationDetailService upiRegistrationDetailService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -939,6 +947,34 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Override
 	public List<User> getAllUsers() {
 		return userRepository.findByIsSubAdminAndIsAdminAndKycStatusIn(false, false, Arrays.asList(KycStatus.UNDER_REVIEW,KycStatus.VERIFIED, KycStatus.REJECTED));
+	}
+
+	@Override
+	public String generateUPIAddress(User user) {
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			LOGGER.error("[UserServiceImpl.generateUPIAddress] wallet null for userId {} - ", user.getUserId());
+			return null;
+		}
+		return upiHelper.generateUPIAddress(userWallet.getMerchantId());
+	}
+
+	@Override
+	public String onBoardSubMerchant(UserWallet wallet, IndsIndRequestModal indsIndRequestModal) {
+		String jsonObjectAsString = upiHelper.onBoardSubMerchant(indsIndRequestModal);
+		if (jsonObjectAsString == null) {
+			return null;
+		}
+		JSONObject json = Utility.getJsonFromString(jsonObjectAsString);
+		if (json.has("status") && json.getString("status").equalsIgnoreCase("FAILED")) {
+			LOGGER.error("[UserServiceImpl.onBoardSubMerchant] failed on sub merchant{} - ", json);
+			return json.getString("statusDesc");
+		}
+		UpiRegistrationDetail upiRegistrationDetail = Utility.getJavaObject(jsonObjectAsString, UpiRegistrationDetail.class);
+		LOGGER.info("[UserServiceImpl.onBoardSubMerchant] upiRegistrationDetail  {} - ", upiRegistrationDetail);
+		upiRegistrationDetail.setUserId(wallet.getUserId());
+		upiRegistrationDetailService.save(upiRegistrationDetail);
+		return "User UPI On-Boared Success";
 	}
 
 }

@@ -14,6 +14,7 @@ import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
@@ -88,6 +89,10 @@ public interface UserService {
 	User findByUserId(Long userId);
 
 	List<User> getAllUsers();
+
+	String generateUPIAddress(User user);
+
+	String onBoardSubMerchant(UserWallet wallet, IndsIndRequestModal indsIndRequestModal);
 
 }
 
