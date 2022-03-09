@@ -56,6 +56,9 @@ export function HomePage({
   useInjectSaga({ key, saga });
 
   let [activeNav, setNav] = useState(history.location.pathname);
+  // const [state, setState] = useState(() => ({
+  //   toggle: 'close'
+  // }))
 
   useEffect(() => {
     history.push(activeNav);
@@ -119,6 +122,7 @@ export function HomePage({
           content="Enzen"
         />
       </Helmet>
+      {/* {console.log(props.side)} */}
       <div className="content-wrapper animate__animated animate__zoomIn">
         {history.location.pathname === "/" ? "" :
           <SideNav activeNav={activeNav} path={history.location.pathname} setNav={setNav} />

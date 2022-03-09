@@ -19,6 +19,7 @@ import reducer from "./reducer";
 import saga from "./saga";
 import messages from "./messages";
 import history from 'utils/history';
+import HomePage from 'containers/HomePage';
 
 const ROUTE_HANDELR = [
   {
@@ -281,6 +282,9 @@ export function SideNav(props) {
           }
         </div>
       </nav>
+
+      {/* <HomePage side={state.toggle} /> */}
+
     </React.Fragment>
   );
 }
