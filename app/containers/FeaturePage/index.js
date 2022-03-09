@@ -17,7 +17,7 @@ export default function FeaturePage() {
   return (
     <div>
       <Helmet>
-        <title>Feature Page</title>
+        <title>Feature Page</title>   
         <meta
           name="description"
           content="Feature page of React.js Boilerplate application"
