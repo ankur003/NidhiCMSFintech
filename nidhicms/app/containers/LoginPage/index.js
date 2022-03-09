@@ -68,6 +68,7 @@ export function LoginPage() {
             </div>
             <div className="login-footer">
               <p>Don't have an account? <a href="/SignUp">Sign Up</a></p>
+              <p>Don't have an account? <a href="/SignUp">Sign Up</a></p>
             </div>
           </div>
         </div>
