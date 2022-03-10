@@ -1123,6 +1123,31 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return transactionService.getTransactionStatus(uniqueIdOrUtrNumber, paymentMode);
 	}
 	
+	@PostMapping(value = "/save/upi-address")
+	public ResponseEntity<Object> onBoardSubMerchant(@RequestParam("upiAddress") String upiAddress, @RequestParam("userUuid") String userUuid) {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			LOGGER.error("user incorrect {}", userUuid);
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+		}
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			LOGGER.error("user incorrect {}", userUuid);
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+		}
+		if (userWallet.getUpiVirtualAddress() != null) {
+			LOGGER.error("incorrect upiAddress, already saved {}", upiAddress);
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("upiAddress already saved");
+		}
+		if (upiAddress.equalsIgnoreCase(userWallet.getUpiVirtualAddress())){
+			LOGGER.error("incorrect upiAddress, already takken {}", upiAddress);
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("upiAddress already takken");
+		}
+		userWallet.setUpiVirtualAddress(upiAddress);
+		userWalletService.save(userWallet);
+		return ResponseHandler.getMapResponse("message", "updated");
+	}
+	
 
 	@PostMapping(value = "/indsind/onBoardSubMerchant")
 	public ResponseEntity<Object> onBoardSubMerchant(@Valid @RequestBody IndsIndRequestModal indsIndRequestModal) {
@@ -1166,7 +1191,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	@GetMapping("/indsind/generate-upi-address")
 	public ResponseEntity<Object> generateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("userUuid") String userUuid) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
-		if (admin == null) {
+		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
 			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
 		}
 		User user = userservice.getUserByUserUuid(userUuid);
