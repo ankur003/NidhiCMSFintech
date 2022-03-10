@@ -19,7 +19,6 @@ import reducer from "./reducer";
 import saga from "./saga";
 import messages from "./messages";
 import history from 'utils/history';
-import HomePage from 'containers/HomePage';
 
 const ROUTE_HANDELR = [
   {
@@ -94,10 +93,6 @@ export function SideNav(props) {
     }
   };
 
-  const [state, setState] = useState(() => ({
-    toggle: 'close'
-  }))
-
   return (
     <React.Fragment>
       <Helmet>
@@ -105,12 +100,9 @@ export function SideNav(props) {
         <meta name="description" content="Description of SideNav" />
       </Helmet>
 
-      <header className={state.toggle === 'open' ? "nav-header nav-header-collapsed d-flex align-items-center" : "nav-header d-flex align-items-center"}>
+      <header className={props.button === 'open' ? "nav-header nav-header-collapsed d-flex align-items-center" : "nav-header d-flex align-items-center"}>
         <div className="flex-40 d-flex">
-          {state.toggle === 'open' ?
-            <button className="btn btn-outline-light" onClick={() => setState({ toggle: 'close' })}><i className="fas fa-bars"></i></button> :
-            <button className="btn btn-outline-light" onClick={() => setState({ toggle: 'open' })}><i className="fas fa-bars"></i></button>
-          }
+          <button className="btn btn-outline-light" onClick={props.changeStateHandler} ><i className="fas fa-bars"></i></button>
         </div>
         <div className="flex-60 nav-header-content-group">
           <div className="dropdown nav-dropdwon">
@@ -132,11 +124,11 @@ export function SideNav(props) {
                 <button className="btn btn-link">Clear All</button>
               </div>
               <div className="dropdown-menu-body">
-                <div className="dropdown-item"><span className="icon bg-primary"><i class="fas fa-bell"></i></span>
+                <div className="dropdown-item"><span className="icon bg-primary"><i className="fas fa-bell"></i></span>
                   <h6>Lorem ipsum dolor sit amet</h6>
                   <p>2 Min</p>
                 </div>
-                <div className="dropdown-item"><span className="icon bg-primary"><i class="fas fa-bell"></i></span>
+                <div className="dropdown-item"><span className="icon bg-primary"><i className="fas fa-bell"></i></span>
                   <h6>Lorem ipsum dolor sit amet</h6>
                   <p>2 Min</p>
                 </div>
@@ -206,7 +198,7 @@ export function SideNav(props) {
             </div>
           </div>
           <div className="dropdown nav-dropdwon">
-            <button className="btn btn-light"  onClick={() => history.push('/addPrivileges')}>
+            <button className="btn btn-light" onClick={() => history.push('/addPrivileges')}>
               <i className="far fa-cog"></i>
             </button>
           </div>
@@ -228,20 +220,20 @@ export function SideNav(props) {
       </header>
 
 
-      <nav className={state.toggle === 'open' ? "side-nav-wrapper " : "side-nav-wrapper side-nav-collapsed"}>
+      <nav className={props.button === 'open' ? "side-nav-wrapper " : "side-nav-wrapper side-nav-collapsed"}>
         <div className="side-nav-header">
           <div className="side-nav-icon">
             <img src={require('../../assets/images/logo.png')} />
           </div>
         </div>
         <div className="side-nav-body">
-          {state.toggle === 'open' ?
+          {props.button === 'open' ?
             <ul className="side-nav-menu list-style-none">
               {ROUTE_HANDELR.map((item, index) =>
                 <li key={index} className={navlinkHighlighter(item.routeName)}>
                   {item.subMenu ?
-                    <p data-toggle="collapse" data-target={`#sub${index}`}><i className={item.iconClass}></i>{state.toggle === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p> :
-                    <p onClick={() => redirectPageHandler(item.routeName)}><i className={item.iconClass}></i>{state.toggle === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p>
+                    <p data-toggle="collapse" data-target={`#sub${index}`}><i className={item.iconClass}></i>{props.button === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p> :
+                    <p onClick={() => redirectPageHandler(item.routeName)}><i className={item.iconClass}></i>{props.button === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p>
                   }
                   {item.subMenu &&
                     <div className="collapse show" id={`sub${index}`}>
@@ -262,8 +254,8 @@ export function SideNav(props) {
               {ROUTE_HANDELR.map((item, index) =>
                 <li key={index} className={navlinkHighlighter(item.routeName)}>
                   {item.subMenu ?
-                    <p><i className={item.iconClass}></i>{state.toggle === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p> :
-                    <p onClick={() => redirectPageHandler(item.routeName)}><i className={item.iconClass}></i>{state.toggle === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p>
+                    <p><i className={item.iconClass}></i>{props.button === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p> :
+                    <p onClick={() => redirectPageHandler(item.routeName)}><i className={item.iconClass}></i>{props.button === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p>
                   }
                   {item.subMenu &&
                     <div className="dropdown animate__animated animate__backInLeft">
@@ -283,7 +275,7 @@ export function SideNav(props) {
         </div>
       </nav>
 
-      {/* <HomePage side={state.toggle} /> */}
+     
 
     </React.Fragment>
   );

@@ -56,9 +56,7 @@ export function HomePage({
   useInjectSaga({ key, saga });
 
   let [activeNav, setNav] = useState(history.location.pathname);
-  // const [state, setState] = useState(() => ({
-  //   toggle: 'close'
-  // }))
+
 
   useEffect(() => {
     history.push(activeNav);
@@ -113,6 +111,18 @@ export function HomePage({
     }
   }
 
+  const [state, setState] = useState(() => ({
+    toggle: 'close'
+  }))
+
+  let changeStateHandler = () => {
+    state.toggle === 'open' ?
+      setState({ toggle: 'close' })
+      :
+      setState({ toggle: 'open' })
+
+  }
+
   return (
     <React.Fragment>
       <Helmet>
@@ -122,10 +132,10 @@ export function HomePage({
           content="Enzen"
         />
       </Helmet>
-      {/* {console.log(props.side)} */}
-      <div className="content-wrapper animate__animated animate__zoomIn">
+
+      <div className={state.toggle === 'open' ? "content-wrapper content-wrapper-collapsed animate__animated animate__zoomIn" : "content-wrapper animate__animated animate__zoomIn"}>
         {history.location.pathname === "/" ? "" :
-          <SideNav activeNav={activeNav} path={history.location.pathname} setNav={setNav} />
+          <SideNav activeNav={activeNav} path={history.location.pathname} setNav={setNav} button={state.toggle} changeStateHandler={changeStateHandler} />
         }
         <Switch>
           <Route exact path={getPath()}>{getComponent()}</Route>
