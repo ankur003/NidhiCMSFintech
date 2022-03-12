@@ -740,6 +740,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				LOGGER.info("[UserServiceImpl.isResponseValid] BooleanUtils.isFalse(jsonObject.getBoolean(\"success\")) {} " , BooleanUtils.isFalse(jsonObject.getBoolean("success")));
 				return Boolean.FALSE;
 			}
+			if (jsonObject.has("RESPONSE") && jsonObject.getString("RESPONSE").equalsIgnoreCase("FAILURE")
+					&& jsonObject.getString("STATUS").equalsIgnoreCase("PENDING")) {
+				LOGGER.info("[UserServiceImpl.isResponseValid]  ---- {} " , jsonObject);
+				
+				TimeOutResponse timeout = new TimeOutResponse();
+				timeout.setMessage(jsonObject.getString("MESSAGE"));
+				CompletableFuture.runAsync(() -> 
+				performPostAction(user, userTxWoOtpReqModal, null, userWallet));
+				return Boolean.FALSE;
+			}
 			if (jsonObject.has("RESPONSE") && jsonObject.getString("RESPONSE").equalsIgnoreCase("FAILURE")) {
 				LOGGER.info("[UserServiceImpl.isResponseValid] jsonObject.getString(\"RESPONSE\").equals(\"FAILURE\") {} " , jsonObject.getString("RESPONSE").equalsIgnoreCase("FAILURE"));
 				return Boolean.FALSE;
@@ -755,7 +765,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				timeout.setMessage("Pending For Processing or PENDING");
 				CompletableFuture.runAsync(() -> 
 				performPostAction(user, userTxWoOtpReqModal, null, userWallet));
-				return Boolean.TRUE;
+				return Boolean.FALSE;
 			}
 			
 			if (jsonObject.getString("RESPONSE").equalsIgnoreCase("SUCCESS")) {
