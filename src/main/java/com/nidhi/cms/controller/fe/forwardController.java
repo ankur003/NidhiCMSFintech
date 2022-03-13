@@ -211,7 +211,22 @@ public class forwardController {
 	public ModelAndView UserUpdateAdmin(Model model) {
 		return new ModelAndView("UserUpdateAdmin");
 	}
-	
+	@GetMapping(value = "/upiOnboard")
+	public ModelAndView upiOnboard(Model model) {
+		return new ModelAndView("upiOnboard");
+	}
+	@GetMapping(value = "/upimerchantDeact")
+	public ModelAndView upimerchantDeact(Model model) {
+		return new ModelAndView("upimerchantDeact");
+	}
+	@GetMapping(value = "/upiValidation")
+	public ModelAndView upiValidation(Model model) {
+		return new ModelAndView("upiValidation");
+	}
+	@GetMapping(value = "/upiCharges")
+	public ModelAndView upiCharges(Model model) {
+		return new ModelAndView("upiCharges");
+	}
 	
 }
 

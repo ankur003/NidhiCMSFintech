@@ -23,8 +23,7 @@
 function showhidetext()
 		{
 			
-	yofinc
-	  ciin 
+	
 		//	cmnypan
 		var entityType=document.getElementById("entityType").value;	
 	
@@ -51,8 +50,50 @@ function showhidetext()
 				|| entityType == 'Company yet to register') {
 
 		}
-
 	}
+	
+	
+	
+function validateUpi()
+{
+	var upiVirtualAddress=document.getElementById("upiVirtualAddress").value;	
+	var userUuid=document.getElementById("userUuid").value;	
+	var adminUuid=document.getElementById("adminUuid").value;	
+       
+    var dataemployeeid = {"userUuid":userUuid,"adminUuid" : adminUuid,"upiVirtualAddress":upiVirtualAddress};
+    $.ajax({
+        type : "POST",
+        url : "/api/v1/validateUpi",
+        data : dataemployeeid,
+        success : function(data) {
+      	
+      	  console.log(data);
+      	  var obj = JSON.parse(data);
+      	 
+      	  var response=obj.found;
+      	  if(response=='YES')
+      		  {
+      		document.getElementById("upiadd").disabled = false;
+      		 document.getElementById("upifail").style.display = 'block';
+      		  }
+      	  else 
+      		  {
+      		document.getElementById("upiadd").disabled = true;
+      		 document.getElementById("upiok").style.display = 'block';
+      		  }
+      	
+    	},
+		error : function(e) {
+			alert('Error: ' + e);
+		}
+	});
+    
+	
+}
+
+function hideMessage(divId){
+	document.getElementById(divId).style.display="none";
+}
 </script>
 
 <body>
@@ -109,6 +150,7 @@ function showhidetext()
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=4"><button type="button" class="btn btn-danger">Deactivate</button></a>
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=5"><button type="button" class="btn btn-warning">Billing Charges</button></a>
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=6"><button type="button" class="btn btn-info">White List IP</button></a>
+				    <a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=7"><button type="button" class="btn btn-primary">UPI Address</button></a>
 				
 				</div>
 					
@@ -815,6 +857,53 @@ function showhidetext()
 					</div>
 					</div>
 					</c:if>
+					<!-- ------------------------------------------------------------- -->
+					
+						<!-- ------------------------------------------------------------ -->
+<%-- 					<c:if test="${id eq 7 }">
+					<div id="4">
+					<div class="mu-contact-area" >
+						<div class="mu-contact-content">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="mu-contact-right">
+										<form class="contactform" action="/api/v1/saveUpi"	method="post">
+                                     <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+                                     
+                                        <input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
+									<div class="col-lg-12">
+										<div class="col-lg-6">
+										<p class="comment-form-url">
+											<label for="subject">Enter UPI Address<span class="mandate">*</span></label>
+											<input type="text" name="upiVirtualAddress" id="upiVirtualAddress"
+												minlength="3" aria-required="true" required="required"
+												maxlength="100" value="${userWallet.upiVirtualAddress}">
+										</p>
+										</div>
+												<div class="col-lg-3" style="margin-top: 25px;">
+													<input type="button" value="Validate" class="btn btn-success"	name="Validate"
+													onclick="validateUpi();" onclick="javascript: hideMessage('upiok','upifail')">
+													<label id="upiok" style="display: none; color: green;"></label>
+													<label id="upifail" style="display: none; color: red;"></label>
+												</div>
+										</div>		
+												
+												
+												<div class="col-lg-12">
+											<p class="form-submit">
+											<input type="submit" value="Update" class="btn btn-success" id="upiadd" disabled="disabled"
+												name="Update"> <input type="button" value="Cancel"
+												class="btn btn-info" name="cancel">
+										</p>
+										</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					</div>
+					</c:if> --%>
 					<!-- ------------------------------------------------------------- -->
 			</c:if>
 		</div>

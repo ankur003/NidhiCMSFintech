@@ -103,6 +103,7 @@
           <li><a href="/api/v1/fe/SubAdminAccountUpdate">Update</a></li>
         </ul>
       </li>
+      
         <li>
         <div class="iocn-link">
           <a href="#">
@@ -120,6 +121,24 @@
           <li><a href="/api/v1/fe/AdminACStatement">Account Statement</a></li>
         </ul>
       </li>
+     
+            <li>
+       <div class="iocn-link">
+          <a href="#">
+            <i class='bx bx-history' ></i>
+            <span class="link_name"> UPI</span>
+          </a>
+          <i class='bx bxs-chevron-down arrow' ></i>
+        </div>
+        <ul class="sub-menu">
+          <li><a class="link_name" href="#"> UPI </a></li>
+          <li><a href="/api/v1/fe/upiOnboard"> Merchant On-boarding</a></li>
+          <li><a href="/api/v1/fe/upimerchantDeact"> Merchant De-Activation</a></li>
+          <li><a href="/api/v1/fe/upiValidation"> Merchant UPI Validation</a></li>
+          <li><a href="/api/v1/fe/upiCharges"> UPI Charges</a></li>
+        </ul>
+      </li>
+      
       
         <li>
         <div class="iocn-link">
