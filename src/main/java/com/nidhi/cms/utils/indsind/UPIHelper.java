@@ -2,15 +2,14 @@ package com.nidhi.cms.utils.indsind;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.nidhi.cms.config.ApplicationConfig;
-import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.utils.Utility;
 
@@ -33,13 +32,22 @@ public class UPIHelper {
 	@Autowired
 	private ApplicationConfig applicationConfig;
 
-	public String generateUPIAddress(String merchantId) {
-		OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(2, TimeUnit.MINUTES).build();
-		MediaType mediaType = MediaType.parse(APPLICATION_JSON);
+	public String generateUPIAddress(String merchantId, String companyName) {
 		LOGGER.info("merchant id {}", merchantId);
-		String upiAddress = UPI_PREFIX + merchantId.split("_")[1] + UPI_POSTFIX;
+		String compName = companyName.split(" ")[0];
+		if (StringUtils.isBlank(compName)) {
+			LOGGER.error("compName is null here against {}", compName);
+			return null;
+		}
+		String upiAddress = UPI_PREFIX + merchantId.split("_")[1] + compName.trim() + UPI_POSTFIX;
 		LOGGER.info("upiAddress {}", upiAddress.toLowerCase());
 		
+		return getAndValidateUpiAddress(upiAddress);
+	}
+
+	public String getAndValidateUpiAddress(String upiAddress) {
+		OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(2, TimeUnit.MINUTES).build();
+		MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 		Response response = null;
 		try {
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey()), mediaType);

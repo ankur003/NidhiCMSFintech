@@ -966,7 +966,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			LOGGER.error("[UserServiceImpl.generateUPIAddress] wallet null for userId {} - ", user.getUserId());
 			return null;
 		}
-		return upiHelper.generateUPIAddress(userWallet.getMerchantId());
+		UserBusinessKyc userbKyc = userBusnessKycService.getUserBusnessKyc(userWallet.getUserId());
+		if (userbKyc == null) {
+			LOGGER.error("[UserServiceImpl.generateUPIAddress] user bussness kyc null for userId {} - ", user.getUserId());
+			return null;
+		}
+		return upiHelper.generateUPIAddress(userWallet.getMerchantId(), userbKyc.getCompnayName());
 	}
 
 	@Override

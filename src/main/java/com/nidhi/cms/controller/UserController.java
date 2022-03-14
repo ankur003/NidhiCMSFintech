@@ -88,6 +88,7 @@ import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.Utility;
+import com.nidhi.cms.utils.indsind.UPIHelper;
 import com.nidhi.cms.utils.indsind.UPISecurity;
 
 import io.swagger.annotations.Api;
@@ -143,6 +144,9 @@ public class UserController extends AbstractController {
 	
 	@Autowired
 	private MerchantUniqueDetailsService merchantUniqueDetailsService;
+	
+	@Autowired
+	private UPIHelper upiHelper;
 	
 	private static final String APPLICATION_JSON  = "application/json";
 	private static final String MESSAGE  = "message";
@@ -1202,6 +1206,19 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		String upiAddress = userservice.generateUPIAddress(user);
 		if (upiAddress == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("please try again or contact admin");
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
+	}
+	
+	@GetMapping("/indsind/validate-upi-address")
+	public ResponseEntity<Object> validateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("upiAddress") String upiAddress) {
+		User admin = userservice.getUserDetailByUserUuid(adminUuid);
+		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+		}
+		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(upiAddress);
+		if (StringUtils.isBlank(upiAddressValidated)) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid UPI Address");
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
 	}
