@@ -934,6 +934,7 @@ public class UserControllerFe {
 		UserDoc cpan = userController.getUserDoc(DocType.COMPANY_PAN, userUuid);
 		UserBankDetails bank= userController.getUserBankDetails(userUuid);	
 		UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+		UserWallet userWallet=userController.getUserWallet(userUuid);
 		model.addAttribute("id",id);
 		model.addAttribute("pan",pan);
 		model.addAttribute("aadhar",aadhar);
@@ -943,6 +944,7 @@ public class UserControllerFe {
 		model.addAttribute("bank",bank);
 		model.addAttribute("bkyc",business);
 		model.addAttribute("user",user);
+		model.addAttribute("userWallet",userWallet);
 		List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(adminUuid, userUuid);
 		model.addAttribute("paylist",paylist);
 		
@@ -1537,4 +1539,47 @@ public @ResponseBody String getStatus(HttpServletRequest request) {
 	return jsonObject.toString();
 
 }
+
+
+@PostMapping(value = "/validateUpi")
+public @ResponseBody String validateUpi(HttpServletRequest request) {
+	String userUuid = request.getParameter("userUuid");
+	String adminUuid = request.getParameter("adminUuid");
+	String upiVirtualAddress = request.getParameter("upiVirtualAddress");
+	String response = null;
+
+	
+	response=userController.generateUPIAddress(adminUuid, userUuid);
+	JSONObject jsonObject = new JSONObject();
+	if(response.equalsIgnoreCase(upiVirtualAddress))
+	{
+		jsonObject.put("found", "YES");
+	}
+	else
+	{
+		jsonObject.put("found", "NO");
+	}
+
+	
+	
+	return jsonObject.toString();
+}
+
+
+
+@PostMapping(value = "/saveUpi")
+public ModelAndView saveUpi(Model model,HttpServletRequest request)  {
+	String upiVirtualAddress = request.getParameter("upiVirtualAddress");
+	String userUuid = request.getParameter("userUuid");
+	String adminUuid = request.getParameter("adminUuid");
+	
+	String response=userController.onBoardSubMerchant(upiVirtualAddress, userUuid);
+	
+	model.addAttribute("id",7);
+
+	model.addAttribute("msgs", "UPI has been Added");
+	return new ModelAndView("UserUpdateAdmin");
+}
+
+
 }

@@ -1127,29 +1127,34 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return transactionService.getTransactionStatus(uniqueIdOrUtrNumber, paymentMode);
 	}
 	
-	@PostMapping(value = "/save/upi-address")
-	public ResponseEntity<Object> onBoardSubMerchant(@RequestParam("upiAddress") String upiAddress, @RequestParam("userUuid") String userUuid) {
+//	@PostMapping(value = "/save/upi-address")
+	public String onBoardSubMerchant(@RequestParam("upiAddress") String upiAddress, @RequestParam("userUuid") String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			LOGGER.error("user incorrect {}", userUuid);
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+		//	return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+			return "incorrect user";
 		}
 		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
 		if (userWallet == null) {
 			LOGGER.error("user incorrect {}", userUuid);
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+	//		return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+			return "incorrect user";
 		}
 		if (userWallet.getUpiVirtualAddress() != null) {
 			LOGGER.error("incorrect upiAddress, already saved {}", upiAddress);
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("upiAddress already saved");
+			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("upiAddress already saved");
+			return "upiAddress already saved";
 		}
 		if (upiAddress.equalsIgnoreCase(userWallet.getUpiVirtualAddress())){
 			LOGGER.error("incorrect upiAddress, already takken {}", upiAddress);
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("upiAddress already takken");
+		//	return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("upiAddress already takken");
+			return "upiAddress already takken";
 		}
 		userWallet.setUpiVirtualAddress(upiAddress);
 		userWalletService.save(userWallet);
-		return ResponseHandler.getMapResponse("message", "updated");
+		//return ResponseHandler.getMapResponse("message", "updated");
+		return "Updated";
 	}
 	
 
@@ -1192,22 +1197,26 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return null;
 	}
 	
-	@GetMapping("/indsind/generate-upi-address")
-	public ResponseEntity<Object> generateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("userUuid") String userUuid) {
+	//@GetMapping("/indsind/generate-upi-address")
+	public String generateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("userUuid") String userUuid) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
 		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+			return "incorrect admin";
 		}
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			LOGGER.error("user incorrect {}", userUuid);
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+			return "incorrect user";
 		}
 		String upiAddress = userservice.generateUPIAddress(user);
 		if (upiAddress == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("please try again or contact admin");
+		//	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("please try again or contact admin");
+			return "please try again or contact admin";
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
+		//return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
+		return upiAddress;
 	}
 	
 	@GetMapping("/indsind/validate-upi-address")
