@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +77,8 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		UpiTxn savedUpiTxn = upiTxnRepo.save(upiTxn);
 		
 		UserWallet wallet = userWalletService.findByUpiVirtualAddress(decryptedJson.getString("payeeVPA"));
-		if (wallet == null) {
-			LOGGER.error("payeeVPA not found on our DB {}", decryptedJson.getString("payeeVPA"));
+		if (wallet == null || BooleanUtils.isFalse(wallet.getIsUpiActive())) {
+			LOGGER.error("payeeVPA {} not found on our DB or upi not active {}", decryptedJson.getString("payeeVPA"), wallet.getIsUpiActive());
 			return;
 		}
 		

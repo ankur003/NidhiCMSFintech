@@ -1234,5 +1234,25 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	//	return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
 		return upiAddress;
 	}
+	
+	@PostMapping(value = "/activate-de-activate/upi")
+	public String activateDeActivateUpi(@RequestParam("userUuid") String userUuid, @RequestParam("adminUuid") String adminUuid, 
+			@RequestParam("isUpiActive") boolean isUpiActive) {
+		User admin = userservice.getUserDetailByUserUuid(adminUuid);
+		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
+			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+			return "incorrect admin";
+		}
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			LOGGER.error("user incorrect {}", userUuid);
+			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+			return "incorrect user";
+		}
+		UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
+		usrWallet.setIsUpiActive(isUpiActive);
+		userWalletService.save(usrWallet);
+		return isUpiActive ? "UPI activated" : "UPI de-activated";
+	}
 
 }
