@@ -29,6 +29,8 @@ public class UserWallet extends BaseDomain {
 	private String upiVirtualAddress;
 
 	private String merchantId;
+	
+	private Boolean isUpiActive = false;
 
 	public Long getUserWalletId() {
 		return userWalletId;
@@ -76,6 +78,14 @@ public class UserWallet extends BaseDomain {
 
 	public void setUpiVirtualAddress(String upiVirtualAddress) {
 		this.upiVirtualAddress = upiVirtualAddress;
+	}
+
+	public Boolean getIsUpiActive() {
+		return isUpiActive;
+	}
+
+	public void setIsUpiActive(Boolean isUpiActive) {
+		this.isUpiActive = isUpiActive;
 	}
 	
 }
