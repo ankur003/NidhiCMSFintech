@@ -19,7 +19,49 @@
        document.getElementById("userUuid").value = uuid;
        document.getElementById("tab").style.display = "";
   }
-</script>
+
+  	
+  function validateUpi()
+  {
+  	var upiVirtualAddress=document.getElementById("upiVirtualAddress").value;	
+  	var userUuid=document.getElementById("userUuid").value;	
+  	var adminUuid=document.getElementById("adminUuid").value;	
+         
+      var dataemployeeid = {"userUuid":userUuid,"adminUuid" : adminUuid,"upiVirtualAddress":upiVirtualAddress};
+      $.ajax({
+          type : "POST",
+          url : "/api/v1/validateUpi",
+          data : dataemployeeid,
+          success : function(data) {
+        	
+        	  console.log(data);
+        	  var obj = JSON.parse(data);
+        	 
+        	  var response=obj.found;
+        	  if(response=='YES')
+        		  {
+        		document.getElementById("upiadd").disabled = false;
+        		 document.getElementById("upifail").style.display = 'block';
+        		  }
+        	  else 
+        		  {
+        		document.getElementById("upiadd").disabled = true;
+        		 document.getElementById("upiok").style.display = 'block';
+        		  }
+        	
+      	},
+  		error : function(e) {
+  			alert('Error: ' + e);
+  		}
+  	});
+      
+  	
+  }
+
+  function hideMessage(divId){
+  	document.getElementById(divId).style.display="none";
+  }
+  </script>
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
@@ -53,7 +95,7 @@
 						<div class="row">
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/get-user-search" method="post">
+									<form class="contactform" action="/api/v1/validateUpi" method="post">
 
 	                                       <c:choose>
 											<c:when test="${msg!=null}">
@@ -83,22 +125,25 @@
 											<label for="subject">Enter UPI Address<span class="mandate">*</span></label>
 											<input type="text" name="upiVirtualAddress" id="upiVirtualAddress"
 												minlength="3" aria-required="true" required="required"
-												maxlength="100" value="${userWallet.upiVirtualAddress}">
+												maxlength="100" 
+												<c:if test="${upiVirtualAddress eq null}">value="@indus"</c:if>
+													<c:if test="${upiVirtualAddress ne null}">value="${upiVirtualAddress}"</c:if>
+												>
 										</p>
 										</div>
-												<div class="col-lg-3" style="margin-top: 25px;">
+												<!-- <div class="col-lg-3" style="margin-top: 25px;">
 													<input type="button" value="Validate" class="btn btn-success"	name="Validate"
 													onclick="validateUpi();" onclick="javascript: hideMessage('upiok','upifail')">
 													<label id="upiok" style="display: none; color: green;"></label>
 													<label id="upifail" style="display: none; color: red;"></label>
-												</div>
+												</div> -->
 										</div>		
 												
 												
 												<div class="col-lg-12">
 											<p class="form-submit">
-											<input type="submit" value="Update" class="btn btn-success" id="upiadd" disabled="disabled"
-												name="Update"> <input type="button" value="Cancel"
+											<input type="submit" value="Update" class="btn btn-success" id="upiadd" 
+												name="Submit"> <input type="button" value="Cancel"
 												class="btn btn-info" name="cancel">
 										</p>
 										</div>

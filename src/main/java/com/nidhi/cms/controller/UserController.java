@@ -1219,17 +1219,20 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return upiAddress;
 	}
 	
-	@GetMapping("/indsind/validate-upi-address")
-	public ResponseEntity<Object> validateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("upiAddress") String upiAddress) {
+	//@GetMapping("/indsind/validate-upi-address")
+	public String validateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("upiAddress") String upiAddress) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
 		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+//			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+			return "incorrect admin";
 		}
 		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(upiAddress);
 		if (StringUtils.isBlank(upiAddressValidated)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid UPI Address");
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid UPI Address");
+			return "invalid UPI Address";
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
+	//	return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
+		return upiAddress;
 	}
 
 }

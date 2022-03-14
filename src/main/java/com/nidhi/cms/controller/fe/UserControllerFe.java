@@ -1542,44 +1542,146 @@ public @ResponseBody String getStatus(HttpServletRequest request) {
 
 
 @PostMapping(value = "/validateUpi")
-public @ResponseBody String validateUpi(HttpServletRequest request) {
+public ModelAndView validateUpi(HttpServletRequest request,Model model) {
 	String userUuid = request.getParameter("userUuid");
 	String adminUuid = request.getParameter("adminUuid");
 	String upiVirtualAddress = request.getParameter("upiVirtualAddress");
 	String response = null;
 
-	
-	response=userController.generateUPIAddress(adminUuid, userUuid);
-	JSONObject jsonObject = new JSONObject();
+	if (upiVirtualAddress == null || !upiVirtualAddress.contains("@indus")) {
+		model.addAttribute("msgs","Upi is in-valid.");
+	}
+	response=userController.validateUPIAddress(adminUuid, upiVirtualAddress);
 	if(response.equalsIgnoreCase(upiVirtualAddress))
 	{
-		jsonObject.put("found", "YES");
+		model.addAttribute("msg","Upi is Available. You can use");
+		
 	}
 	else
 	{
-		jsonObject.put("found", "NO");
+		model.addAttribute("msgs","Upi is un-available. You can't use");
 	}
-
-	
-	
-	return jsonObject.toString();
+	model.addAttribute("upiVirtualAddress",upiVirtualAddress);
+	return new ModelAndView("upiValidation");
 }
 
 
 
-@PostMapping(value = "/saveUpi")
-public ModelAndView saveUpi(Model model,HttpServletRequest request)  {
-	String upiVirtualAddress = request.getParameter("upiVirtualAddress");
-	String userUuid = request.getParameter("userUuid");
-	String adminUuid = request.getParameter("adminUuid");
-	
-	String response=userController.onBoardSubMerchant(upiVirtualAddress, userUuid);
-	
-	model.addAttribute("id",7);
 
-	model.addAttribute("msgs", "UPI has been Added");
-	return new ModelAndView("UserUpdateAdmin");
+@PostMapping(value = "/get-user-forUPI")
+public ModelAndView getUserForUPI(Model model, HttpServletRequest request) {
+	String userUuid=request.getParameter("userUuid");
+	String merchantId = request.getParameter("merchantId");
+	String pancard = request.getParameter("pancard");
+	
+	String userEmail = request.getParameter("userEmail");
+	String contactNumber = request.getParameter("contactNumber");
+	
+	
+	if (StringUtils.isAllBlank(merchantId, pancard, userEmail, contactNumber)) {
+		List<User> list = userController.getAllUsers(userUuid);
+		if (CollectionUtils.isNotEmpty(list)) {
+			 model.addAttribute("init", true);
+				
+				model.addAttribute("merchantId", merchantId);
+				model.addAttribute("pancard", pancard);
+				model.addAttribute("userEmail", userEmail);
+				model.addAttribute("contactNumber", contactNumber);
+				
+				model.addAttribute("userList", list);
+		} else {
+			model.addAttribute("init", false);
+		}
+			return new ModelAndView("upiOnboard");
+	}
+	
+	
+	List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, userUuid);
+		list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, userUuid));
+	if (CollectionUtils.isNotEmpty(list)) {
+       model.addAttribute("init", true);
+		
+		model.addAttribute("merchantId", merchantId);
+		model.addAttribute("pancard", pancard);
+		model.addAttribute("userEmail", userEmail);
+		model.addAttribute("contactNumber", contactNumber);
+		
+		model.addAttribute("userList", list);
+	} else {
+		model.addAttribute("init", false);
+	}
+	return new ModelAndView("upiOnboard");
 }
+
+@GetMapping("/get-onbordInfo")
+public ModelAndView getOnbordInfo(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid, Model model,HttpServletRequest request) 
+{
+	UserWallet userWallet = userController.getUserWallet(userUuid);
+	User user = userservice.getUserByUserUuid(userUuid);
+	UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+	UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+	UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+	UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+	UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+	model.addAttribute("pan",pan);
+	model.addAttribute("aadhar",aadhar);
+	model.addAttribute("gst",gst);
+	model.addAttribute("bank",bank);
+	model.addAttribute("bkyc",business);
+	model.addAttribute("user",user);
+	model.addAttribute("userWallet",userWallet);
+	if(user!=null)
+	{
+		model.addAttribute("onboardAdd",true);
+	}
+	return new ModelAndView("upiOnboard");
+}
+
+@PostMapping(value = "/get-user-forUPIDeact")
+public ModelAndView forUPIDeact(Model model, HttpServletRequest request) {
+	String userUuid=request.getParameter("userUuid");
+	String merchantId = request.getParameter("merchantId");
+	String pancard = request.getParameter("pancard");
+	
+	String userEmail = request.getParameter("userEmail");
+	String contactNumber = request.getParameter("contactNumber");
+	
+	
+	if (StringUtils.isAllBlank(merchantId, pancard, userEmail, contactNumber)) {
+		List<User> list = userController.getAllUsers(userUuid);
+		if (CollectionUtils.isNotEmpty(list)) {
+			 model.addAttribute("init", true);
+				
+				model.addAttribute("merchantId", merchantId);
+				model.addAttribute("pancard", pancard);
+				model.addAttribute("userEmail", userEmail);
+				model.addAttribute("contactNumber", contactNumber);
+				
+				model.addAttribute("userList", list);
+		} else {
+			model.addAttribute("init", false);
+		}
+			return new ModelAndView("upimerchantDeact");
+	}
+	
+	
+	List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, userUuid);
+		list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, userUuid));
+	if (CollectionUtils.isNotEmpty(list)) {
+       model.addAttribute("init", true);
+		
+		model.addAttribute("merchantId", merchantId);
+		model.addAttribute("pancard", pancard);
+		model.addAttribute("userEmail", userEmail);
+		model.addAttribute("contactNumber", contactNumber);
+		
+		model.addAttribute("userList", list);
+	} else {
+		model.addAttribute("init", false);
+	}
+	return new ModelAndView("upimerchantDeact");
+}
+
 
 
 }
