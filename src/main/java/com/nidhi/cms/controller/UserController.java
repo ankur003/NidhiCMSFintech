@@ -80,6 +80,7 @@ import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.MerchantUniqueDetailsService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.TransactionService;
+import com.nidhi.cms.service.UpiService;
 import com.nidhi.cms.service.UpiTxnService;
 import com.nidhi.cms.service.UserAccountStatementService;
 import com.nidhi.cms.service.UserBusnessKycService;
@@ -147,6 +148,9 @@ public class UserController extends AbstractController {
 	
 	@Autowired
 	private UPIHelper upiHelper;
+	
+	@Autowired
+	private UpiService upiService;
 	
 	private static final String APPLICATION_JSON  = "application/json";
 	private static final String MESSAGE  = "message";
@@ -1237,19 +1241,44 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			@RequestParam("isUpiActive") boolean isUpiActive) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
 		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
-			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
 			return "incorrect admin";
 		}
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {
 			LOGGER.error("user incorrect {}", userUuid);
-			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
 			return "incorrect user";
 		}
 		UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
-		usrWallet.setIsUpiActive(isUpiActive);
-		userWalletService.save(usrWallet);
-		return isUpiActive ? "UPI activated" : "UPI de-activated";
+		if (usrWallet == null ) {
+			LOGGER.error("usrWallet incorrect ");
+			return "incorrect user wallet";
+		}
+		String status = upiService.activateDeActivateUpi(usrWallet, isUpiActive);
+		if (status != null && status.equals("success")) {
+			usrWallet.setIsUpiActive(isUpiActive);
+			userWalletService.save(usrWallet);
+			return isUpiActive ? "UPI activated" : "UPI de-activated";
+		}
+		
+		return status;// "failed";
+	} 
+	
+	
+	@GetMapping("/transaction-status/upi")
+	public String getUpiTransactionStatus(@RequestParam("userUuid") String userUuid, @RequestParam("custRefNo") String custRefNo) {
+		User user = userservice.getUserDetailByUserUuid(userUuid);
+		if (user == null) {
+			return "incorrect user";
+		}
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			return "incorrect user wallet";
+		} else if (userWallet.getUpiVirtualAddress() == null || BooleanUtils.isFalse(userWallet.getIsUpiActive())) {
+			return "upi details not found or upi de-activated";
+		}
+		String statusDetails = upiService.getUpiTransactionStatus(custRefNo);
+		return statusDetails;
+		
 	}
 
 }

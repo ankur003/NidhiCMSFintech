@@ -71,7 +71,7 @@ import com.nidhi.cms.repository.UserWalletRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.TransactionService;
-import com.nidhi.cms.service.UpiRegistrationDetailService;
+import com.nidhi.cms.service.UpiService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	private UPIHelper upiHelper;
 	
 	@Autowired
-	private UpiRegistrationDetailService upiRegistrationDetailService;
+	private UpiService upiRegistrationDetailService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 

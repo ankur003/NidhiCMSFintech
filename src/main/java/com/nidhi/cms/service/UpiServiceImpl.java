@@ -4,18 +4,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nidhi.cms.domain.UpiRegistrationDetail;
+import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.repository.UpiRegistrationDetailRepo;
+import com.nidhi.cms.utils.indsind.UPIHelper;
 
 @Service
-public class UpiRegistrationDetailServiceImpl implements UpiRegistrationDetailService {
+public class UpiServiceImpl implements UpiService {
 	
 	@Autowired
 	private UpiRegistrationDetailRepo upiRegistrationDetailRepo;
+	
+	@Autowired
+	private UPIHelper upiHelper;
 	
 
 	@Override
 	public void save(UpiRegistrationDetail upiRegistrationDetail) {
 		upiRegistrationDetailRepo.save(upiRegistrationDetail);
+	}
+
+
+	@Override
+	public String activateDeActivateUpi(UserWallet usrWallet, boolean isUpiActive) {
+		return upiHelper.activateDeActivateUpi(usrWallet, isUpiActive);
+	}
+
+
+	@Override
+	public String getUpiTransactionStatus(String custRefNo) {
+		return upiHelper.getUpiTransactionStatus(custRefNo);
 	}
 
 }

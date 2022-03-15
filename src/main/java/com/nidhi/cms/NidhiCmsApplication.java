@@ -1,13 +1,21 @@
 package com.nidhi.cms;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.crypto.Cipher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +82,33 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 	}
 	
 	private void test() {
-		LOGGER.info("@@@@@@@@@@@@@@@@@@@ ------ {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  09 FEB 2022");
+		LOGGER.info("@@@@@@@@@@@@@@@@@@@ ------ {} ", "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  15 MARCH 2022");
+		deCryptResponse();
+		
+	}
+	
+	public void deCryptResponse()  {
+		try {
+			String keyFile = "/home/nidhicms/public_html/keys/privateKey.txt";
+			InputStream inStream = new FileInputStream(keyFile);
+			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			byte[] encKey = new byte[inStream.available()];
+			inStream.read(encKey);
+			String pvtKey = new String(encKey);
+			PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pvtKey));
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			PrivateKey priv = keyFactory.generatePrivate(privKeySpec);
+			byte[] cipherByte = org.bouncycastle.util.encoders.Base64.decode(
+					"hfG7lIsyL78BbDMsvOueUyLg6ipOYaF3RGKehtRIVun4eJZCnwN8KnZpJfh1aTTkjjjUlcj5A891qYQhyVvlCoDfNgM4XJPn+UCo12EbKhkZ0OhLBqo+ifjxpO2iJX2owbqvdjmgbpoveCuusP9RyH52ab6AidV/+ozPWc9ff6iFbZL+yMWwia+PTPOyrTOzHhVCOXOBljG9jhAgb8x5+65xabKDY3ww/s5KtF5owo1Qr0/IVvXpRVLpx2avhwSezUcGlN4uj49hUGkaErQGQ18snAbihL7liHJSkTP60Md3WCtrBHbcq02gz2RoT85fXMy8tX8T3L2LqOC20y7375Q8Su1J6pB/RtHI6oRtUT65Q+Hd/Qcp94g3uDsW2In3l1eE40tDTL5QinzI4z3fLSclT8JtmPt9WYRYROfArFP+BIeNSTPrAbmWkY44FKm9UPrI212/WaZIJgNkbRHg/SKIn0chmZBFDhzSK7rUwPVOdPaUz7oJmOJ5e4ZtUdkSKyOa6u91CXyg8FWg7vR52VaG0P2MHBaQ9DZ7yYL8qod4T4mv6bvxNo/MjM3pCF4tQaK+c+E3yLLxdMWXReBKpoF4RbhzLpL4stc2qQhk6z1RtanVvsy1MwmTztpa7+mJoYWsP3Y4hNRzurGI6+mi801Q+Ieji3fPvoyKMB9Q5II="
+							.getBytes("UTF-8"));
+			SecureRandom secureRandom = new SecureRandom();
+			cipher.init(Cipher.DECRYPT_MODE, priv, secureRandom);
+			String dd = new String(cipher.doFinal(cipherByte));
+			System.out.println("de-crypted msg ------->  " + dd);
+			inStream.close();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 
 

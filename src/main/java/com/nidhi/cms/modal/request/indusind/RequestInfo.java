@@ -1,7 +1,10 @@
 package com.nidhi.cms.modal.request.indusind;
 
-public class RequestInfo {
-	
+import java.io.Serializable;
+
+public class RequestInfo implements Serializable{
+
+	private static final long serialVersionUID = 1519230090027731172L;
 
 	private String pgMerchantId;
 
