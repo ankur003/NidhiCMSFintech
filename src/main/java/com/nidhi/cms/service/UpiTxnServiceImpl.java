@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import com.nidhi.cms.repository.UpiTxnRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
+import com.nidhi.cms.utils.indsind.UPIHelper;
 
 @Service
 public class UpiTxnServiceImpl implements UpiTxnService {
@@ -39,6 +41,9 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private UPIHelper upiHelper;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpiTxnServiceImpl.class);
 
@@ -76,9 +81,15 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		
 		UpiTxn savedUpiTxn = upiTxnRepo.save(upiTxn);
 		
+		if (BooleanUtils.isFalse(decryptedJson.has("orderNo")) || StringUtils.isBlank(decryptedJson.getString("orderNo"))) {
+			LOGGER.warn("orderNo not Found refund api started against payeeVPA {} ", decryptedJson.getString("payeeVPA"));
+			upiHelper.refundJsonApi();
+			return;
+		}
+		
 		UserWallet wallet = userWalletService.findByUpiVirtualAddress(decryptedJson.getString("payeeVPA"));
 		if (wallet == null || BooleanUtils.isFalse(wallet.getIsUpiActive())) {
-			LOGGER.error("payeeVPA {} not found on our DB or upi not active {}", decryptedJson.getString("payeeVPA"), wallet.getIsUpiActive());
+			LOGGER.error("payeeVPA {} not found on our DB or upi not active", decryptedJson.getString("payeeVPA"));
 			return;
 		}
 		

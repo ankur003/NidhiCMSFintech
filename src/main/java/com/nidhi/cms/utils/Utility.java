@@ -286,6 +286,9 @@ public class Utility {
 	}
 	
 	public static JSONObject getJsonFromString(String jsonString) {
+		if (jsonString == null) {
+			return new JSONObject();
+		}
 		return new JSONObject(jsonString);
 	}
 

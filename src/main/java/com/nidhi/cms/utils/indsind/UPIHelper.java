@@ -14,8 +14,11 @@ import org.springframework.stereotype.Component;
 import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
+import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
 import com.nidhi.cms.modal.request.indusind.RequestInfo;
 import com.nidhi.cms.modal.request.indusind.UpiDeActivateModel;
+import com.nidhi.cms.modal.request.indusind.UpiListApiRequestModel;
+import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusModel;
 import com.nidhi.cms.utils.Utility;
 
@@ -75,7 +78,7 @@ public class UPIHelper {
 				return null;
 			} 
 		} catch (Exception e) {
-			LOGGER.error("upiAddress validate api failed {}", e);
+			LOGGER.error("upiAddress validate api  failed {}", e);
 		} finally {
 			if (response != null) {
 				response.close();
@@ -119,28 +122,28 @@ public class UPIHelper {
 		if (BooleanUtils.isFalse(isUpiActive)) {
 			try {
 				String encyptedReqBody = Utility.getGenericEncyptedReqBody(getDeactivateModel(usrWallet), applicationConfig.getIndBankKey(), "INDB000000003196");
-				String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/deActivateMerchant");
+				String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/deActivateMerchant", "POST");
 				String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, null, applicationConfig.getIndBankKey());
-				LOGGER.info("decryptedResponse onBoardSubMerchant {} ", decryptedResponse);
+				LOGGER.info("decryptedResponse activateDeActivateUpi {} ", decryptedResponse);
 				JSONObject json = Utility.getJsonFromString(decryptedResponse);
 				if (json.getString("statusCode").equalsIgnoreCase("S")) {
 					return "success";
 				}
 			} catch (Exception e) {
-				LOGGER.error("activateDeActivateUpi api failed {}", e);
+				LOGGER.error("activateDeActivateUpi api failed  {}", e);
 			}
 			
 		}
 		return "failed";
 	}
 
-	private String callAndGetUpiEncryptedResponse(String encyptedReqBody, String url) {
+	private String callAndGetUpiEncryptedResponse(String encyptedReqBody, String url, String method) {
 		Response response = null;
 		try {
 			OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(2, TimeUnit.MINUTES).build();
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(encyptedReqBody,  MediaType.parse(APPLICATION_JSON));
 			Request request = new Request.Builder()
-					.url(url).method("POST", body)
+					.url(url).method(method, body)
 					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientIdUAT())
 					.addHeader("X-IBM-Client-Secret", applicationConfig.getxIBMClientSecretUAT())
 					.addHeader("Accept", APPLICATION_JSON).addHeader("Content-Type", APPLICATION_JSON).build();
@@ -170,9 +173,9 @@ public class UPIHelper {
 	public String getUpiTransactionStatus(String custRefNo) {
 		try {
 			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(custRefNo), applicationConfig.getIndBankKey(), "INDB000000003150");
-			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/meTranStatusQueryWeb");
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/meTranStatusQueryWeb", "POST");
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
-			LOGGER.info("decryptedResponse onBoardSubMerchant {} ", decryptedResponse);
+			LOGGER.info("decryptedResponse getUpiTransactionStatus {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
 			System.out.println(json);
 		} catch (Exception e) {
@@ -187,6 +190,57 @@ public class UPIHelper {
 		upiTransactionStatusModel.setNpciTranId("INDBAA4F5A16C75A4C5F8988CBEA8022FDB");
 		upiTransactionStatusModel.setRequestInfo(new RequestInfo("pgMerchantId", RandomStringUtils.random(30, true, false)));
 		return upiTransactionStatusModel;
+	}
+
+	public void upiListApi() { 
+		try {
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiListApiModel(), applicationConfig.getIndBankKey(), "INDB000000003150");
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/meTransactionHistoryWeb", "POST");
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
+			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
+			JSONObject json = Utility.getJsonFromString(decryptedResponse);
+			System.out.println(json);
+		} catch (Exception e) {
+			LOGGER.error("activateDeActivateUpi api failed {}", e);
+		}
+		
+	}
+
+	private UpiListApiRequestModel getUpiListApiModel() {
+		UpiListApiRequestModel upiListApiRequestModel = new UpiListApiRequestModel();
+		upiListApiRequestModel.setPgMerchantId("INDB000000003196");
+		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel("01-01-2005 11:01:01", "01-01-2019 11:01:01", "1", "3"));
+		return upiListApiRequestModel;
+	}
+
+	public void refundJsonApi() {
+		try {
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getRefundApiModel(), applicationConfig.getIndBankKey(), "INDB000000003150");
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/meRefundJsonService", "POST");
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", applicationConfig.getIndBankKey());
+			LOGGER.info(" refundJsonApi decryptedResponse  {} ", decryptedResponse);
+			JSONObject json = Utility.getJsonFromString(decryptedResponse);
+			System.out.println(json);
+		} catch (Exception e) {
+			LOGGER.error("activateDeActivateUpi api failed {}", e);
+		}
+		
+	}
+
+	private UpiRefundApiRequestModel getRefundApiModel() {
+		UpiRefundApiRequestModel upiRefundApiRequestModel = new UpiRefundApiRequestModel();
+		upiRefundApiRequestModel.setCurrencyCode("");
+		upiRefundApiRequestModel.setOrderNo("");
+		upiRefundApiRequestModel.setOrgCustRefNo("");
+		upiRefundApiRequestModel.setOrgINDrefNo("");
+		upiRefundApiRequestModel.setOrgOrderNo("");
+		upiRefundApiRequestModel.setPayType("");
+		upiRefundApiRequestModel.setPgMerchantId("");
+		upiRefundApiRequestModel.setTxnAmount("");
+		upiRefundApiRequestModel.setTxnNote("");
+		upiRefundApiRequestModel.setTxnType("");
+		
+		return upiRefundApiRequestModel;
 	}
 
 }
