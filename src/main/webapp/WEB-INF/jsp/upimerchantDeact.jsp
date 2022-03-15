@@ -53,7 +53,7 @@
 						<div class="row">
 							<div class="col-md-12">
 								<div class="mu-contact-right">
-									<form class="contactform" action="/api/v1/get-user-search" method="post">
+									<form class="contactform" action="/api/v1/get-user-forUPIDeact" method="post">
 
 	                                       <c:choose>
 											<c:when test="${msg!=null}">

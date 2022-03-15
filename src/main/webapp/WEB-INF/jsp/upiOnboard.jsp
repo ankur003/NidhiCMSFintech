@@ -14,6 +14,14 @@
 
 <!-- Favicon -->
 
+<script type="text/javascript">
+  function copyUuid(uuid)
+  {
+       document.getElementById("userUuid").value = uuid;
+       document.getElementById("onb").style.display = "";
+  }
+</script>
+
 </head>
 <c:if test="${sessionScope.userLoginDetails eq null}">
 	<c:redirect url="/api/v1/fe/login"></c:redirect>
@@ -60,6 +68,100 @@
 							</div>
 							<div class="col-md-12">
 								<div class="mu-contact-right">
+								
+								
+									<form class="contactform" action="/api/v1/get-user-forUPI" method="post">
+
+	                                       <c:choose>
+											<c:when test="${msg!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: green;">
+													<font color="green"> ${msg} </font>
+												</p>
+											</c:when>
+											<c:when test="${msgs!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgs} </font>
+												</p>
+											</c:when>
+											<c:otherwise>
+											
+											</c:otherwise>
+										</c:choose>
+										
+									<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
+										
+									<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Merchant Id</label> <input type="text"
+													 value="${merchantId}" name="merchantId" id="merchantId">
+											</p>
+										</div>
+										<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Pan Card
+												</label> <input type="text"
+													value="${pancard}" name="pancard" id="pancard">
+											</p>
+										</div>
+										<br>
+										<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Email</label> <input type="text"
+													 value="${userEmail}" name="userEmail" id="userEmail">
+											</p>
+										</div>
+										<div class="col-lg-6">
+											<p class="comment-form-author">
+												<label for="author">Contact Number</label> <input type="text"
+													 value="${contactNumber}" name="contactNumber" id="contactNumber">
+											</p>
+										</div>
+
+                                        <div class="col-lg-12">
+											<p class="form-submit">
+												<input type="submit" value="search" class="btn btn-success"
+													name="Submit"> <input type="button" value="Cancel"
+													class="btn btn-info" name="cancel">
+											</p>
+										</div>
+
+                                        <c:if test="${init }">
+											<table class="table table-striped">
+												<thead class="thead-dark">
+													<tr>
+														<th scope="col">#</th>
+														<th scope="col">Full Name</th>
+														<th scope="col">Email</th>
+														<th scope="col">Mobile</th>
+														<th scope="col">Action</th>
+													</tr>
+												</thead>
+												<tbody>
+												
+													<c:forEach items="${userList}" var="ul"		varStatus="counter">
+														<tr>
+															<th scope="row">${counter.count}</th>
+															<td>${ul.fullName}</td>
+															<td>${ul.userEmail}</td>
+															<td>${ul.mobileNumber}</td>
+															
+															
+															<td><a href="/api/v1/get-onbordInfo?userUuid=${ul.userUuid}&adminUuid=${userLoginDetails.userUuid}" >
+															<input type="Button" value="Select" class="btn btn-success" name="Approve"	
+															></a></td>
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										</c:if>
+										<!-- -----------------personal------------------------------ -->
+									</form>
+								
+								
+								<c:if test="${onboardAdd}">
+								
 									<form class="contactform" action="/api/v1/userbyAdmin" method="post">
 
 
@@ -234,8 +336,15 @@
 											</div>
 											
 										</div>
-										
+											<p class="form-submit">
+											<input type="submit" value="Add" class="btn btn-success"
+												name="Add"> <input type="reset" value="Reset"
+												class="btn btn-warning" name="reset"> <input
+												type="button" value="Cancel" class="btn btn-info"
+												name="cancel">
+										</p>
 									</form>
+									</c:if>
 
 								</div>
 							</div>
