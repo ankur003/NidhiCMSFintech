@@ -66,6 +66,7 @@ public class TransactionInquiryScheduler {
 			transaction.setStatus(jsonObject.getString("STATUS"));
 			transaction.setResponse(jsonObject.getString("RESPONSE"));
 			transaction.setSchedulerCustomInfo(SchedulerCustomInfo.BALANCE_REVERSED_NO_CHECK_AGAIN.name());
+			txService.save(transaction);
 			UserWallet userWallet = updateUserWallet(transaction);
 			createReverseTx(transaction, userWallet);
 		}

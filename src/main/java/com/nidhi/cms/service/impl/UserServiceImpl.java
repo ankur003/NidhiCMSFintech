@@ -741,7 +741,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 				return Boolean.FALSE;
 			}
 			if (jsonObject.has("RESPONSE") && jsonObject.getString("RESPONSE").equalsIgnoreCase("FAILURE")
-					&& jsonObject.getString("STATUS").equalsIgnoreCase("PENDING")) {
+					&& jsonObject.getString("STATUS").equalsIgnoreCase("PENDING") && jsonObject.has("MESSAGE") && jsonObject.getString("MESSAGE").contains("Please do not re-initiate")) {
 				LOGGER.info("[UserServiceImpl.isResponseValid]  ---- {} " , jsonObject);
 				
 				TimeOutResponse timeout = new TimeOutResponse();
