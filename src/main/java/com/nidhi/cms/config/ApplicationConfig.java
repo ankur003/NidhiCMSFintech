@@ -38,6 +38,9 @@ public class ApplicationConfig {
 
 	@Value("${X-IBM-CLIENT-SECRET-UAT}")
 	private String xIBMClientSecretUAT;
+	
+	@Value("${indus.pgMerchantId}")
+	private String pgMerchantId;
 
 	public static Map<String, String> loggedInUsers = new ConcurrentHashMap<>();
 
@@ -100,6 +103,9 @@ public class ApplicationConfig {
 	public String getxIBMClientSecretUAT() {
 		return xIBMClientSecretUAT;
 	}
-	
 
+	public String getPgMerchantId() {
+		return pgMerchantId;
+	}
+	
 }

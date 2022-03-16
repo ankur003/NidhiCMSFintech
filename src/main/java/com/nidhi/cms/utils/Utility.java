@@ -260,7 +260,7 @@ public class Utility {
 		return user;
 	}
 
-	public static String getEncyptedReqBodyForUpiAddressValidation(String upiAddress, String indBankKey) throws Exception {
+	public static String getEncyptedReqBodyForUpiAddressValidation(String upiAddress, String indBankKey, String pgMerchantId) throws Exception {
 		UPISecurity uPISecurity = new UPISecurity();
 		Gson gson = new Gson();
 		JSONObject jsonObject = new JSONObject();
@@ -268,10 +268,10 @@ public class Utility {
 		UpiAddressValidateReqModel upiAddressValidateReqModel = new UpiAddressValidateReqModel();
 		upiAddressValidateReqModel.setPayeeType(new PayeeType(upiAddress.toLowerCase()));
 		upiAddressValidateReqModel.setvAReqType("R");
-		upiAddressValidateReqModel.setRequestInfo(new RequestInfo("INDB000000003196", RandomStringUtils.random(30, true, false)));
+		upiAddressValidateReqModel.setRequestInfo(new RequestInfo(pgMerchantId, RandomStringUtils.random(30, true, false)));
 		
 		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(upiAddressValidateReqModel), indBankKey));
-		jsonObject.put("pgMerchantId", "INDB000000003196");
+		jsonObject.put("pgMerchantId", pgMerchantId);
 		return jsonObject.toString();
 	}
 

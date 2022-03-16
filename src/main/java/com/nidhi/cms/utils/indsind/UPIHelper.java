@@ -59,9 +59,9 @@ public class UPIHelper {
 		MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 		Response response = null;
 		try {
-			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey()), mediaType);
+			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
 			Request request = new Request.Builder()
-					.url("https://indusupiuat.indusind.com:9043/upi/web/validateVPAWeb").method("POST", body)
+					.url("https://ibluatapig.indusind.com/app/uat/web/validateVPAWeb").method("POST", body)
 					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientIdUAT())
 					.addHeader("X-IBM-Client-Secret", applicationConfig.getxIBMClientSecretUAT())
 					.addHeader("Accept", APPLICATION_JSON)
@@ -172,8 +172,9 @@ public class UPIHelper {
 
 	public String getUpiTransactionStatus(String custRefNo) {
 		try {
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(custRefNo), applicationConfig.getIndBankKey(), "INDB000000003150");
-			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/meTranStatusQueryWeb", "POST");
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(custRefNo, applicationConfig.getPgMerchantId()), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://ibluatapig.indusind.com/app/uat/web/meTranStatusQueryWeb", "POST");
+			LOGGER.info("encryptedResponseBody getUpiTransactionStatus {} ", encryptedResponseBody);
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info("decryptedResponse getUpiTransactionStatus {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
@@ -184,18 +185,18 @@ public class UPIHelper {
 		return "failed";
 	}
 
-	private UpiTransactionStatusModel getUpiTransactionStatusModel(String custRefNo) {
+	private UpiTransactionStatusModel getUpiTransactionStatusModel(String custRefNo, String pgMerchantId) {
 		UpiTransactionStatusModel upiTransactionStatusModel = new UpiTransactionStatusModel();
 		upiTransactionStatusModel.setCustRefNo(custRefNo);
-		upiTransactionStatusModel.setNpciTranId("INDBAA4F5A16C75A4C5F8988CBEA8022FDB");
-		upiTransactionStatusModel.setRequestInfo(new RequestInfo("pgMerchantId", RandomStringUtils.random(30, true, false)));
+		upiTransactionStatusModel.setRequestInfo(new RequestInfo(pgMerchantId, RandomStringUtils.random(30, true, false)));
 		return upiTransactionStatusModel;
 	}
 
 	public void upiListApi() { 
 		try {
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiListApiModel(), applicationConfig.getIndBankKey(), "INDB000000003150");
-			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/meTransactionHistoryWeb", "POST");
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiListApiModel(applicationConfig.getPgMerchantId()), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://ibluatapig.indusind.com/app/uat/web/meTransactionHistoryWeb", "POST");
+			LOGGER.info(" upiListApi encryptedResponseBody  {} ", encryptedResponseBody);
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
@@ -206,9 +207,9 @@ public class UPIHelper {
 		
 	}
 
-	private UpiListApiRequestModel getUpiListApiModel() {
+	private UpiListApiRequestModel getUpiListApiModel(String pgMerchantId) {
 		UpiListApiRequestModel upiListApiRequestModel = new UpiListApiRequestModel();
-		upiListApiRequestModel.setPgMerchantId("INDB000000003196");
+		upiListApiRequestModel.setPgMerchantId(pgMerchantId);
 		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel("01-01-2005 11:01:01", "01-01-2019 11:01:01", "1", "3"));
 		return upiListApiRequestModel;
 	}

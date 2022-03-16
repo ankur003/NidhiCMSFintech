@@ -42,7 +42,7 @@ public class TransactionInquiryScheduler {
 	@Autowired
 	private UserRepository userRepository;
 
-	@Scheduled(cron = "0 0/15 * * * ?")
+	//@Scheduled(cron = "0 0/15 * * * ?")
 	public void transactionInquiryScheduler() {
 		LOGGER.info("transaction Inquiry Scheduler has been started at '{}'", LocalDateTime.now());
 		try {
