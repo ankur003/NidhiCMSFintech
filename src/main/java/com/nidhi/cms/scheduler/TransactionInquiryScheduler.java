@@ -2,7 +2,9 @@ package com.nidhi.cms.scheduler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.json.JSONObject;
@@ -12,11 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.SchedulerCustomInfo;
 import com.nidhi.cms.domain.Transaction;
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.domain.email.MailRequest;
+import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserWalletService;
+import com.nidhi.cms.service.email.EmailService;
 
 @Component
 public class TransactionInquiryScheduler {
@@ -28,6 +35,12 @@ public class TransactionInquiryScheduler {
 
 	@Autowired
 	private UserWalletService userWalletService;
+	
+	@Autowired
+	private EmailService emailService;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Scheduled(cron = "0 0/15 * * * ?")
 	public void transactionInquiryScheduler() {
@@ -94,7 +107,25 @@ public class TransactionInquiryScheduler {
 	private UserWallet updateUserWallet(Transaction transaction) {
 		UserWallet userWallet = userWalletService.findByUserId(transaction.getUserId());
 		userWallet.setAmount(userWallet.getAmount() + transaction.getAmountPlusfee());
-		return userWalletService.save(userWallet);
+		UserWallet upadtedWallet = userWalletService.save(userWallet);
+		triggerCreditMail(transaction.getUserId(), transaction.getAmountPlusfee(), upadtedWallet);
+		return upadtedWallet;
+	}
+	
+	
+	private void triggerCreditMail(Long userId, Double amt, UserWallet savedWallet) {
+		User user = userRepository.findByUserId(userId);
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Your NidhiCMS Account credited with Rs." + amt);
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		model.put("txAmt", amt);
+		model.put("vAcc", savedWallet.getWalletUuid());
+		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
+		model.put("amt", savedWallet.getAmount());
+		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.CREDIT_ACC);
 	}
 
 }
