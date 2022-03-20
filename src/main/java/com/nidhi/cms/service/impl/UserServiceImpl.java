@@ -989,6 +989,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		LOGGER.info("[UserServiceImpl.onBoardSubMerchant] upiRegistrationDetail  {} - ", upiRegistrationDetail);
 		upiRegistrationDetail.setUserId(wallet.getUserId());
 		upiRegistrationDetailService.save(upiRegistrationDetail);
+		
+		wallet.setUpiVirtualAddress(indsIndRequestModal.getMerVirtualAdd());
+		userWalletService.save(wallet);
 		return "User UPI On-Boared Success";
 	}
 
