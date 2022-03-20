@@ -133,4 +133,13 @@ public class UserBusinessKycModal {
 	public void setCity(String city) {
 		this.city = city;
 	}
+
+	@Override
+	public String toString() {
+		return "UserBusinessKycModal [userBusinessKycId=" + userBusinessKycId + ", entityType=" + entityType
+				+ ", industry=" + industry + ", compnayName=" + compnayName + ", noOfEmp=" + noOfEmp
+				+ ", individualPan=" + individualPan + ", gstNo=" + gstNo + ", websiteLink=" + websiteLink
+				+ ", address1=" + address1 + ", address2=" + address2 + ", pincode=" + pincode + ", state=" + state
+				+ ", city=" + city + "]";
+	}
 }

@@ -1623,13 +1623,23 @@ public ModelAndView getOnbordInfo(@RequestParam("userUuid") String userUuid,@Req
 	UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
 	UserBankDetails bank= userController.getUserBankDetails(userUuid);	
 	UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+	String UpiAdress=userController.generateUPIAddress(adminUuid, userUuid);
+	if(UpiAdress!=null && UpiAdress.contains("@"))
+	{
+		model.addAttribute("UpiAdress",UpiAdress);
+	}
+	else
+	{
+		model.addAttribute("msgss",UpiAdress);
+	}
 	model.addAttribute("pan",pan);
 	model.addAttribute("aadhar",aadhar);
 	model.addAttribute("gst",gst);
 	model.addAttribute("bank",bank);
-	model.addAttribute("bkyc",business);
+	model.addAttribute("business",business);
 	model.addAttribute("user",user);
 	model.addAttribute("userWallet",userWallet);
+	
 	if(user!=null)
 	{
 		model.addAttribute("onboardAdd",true);

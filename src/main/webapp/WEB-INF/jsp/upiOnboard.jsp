@@ -20,6 +20,23 @@
        document.getElementById("userUuid").value = uuid;
        document.getElementById("onb").style.display = "";
   }
+  function validform()
+  {
+	var valid = true;
+
+		if (document.getElementById("gstcflag").value == 'Y') {
+			if (document.getElementById("gstnnum").value == '') {
+				document.getElementById("gstnnum_error").style.display = "block";
+				document.getElementById("gstnnum_error").innerHTML = "Please Provide Merchant GSTIN Number";
+				valid = false;
+			}
+		}
+		return valid;
+	}
+  function hideMessage(divId){
+		document.getElementById(divId).style.display="none";
+	}
+
 </script>
 
 </head>
@@ -162,7 +179,7 @@
 								
 								<c:if test="${onboardAdd}">
 								
-									<form class="contactform" action="/api/v1/userbyAdmin" method="post">
+									<form class="contactform" action="/api/v1/userbyAdmin" method="post" onsubmit="javascript:return validform();">
 
 
 										<c:choose>
@@ -178,6 +195,12 @@
 													<font color="red"> ${msgs} </font>
 												</p>
 											</c:when>
+											<c:when test="${msgss!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: red;">
+													<font color="red"> ${msgss} </font>
+												</p>
+											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
@@ -187,16 +210,16 @@
 										<div class="col-md-12">
 											<div class="col-md-6">
 												<p class="comment-form-author">
-													<label for="author">Merchant Id <span class="mandate">*</span></label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="16">
+													<label for="author">Merchant Email ID</label>
+													<input type="text" required="required" size="30" value="${user.userEmail }"
+														name="meEmailID" id="userEmail" maxlength="100" readonly="readonly" disabled="disabled">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Business Name <span class="mandate">*</span></label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="100">
+													<input type="text" required="required" size="30" value="${business.compnayName}"
+														name="mebussname" id="compnayName" disabled="disabled" >
 												</p>
 											</div>
 										</div>
@@ -205,15 +228,15 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Legal Name <span class="mandate">*</span></label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="100">
+													<input type="text" required="required" size="30" value="${business.compnayName}"
+														name="legalStrName" id="legalName" maxlength="100" readonly="readonly" disabled="disabled">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant Virtual Address<span class="mandate">*</span></label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="255">
+													<input type="text" required="required" size="30" value="${UpiAdress}"
+														name="merVirtualAdd" id="fullName" maxlength="255" readonly="readonly" disabled="disabled">
 												</p>
 											</div>
 										</div>
@@ -228,8 +251,8 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Contact Mobile Number <span class="mandate">*</span></label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="10">
+													<input type="text" required="required" size="30" value="${user.mobileNumber}"
+														name="strCntMobile" id="mobileNumber" maxlength="10" readonly="readonly" disabled="disabled">
 												</p>
 											</div>
 										</div>
@@ -239,14 +262,14 @@
 												<p class="comment-form-author">
 													<label for="author">Reference URL 1 <span class="mandate">*</span></label>
 													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="200">
+														name="requestUrl1" id="refurl1" maxlength="200">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant Type</label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="6">
+													<input type="text" required="required" size="30" value="AGG MER" disabled="disabled"
+														name="merchantType" id="merchantType" maxlength="6" readonly="readonly">
 												</p>
 											</div>
 										</div>
@@ -255,15 +278,15 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">WEBAPI </label>
-													<input type="text" required="required" size="30" value="WEBAPI"
-														name="fullName" id="fullName" maxlength="10" disabled="disabled">
+													<input type="text"  size="30" value="WEBAPI"
+														name="integrationType" id="webapi" maxlength="10" disabled="disabled">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Settlement Type</label>
 													<br>
-													 <select class="form-select" style="width:530px;height: 30px;">
+													 <select class="form-select" style="width:530px;height: 30px;" name="settleType" id="settleType">
 														<option value="NET">NET</option>
 														<option value="GROSS">GROSS</option>
 													</select>
@@ -275,15 +298,15 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Unique Pan Number</label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="10">
+													<input type="text"  size="30" value="${business.individualPan}"
+														name="panNo" id="individualPan" maxlength="10" readonly="readonly" disabled="disabled">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant ID </label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="20">
+													<input type="text" required="required" size="30" value="${userWallet.merchantId }"
+														name="extMID" id="merchantId" maxlength="20" readonly="readonly" disabled="disabled">
 												</p>
 											</div>
 										</div>
@@ -292,50 +315,51 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">External Terminal ID </label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="20">
+													<input type="text"  size="30" value=""
+														name="extTID" id="extTID" maxlength="20">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant account No </label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="20">
+													<input type="text" required="required" size="30" value="${bank.accountNumber}"
+														name="accNo" id="accountNumber" maxlength="20" readonly="readonly" disabled="disabled">
 												</p>
 											</div>
 										</div>
-										
-										<div class="col-md-12">
-											<div class="col-md-6">
-												<p class="comment-form-author">
-													<label for="author">Merchant Email ID</label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="100">
-												</p>
-											</div>
-											<div class="col-md-6">
-												<p class="comment-form-author">
-													<label for="author">Merchant GSTIN Number </label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="15">
-												</p>
-											</div>
-										</div>
-										<div class="col-md-12">
+											<div class="col-md-12">
 										<div class="col-md-6">
 												<p class="comment-form-author">
-													<label for="author">Settlement Type</label>
+													<label for="author">GST Consent Flag</label>
 													<br>
-													 <select class="form-select" style="width:530px;height: 30px;">
+													 <select class="form-select" id="gstcflag" name="gstConsentFlag" style="width:530px;height: 30px;">
 														<option value="Y">Yes</option>
 														<option value="N">No</option>
 													</select>
 												</p>
 											</div>
 											<div class="col-md-6">
+												<p class="comment-form-author">
+													<label for="author">Merchant GSTIN Number </label>
+													<input type="text"  size="30" value="${business.gstNo }"
+														name="gstin" id="gstnnum" maxlength="15" onfocus="javascript: hideMessage('gstnnum_error')">
+														<label id="gstnnum_error"  style="display: none; color: red; margin-left: 4px;"></label>
+												</p>
 											</div>
 											
 										</div>
+										<div class="col-md-12">
+											<%-- <div class="col-md-6">
+												<p class="comment-form-author">
+													<label for="author">Merchant Email ID</label>
+													<input type="text" required="required" size="30" value="${user.userEmail }"
+														name="meEmailID" id="userEmail" maxlength="100" readonly="readonly">
+												</p>
+											</div> --%>
+											<div class="col-md-6">
+											</div>
+										</div>
+									
 											<p class="form-submit">
 											<input type="submit" value="Add" class="btn btn-success"
 												name="Add"> <input type="reset" value="Reset"
