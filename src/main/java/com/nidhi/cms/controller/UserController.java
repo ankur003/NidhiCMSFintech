@@ -1131,6 +1131,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return transactionService.getTransactionStatus(uniqueIdOrUtrNumber, paymentMode);
 	}
 	
+	// not used
 //	@PostMapping(value = "/save/upi-address")
 	public String onBoardSubMerchant(@RequestParam("upiAddress") String upiAddress, @RequestParam("userUuid") String userUuid) {
 		User user = userservice.getUserByUserUuid(userUuid);
@@ -1162,17 +1163,28 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 
-	@PostMapping(value = "/indsind/onBoardSubMerchant")
-	public ResponseEntity<Object> onBoardSubMerchant(@Valid @RequestBody IndsIndRequestModal indsIndRequestModal) {
+	// @PostMapping(value = "/indsind/onBoardSubMerchant")
+	public String onBoardSubMerchant(@Valid @RequestBody IndsIndRequestModal indsIndRequestModal, String userUuid, String adminUuid) {
+		User admin = userservice.getUserDetailByUserUuid(adminUuid);
+		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
+			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
+			return "incorrect admin";
+		}
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null || BooleanUtils.isFalse(user.getIsActive()) || BooleanUtils.isFalse(user.getIsUserVerified()) || !user.getKycStatus().name().equals("VERIFIED")) {
+			LOGGER.error("user incorrect {}", userUuid);
+			//return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect user");
+			return "incorrect user";
+		}
 		UserWallet wallet = userWalletService.findByUpiVirtualAddress(indsIndRequestModal.getMerVirtualAdd());
-		if (wallet == null)  {
-			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+		if (wallet != null)  {
+			return "upi address already takken";
 		}
 		String message = userservice.onBoardSubMerchant(wallet, indsIndRequestModal);
 		if (StringUtils.isBlank(message)) {
-			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+			return "error occured";
 		}
-		return ResponseHandler.getMapResponse("message", message);
+		return message;
 	}
 	
 	@PostMapping(value = "/api/v1/upi-callback")

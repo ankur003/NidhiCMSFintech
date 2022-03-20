@@ -68,12 +68,13 @@ public class UPIHelper {
 					.addHeader("Content-Type", APPLICATION_JSON).build();
 			 response = client.newCall(request).execute();
 			String responseBody = response.body().string();
+			LOGGER.info("getAndValidateUpiAddress responseBody {} ", responseBody);
 			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info("decryptedResponse {} ", decryptedResponse);
 			if (decryptedResponse != null) {
 				String status = getJsonFromString(decryptedResponse).getString("status");
 				if (status.equals("VN")) {
-					return upiAddress;
+					return upiAddress; 
 				}
 				return null;
 			} 
@@ -199,10 +200,10 @@ public class UPIHelper {
 			LOGGER.info(" upiListApi encryptedResponseBody  {} ", encryptedResponseBody);
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
-			JSONObject json = Utility.getJsonFromString(decryptedResponse);
+			JSONObject json = Utility.getJsonFromString(decryptedResponse); 
 			System.out.println(json);
 		} catch (Exception e) {
-			LOGGER.error("activateDeActivateUpi api failed {}", e);
+			LOGGER.error("activateDeActivateUpi api failed {}", e); 
 		}
 		
 	}
