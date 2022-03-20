@@ -182,4 +182,144 @@ public class IndsIndRequestModal {
 		this.gstConsentFlag = gstConsentFlag;
 	}
 
+	@Override
+	public String toString() {
+		return "IndsIndRequestModal [pgMerchantId=" + pgMerchantId + ", mebussname=" + mebussname + ", legalStrName="
+				+ legalStrName + ", merVirtualAdd=" + merVirtualAdd + ", awlmcc=" + awlmcc + ", strCntMobile="
+				+ strCntMobile + ", requestUrl1=" + requestUrl1 + ", requestUrl2=" + requestUrl2 + ", merchantType="
+				+ merchantType + ", integrationType=" + integrationType + ", settleType=" + settleType + ", panNo="
+				+ panNo + ", extMID=" + extMID + ", extTID=" + extTID + ", accNo=" + accNo + ", meEmailID=" + meEmailID
+				+ ", gstin=" + gstin + ", gstConsentFlag=" + gstConsentFlag + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((accNo == null) ? 0 : accNo.hashCode());
+		result = prime * result + ((awlmcc == null) ? 0 : awlmcc.hashCode());
+		result = prime * result + ((extMID == null) ? 0 : extMID.hashCode());
+		result = prime * result + ((extTID == null) ? 0 : extTID.hashCode());
+		result = prime * result + ((gstConsentFlag == null) ? 0 : gstConsentFlag.hashCode());
+		result = prime * result + ((gstin == null) ? 0 : gstin.hashCode());
+		result = prime * result + ((integrationType == null) ? 0 : integrationType.hashCode());
+		result = prime * result + ((legalStrName == null) ? 0 : legalStrName.hashCode());
+		result = prime * result + ((meEmailID == null) ? 0 : meEmailID.hashCode());
+		result = prime * result + ((mebussname == null) ? 0 : mebussname.hashCode());
+		result = prime * result + ((merVirtualAdd == null) ? 0 : merVirtualAdd.hashCode());
+		result = prime * result + ((merchantType == null) ? 0 : merchantType.hashCode());
+		result = prime * result + ((panNo == null) ? 0 : panNo.hashCode());
+		result = prime * result + ((pgMerchantId == null) ? 0 : pgMerchantId.hashCode());
+		result = prime * result + ((requestUrl1 == null) ? 0 : requestUrl1.hashCode());
+		result = prime * result + ((requestUrl2 == null) ? 0 : requestUrl2.hashCode());
+		result = prime * result + ((settleType == null) ? 0 : settleType.hashCode());
+		result = prime * result + ((strCntMobile == null) ? 0 : strCntMobile.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IndsIndRequestModal other = (IndsIndRequestModal) obj;
+		if (accNo == null) {
+			if (other.accNo != null)
+				return false;
+		} else if (!accNo.equals(other.accNo))
+			return false;
+		if (awlmcc == null) {
+			if (other.awlmcc != null)
+				return false;
+		} else if (!awlmcc.equals(other.awlmcc))
+			return false;
+		if (extMID == null) {
+			if (other.extMID != null)
+				return false;
+		} else if (!extMID.equals(other.extMID))
+			return false;
+		if (extTID == null) {
+			if (other.extTID != null)
+				return false;
+		} else if (!extTID.equals(other.extTID))
+			return false;
+		if (gstConsentFlag == null) {
+			if (other.gstConsentFlag != null)
+				return false;
+		} else if (!gstConsentFlag.equals(other.gstConsentFlag))
+			return false;
+		if (gstin == null) {
+			if (other.gstin != null)
+				return false;
+		} else if (!gstin.equals(other.gstin))
+			return false;
+		if (integrationType == null) {
+			if (other.integrationType != null)
+				return false;
+		} else if (!integrationType.equals(other.integrationType))
+			return false;
+		if (legalStrName == null) {
+			if (other.legalStrName != null)
+				return false;
+		} else if (!legalStrName.equals(other.legalStrName))
+			return false;
+		if (meEmailID == null) {
+			if (other.meEmailID != null)
+				return false;
+		} else if (!meEmailID.equals(other.meEmailID))
+			return false;
+		if (mebussname == null) {
+			if (other.mebussname != null)
+				return false;
+		} else if (!mebussname.equals(other.mebussname))
+			return false;
+		if (merVirtualAdd == null) {
+			if (other.merVirtualAdd != null)
+				return false;
+		} else if (!merVirtualAdd.equals(other.merVirtualAdd))
+			return false;
+		if (merchantType == null) {
+			if (other.merchantType != null)
+				return false;
+		} else if (!merchantType.equals(other.merchantType))
+			return false;
+		if (panNo == null) {
+			if (other.panNo != null)
+				return false;
+		} else if (!panNo.equals(other.panNo))
+			return false;
+		if (pgMerchantId == null) {
+			if (other.pgMerchantId != null)
+				return false;
+		} else if (!pgMerchantId.equals(other.pgMerchantId))
+			return false;
+		if (requestUrl1 == null) {
+			if (other.requestUrl1 != null)
+				return false;
+		} else if (!requestUrl1.equals(other.requestUrl1))
+			return false;
+		if (requestUrl2 == null) {
+			if (other.requestUrl2 != null)
+				return false;
+		} else if (!requestUrl2.equals(other.requestUrl2))
+			return false;
+		if (settleType == null) {
+			if (other.settleType != null)
+				return false;
+		} else if (!settleType.equals(other.settleType))
+			return false;
+		if (strCntMobile == null) {
+			if (other.strCntMobile != null)
+				return false;
+		} else if (!strCntMobile.equals(other.strCntMobile))
+			return false;
+		return true;
+	}
+
+	
+	
+	
 }

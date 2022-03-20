@@ -60,6 +60,7 @@ import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.domain.email.MailRequest;
+import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.LoginRequestModal;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
@@ -1639,7 +1640,8 @@ public ModelAndView getOnbordInfo(@RequestParam("userUuid") String userUuid,@Req
 	model.addAttribute("business",business);
 	model.addAttribute("user",user);
 	model.addAttribute("userWallet",userWallet);
-	
+	model.addAttribute("adminUuid",adminUuid);
+	model.addAttribute("userUuid",userUuid);
 	if(user!=null)
 	{
 		model.addAttribute("onboardAdd",true);
@@ -1693,5 +1695,13 @@ public ModelAndView forUPIDeact(Model model, HttpServletRequest request) {
 }
 
 
+@PostMapping(value = "/onbaordMerchantUPI")
+public ModelAndView onbaordMerchantUPI(Model model,HttpServletRequest request,@ModelAttribute IndsIndRequestModal indsIndRequestModal)  {
+	String userUuid=request.getParameter("userUuid");
+	String adminUuid = request.getParameter("adminUuid");
 
+	String message=userController.onBoardSubMerchant(indsIndRequestModal, userUuid, adminUuid);
+	model.addAttribute("message", message);
+	return new ModelAndView("upiOnboard");
+}
 }

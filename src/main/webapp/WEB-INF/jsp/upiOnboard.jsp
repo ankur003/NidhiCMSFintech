@@ -179,7 +179,7 @@
 								
 								<c:if test="${onboardAdd}">
 								
-									<form class="contactform" action="/api/v1/userbyAdmin" method="post" onsubmit="javascript:return validform();">
+									<form class="contactform" action="/api/v1/onbaordMerchantUPI" method="post" onsubmit="javascript:return validform();">
 
 
 										<c:choose>
@@ -201,25 +201,31 @@
 													<font color="red"> ${msgss} </font>
 												</p>
 											</c:when>
+											<c:when test="${message!=null}">
+												<p align='center'
+													style="border-style: solid; border-color: orange;">
+													<font color="red"> ${message} </font>
+												</p>
+											</c:when>
 											<c:otherwise>
 											</c:otherwise>
 										</c:choose>
 										
-										<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
-
+										<input type="hidden" id="userUuid" name="userUuid" value="${userUuid}">
+											<input type="hidden" id="adminUuid" name="adminUuid" value="${adminUuid}">
 										<div class="col-md-12">
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant Email ID</label>
 													<input type="text" required="required" size="30" value="${user.userEmail }"
-														name="meEmailID" id="userEmail" maxlength="100" readonly="readonly" disabled="disabled">
+														name="meEmailID" id="userEmail" maxlength="100" readonly="readonly" >
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Business Name <span class="mandate">*</span></label>
 													<input type="text" required="required" size="30" value="${business.compnayName}"
-														name="mebussname" id="compnayName" disabled="disabled" >
+														name="mebussname" id="compnayName" readonly="readonly">
 												</p>
 											</div>
 										</div>
@@ -229,14 +235,14 @@
 												<p class="comment-form-author">
 													<label for="author">Legal Name <span class="mandate">*</span></label>
 													<input type="text" required="required" size="30" value="${business.compnayName}"
-														name="legalStrName" id="legalName" maxlength="100" readonly="readonly" disabled="disabled">
+														name="legalStrName" id="legalName" maxlength="100" readonly="readonly" >
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant Virtual Address<span class="mandate">*</span></label>
 													<input type="text" required="required" size="30" value="${UpiAdress}"
-														name="merVirtualAdd" id="fullName" maxlength="255" readonly="readonly" disabled="disabled">
+														name="merVirtualAdd" id="fullName" maxlength="255" readonly="readonly" >
 												</p>
 											</div>
 										</div>
@@ -244,15 +250,15 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant Category Code <span class="mandate">*</span></label>
-													<input type="text" required="required" size="30" value=""
-														name="fullName" id="fullName" maxlength="5">
+													<input type="text" required="required" size="30" value="6012"
+														name="awlmcc" id="awlmcc" readonly="readonly">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Contact Mobile Number <span class="mandate">*</span></label>
 													<input type="text" required="required" size="30" value="${user.mobileNumber}"
-														name="strCntMobile" id="mobileNumber" maxlength="10" readonly="readonly" disabled="disabled">
+														name="strCntMobile" id="mobileNumber" maxlength="10" readonly="readonly" >
 												</p>
 											</div>
 										</div>
@@ -268,7 +274,7 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant Type</label>
-													<input type="text" required="required" size="30" value="AGG MER" disabled="disabled"
+													<input type="text" required="required" size="30" value="AGG MER" 
 														name="merchantType" id="merchantType" maxlength="6" readonly="readonly">
 												</p>
 											</div>
@@ -279,7 +285,7 @@
 												<p class="comment-form-author">
 													<label for="author">WEBAPI </label>
 													<input type="text"  size="30" value="WEBAPI"
-														name="integrationType" id="webapi" maxlength="10" disabled="disabled">
+														name="integrationType" id="webapi" maxlength="10" readonly="readonly">
 												</p>
 											</div>
 											<div class="col-md-6">
@@ -299,14 +305,14 @@
 												<p class="comment-form-author">
 													<label for="author">Unique Pan Number</label>
 													<input type="text"  size="30" value="${business.individualPan}"
-														name="panNo" id="individualPan" maxlength="10" readonly="readonly" disabled="disabled">
+														name="panNo" id="individualPan" maxlength="10" readonly="readonly" readonly="readonly">
 												</p>
 											</div>
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant ID </label>
 													<input type="text" required="required" size="30" value="${userWallet.merchantId }"
-														name="extMID" id="merchantId" maxlength="20" readonly="readonly" disabled="disabled">
+														name="extMID" id="merchantId" maxlength="20" readonly="readonly" >
 												</p>
 											</div>
 										</div>
@@ -323,7 +329,7 @@
 												<p class="comment-form-author">
 													<label for="author">Merchant account No </label>
 													<input type="text" required="required" size="30" value="${bank.accountNumber}"
-														name="accNo" id="accountNumber" maxlength="20" readonly="readonly" disabled="disabled">
+														name="accNo" id="accountNumber" maxlength="20" readonly="readonly" >
 												</p>
 											</div>
 										</div>
