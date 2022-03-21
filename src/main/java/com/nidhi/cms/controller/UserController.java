@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1188,7 +1189,18 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	@PostMapping(value = "/api/v1/upi-callback")
-	public ResponseEntity<Object> upiCallback(@RequestParam("meRes") String meRes) {
+	public ResponseEntity<Object> upiCallback(@RequestParam(required = false, name = "meRes") String meRes, 
+			@RequestBody(required = false) Map<String, Object> map,
+			HttpServletRequest request) {
+		LOGGER.info("map --- {}", map);
+		LOGGER.info("meRes --- {}", meRes);
+		Enumeration<String> enumeration = request.getParameterNames();
+		while(enumeration.hasMoreElements()){
+            String parameterName = enumeration.nextElement();
+            LOGGER.info("parameterName --- {}", parameterName);
+            LOGGER.info("parameterName value --- {}", request.getParameter(parameterName));
+        }
+		
 		JSONObject json = Utility.getJsonFromString(meRes);
 		LOGGER.info("[upiCallback] recieved data {} ", json);
 		if(BooleanUtils.isFalse(json.has("pgMerchantId"))) {

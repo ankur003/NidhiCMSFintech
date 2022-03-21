@@ -20,7 +20,7 @@ public class UpiListScheduler {
 	private UPIHelper upiHelper;
 	
 	//@Scheduled(cron = "0 0/15 * * * ?")
-	@PostConstruct
+	// @PostConstruct
 	public void upiListScheduler() {
 		LOGGER.info("UPI list Scheduler has been started at '{}'", LocalDateTime.now());
 		try {

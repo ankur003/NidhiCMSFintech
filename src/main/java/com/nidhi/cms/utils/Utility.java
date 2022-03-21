@@ -189,11 +189,11 @@ public class Utility {
 		return "ZNIDCMS" + String.format("%08d", 1);
 	}
 
-	public static String getEncyptedReqBody(IndsIndRequestModal indsIndRequestModal, String indBankKey) throws Exception {
+	public static String getEncyptedReqBody(IndsIndRequestModal indsIndRequestModal, String indBankKey, String pgMerchantId) throws Exception {
 		UPISecurity uPISecurity = new UPISecurity();
 		Gson gson = new Gson();
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("pgMerchantId", indsIndRequestModal.getPgMerchantId());
+		jsonObject.put("pgMerchantId", pgMerchantId);
 		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(indsIndRequestModal), indBankKey));
 		return jsonObject.toString();
 	}

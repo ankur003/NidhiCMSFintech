@@ -60,5 +60,13 @@ public class ResponseHandler {
 		final ErrorResponse errorResponse = new ErrorResponse(errorCode, message);
         return ResponseEntity.status(httpStatus).body(errorResponse);
 	}
+	
+	public static ResponseEntity<Object> getOkResponse() {
+		return ResponseEntity.ok().build();
+	}
+
+	public static ResponseEntity<Object> get204Response() {
+		return ResponseEntity.noContent().build();
+	}
 
 }

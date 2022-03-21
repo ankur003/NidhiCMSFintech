@@ -89,12 +89,13 @@ public class UPIHelper {
 	}
 	
 	public String onBoardSubMerchant(IndsIndRequestModal indsIndRequestModal) {
+		indsIndRequestModal.setPgMerchantId(applicationConfig.getPgMerchantId());
 		Response response = null;
 		try {
 			OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(2, TimeUnit.MINUTES).build();
 			MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(
-					Utility.getEncyptedReqBody(indsIndRequestModal, applicationConfig.getIndBankKey()), mediaType);
+					Utility.getEncyptedReqBody(indsIndRequestModal, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
 			Request request = new Request.Builder()
 					.url("https://ibluatapig.indusind.com/app/uat/web/onBoardSubMerchant").method("POST", body)
 					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientIdUAT())
@@ -107,6 +108,7 @@ public class UPIHelper {
 			return decryptedResponse;
 		} catch (Exception e) {
 			LOGGER.error("upiAddress validate api failed {}", e);
+			e.printStackTrace();
 		} finally {
 			if (response != null) {
 				response.close();

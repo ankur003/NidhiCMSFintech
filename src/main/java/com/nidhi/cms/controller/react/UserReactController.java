@@ -1,15 +1,20 @@
-package com.nidhi.cms.react.controller;
+package com.nidhi.cms.controller.react;
 
-import java.util.Objects;
+import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +25,8 @@ import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.controller.AbstractController;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.UserCreateModal;
+import com.nidhi.cms.modal.request.UserRequestFilterModel;
+import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
@@ -60,6 +67,16 @@ public class UserReactController extends AbstractController{
 			}
 		}
 		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@GetMapping(value = "/{userUuid}")
+	public ResponseEntity<Object> getAllUser(@PathVariable("userUuid") String userUuid, @Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
+		Page<User> users = userservice.getAllUsers(userRequestFilterModel);
+		if (users == null || CollectionUtils.isEmpty(users.getContent())) {
+			return ResponseHandler.get204Response();
+		}
+		Map<String, Object> map = ResponseHandler.getpaginationResponse(beanMapper, users, UserDetailModal.class);
+		return ResponseHandler.getContentResponse(map);
 	}
 
 }

@@ -208,6 +208,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			genericSpesification
 					.add(new SearchCriteria("isAdmin", userRequestFilterModel.getIsAdmin(), SearchOperation.EQUAL));
 		}
+		if (userRequestFilterModel.getUserUuid() != null) {
+			genericSpesification
+					.add(new SearchCriteria("userUuid", userRequestFilterModel.getUserUuid(), SearchOperation.EQUAL));
+		}
+		if (userRequestFilterModel.getIsUserVerified() != null) {
+			genericSpesification
+					.add(new SearchCriteria("isUserVerified", userRequestFilterModel.getIsUserVerified(), SearchOperation.EQUAL));
+		}
 		if (CollectionUtils.isNotEmpty(genericSpesification.getSearchCriteriaList())) {
 			return userRepository.findAll(genericSpesification,
 					PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));

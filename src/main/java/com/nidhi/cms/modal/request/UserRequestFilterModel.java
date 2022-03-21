@@ -31,7 +31,9 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 	private Boolean isSubAdmin;
 
 	private Boolean isAdmin;
-
+	
+	private Boolean isUserVerified;
+	
 	private String mobileNumber;
 
 	public String getAdminUuid() {
@@ -130,4 +132,12 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 		this.mobileNumber = mobileNumber;
 	}
 
+	public Boolean getIsUserVerified() {
+		return isUserVerified;
+	}
+
+	public void setIsUserVerified(Boolean isUserVerified) {
+		this.isUserVerified = isUserVerified;
+	}
+	
 }
