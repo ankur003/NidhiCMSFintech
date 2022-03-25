@@ -1,5 +1,6 @@
 package com.nidhi.cms.controller.react;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -63,7 +64,10 @@ public class UserReactController extends AbstractController{
 				return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Otp-already sent, please verify the email & mobile otp."
 						+ "if you have lost the OTP , please try again in 5 min", HttpStatus.PRECONDITION_FAILED);
 			} else if (StringUtils.isNotBlank(otpUuid)) {
-				return ResponseHandler.getMapResponse("message", "Otp-Resent, please verify the email & mobile otp");
+				final Map<String, Object> responseMap = new HashMap<>();
+				responseMap.put("otpUuid", otpUuid);
+				responseMap.put("message", "Otp-Resent, please verify the email & mobile otp");
+				return ResponseHandler.getContentResponse(responseMap);
 			}
 		}
 		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
