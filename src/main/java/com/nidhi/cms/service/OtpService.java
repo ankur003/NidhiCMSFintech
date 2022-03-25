@@ -29,4 +29,6 @@ public interface OtpService {
 
 	String sendingOtpToUserCreatedByAdmin(User user);
 
+	void updateOtp(Otp otp);
+
 }

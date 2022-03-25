@@ -221,4 +221,9 @@ public class OtpServiceImpl implements OtpService {
 		return otpRepository.findByOtpUuid(otpUuid);
 	}
 
+	@Override
+	public void updateOtp(Otp otp) {
+		otpRepository.save(otp);
+	}
+
 }

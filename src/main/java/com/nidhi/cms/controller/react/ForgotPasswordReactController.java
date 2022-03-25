@@ -65,8 +65,8 @@ public class ForgotPasswordReactController extends AbstractController {
 		}
 		
 		Otp otpDetails = otpService.findByOtpUuid(matchForgotPasswordRequestModel.getOtpUuid());
-		if (otpDetails == null) {
-			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "otpUuid not valid", HttpStatus.PRECONDITION_FAILED);
+		if (otpDetails == null || BooleanUtils.isFalse(otpDetails.getIsActive()) || otpService.doesOtpExpired(otpDetails)) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "otpUuid not valid or already used or expired", HttpStatus.PRECONDITION_FAILED);
 		}
 		boolean	isMatched = false;
 		if (otpDetails.getMobileOtp() != null) {
@@ -81,6 +81,9 @@ public class ForgotPasswordReactController extends AbstractController {
 		if (isMatched) {
 			return updatePassword(matchForgotPasswordRequestModel, otpDetails);
 		}
+		if (BooleanUtils.isFalse(isMatched)) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "wrong otp", HttpStatus.BAD_REQUEST);
+		}
 		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 
 		
@@ -94,6 +97,8 @@ public class ForgotPasswordReactController extends AbstractController {
 		try {
 			user.setPassword(encoder.encode(matchForgotPasswordRequestModel.getNewPass()));
 			userService.changePassword(user);
+			otpDetails.setIsActive(false);
+			otpService.updateOtp(otpDetails);
 		} catch (Exception e) {
 			return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 		}

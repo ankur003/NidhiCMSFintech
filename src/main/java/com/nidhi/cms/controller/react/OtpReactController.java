@@ -54,6 +54,8 @@ public class OtpReactController extends AbstractController {
 
 		}
 		userService.updateUserIsVerified(otp);
+		otp.setIsActive(false);
+		otpService.updateOtp(otp);
 		return ResponseHandler.getOkResponse();
 
 	
