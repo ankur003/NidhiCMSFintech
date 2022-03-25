@@ -164,6 +164,7 @@ public class OtpServiceImpl implements OtpService {
 		if (emailOtp != null ) {
 			existingOtp.setEmailOtp(encoder.encode(emailOtp));
 		}
+		existingOtp.setIsActive(true);
 		Otp savedOtp = otpRepository.save(existingOtp);
 		return savedOtp.getOtpUuid();
 	}

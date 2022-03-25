@@ -38,7 +38,7 @@ public class OtpReactController extends AbstractController {
 	
 	@PostMapping(value = "/otp")
 	public ResponseEntity<Object> verifySignUpOtp(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) throws Exception {
-		if (StringUtils.isNotBlank(verifyOtpRequestModal.getOtpUuid())) {
+		if (StringUtils.isBlank(verifyOtpRequestModal.getOtpUuid())) {
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Otp Uuid is missing or null", HttpStatus.PRECONDITION_FAILED);
 		}
 		Otp otp = otpService.getOtpDetails(verifyOtpRequestModal);
