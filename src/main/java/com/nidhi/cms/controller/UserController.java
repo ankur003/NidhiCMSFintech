@@ -1190,8 +1190,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	@PostMapping(value = "/api/V1/upi-callback")
 	public ResponseEntity<Object> upiCallback(@RequestParam(required = false, name = "meRes") String meRes, 
-			@RequestBody(required = false) Map<String, Object> map,
-			HttpServletRequest request) {
+			Map<String, Object> map, HttpServletRequest request) {
 		LOGGER.info("map --- {}", map);
 		LOGGER.info("meRes --- {}", meRes);
 		Enumeration<String> enumeration = request.getParameterNames();

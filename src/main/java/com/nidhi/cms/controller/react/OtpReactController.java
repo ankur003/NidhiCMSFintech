@@ -5,6 +5,7 @@ import java.util.Objects;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,9 @@ public class OtpReactController extends AbstractController {
 	
 	@PostMapping(value = "/otp")
 	public ResponseEntity<Object> verifySignUpOtp(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) throws Exception {
+		if (StringUtils.isNotBlank(verifyOtpRequestModal.getOtpUuid())) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Otp Uuid is missing or null", HttpStatus.PRECONDITION_FAILED);
+		}
 		Otp otp = otpService.getOtpDetails(verifyOtpRequestModal);
 		if (Objects.isNull(otp)) {
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "InCorrect Otp", HttpStatus.PRECONDITION_FAILED);
