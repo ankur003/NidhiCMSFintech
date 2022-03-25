@@ -1003,4 +1003,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return "User UPI On-Boared Success";
 	}
 
+	@Override
+	public Boolean changePassword(User user) {
+		userRepository.save(user);
+		return Boolean.TRUE;
+	}
+
 }

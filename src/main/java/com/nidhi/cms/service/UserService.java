@@ -94,6 +94,8 @@ public interface UserService {
 
 	String onBoardSubMerchant(UserWallet wallet, IndsIndRequestModal indsIndRequestModal);
 
+	Boolean changePassword(User user);
+
 }
 
 

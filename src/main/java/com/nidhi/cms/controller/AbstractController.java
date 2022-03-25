@@ -2,6 +2,7 @@ package com.nidhi.cms.controller;
 
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 
 import com.nidhi.cms.domain.User;
@@ -24,6 +25,9 @@ public class AbstractController {
     
     @Autowired
     public LoggedInUserUtil loggedInUserUtil;
+    
+	@Autowired
+	protected BCryptPasswordEncoder encoder;
     
     public User getLoggedInUserDetails1() {
     	return loggedInUserUtil.getLoggedInUserDetails();
