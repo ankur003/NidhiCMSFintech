@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -12,6 +12,8 @@ import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import history from 'utils/history';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
@@ -19,10 +21,58 @@ import makeSelectLoginPage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
+import SignUp from '../SignUp/Loadable';
 
 export function LoginPage() {
   useInjectReducer({ key: 'loginPage', reducer });
   useInjectSaga({ key: 'loginPage', saga });
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isloader, setloader] = useState(false);
+  const [veiwPassword, setviewPassword] = useState(false);
+
+
+
+  useEffect(() => {
+    if (localStorage.getItem('user-info')) {
+      history.push('/landingPage')
+    }
+  }, {})
+
+  async function login() {
+    setloader(true)
+    let item = { email, password };
+    let result = await fetch("http://localhost:1234/api/v1/login/client",
+      {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(item),
+      }).then(response =>
+        response.json().then(data => (
+          {
+            data: data,
+            status: response.status
+          })
+        ).then(res => {
+          setloader(false)
+          if (res.status === 200) {
+            localStorage.setItem('user-info', res.data.token);
+            history.push('/LandingPage');
+          } else {
+            toast.error("Invalid Email or Password")
+          }
+        }));
+  }
+
+  function showPassword() {
+    if (veiwPassword === true)
+      setviewPassword(false)
+    else if (veiwPassword === false)
+      setviewPassword(true)
+  }
 
   return (
     <React.Fragment>
@@ -47,16 +97,16 @@ export function LoginPage() {
               </div>
               <div className="form-group">
                 <label className="form-group-label">Email</label>
-                <input type="email" className="form-control" />
+                <input type="email" className="form-control" onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div className="form-group">
                 <label className="form-group-label">Password
                   <a href="/ForgetPassword">Forget Password ?</a>
                 </label>
                 <div className="input-group">
-                  <input type="password" className="form-control" />
+                  <input type={veiwPassword ? "text" : "password"} className="form-control" onChange={(e) => setPassword(e.target.value)} />
                   <div className="input-group-append">
-                    <button className="input-group-text"><i className="far fa-eye"></i></button>
+                    <button className="input-group-text" onClick={showPassword}>{veiwPassword ? <i className="far fa-eye-slash"></i> : <i className="far fa-eye"></i>}</button>
                   </div>
                 </div>
 
@@ -64,20 +114,21 @@ export function LoginPage() {
               <div className="form-group-button">
                 <a
                   // href="/LandingPage"
-                  onClick={() => history.push('/landingPage')}
+                  onClick={login}
                   className="btn btn-primary">
-                  Login
+                  {isloader ? <i className="fas fa-spinner fa-pulse"></i> : "Login"}
                 </a>
               </div>
             </div>
             <div className="login-footer">
-              <p>Don't have an account? <a
-                href="/SignUp"
-              >Sign Up</a></p>
+              <p>Don't have an account? <a onClick={() => history.push('/SignUp')}>Sign Up</a>
+                <a href="/">Home</a></p>
             </div>
           </div>
         </div>
       </div>
+
+      <ToastContainer />
 
     </React.Fragment>
   );
@@ -85,7 +136,7 @@ export function LoginPage() {
 
 LoginPage.propTypes = {
   dispatch: PropTypes.func.isRequired,
-};  
+};
 
 const mapStateToProps = createStructuredSelector({
   loginPage: makeSelectLoginPage(),

@@ -28,8 +28,19 @@
   width: 100%;
   object-fit: contain;
 }
+.login-content-box {
+  position: relative;
+}
+.login-content-box .login-error {
+  color: red;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 18px;
+  font-size: 14px;
+}
 .login-content-box .login-body {
-  padding: 50px 35px 20px;
+  padding: 50px 30px 20px;
   background-color: #fff;
   /* height: 375px; */
   width: 400px;
@@ -80,6 +91,8 @@
 .login-footer p a {
   margin-left: 10px;
   font-weight: bold;
+  color: blue !important;
+  text-decoration: underline !important;
 }
 
 .login-toggle {

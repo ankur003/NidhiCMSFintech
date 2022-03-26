@@ -65,8 +65,6 @@ export function HomePage({
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-
-    // To close the popup in <ModalPopup/>
     setState(close);
   }
 
@@ -82,11 +80,11 @@ export function HomePage({
     switch (history.location.pathname) {
       case '/':
         return <WebiteLandingPage />
-      case '/':
+      case '/LoginPage':
         return <LoginPage />
-      case '/':
+      case '/SignUp':
         return <SignUp />
-      case '/':
+      case '/ForgetPassword':
         return <ForgetPassword />
       case '/landingPage':
         return <LandingPage />
@@ -133,13 +131,15 @@ export function HomePage({
         />
       </Helmet>
 
-      <div className={state.toggle === 'open' ? "content-wrapper content-wrapper-collapsed animate__animated animate__zoomIn" : "content-wrapper animate__animated animate__zoomIn"}>
+      <div className={state.toggle === 'open' ? "content-wrapper content-wrapper-collapsed" : "content-wrapper"}>
         {history.location.pathname === "/" ? "" :
           <SideNav activeNav={activeNav} path={history.location.pathname} setNav={setNav} button={state.toggle} changeStateHandler={changeStateHandler} />
         }
-        <Switch>
-          <Route exact path={getPath()}>{getComponent()}</Route>
-        </Switch>
+        <div className="content-item animate__animated animate__zoomIn">
+          <Switch>
+            <Route exact path={getPath()}>{getComponent()}</Route>
+          </Switch>
+        </div>
       </div>
     </React.Fragment>
   );

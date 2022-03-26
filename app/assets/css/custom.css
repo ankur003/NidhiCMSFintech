@@ -209,12 +209,12 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--theme);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--theme);
 }
 
 /* button css */
@@ -1539,8 +1539,6 @@
   margin: 0;
   color: var(--textColor);
 }
-.card .card-body {
-}
 
 /* end */
 
@@ -1609,6 +1607,7 @@
 /* sliding-pane-wrapper */
 
 .sliding-pane-wrapper {
+  z-index: 5;
 }
 .sliding-pane-wrapper .slide-pane__header {
   display: none;

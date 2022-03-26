@@ -1,13 +1,16 @@
 .content-wrapper {
-  padding: 125px 0px 0 80px;
+  padding: 0px 0px 0 80px;
   height: 100%;
   position: relative;
 }
+.content-item {
+  position: relative;
+  height: 100%;
+  padding-top: 125px;
+}
+
 .content-wrapper-collapsed {
   padding-left: 260px;
-}
-.content-wrapper-collapsed .header {
-  left: 250px;
 }
 .content-body {
   padding: 15px;

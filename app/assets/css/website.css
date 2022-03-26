@@ -1,7 +1,6 @@
 .web-wrapper {
-  height: calc(100vh - 60px);
+  height: 100vh;
   overflow: auto;
-  margin: -65px 0px 0px -80px;
 }
 .web-content-top {
   background: url('../images/background.jpg');
@@ -17,7 +16,7 @@
   align-items: center;
   position: fixed;
   top: 0;
-  left: 0;
+  left: 0px;
   right: 0;
   height: 60px;
   padding: 0px 20px;
@@ -46,6 +45,7 @@
 .web-nav-bar .web-nav-list li {
   padding: 10px 30px;
   position: relative;
+  cursor: pointer;
 }
 .web-nav-bar .web-nav-list li a {
   font-size: 16px;

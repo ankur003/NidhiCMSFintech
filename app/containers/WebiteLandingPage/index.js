@@ -15,6 +15,7 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectWebiteLandingPage from './selectors';
+import history from 'utils/history';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
@@ -29,8 +30,8 @@ export function WebiteLandingPage() {
         <title>WebiteLandingPage</title>
         <meta name="description" content="Description of WebiteLandingPage" />
       </Helmet>
-      
-      <div className="web-wrapper">
+
+      <div className="web-wrapper ">
         <div className="web-nav-bar">
           <div className="web-nav-logo">
             <img src={require('../../assets/images/logo.png')} />
@@ -43,7 +44,8 @@ export function WebiteLandingPage() {
               <a><i className="fas fa-address-book"></i>Contact Us</a>
             </li>
             <li>
-              <a href="/LoginPage"><i className="fas fa-sign-in-alt"></i>Login</a>
+              <a onClick={() => history.push('/LoginPage')}
+              ><i className="fas fa-sign-in-alt"></i>Login</a>
             </li>
             <li>
               <a href="/SignUp"><i className="fas fa-user-plus"></i>Sign Up</a>
@@ -52,20 +54,20 @@ export function WebiteLandingPage() {
         </div>
         <div className="web-content-wrapper">
           <div className="d-flex web-content-top">
-            <div className="flex-50 web-content-left">
+            <div className="flex-50 web-content-left animate__animated animate__bounceInLeft">
               <h1>Grow Your Business With Nidhi Fintech</h1>
               <h3>made smarter for your business</h3>
               <button className="btn btn-light">Contact US</button>
             </div>
             <div className="flex-50 web-content-right">
               <ul className="web-content-left-list">
-                <li><i className="fas fa-book"></i>Business Services</li>
-                <li><i className="fas fa-users"></i>Finance Business</li>
-                <li><i className="fal fa-table"></i>CMS Services</li>
+                <li className="animate__animated animate__bounceInRight "><i className="fas fa-book"></i>Business Services</li>
+                <li className="animate__animated animate__bounceInRight animate__delay-1s"><i className="fas fa-users"></i>Finance Business</li>
+                <li className="animate__animated animate__bounceInRight animate__delay-2s"><i className="fal fa-table"></i>CMS Services</li>
               </ul>
             </div>
           </div>
-          <div className="feature-wrapper">
+          <div className="feature-wrapper animate__animated animate__zoomIn">
             <h6>ABOUT US</h6>
             <p>Nidhi Fintech Consultancy is a fastest growing Fintech Consultancy which help to entrepreneur</p>
             <p>start-ups to setup their business and provide best consultancy services across the PAN India.</p>
@@ -137,7 +139,7 @@ export function WebiteLandingPage() {
             <li><p><i className="fas fa-envelope"></i>cs@nidhicms.com</p></li>
           </ul>
         </div>
-        <h1 className="web-copy-right"><i className="far fa-copyright"></i> All Right Reserved. Designed by Devendra Gread</h1>
+        <h1 className="web-copy-right"><i className="far fa-copyright"></i> All Right Reserved. Designed by Shakher Chauhan</h1>
       </div>
     </React.Fragment>
   );

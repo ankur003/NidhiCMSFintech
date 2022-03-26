@@ -30,12 +30,12 @@ export default function App() {
         <meta name="description" content="A React.js Boilerplate application" />
       </Helmet>
       <Switch>
-        <Route exact path="/WebiteLandingPage" component={WebiteLandingPage} />
+        <Route exact path="/" component={WebiteLandingPage} />
         <Route path="/LoginPage" component={LoginPage} />
         <Route path="/SignUp" component={SignUp} />
         <Route path="/ForgetPassword" component={ForgetPassword} />
+        
         <Route path="/" render={props => <HomePage {...props} />} />
-
       </Switch>
     </React.Fragment>
   );

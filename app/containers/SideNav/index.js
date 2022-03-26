@@ -80,6 +80,9 @@ export function SideNav(props) {
   useInjectReducer({ key: "sideNav", reducer });
   useInjectSaga({ key: "sideNav", saga });
 
+  let user = localStorage.getItem('user-info');
+  console.log("fhgfhfgh" + user);
+
   const redirectPageHandler = pageRoute => {
     props.setNav(pageRoute);
     history.push(pageRoute);
@@ -92,6 +95,11 @@ export function SideNav(props) {
       return 'active';
     }
   };
+
+  function logoutPage() {
+    localStorage.clear();
+    history.push('/LoginPage');
+  }
 
   return (
     <React.Fragment>
@@ -212,7 +220,7 @@ export function SideNav(props) {
               <div className="dropdown-menu animate__animated animate__flipInX">
                 <div className="dropdown-item">Profile</div>
                 <div className="dropdown-item">Notifications</div>
-                <div className="dropdown-item" onClick={() => { history.push('/loginPage') }}>Logout</div>
+                <div className="dropdown-item" onClick={logoutPage}>Logout</div>
               </div>
             </div>
           </div>
@@ -275,7 +283,7 @@ export function SideNav(props) {
         </div>
       </nav>
 
-     
+
 
     </React.Fragment>
   );
