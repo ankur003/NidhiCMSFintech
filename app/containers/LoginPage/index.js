@@ -27,51 +27,48 @@ export function LoginPage() {
   useInjectReducer({ key: 'loginPage', reducer });
   useInjectSaga({ key: 'loginPage', saga });
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isloader, setloader] = useState(false);
   const [veiwPassword, setviewPassword] = useState(false);
 
-
-
   useEffect(() => {
     if (localStorage.getItem('user-info')) {
-      history.push('/landingPage')
+      history.push('/landingPage');
     }
-  }, {})
+  }, {});
 
   async function login() {
-    setloader(true)
-    let item = { email, password };
-    let result = await fetch("http://localhost:1234/api/v1/login/client",
-      {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(item),
-      }).then(response =>
-        response.json().then(data => (
-          {
-            data: data,
-            status: response.status
-          })
-        ).then(res => {
-          setloader(false)
+    setloader(true);
+    const item = { email, password };
+    const result = await fetch('http://localhost:1234/api/v1/login/client', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(item),
+    }).then(response =>
+      response
+        .json()
+        .then(data => ({
+          data,
+          status: response.status,
+        }))
+        .then(res => {
+          setloader(false);
           if (res.status === 200) {
             localStorage.setItem('user-info', res.data.token);
             history.push('/LandingPage');
           } else {
-            toast.error("Invalid Email or Password")
+            toast.error('Invalid Email or Password');
           }
-        }));
+        }),
+    );
   }
 
   function showPassword() {
-    if (veiwPassword === true)
-      setviewPassword(false)
-    else if (veiwPassword === false)
-      setviewPassword(true)
+    if (veiwPassword === true) setviewPassword(false);
+    else if (veiwPassword === false) setviewPassword(true);
   }
 
   return (
@@ -93,43 +90,67 @@ export function LoginPage() {
             <div className="login-body">
               <div className="form-group">
                 <h5>Login</h5>
-                <p>Enter your email address and password to access admin panel.</p>
+                <p>
+                  Enter your email address and password to access admin panel.
+                </p>
               </div>
               <div className="form-group">
                 <label className="form-group-label">Email</label>
-                <input type="email" className="form-control" onChange={(e) => setEmail(e.target.value)} />
+                <input
+                  type="email"
+                  className="form-control"
+                  onChange={e => setEmail(e.target.value)}
+                />
               </div>
               <div className="form-group">
-                <label className="form-group-label">Password
-                  <a onClick={() => history.push('/ForgetPassword')}>Forget Password ?</a>
+                <label className="form-group-label">
+                  Password
+                  <a href="/ForgetPassword">Forget Password ?</a>
                 </label>
                 <div className="input-group">
-                  <input type={veiwPassword ? "text" : "password"} className="form-control" onChange={(e) => setPassword(e.target.value)} />
+                  <input
+                    type={veiwPassword ? 'text' : 'password'}
+                    className="form-control"
+                    onChange={e => setPassword(e.target.value)}
+                  />
                   <div className="input-group-append">
-                    <button className="input-group-text" onClick={showPassword}>{veiwPassword ? <i className="far fa-eye-slash"></i> : <i className="far fa-eye"></i>}</button>
+                    <button className="input-group-text" onClick={showPassword}>
+                      {veiwPassword ? (
+                        <i className="far fa-eye-slash" />
+                      ) : (
+                        <i className="far fa-eye" />
+                      )}
+                    </button>
                   </div>
                 </div>
-
               </div>
               <div className="form-group-button">
-                <a
+                <button
+                  disabled={email === '' || password === ''}
                   // href="/LandingPage"
                   onClick={login}
-                  className="btn btn-primary">
-                  {isloader ? <i className="fas fa-spinner fa-pulse"></i> : "Login"}
-                </a>
+                  className="btn btn-primary"
+                >
+                  {isloader ? (
+                    <i className="fas fa-spinner fa-pulse" />
+                  ) : (
+                    'Login'
+                  )}
+                </button>
               </div>
             </div>
             <div className="login-footer">
-              <p>Don't have an account? <a onClick={() => history.push('/SignUp')}>Sign Up</a>
-                <a href="/">Home</a></p>
+              <p>
+                Don't have an account?{' '}
+                <a onClick={() => history.push('/SignUp')}>Sign Up</a>
+                <a href="/">Home</a>
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       <ToastContainer />
-
     </React.Fragment>
   );
 }
