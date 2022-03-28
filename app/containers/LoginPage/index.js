@@ -101,7 +101,7 @@ export function LoginPage() {
               </div>
               <div className="form-group">
                 <label className="form-group-label">Password
-                  <a href="/ForgetPassword">Forget Password ?</a>
+                  <a onClick={() => history.push('/ForgetPassword')}>Forget Password ?</a>
                 </label>
                 <div className="input-group">
                   <input type={veiwPassword ? "text" : "password"} className="form-control" onChange={(e) => setPassword(e.target.value)} />
