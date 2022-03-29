@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.query.NativeQuery;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +61,10 @@ import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.response.TimeOutResponse;
+import com.nidhi.cms.modal.response.UserModel;
 import com.nidhi.cms.queryfilter.GenericSpesification;
 import com.nidhi.cms.queryfilter.SearchCriteria;
+import com.nidhi.cms.react.request.UserFilterModel;
 import com.nidhi.cms.repository.DocRepository;
 import com.nidhi.cms.repository.SystemPrivilegeRepo;
 import com.nidhi.cms.repository.TxRepository;
@@ -86,7 +89,7 @@ import com.nidhi.cms.utils.indsind.UPIHelper;
  */
 
 @Service(value = "userService")
-public class UserServiceImpl implements UserDetailsService, UserService {
+public class UserServiceImpl extends AbstractDataSourceDao implements UserDetailsService, UserService {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -1016,6 +1019,51 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public Boolean changePassword(User user) {
 		userRepository.save(user);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public List<UserModel> getfilterUsers(UserFilterModel userFilterModel) {
+		 String query = "SELECT full_name AS 'fullName' , user_email AS 'email' , mobile_number AS 'mobile' , user_uuid AS 'userUuid'  \n" + 
+				"FROM user \n" + 
+				"LEFT OUTER JOIN user_business_kyc ON user_business_kyc.user_id = user.user_id \n" + 
+				"LEFT OUTER JOIN user_wallet ON user_wallet.user_id = user_wallet.user_id \n" ;
+		 query = query + " WHERE ";
+		 
+		if (StringUtils.isNotBlank(userFilterModel.getUserEmail())) {
+			query = query + " user.user_email = ( :email) AND";
+		}
+		if (StringUtils.isNotBlank(userFilterModel.getContactNumber())) {
+			query = query + " user.mobile_number = ( :mobile) AND";
+		}
+		if (StringUtils.isNotBlank(userFilterModel.getMerchantId())) {
+			query = query + " user_wallet.merchant_id = ( :marchantId) AND";
+		}
+		if (StringUtils.isNotBlank(userFilterModel.getPancard())) {
+			query = query + " user_business_kyc.individual_pan = ( :pancard) AND";
+		}
+		query = StringUtils.removeEnd(query, "AND");
+		
+		final NativeQuery<?> nativeQuery = getHibernateSession().createNativeQuery(query);
+		nativeQuery.addScalar("fullName")
+		.addScalar("email")
+		.addScalar("mobile")
+		.addScalar("userUuid");
+		
+		if (StringUtils.isNotBlank(userFilterModel.getUserEmail())) {
+			nativeQuery.setParameter("email", userFilterModel.getUserEmail());
+		}
+		if (StringUtils.isNotBlank(userFilterModel.getContactNumber())) {
+			nativeQuery.setParameter("mobile", userFilterModel.getContactNumber());
+		}
+		if (StringUtils.isNotBlank(userFilterModel.getMerchantId())) {
+			nativeQuery.setParameter("marchantId", userFilterModel.getMerchantId());
+		}
+		if (StringUtils.isNotBlank(userFilterModel.getPancard())) {
+			nativeQuery.setParameter("pancard", userFilterModel.getPancard());
+		}
+		
+		return (List<UserModel>) getResultList(nativeQuery, UserModel.class);
+		
 	}
 
 }

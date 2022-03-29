@@ -991,7 +991,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (BooleanUtils.isNotTrue(user.getIsAdmin())) {
 			return Collections.emptyList();
 		}
-		if (StringUtils.isNotBlank(pan) && StringUtils.isNotBlank(marchantId)) {
+		if (StringUtils.isBlank(pan) && StringUtils.isBlank(marchantId)) {
 			return Collections.emptyList();
 		}
 		List<Object> userList = new ArrayList<>();

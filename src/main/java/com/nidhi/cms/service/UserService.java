@@ -23,6 +23,8 @@ import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
+import com.nidhi.cms.modal.response.UserModel;
+import com.nidhi.cms.react.request.UserFilterModel;
 
 /**
  * 
@@ -95,6 +97,8 @@ public interface UserService {
 	String onBoardSubMerchant(UserWallet wallet, IndsIndRequestModal indsIndRequestModal);
 
 	Boolean changePassword(User user);
+
+	List<UserModel> getfilterUsers(@Valid UserFilterModel userFilterModel);
 
 }
 

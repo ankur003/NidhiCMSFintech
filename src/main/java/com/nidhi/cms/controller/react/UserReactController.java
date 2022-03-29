@@ -2,7 +2,6 @@ package com.nidhi.cms.controller.react;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import javax.validation.Valid;
 
@@ -75,7 +74,7 @@ public class UserReactController extends AbstractController{
 				return ResponseHandler.getContentResponse(responseMap);
 			}
 		}
-		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing wenut wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 	@GetMapping(value = "/get-all-user")
@@ -88,50 +87,4 @@ public class UserReactController extends AbstractController{
 		return ResponseHandler.getContentResponse(map);
 	}
 	
-	@PostMapping(value = "/create-client-by-admin")
-	public ResponseEntity<Object> createClientByAdmin(@Valid @RequestBody UserCreateModal userCreateModal) throws Exception {
-		if (BooleanUtils.isFalse(userCreateModal.getIsCreatedByAdmin())) {
-			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "isCreatedByAdmin : isCreatedByAdmin always be true", HttpStatus.BAD_REQUEST);
-		}
-		
-		final User existingUser = userservice.getUserByUserEmailOrMobileNumber(userCreateModal.getUserEmail(), userCreateModal.getMobileNumber());
-		if (existingUser == null) {
-			CompletableFuture.runAsync(() -> {
-				try {
-					User user = new User();
-					user.setIsUserCreatedByAdmin(userCreateModal.getIsCreatedByAdmin());
-					user.setUserEmail(userCreateModal.getUserEmail());
-					user.setMobileNumber(userCreateModal.getMobileNumber());
-					user.setFullName(userCreateModal.getFullName());
-					userservice.createUser(user, userCreateModal);
-				} catch (Exception e) {
-					LOGGER.error("An error ocurred during create Client By Admin", e);
-				}
-			});
-
-			return ResponseHandler.getMapResponse("message", "User created, please check email for the temp password");
-		}
-		if (BooleanUtils.isFalse(existingUser.getIsUserCreatedByAdmin())) {
-			return ResponseHandler.getResponseEntity(ErrorCode.UNPROCESSABLE_ENTITY, "Can't be proceed, try to signUp again", HttpStatus.PRECONDITION_FAILED);
-		}
-		if (BooleanUtils.isTrue(existingUser.getIsUserVerified())) {
-			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Either Email or Mobile already Exist.", HttpStatus.PRECONDITION_FAILED);
-		}
-		if (BooleanUtils.isFalse(existingUser.getIsUserVerified())) {
-			CompletableFuture.runAsync(() -> {
-				try {
-					existingUser.setPassword(encoder.encode(userCreateModal.getPassword()));
-					otpService.sendPasswordOnEmail(existingUser, userCreateModal.getPassword());
-					userservice.changePassword(existingUser);
-				} catch (Exception e) {
-					LOGGER.error("An error ocurred updating password for client", e);
-				}
-			});
-			
-			return ResponseHandler.getMapResponse("message", "temp password generated again, check mail for the password");
-		}
-		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	
-
 }
