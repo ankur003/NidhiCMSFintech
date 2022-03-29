@@ -508,20 +508,22 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 					"https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Transaction", "POST");
 			LOGGER.info("[UserServiceImpl.txWithoutOTP] msg - {}", encryptedJsonResponse);
 			String timeOutResponseMsg = getTimeOutResponse(encryptedJsonResponse);
-			Boolean invalidResponseMsg = getInvalidResponse(encryptedJsonResponse);
-			if (BooleanUtils.isTrue(invalidResponseMsg)) {
-				TimeOutResponse timeout = new TimeOutResponse();
-				timeout.setMessage(timeOutResponseMsg);
-				timeout.setUniqueId(uniqueId);
-				return timeout;
-			}
 			LOGGER.info("[UserServiceImpl.doesTimeOut] timeOutResponseMsg - {}", timeOutResponseMsg);
 			if (timeOutResponseMsg != null) {
 				TimeOutResponse timeout = new TimeOutResponse();
 				timeout.setMessage(timeOutResponseMsg);
 				timeout.setUniqueId(uniqueId);
+				timeout.setIsSuccess(false);
 				CompletableFuture.runAsync(() -> 
 				performPostAction(user, userTxWoOtpReqModal, null, userWallet));
+				return timeout;
+			}
+			String invalidResponseMsg = getInvalidResponse(encryptedJsonResponse);
+			if (invalidResponseMsg != null) {
+				TimeOutResponse timeout = new TimeOutResponse();
+				timeout.setMessage(invalidResponseMsg);
+				timeout.setUniqueId(uniqueId);
+				timeout.setIsSuccess(false);
 				return timeout;
 			}
 			String response = CheckNEFTjson.deCryptResponse(encryptedJsonResponse);
@@ -544,14 +546,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return null;
 	}
 
-	private Boolean getInvalidResponse(String encryptedJsonResponse) {
+	private String getInvalidResponse(String encryptedJsonResponse) {
 		if (encryptedJsonResponse != null && encryptedJsonResponse.trim().startsWith("{")) {
 			JSONObject jsonObject = new JSONObject(encryptedJsonResponse);
 			if( jsonObject.has("success") && BooleanUtils.isFalse(jsonObject.getBoolean("success"))) {
-				return jsonObject.getString("errormessage").contains("Invalid request");
+				return jsonObject.getString("errormessage");
+				//return jsonObject.getString("errormessage").contains("Invalid request");
 			}
 		}
-		return Boolean.FALSE;
+		return null;
 	}
 
 	private String getTimeOutResponse(String encryptedJsonResponse) {

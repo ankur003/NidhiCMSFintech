@@ -5,6 +5,8 @@ public class TimeOutResponse {
 	private String message;
 
 	private String uniqueId;
+	
+	private Boolean isSuccess;
 
 	public String getMessage() {
 		return message;
@@ -21,5 +23,14 @@ public class TimeOutResponse {
 	public void setUniqueId(String uniqueId) {
 		this.uniqueId = uniqueId;
 	}
+
+	public Boolean getIsSuccess() {
+		return isSuccess;
+	}
+
+	public void setIsSuccess(Boolean isSuccess) {
+		this.isSuccess = isSuccess;
+	}
+	
 
 }
