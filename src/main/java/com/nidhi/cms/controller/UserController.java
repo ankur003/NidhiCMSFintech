@@ -181,7 +181,7 @@ public class UserController extends AbstractController {
 			String otpUuid = otpService.sendingOtp(existingUser);
 			if (otpUuid == null) {
 				return "Otp-already sent, please verify the email & mobile otp."
-						+ "if you have lost the OTP , please try again in 30 min";
+						+ "if you have lost the OTP , please try again in 5 min";
 			} else if (StringUtils.isNotBlank(otpUuid)) {
 				model.addAttribute("otpUuid", otpUuid);
 				return "Otp-Resent, please verify the email & mobile otp";
@@ -1189,35 +1189,25 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	@PostMapping(value = "/api/V1/upi-callback")
-	public ResponseEntity<Object> upiCallback(@RequestParam(required = false, name = "meRes") String meRes, 
-			Map<String, Object> map, HttpServletRequest request) {
-		LOGGER.info("map --- {}", map);
+	public ResponseEntity<Object> upiCallback(@RequestParam(required = false, name = "meRes") String meRes) {
 		LOGGER.info("meRes --- {}", meRes);
-		Enumeration<String> enumeration = request.getParameterNames();
-		while(enumeration.hasMoreElements()){
-            String parameterName = enumeration.nextElement();
-            LOGGER.info("parameterName --- {}", parameterName);
-            LOGGER.info("parameterName value --- {}", request.getParameter(parameterName));
-        }
+		JSONObject json = Utility.getJsonFromString(meRes);
+		LOGGER.info("[upiCallback] recieved data {} ", json);
 		
-		return ResponseHandler.getContentResponse(map);
-//		JSONObject json = Utility.getJsonFromString(meRes);
-//		LOGGER.info("[upiCallback] recieved data {} ", json);
-//		
-//		String resp = json.getString("resp");
-//		LOGGER.info("resp --- {}", resp);
-//		UPISecurity uPISecurity = new UPISecurity();
-//		try {
-//			String decrypted = uPISecurity.decrypt(resp, applicationConfig.getIndBankKey());
-//			LOGGER.info("decrypted resp --- {}", decrypted);
-//			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
-//			LOGGER.info("decrypted Json --- {}", decryptedJson);
-//			upiTxnService.saveUpiTxn(decryptedJson);
-//		} catch (Exception e) {
-//			LOGGER.info("Exception --- {}", e);
-//			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "resp is invalid or cant'be de-crypted", HttpStatus.BAD_REQUEST);
-//		}
-//		return null;
+		String resp = json.getString("resp");
+		LOGGER.info("resp --- {}", resp);
+		UPISecurity uPISecurity = new UPISecurity();
+		try {
+			String decrypted = uPISecurity.decrypt(resp, applicationConfig.getIndBankKey());
+			LOGGER.info("decrypted resp --- {}", decrypted);
+			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
+			LOGGER.info("decrypted Json --- {}", decryptedJson);
+			// upiTxnService.saveUpiTxn(decryptedJson);
+		} catch (Exception e) {
+			LOGGER.info("Exception --- {}", e);
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "resp is invalid or cant'be de-crypted", HttpStatus.BAD_REQUEST);
+		}
+		return ResponseHandler.getOkResponse();
 	}
 	
 	//@GetMapping("/indsind/generate-upi-address")
