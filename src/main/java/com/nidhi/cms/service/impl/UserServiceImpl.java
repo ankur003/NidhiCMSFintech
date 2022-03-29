@@ -216,6 +216,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			genericSpesification
 					.add(new SearchCriteria("isUserVerified", userRequestFilterModel.getIsUserVerified(), SearchOperation.EQUAL));
 		}
+		if (userRequestFilterModel.getKycStatus() != null) {
+			genericSpesification
+					.add(new SearchCriteria("kycStatus", userRequestFilterModel.getKycStatus(), SearchOperation.EQUAL));
+		}
 		if (CollectionUtils.isNotEmpty(genericSpesification.getSearchCriteriaList())) {
 			return userRepository.findAll(genericSpesification,
 					PageRequest.of(userRequestFilterModel.getPage() - 1, userRequestFilterModel.getLimit()));

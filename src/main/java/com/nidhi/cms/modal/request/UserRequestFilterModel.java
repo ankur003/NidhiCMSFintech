@@ -2,6 +2,8 @@ package com.nidhi.cms.modal.request;
 
 import java.time.LocalDate;
 
+import io.swagger.annotations.ApiParam;
+
 /**
  * 
  *
@@ -35,6 +37,9 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 	private Boolean isUserVerified;
 	
 	private String mobileNumber;
+	
+	@ApiParam(example = "UNDER_REVIEW")
+	private String kycStatus;
 
 	public String getAdminUuid() {
 		return adminUuid;
@@ -138,6 +143,14 @@ public class UserRequestFilterModel extends PaginatedFilterRequestModel {
 
 	public void setIsUserVerified(Boolean isUserVerified) {
 		this.isUserVerified = isUserVerified;
+	}
+
+	public String getKycStatus() {
+		return kycStatus;
+	}
+
+	public void setKycStatus(String kycStatus) {
+		this.kycStatus = kycStatus;
 	}
 	
 }
