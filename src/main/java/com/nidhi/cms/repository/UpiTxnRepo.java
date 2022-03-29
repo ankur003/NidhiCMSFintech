@@ -1,5 +1,7 @@
 package com.nidhi.cms.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -11,5 +13,7 @@ import com.nidhi.cms.domain.UpiTxn;
 public interface UpiTxnRepo extends JpaRepository<UpiTxn, Long> , PagingAndSortingRepository<UpiTxn, Long>, JpaSpecificationExecutor<UpiTxn> {
 	
 	UpiTxn findByOrderNoOrNpciTransId(String orderNo, String ncpiTransId);
+	
+	List<UpiTxn> findByTxnAuthDate(String date);
 
 }

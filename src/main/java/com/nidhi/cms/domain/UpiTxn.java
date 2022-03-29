@@ -1,6 +1,5 @@
 package com.nidhi.cms.domain;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,16 +15,12 @@ public class UpiTxn extends BaseDomain {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long upiTxnId;
 	
-	@Column(unique = true)
 	private String pspRefNo; 
 	
-	@Column(unique = true)
 	private String upiTransRefNo;
 	
-	@Column(unique = true)
 	private String npciTransId; 
 	
-	@Column(unique = true)
 	private String orderNo;
 	
 	private String custRefNo;

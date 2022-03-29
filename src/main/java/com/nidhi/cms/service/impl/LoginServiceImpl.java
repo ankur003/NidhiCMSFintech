@@ -4,6 +4,7 @@ import static com.nidhi.cms.constants.JwtConstants.TOKEN_PREFIX;
 
 import java.time.LocalDateTime;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,6 +53,12 @@ public class LoginServiceImpl implements LoginService {
 			user.setToken(TOKEN_PREFIX + authToken);
 			userRepo.save(user);
 		}
-		return new AuthToken(TOKEN_PREFIX + authToken, userUuid, LocalDateTime.now(), applicationConfig.getTokenValiditySeconds());
+		boolean doesVerificationFlowRequired = false;
+		if (BooleanUtils.isTrue(user.getIsUserCreatedByAdmin()) && BooleanUtils.isFalse(user.getIsUserVerified())) {
+			doesVerificationFlowRequired = true;
+		}
+		return new AuthToken(TOKEN_PREFIX + authToken, userUuid, LocalDateTime.now(), 
+				applicationConfig.getTokenValiditySeconds(), user.getIsUserCreatedByAdmin(), user.getIsUserVerified(), doesVerificationFlowRequired
+				, user.getUserEmail(), user.getMobileNumber());
 	}
 }

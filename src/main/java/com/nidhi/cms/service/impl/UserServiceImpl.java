@@ -137,8 +137,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	public UserDetails loadUserByUsername(String username) {
 		User user = getUserByUserEmailOrMobileNumber(username, username);
-		if (user == null || BooleanUtils.isFalse(user.getIsActive())
-				|| BooleanUtils.isFalse(user.getIsUserVerified())) {
+		if (user == null || BooleanUtils.isFalse(user.getIsActive())) {
+			throw new UsernameNotFoundException("Invalid username or password.");
+		}
+		if (BooleanUtils.isFalse(user.getIsUserVerified()) && BooleanUtils.isFalse(user.getIsUserCreatedByAdmin())) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
 		ApplicationConfig.loggedInUsers.put(user.getUserEmail(), user.getUserUuid());

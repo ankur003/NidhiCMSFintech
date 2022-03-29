@@ -2,8 +2,10 @@ package com.nidhi.cms.service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -52,11 +54,23 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		JSONObject decryptedJsonResp = decryptedJson.getJSONObject("apiResp");
 		LOGGER.info("orderNo {}", decryptedJsonResp.getString("orderNo"));
 		LOGGER.info("ncpiTransId {}", decryptedJsonResp.getString("npciTransId"));
-		UpiTxn upiTxnData = upiTxnRepo.findByOrderNoOrNpciTransId(decryptedJsonResp.getString("orderNo"), decryptedJsonResp.getString("npciTransId"));
-		if (upiTxnData != null) {
-			LOGGER.error("Upi transaction data already exist.");
-			return;
-		}
+		
+		// date time
+				// npciTransId
+				// custRefNo
+				List<UpiTxn> upiDetails = upiTxnRepo.findByTxnAuthDate(decryptedJsonResp.getString("txnAuthDate"));
+				if (CollectionUtils.isNotEmpty(upiDetails)) {
+					for (UpiTxn upiTrans : upiDetails) {
+						if (upiTrans.getNpciTransId() != null
+								&& upiTrans.getNpciTransId().equals(decryptedJsonResp.getString("npciTransId"))
+								&& upiTrans.getCustRefNo() != null
+								&& upiTrans.getCustRefNo().equals(decryptedJsonResp.getString("custRefNo"))) {
+							LOGGER.error("Upi transaction data already exist.");
+							return;
+						}
+					}
+				}
+		
 		UpiTxn upiTxn = new UpiTxn();
 		upiTxn.setAmount(decryptedJsonResp.getDouble("amount"));
 		upiTxn.setApprovalNumber(decryptedJsonResp.getString("approvalNumber"));
