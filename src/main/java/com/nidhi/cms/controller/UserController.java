@@ -1202,7 +1202,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			LOGGER.info("decrypted resp --- {}", decrypted);
 			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
 			LOGGER.info("decrypted Json --- {}", decryptedJson);
-			// upiTxnService.saveUpiTxn(decryptedJson);
+			upiTxnService.saveUpiTxn(decryptedJson);
 		} catch (Exception e) {
 			LOGGER.info("Exception --- {}", e);
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "resp is invalid or cant'be de-crypted", HttpStatus.BAD_REQUEST);

@@ -49,59 +49,60 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 
 	@Override
 	public void saveUpiTxn(JSONObject decryptedJson) {
-		LOGGER.info("orderNo {}", decryptedJson.getString("orderNo"));
-		LOGGER.info("ncpiTransId {}", decryptedJson.getString("npciTransId"));
-		UpiTxn upiTxnData = upiTxnRepo.findByOrderNoOrNpciTransId(decryptedJson.getString("orderNo"), decryptedJson.getString("npciTransId"));
+		JSONObject decryptedJsonResp = decryptedJson.getJSONObject("apiResp");
+		LOGGER.info("orderNo {}", decryptedJsonResp.getString("orderNo"));
+		LOGGER.info("ncpiTransId {}", decryptedJsonResp.getString("npciTransId"));
+		UpiTxn upiTxnData = upiTxnRepo.findByOrderNoOrNpciTransId(decryptedJsonResp.getString("orderNo"), decryptedJsonResp.getString("npciTransId"));
 		if (upiTxnData != null) {
 			LOGGER.error("Upi transaction data already exist.");
 			return;
 		}
 		UpiTxn upiTxn = new UpiTxn();
-		upiTxn.setAmount(decryptedJson.getDouble("amount"));
-		upiTxn.setApprovalNumber(decryptedJson.getString("approvalNumber"));
-		upiTxn.setCurrentStatusDesc(decryptedJson.getString("currentStatusDesc"));
-		upiTxn.setCustRefNo(decryptedJson.getString("custRefNo"));
-		upiTxn.setNpciTransId(decryptedJson.getString("npciTransId"));
-		upiTxn.setOrderNo(decryptedJson.getString("orderNo"));
-		upiTxn.setPayeeVPA(decryptedJson.getString("payeeVPA"));
-		upiTxn.setPayerVPA(decryptedJson.getString("payerVPA"));
-		upiTxn.setPspRefNo(decryptedJson.has("pspRefNo") ? decryptedJson.getString("pspRefNo") : null);
-		upiTxn.setRefUrl(decryptedJson.has("refUrl") ? decryptedJson.getString("refUrl") : null);
-		upiTxn.setResponseCode(decryptedJson.getString("responseCode"));
-		upiTxn.setStatus(decryptedJson.getString("status"));
-		upiTxn.setTxnAuthDate(decryptedJson.getString("txnAuthDate"));
-		upiTxn.setTxnNote(decryptedJson.getString("txnNote"));
-		upiTxn.setTxnType(decryptedJson.getString("txnType"));
-		upiTxn.setUpiTransRefNo(decryptedJson.has("upiTransRefNo") ? decryptedJson.getString("upiTransRefNo") : null);
+		upiTxn.setAmount(decryptedJsonResp.getDouble("amount"));
+		upiTxn.setApprovalNumber(decryptedJsonResp.getString("approvalNumber"));
+		upiTxn.setCurrentStatusDesc(decryptedJsonResp.getString("currentStatusDesc"));
+		upiTxn.setCustRefNo(decryptedJsonResp.getString("custRefNo"));
+		upiTxn.setNpciTransId(decryptedJsonResp.getString("npciTransId"));
+		upiTxn.setOrderNo(decryptedJsonResp.getString("orderNo"));
+		upiTxn.setPayeeVPA(decryptedJsonResp.getString("payeeVPA"));
+		upiTxn.setPayerVPA(decryptedJsonResp.getString("payerVPA"));
+		upiTxn.setPspRefNo(decryptedJsonResp.has("pspRefNo") ? decryptedJsonResp.getString("pspRefNo") : null);
+		upiTxn.setRefUrl(decryptedJsonResp.has("refUrl") ? decryptedJsonResp.getString("refUrl") : null);
+		upiTxn.setResponseCode(decryptedJsonResp.getString("responseCode"));
+		upiTxn.setStatus(decryptedJsonResp.getString("status"));
+		upiTxn.setTxnAuthDate(decryptedJsonResp.getString("txnAuthDate"));
+		upiTxn.setTxnNote(decryptedJsonResp.getString("txnNote"));
+		upiTxn.setTxnType(decryptedJsonResp.getString("txnType"));
+		upiTxn.setUpiTransRefNo(decryptedJsonResp.has("upiTransRefNo") ? decryptedJsonResp.get("upiTransRefNo").toString() : null);
 		
 		
-		upiTxn.setAddInfo1(decryptedJson.has("addInfo") ? decryptedJson.getJSONObject("addInfo").getString("addInfo1") : null);
-		upiTxn.setAddInfo2(decryptedJson.has("addInfo") ? decryptedJson.getJSONObject("addInfo").getString("addInfo2") : null);
-		upiTxn.setAddInfo3(decryptedJson.has("addInfo") ? decryptedJson.getJSONObject("addInfo").getString("addInfo3") : null);
+		upiTxn.setAddInfo1(decryptedJsonResp.has("addInfo") ? decryptedJsonResp.getJSONObject("addInfo").getString("addInfo1") : null);
+		upiTxn.setAddInfo2(decryptedJsonResp.has("addInfo") ? decryptedJsonResp.getJSONObject("addInfo").getString("addInfo2") : null);
+		upiTxn.setAddInfo3(decryptedJsonResp.has("addInfo") ? decryptedJsonResp.getJSONObject("addInfo").getString("addInfo3") : null);
 		
 		UpiTxn savedUpiTxn = upiTxnRepo.save(upiTxn);
 		
-		if (BooleanUtils.isFalse(decryptedJson.has("orderNo")) || StringUtils.isBlank(decryptedJson.getString("orderNo"))) {
-			LOGGER.warn("orderNo not Found refund api started against payeeVPA {} ", decryptedJson.getString("payeeVPA"));
+		if (BooleanUtils.isFalse(decryptedJsonResp.has("orderNo")) || StringUtils.isBlank(decryptedJsonResp.getString("orderNo"))) {
+			LOGGER.warn("orderNo not Found refund api started against payeeVPA {} ", decryptedJsonResp.getString("payeeVPA"));
 			upiHelper.refundJsonApi();
 			return;
 		}
 		
-		UserWallet wallet = userWalletService.findByUpiVirtualAddress(decryptedJson.getString("payeeVPA"));
+		UserWallet wallet = userWalletService.findByUpiVirtualAddress(decryptedJsonResp.getString("payeeVPA"));
 		if (wallet == null || BooleanUtils.isFalse(wallet.getIsUpiActive())) {
-			LOGGER.error("payeeVPA {} not found on our DB or upi not active", decryptedJson.getString("payeeVPA"));
+			LOGGER.error("payeeVPA {} not found on our DB or upi not active", decryptedJsonResp.getString("payeeVPA"));
 			return;
 		}
 		
 		savedUpiTxn.setUserId(wallet.getUserId());
 		upiTxnRepo.save(savedUpiTxn);
 		
-		saveTransaction(decryptedJson, wallet);
+		saveTransaction(decryptedJsonResp, wallet);
 		
-		wallet.setAmount(wallet.getAmount() + decryptedJson.getDouble("amount"));
+		wallet.setAmount(wallet.getAmount() + decryptedJsonResp.getDouble("amount"));
 		UserWallet savedWallet = userWalletService.save(wallet);
 		
-		triggerCreditMail(wallet.getUserId(), decryptedJson, savedWallet);
+		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);
 		
 	}
 
