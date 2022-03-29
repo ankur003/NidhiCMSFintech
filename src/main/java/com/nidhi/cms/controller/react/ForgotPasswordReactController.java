@@ -1,4 +1,6 @@
 package com.nidhi.cms.controller.react;
+import java.util.concurrent.CompletableFuture;
+
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -94,14 +96,20 @@ public class ForgotPasswordReactController extends AbstractController {
 		if (user == null || BooleanUtils.isNotTrue(user.getIsActive()) || BooleanUtils.isNotTrue(user.getIsUserVerified())) {
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "user not found", HttpStatus.PRECONDITION_FAILED);
 		}
+		CompletableFuture.runAsync(() -> updatePassword(matchForgotPasswordRequestModel, otpDetails, user));
+		return ResponseHandler.getOkResponse();
+	}
+
+	private ResponseEntity<Object> updatePassword(MatchForgotPasswordRequestModel matchForgotPasswordRequestModel,
+			Otp otpDetails, User user) {
 		try {
 			user.setPassword(encoder.encode(matchForgotPasswordRequestModel.getNewPass()));
-			userService.changePassword(user);
-			otpDetails.setIsActive(false);
-			otpService.updateOtp(otpDetails);
 		} catch (Exception e) {
 			return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		userService.changePassword(user);
+		otpDetails.setIsActive(false);
+		otpService.updateOtp(otpDetails);
 		return ResponseHandler.getOkResponse();
 	}
 

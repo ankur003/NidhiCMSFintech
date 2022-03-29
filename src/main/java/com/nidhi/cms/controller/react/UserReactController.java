@@ -73,8 +73,8 @@ public class UserReactController extends AbstractController{
 		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
-	@GetMapping(value = "/{userUuid}")
-	public ResponseEntity<Object> getAllUser(@PathVariable("userUuid") String userUuid, @Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
+	@GetMapping(value = "/get-all-user")
+	public ResponseEntity<Object> getAllUser(@Valid @ModelAttribute final UserRequestFilterModel userRequestFilterModel) {
 		Page<User> users = userservice.getAllUsers(userRequestFilterModel);
 		if (users == null || CollectionUtils.isEmpty(users.getContent())) {
 			return ResponseHandler.get204Response();
