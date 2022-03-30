@@ -70,13 +70,13 @@ export function ForgetPassword() {
 					setloader(false)
 					if (res.status === 201) {
 						if (forgotPassType === "EMAIL") {
-							toast.success("OTP Send to your email Please Enter")
+							toast.success("OTP Send to your email")
 							setToggleForm(true)
 							setMethodButton(false)
 							setOtpUuid(res.data.otpUuid)
 						}
 						else {
-							toast.success("OTP Send to your Mobile Number Please Enter")
+							toast.success("OTP Send to your Mobile Number")
 							setToggleForm(true)
 							setMethodButton(false)
 							setOtpUuid(res.data.otpUuid)
@@ -185,7 +185,7 @@ export function ForgetPassword() {
 										<div className="flex-100">
 											<div className="form-group">
 												<label className="form-group-label">Enter OTP</label>
-												<input type="number" className="form-control" placeholder="Enter your Email" onChange={(e) => setOtp(e.target.value)} />
+												<input type="number" className="form-control" placeholder="Enter OTP" onChange={(e) => setOtp(e.target.value)} />
 											</div>
 										</div>
 										<div className="flex-50 pd-r-7">

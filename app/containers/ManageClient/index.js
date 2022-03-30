@@ -12,21 +12,79 @@ import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
+
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectManageClient from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
+import { method } from 'lodash';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function ManageClient() {
   useInjectReducer({ key: 'manageClient', reducer });
   useInjectSaga({ key: 'manageClient', saga });
 
+  let user = localStorage.getItem('user-info');
+
+
   const [filter, setFilter] = useState(true);
+  const [merchantId, setMerchantId] = useState();
+  const [pancard, setPancard] = useState();
+  const [userEmail, setUserEmail] = useState();
+  const [contactNumber, setContactNumber] = useState();
+  const [manageList, setManageList] = useState();
+  const [noDataList, setNoDataList] = useState(true);
 
   function refreshPage() {
     window.location.reload(false);
+  }
+
+  async function filterHandeler() {
+    let url = `http://localhost:1234/api/v1/admin/get-filter-users?`;
+    if (merchantId !== undefined) {
+      url = url + "merchantId=" + merchantId + "&";
+    }
+    if (pancard !== undefined) {
+      url = url + "pancard=" + pancard + "&";
+    }
+    if (userEmail !== undefined) {
+      url = url + "userEmail=" + userEmail + "&";
+    }
+    if (contactNumber !== undefined) {
+      url = url + "contactNumber=" + contactNumber + "&";
+    }
+    let result = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    }).then(response => {
+      if (response.status == 204) {
+        setNoDataList(true)
+        localStorage.setItem('user-info');
+      }
+      else {
+        response.json().then(data => ({
+          data,
+          status: response.status,
+        }))
+          .then(res => {
+            if (res.status === 200) {
+              localStorage.setItem('user-info');
+              setNoDataList(false)
+              setManageList(res.data);
+            } else {
+              toast.error("error");
+            }
+          })
+      }
+    }
+    );
   }
 
   return (
@@ -57,40 +115,45 @@ export function ManageClient() {
       </header>
 
       <div className={filter ? "content-body content-body-filter" : "content-body"} >
-        <div className="content-table">
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Mobile</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Shakher Chauhan</td>
-                <td>Shakher.Chauhan@gmail.com</td>
-                <td>9717806435</td>
-                <td>
-                  <div className="button-group">
-                    <button className="btn btn-outline-primary" data-toggle="modal" data-target="#myModal">
-                      <i className="fas fa-check"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {noDataList === false ?
+          <div className="content-table">
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Mobile</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {manageList && manageList.map((data, i) =>
+                  <tr key={i}>
+                    <td>{data.fullName}</td>
+                    <td>{data.email}</td>
+                    <td>{data.mobile}</td>
+                    <td>
+                      <div className="button-group">
+                        <button className="btn btn-outline-primary" data-toggle="modal" data-target="#myModal">
+                          <i className="fas fa-check"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          :
 
-        {/* <div className="content-message">
-          <p>No Data Found</p>
-        </div> */}
+          <div className="content-message">
+            <p>No Data Found</p>
+          </div>
+        }
 
       </div>
 
-      <div id="myModal" class="modal fade" role="dialog">
+      <div id="myModal" className="modal fade" role="dialog">
         <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
@@ -108,7 +171,7 @@ export function ManageClient() {
                 <li className="nav-item" role="presentation">
                   <button className="nav-link" id="pills-BankDetails-tab" data-bs-toggle="pill" data-bs-target="#pills-BankDetails" type="button" role="tab" aria-controls="pills-BankDetails" aria-selected="false">Bank Details</button>
                 </li>
-                <li class="nav-item" role="presentation">
+                <li className="nav-item" role="presentation">
                   <button className="nav-link" id="pills-Deactivate-tab" data-bs-toggle="pill" data-bs-target="#pills-Deactivate" type="button" role="tab" aria-controls="pills-Deactivate" aria-selected="true">Deactivate</button>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -156,7 +219,7 @@ export function ManageClient() {
                   </div>
                 </div>
 
-                <div class="tab-pane fade" id="pills-BusinessDetails" role="tabpanel" aria-labelledby="pills-BusinessDetails-tab">
+                <div className="tab-pane fade" id="pills-BusinessDetails" role="tabpanel" aria-labelledby="pills-BusinessDetails-tab">
                   <div className="d-flex">
                     <div className="flex-50 pd-r-7">
                       <div className="form-group">
@@ -243,17 +306,17 @@ export function ManageClient() {
                     <label className="form-group-label">Account : </label>
                     <div className="d-flex">
                       <div className="flex-25 pd-r-7">
-                        <label class="radio-button">
-                          <span class="radio-text">Active</span>
-                          <input type="radio" checked="checked" name="radio" />
-                          <span class="checkmark"></span>
+                        <label className="radio-button">
+                          <span className="radio-text">Active</span>
+                          <input type="radio" name="radio" />
+                          <span className="checkmark"></span>
                         </label>
                       </div>
                       <div className="flex-25 pd-l-7">
-                        <label class="radio-button">
-                          <span class="radio-text">Deactive</span>
+                        <label className="radio-button">
+                          <span className="radio-text">Deactive</span>
                           <input type="radio" name="radio" />
-                          <span class="checkmark"></span>
+                          <span className="checkmark"></span>
                         </label>
                       </div>
                     </div>
@@ -298,17 +361,17 @@ export function ManageClient() {
                         <label className="form-group-label">Account : </label>
                         <div className="d-flex">
                           <div className="flex-50 pd-r-7">
-                            <label class="radio-button">
-                              <span class="radio-text">Active</span>
-                              <input type="radio" checked="checked" name="radio" />
-                              <span class="checkmark"></span>
+                            <label className="radio-button">
+                              <span className="radio-text">Active</span>
+                              <input type="radio" name="radio" />
+                              <span className="checkmark"></span>
                             </label>
                           </div>
                           <div className="flex-50 pd-l-7">
-                            <label class="radio-button">
-                              <span class="radio-text">Deactive</span>
+                            <label className="radio-button">
+                              <span className="radio-text">Deactive</span>
                               <input type="radio" name="radio" />
-                              <span class="checkmark"></span>
+                              <span className="checkmark"></span>
                             </label>
                           </div>
                         </div>
@@ -339,17 +402,17 @@ export function ManageClient() {
                         <label className="form-group-label">Account : </label>
                         <div className="d-flex">
                           <div className="flex-50 pd-r-7">
-                            <label class="radio-button">
-                              <span class="radio-text">Active</span>
-                              <input type="radio" checked="checked" name="radio" />
-                              <span class="checkmark"></span>
+                            <label className="radio-button">
+                              <span className="radio-text">Active</span>
+                              <input type="radio" name="radio" />
+                              <span className="checkmark"></span>
                             </label>
                           </div>
                           <div className="flex-50 pd-l-7">
-                            <label class="radio-button">
-                              <span class="radio-text">Deactive</span>
+                            <label className="radio-button">
+                              <span className="radio-text">Deactive</span>
                               <input type="radio" name="radio" />
-                              <span class="checkmark"></span>
+                              <span className="checkmark"></span>
                             </label>
                           </div>
                         </div>
@@ -380,17 +443,17 @@ export function ManageClient() {
                         <label className="form-group-label">Account : </label>
                         <div className="d-flex">
                           <div className="flex-50 pd-r-7">
-                            <label class="radio-button">
-                              <span class="radio-text">Active</span>
-                              <input type="radio" checked="checked" name="radio" />
-                              <span class="checkmark"></span>
+                            <label className="radio-button">
+                              <span className="radio-text">Active</span>
+                              <input type="radio" name="radio" />
+                              <span className="checkmark"></span>
                             </label>
                           </div>
                           <div className="flex-50 pd-l-7">
-                            <label class="radio-button">
-                              <span class="radio-text">Deactive</span>
+                            <label className="radio-button">
+                              <span className="radio-text">Deactive</span>
                               <input type="radio" name="radio" />
-                              <span class="checkmark"></span>
+                              <span className="checkmark"></span>
                             </label>
                           </div>
                         </div>
@@ -425,27 +488,29 @@ export function ManageClient() {
           <div className="content-filter-body">
             <div className="form-group">
               <label className="form-group-label">Merchant Id :</label>
-              <input type="text" className="form-control" placeholder="Enter Merchant Id" />
+              <input type="text" className="form-control" placeholder="Enter Merchant Id" onChange={e => setMerchantId(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Pan Card :</label>
-              <input type="text" className="form-control" placeholder="Enter Pan Card" />
+              <input type="text" className="form-control" placeholder="Enter Pan Card" onChange={e => setPancard(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Email :</label>
-              <input type="email" className="form-control" placeholder="Enter Email" />
+              <input type="email" className="form-control" placeholder="Enter Email" onChange={e => setUserEmail(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Contact Number :</label>
-              <input type="number" className="form-control" placeholder="Enter Contact Number" />
+              <input type="number" className="form-control" placeholder="Enter Contact Number" onChange={e => setContactNumber(e.target.value)} />
             </div>
           </div>
           <div className="content-filter-footer">
             <button className="btn btn-light" onClick={() => setFilter(false)}>Cancel</button>
-            <button className="btn btn-success">Search</button>
+            <button className="btn btn-success" onClick={filterHandeler}>Search</button>
           </div>
         </div>
       }
+
+      <ToastContainer />
     </React.Fragment>
   );
 }

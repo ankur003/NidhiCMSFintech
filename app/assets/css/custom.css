@@ -1647,7 +1647,7 @@
   font-size: 13px;
 }
 .slide-pane__content .modal-body {
-  height: calc(100vh - 123px);
+  height: calc(100vh - 112px);
   overflow: auto;
 }
 .slide-pane__content .modal-footer {
@@ -1691,6 +1691,12 @@
   transform: translateY(-50%);
   right: 10px;
   color: white;
+  padding: 0;
+  height: 20px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .content-filter-wrapper .content-filter-body {
   padding: 10px 15px;

@@ -260,12 +260,26 @@
   border-radius: 5px;
   border: 1px solid transparent;
 }
-.side-nav-menu i {
+.side-nav-menu p i {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   left: 15px;
   font-size: 18px;
+}
+.side-nav-menu p.collapsed i.chev-button {
+  transform: rotate(0deg);
+  transition: all .5s ease-in-out;
+}
+.side-nav-menu p i.chev-button {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  left: initial;
+  transform: initial;
+  font-size: 14px;
+  transform: rotate(180deg);
+  transition: all .5s ease-in-out;
 }
 .side-nav-sub-menu {
   padding-left: 20px;
@@ -274,7 +288,7 @@
   padding: 5px;
   text-align: left;
 }
-.side-nav-collapsed i {
+.side-nav-collapsed p i {
   font-size: 24px;
   position: initial;
   transform: initial;

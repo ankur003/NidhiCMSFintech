@@ -45,7 +45,6 @@ export function SignUp() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
       },
       body: JSON.stringify(item),
     }).then(response =>
@@ -128,7 +127,7 @@ export function SignUp() {
                   a minute.
                 </p>
               </div>
-              {isRegister ? (
+              {isRegister ? 
                 <React.Fragment>
                   <div className="d-flex">
                     <div className="flex-50 pd-r-7">
@@ -184,8 +183,8 @@ export function SignUp() {
                               {veiwPassword ? (
                                 <i className="far fa-eye-slash" />
                               ) : (
-                                <i className="far fa-eye" />
-                              )}
+                                  <i className="far fa-eye" />
+                                )}
                             </button>
                           </div>
                         </div>
@@ -216,48 +215,45 @@ export function SignUp() {
                       }
                       onClick={signUp}
                     >
-                      {isloader ? (
-                        <i className="fas fa-spinner fa-pulse" />
-                      ) : (
-                        ' Sign Up'
-                      )}
+                      {isloader ?
+                        <i className="fas fa-spinner fa-pulse" /> :
+                        ' Sign Up'}
                     </button>
                   </div>
                 </React.Fragment>
-              ) : (
+                : 
                 <React.Fragment>
-                  <div className="form-group">
-                    <label className="form-group-label">Email OTP</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      onChange={e => setEmailOtp(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-group-label">Mobile OTP</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      onChange={e => setMobilelOtp(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group" />
-                  <div className="form-group-button">
-                    <button className="btn btn-primary" onClick={verifyOtp}>
-                      {isloader ? (
-                        <i className="fas fa-spinner fa-pulse" />
-                      ) : (
-                        'Verify OTP'
-                      )}
-                    </button>
-                  </div>
-                </React.Fragment>
-              )}
+                    <div className="form-group">
+                      <label className="form-group-label">Email OTP</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        onChange={e => setEmailOtp(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-group-label">Mobile OTP</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        onChange={e => setMobilelOtp(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group" />
+                    <div className="form-group-button">
+                      <button className="btn btn-primary" onClick={verifyOtp}>
+                        {isloader ? (
+                          <i className="fas fa-spinner fa-pulse" />
+                        ) : (
+                            'Verify OTP'
+                          )}
+                      </button>
+                    </div>
+                  </React.Fragment>
+                  }
             </div>
             <div className="login-footer">
-              <p>
-                Already have account? <a href="/LoginPage">Log In</a>{' '}
+              <p>Already have account? <a href="/LoginPage">Log In</a> 
                 <a href="/">Home</a>
               </p>
             </div>

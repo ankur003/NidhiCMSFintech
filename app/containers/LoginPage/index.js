@@ -48,12 +48,10 @@ export function LoginPage() {
       },
       body: JSON.stringify(item),
     }).then(response =>
-      response
-        .json()
-        .then(data => ({
-          data,
-          status: response.status,
-        }))
+      response.json().then(data => ({
+        data: data,
+        status: response.status,
+      }))
         .then(res => {
           setloader(false);
           if (res.status === 200) {
@@ -118,8 +116,8 @@ export function LoginPage() {
                       {veiwPassword ? (
                         <i className="far fa-eye-slash" />
                       ) : (
-                        <i className="far fa-eye" />
-                      )}
+                          <i className="far fa-eye" />
+                        )}
                     </button>
                   </div>
                 </div>
@@ -127,21 +125,20 @@ export function LoginPage() {
               <div className="form-group-button">
                 <button
                   disabled={email === '' || password === ''}
-                  // href="/LandingPage"
                   onClick={login}
                   className="btn btn-primary"
                 >
                   {isloader ? (
                     <i className="fas fa-spinner fa-pulse" />
                   ) : (
-                    'Login'
-                  )}
+                      'Login'
+                    )}
                 </button>
               </div>
             </div>
             <div className="login-footer">
               <p>
-                Don't have an account?{' '}
+                Don't have an account?
                 <a onClick={() => history.push('/SignUp')}>Sign Up</a>
                 <a href="/">Home</a>
               </p>

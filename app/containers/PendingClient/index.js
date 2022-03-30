@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -23,16 +23,56 @@ import messages from './messages';
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 export function PendingClient() {
   useInjectReducer({ key: 'pendingClient', reducer });
   useInjectSaga({ key: 'pendingClient', saga });
 
+  let user = localStorage.getItem('user-info');
+
+
   const [slidingPane, setSlidingPane] = useState(false);
-  const [filter, setFilter] = useState(false);
+  const [pendingList, setPendingList] = useState();
+  const [noDataList, setNoDataList] = useState(false);
 
   function refreshPage() {
     window.location.reload(false);
   }
+
+
+  useEffect(() => {
+    const url = "http://localhost:1234/api/v1/user/get-all-user?page=1&limit=250&isSubAdmin=false&isAdmin=false&isUserVerified=true&kycStatus=UNDER_REVIEW";
+
+    const fetchData = async () => {
+      try {
+        const result = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }
+        });
+        if (result.status === 204) {
+          setNoDataList(true)
+          localStorage.setItem('user-info');
+        }
+        else if (result.status === 200) {
+          localStorage.setItem('user-info');
+          setNoDataList(false)
+          const response = await result.json();
+          setPendingList(response.data);
+        }
+        else {
+          toast.error("something Went Wrong")
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+    fetchData();
+  }, []);
 
 
 
@@ -45,7 +85,7 @@ export function PendingClient() {
       <header className="header">
         <div className="d-flex">
           <div className="flex-30">
-            <h6>All Client</h6>
+            <h6>Pending Client</h6>
           </div>
           <div className="flex-70">
             <div className="header-group">
@@ -63,47 +103,56 @@ export function PendingClient() {
       </header>
 
 
-      <div className={filter ? "content-body content-body-filter" : "content-body"} >
-        <div className="content-table">
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Mobile</th>
-                <th>Dob</th>
-                <th>Pan</th>
-                <th>Aadhar</th>
-                <th>Gst</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Shakher Chauhan</td>
-                <td>Shakher.Chauhan@gmail.com</td>
-                <td>9717806435</td>
-                <td>02-20-2020</td>
-                <td>ABD7806435</td>
-                <td>97178064351212</td>
-                <td>GST-97178064351212</td>
-                <td>
-                  <div className="button-group">
-                    <button className="btn btn-outline-primary">
-                      <i className="fas fa-pen"></i>
-                    </button>
-                    <button className="btn btn-outline-danger">
-                      <i className="fas fa-trash-alt"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div className="content-body">
+        {noDataList === false ?
+          <div className="content-table">
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Mobile</th>
+                  <th>Dob</th>
+                  <th>Privilage Names</th>
+                  <th>User id</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingList && pendingList.map((data, i) =>
+                  <tr key={i}>
+                    <td className="text-capitalize">{data.fullName}</td>
+                    <td>{data.userEmail}</td>
+                    <td>{data.mobileNumber}</td>
+                    <td>{data.dob ? data.dob : "Not Avaialble"}</td>
+                    <td>{data.privilageNames ? data.privilageNames : "Not Avaialble"}</td>
+                    <td>{data.userUuid}</td>
+                    <td>
+                      <div className="button-group">
+                        <button className="btn btn-outline-success">
+                          <i className="fas fa-thumbs-up"></i>
+                        </button>
+                        <button className="btn btn-outline-danger">
+                          <i className="fas fa-trash-alt"></i>
+                        </button>
+                        <button className="btn btn-outline-primary">
+                          <i className="fas fa-info"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          :
+          <div className="content-message">
+            <p>No Data Found</p>
+          </div>
+        }
       </div>
 
-     
+
 
       <SlidingPane
         className="sliding-pane"
@@ -111,7 +160,7 @@ export function PendingClient() {
         isOpen={slidingPane || false}
         from="right"
         width="400px"
-
+        onRequestClose={() => setSlidingPane(false)}
       >
         <div class="modal-content">
           <div class="modal-header">
@@ -143,7 +192,7 @@ export function PendingClient() {
         </div>
       </SlidingPane>
 
-
+      <ToastContainer />
     </React.Fragment>
   );
 }

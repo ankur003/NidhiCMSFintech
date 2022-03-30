@@ -81,7 +81,6 @@ export function SideNav(props) {
   useInjectSaga({ key: "sideNav", saga });
 
   let user = localStorage.getItem('user-info');
-  console.log("fhgfhfgh" + user);
 
   const redirectPageHandler = pageRoute => {
     props.setNav(pageRoute);
@@ -240,11 +239,11 @@ export function SideNav(props) {
               {ROUTE_HANDELR.map((item, index) =>
                 <li key={index} className={navlinkHighlighter(item.routeName)}>
                   {item.subMenu ?
-                    <p data-toggle="collapse" data-target={`#sub${index}`}><i className={item.iconClass}></i>{props.button === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p> :
+                    <p  data-toggle="collapse" data-target={`#sub${index}`} className="collapsed"><i className={item.iconClass}></i>{props.button === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""} <i className="fas fa-chevron-down chev-button"></i></p> :
                     <p onClick={() => redirectPageHandler(item.routeName)}><i className={item.iconClass}></i>{props.button === 'open' ? <React.Fragment>{item.navName}</React.Fragment> : ""}</p>
                   }
                   {item.subMenu &&
-                    <div className="collapse show" id={`sub${index}`}>
+                    <div className="collapse" id={`sub${index}`}>
                       <ul className="side-nav-sub-menu">
                         {item.subMenu.map((subItem, subIndex) =>
                           <li key={subIndex} className={navlinkHighlighter(subItem.routeName)} onClick={() => redirectPageHandler(subItem.routeName)}>
