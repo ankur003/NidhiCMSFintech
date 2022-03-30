@@ -36,6 +36,9 @@ import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
 
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping(value = ApiConstants.API_VERSION + "/admin")
@@ -104,12 +107,15 @@ public class AdminReactController extends AbstractController{
 		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
+	@ApiResponses(value = {
+	        @ApiResponse(code = 200, response = UserModel.class, message = "", responseContainer = "List")
+	         })
 	@GetMapping(value = "/get-filter-users")
 	public ResponseEntity<Object> getFiletrUsers(@Valid @ModelAttribute final UserFilterModel UserFilterModel) {
 		if(StringUtils.isAllBlank(UserFilterModel.getContactNumber(), UserFilterModel.getMerchantId(), UserFilterModel.getPancard(), UserFilterModel.getUserEmail())) {
 			List<User> userDetails = userservice.getAllUsers();
 			if (CollectionUtils.isEmpty(userDetails)) {
-				return ResponseHandler.get204Response();
+				return ResponseHandler.get204Response(); 
 			}
 			List<UserModel>  userModels = mapUser(userDetails);
 			return ResponseHandler.getContentResponse(userModels);
