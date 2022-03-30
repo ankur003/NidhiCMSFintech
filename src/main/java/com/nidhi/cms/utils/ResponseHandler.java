@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,9 @@ public class ResponseHandler {
 
 	public static ResponseEntity<Object> getContentResponse(Object value) {
 		if (value == null || StringUtils.isBlank(String.valueOf(value))) {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}
+		if (value instanceof Collection<?> && CollectionUtils.isEmpty((List<?>) value)) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
 		return ResponseEntity.ok(value);
