@@ -83,18 +83,18 @@ public class OtpServiceImpl implements OtpService {
 	
 	@Override
 	public void sendingOtp(User existingUser, String password) {
-		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
-		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),  applicationConfig.getTextLocalApiSender(), applicationConfig.getOtpExpireMinutes(), existingUser.getMobileNumber());
-									 
-		if (StringUtils.isBlank(mobileOtp)) {
-			return ;
-		}
-		String emailOtp = Utility.getRandomNumberString();
-		sendOtpOnEmail(existingUser, emailOtp, password);
-		if (StringUtils.isBlank(emailOtp)) {
-			return ;
-		}
-		 saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
+//		Otp otp = otpRepository.findByUserId(existingUser.getUserId());
+//		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(),  applicationConfig.getTextLocalApiSender(), applicationConfig.getOtpExpireMinutes(), existingUser.getMobileNumber());
+//									 
+//		if (StringUtils.isBlank(mobileOtp)) {
+//			return ;
+//		}
+//		String emailOtp = Utility.getRandomNumberString();
+		sendOtpOnEmail(existingUser, null, password);
+//		if (StringUtils.isBlank(emailOtp)) {
+//			return ;
+//		}
+//		 saveOtpDetails(mobileOtp, emailOtp, existingUser, otp);
 	}
 	
 	@Override
@@ -125,10 +125,8 @@ public class OtpServiceImpl implements OtpService {
 		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> modal = new HashMap<>();
 		modal.put("name", user.getFullName());
-		modal.put("OTP", emailOtp);
 		modal.put("password", password);
-		emailService.sendMailAsync(request, modal, "", EmailTemplateConstants.OTP_PASSWORD);
-
+		emailService.sendMailAsync(request, modal, "", EmailTemplateConstants.PASSWORD);
 	}
 
 	@Async("threadPoolTaskExecutor")

@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -26,9 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nidhi.cms.constants.ApiConstants;
 import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.controller.AbstractController;
+import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
+import com.nidhi.cms.modal.response.SystemPrivilegesModel;
 import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.modal.response.UserModel;
 import com.nidhi.cms.react.request.UserFilterModel;
@@ -137,5 +141,28 @@ public class AdminReactController extends AbstractController{
 		return userModels;
 	}
 	
+	@PostMapping(value = "/create-sub-admin")
+	public ResponseEntity<Object> createSubAdmin(@Valid @RequestBody SubAdminCreateModal subAdminCreateModal) throws Exception {
+		if (CollectionUtils.isEmpty(subAdminCreateModal.getPrivilageNames())) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "privilageNames is empty", HttpStatus.BAD_REQUEST);
+		}
+		User savedUser = userservice.createSubAdmin(subAdminCreateModal);
+		if (savedUser == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "user already exist or privilageNames invalid", HttpStatus.BAD_REQUEST);
 
+		}
+		return ResponseHandler.get201Response();
+	}
+	
+	@ApiResponses(value = { @ApiResponse(code = 200, response = SystemPrivilegesModel.class, message = "", responseContainer = "List") })
+	@GetMapping(value = "/system-privileges")
+	public ResponseEntity<Object> getSystemPrivileges() throws Exception {
+		List<SystemPrivilege> list = userservice.getSystemPrivilegeList();
+		if (CollectionUtils.isEmpty(list)) {
+			return ResponseHandler.get204Response();
+		}
+		List<SystemPrivilegesModel> systemPrivilegesModels = list.stream().map(SystemPrivilegesModel::new).collect(Collectors.toList());
+		return ResponseHandler.getContentResponse(systemPrivilegesModels);
+	}
+	
 }

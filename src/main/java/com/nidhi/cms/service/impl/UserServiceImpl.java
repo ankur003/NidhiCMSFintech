@@ -201,6 +201,14 @@ public class UserServiceImpl extends AbstractDataSourceDao implements UserDetail
 			genericSpesification
 					.add(new SearchCriteria("lastName", userRequestFilterModel.getLastName(), SearchOperation.EQUAL));
 		}
+		if (StringUtils.isNotBlank(userRequestFilterModel.getUserEmail())) {
+			genericSpesification
+					.add(new SearchCriteria("userEmail", userRequestFilterModel.getUserEmail(), SearchOperation.EQUAL));
+		}
+		if (StringUtils.isNotBlank(userRequestFilterModel.getMobileNumber())) {
+			genericSpesification
+					.add(new SearchCriteria("mobileNumber", userRequestFilterModel.getMobileNumber(), SearchOperation.EQUAL));
+		}
 		if (StringUtils.isNotBlank(userRequestFilterModel.getMiddleName())) {
 			genericSpesification.add(
 					new SearchCriteria("middleName", userRequestFilterModel.getMiddleName(), SearchOperation.EQUAL));

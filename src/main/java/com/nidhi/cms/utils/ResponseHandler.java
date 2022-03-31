@@ -72,5 +72,9 @@ public class ResponseHandler {
 	public static ResponseEntity<Object> get204Response() {
 		return ResponseEntity.noContent().build();
 	}
+	
+	public static ResponseEntity<Object> get201Response() {
+		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
 
 }
