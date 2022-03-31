@@ -1,5 +1,7 @@
 package com.nidhi.cms.controller.react;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.validation.Valid;
@@ -19,7 +21,9 @@ import com.nidhi.cms.constants.ApiConstants;
 import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.controller.AbstractController;
 import com.nidhi.cms.domain.Otp;
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
+import com.nidhi.cms.react.request.TriggerOtpModel;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
@@ -37,7 +41,7 @@ public class OtpReactController extends AbstractController {
 	
 	
 	@PostMapping(value = "/otp")
-	public ResponseEntity<Object> verifySignUpOtp(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) throws Exception {
+	public ResponseEntity<Object> verifySignUpOtpOrUserOtp(@Valid @RequestBody VerifyOtpRequestModal verifyOtpRequestModal) throws Exception {
 		if (StringUtils.isBlank(verifyOtpRequestModal.getOtpUuid())) {
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Otp Uuid is missing or null", HttpStatus.PRECONDITION_FAILED);
 		}
@@ -50,15 +54,36 @@ public class OtpReactController extends AbstractController {
 		}
 		Boolean isExpired = otpService.doesOtpExpired(otp);
 		if (BooleanUtils.isTrue(isExpired)) {
-			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Otp expired, SignUp again", HttpStatus.PRECONDITION_FAILED);
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Otp has been expired", HttpStatus.PRECONDITION_FAILED);
 
 		}
 		userService.updateUserIsVerified(otp);
 		otp.setIsActive(false);
 		otpService.updateOtp(otp);
 		return ResponseHandler.getOkResponse();
-
+	}
 	
+	@PostMapping(value = "/trigger-otp")
+	public ResponseEntity<Object> clientSignUp(@Valid @RequestBody TriggerOtpModel triggerOtpModel) throws Exception {
+		final User user = userService.findByUserEmail(triggerOtpModel.getEmail());
+		if (user == null || user.getMobileNumber() == null || !user.getMobileNumber().equals(triggerOtpModel.getMobile()) 
+				|| BooleanUtils.isFalse(user.getIsActive())) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "user not found", HttpStatus.BAD_REQUEST);
+		}
+		if (BooleanUtils.isFalse(user.getIsUserCreatedByAdmin()) || BooleanUtils.isTrue(user.getIsUserVerified())) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect user or already verified", HttpStatus.PRECONDITION_FAILED);
+		}
+		String otpUuid = otpService.sendingOtpToUserCreatedByAdmin(user);
+			if (otpUuid == null) {
+				return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Otp-already sent, please verify the email & mobile otp."
+						+ "if you have lost the OTP , please try again in 5 min", HttpStatus.PRECONDITION_FAILED);
+			} else if (StringUtils.isNotBlank(otpUuid)) {
+				final Map<String, Object> responseMap = new HashMap<>();
+				responseMap.put("otpUuid", otpUuid);
+				responseMap.put("message", "Otp-Sent, please verify the email & mobile otp");
+				return ResponseHandler.getContentResponse(responseMap);
+			}
+		return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Some thing wenut wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }
