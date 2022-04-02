@@ -1704,4 +1704,173 @@ public ModelAndView onbaordMerchantUPI(Model model,HttpServletRequest request,@M
 	model.addAttribute("message", message);
 	return new ModelAndView("upiOnboard");
 }
+
+
+@PostMapping(value = "/get-user-forSetCharge")
+public ModelAndView getUserforSetCharge(Model model, HttpServletRequest request) {
+	String userUuid=request.getParameter("userUuid");
+	String adminUuid=request.getParameter("adminUuid");
+	String merchantId = request.getParameter("merchantId");
+	String pancard = request.getParameter("pancard");
+	
+	String userEmail = request.getParameter("userEmail");
+	String contactNumber = request.getParameter("contactNumber");
+	
+
+	
+	
+	if (StringUtils.isAllBlank(merchantId, pancard, userEmail, contactNumber)) {
+		List<User> list = userController.getAllUsers(userUuid);
+		if (CollectionUtils.isNotEmpty(list)) {
+			 model.addAttribute("init", true);
+				model.addAttribute("merchantId", merchantId);
+				model.addAttribute("pancard", pancard);
+				model.addAttribute("userEmail", userEmail);
+				model.addAttribute("contactNumber", contactNumber);
+				model.addAttribute("userList", list);
+		} else {
+			model.addAttribute("init", false);
+		}
+			return new ModelAndView("upiCharges");
+	}
+	
+	
+	List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, userUuid);
+		list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, userUuid));
+	if (CollectionUtils.isNotEmpty(list)) {
+       model.addAttribute("init", true);
+		
+		model.addAttribute("merchantId", merchantId);
+		model.addAttribute("pancard", pancard);
+		model.addAttribute("userEmail", userEmail);
+		model.addAttribute("contactNumber", contactNumber);
+		
+		model.addAttribute("userList", list);
+	} else {
+		model.addAttribute("init", false);
+	}
+	return new ModelAndView("upiCharges");
+}
+
+@GetMapping("/get-UserChargeInfo")
+public ModelAndView getUserChargeInfo(@RequestParam("userUuid") String userUuid,@RequestParam("adminUuid") String adminUuid, Model model,HttpServletRequest request) 
+{
+	UserWallet userWallet = userController.getUserWallet(userUuid);
+	User user = userservice.getUserByUserUuid(userUuid);
+	UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+	UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+	UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+	UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+	UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+	
+	model.addAttribute("pan",pan);
+	model.addAttribute("aadhar",aadhar);
+	model.addAttribute("gst",gst);
+	model.addAttribute("bank",bank);
+	model.addAttribute("business",business);
+	model.addAttribute("user",user);
+	model.addAttribute("userWallet",userWallet);
+	model.addAttribute("adminUuid",adminUuid);
+	model.addAttribute("userUuid",userUuid);
+	
+	List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(adminUuid, userUuid);
+	model.addAttribute("paylist",paylist);
+	
+	Map<String, Object> modelMap = new HashMap<>();
+	for (UserPaymentMode userPaymentMode : paylist) 
+	{
+		if(userPaymentMode.getPaymentMode()==PaymentMode.UPI_DEBIT)
+		{
+			model.addAttribute("debitfeePercent",userPaymentMode.getFee());
+			model.addAttribute("debitstatus",userPaymentMode.getIsActive());
+			model.addAttribute("billChargeType",userPaymentMode.getPaymentModeFeeType());
+//			modelMap.put("debitfeePercent", userPaymentMode.getFee());
+//			modelMap.put("debitbillChargeType",userPaymentMode.getPaymentModeFeeType());
+//			modelMap.put("debitstatus", userPaymentMode.getIsActive() == null ? Boolean.FALSE : userPaymentMode.getIsActive());
+		}
+		if(userPaymentMode.getPaymentMode()==PaymentMode.UPI_CREDIT)
+		{
+			model.addAttribute("CreditfeePercent",userPaymentMode.getFee());
+			model.addAttribute("creditstatus",userPaymentMode.getIsActive());
+			model.addAttribute("billChargeType1",userPaymentMode.getPaymentModeFeeType());
+//			modelMap.put("creditfeePercent", userPaymentMode.getFee());
+//			modelMap.put("creditbillChargeType", userPaymentMode.getPaymentModeFeeType());
+//			modelMap.put("creditStatus", userPaymentMode.getIsActive() == null ? Boolean.FALSE : userPaymentMode.getIsActive());
+
+		}
+	}
+	
+	if(user!=null)
+	{
+		model.addAttribute("upiCharge",true);
+	}
+	return new ModelAndView("upiCharges");
+}
+
+@PostMapping(value = "/add-Payment-modes")
+public ModelAndView  addpaymentmodes(Model model,HttpServletRequest request,@ModelAttribute UserPaymentModeModalReqModal userPaymentModeModalReqModal) {
+	String userUuid=request.getParameter("userUuid");
+	userPaymentModeModalReqModal.setUserUuid(userUuid);
+	
+	String billChargeType=request.getParameter("billChargeType");
+	String Debit=request.getParameter("Debit");
+	String debitfeePercent=request.getParameter("debitfeePercent");
+	String debitstatus=request.getParameter("debitstatus");
+	
+	boolean flag_0=false;
+	if(debitstatus!=null && debitstatus.equalsIgnoreCase("Active"))flag_0=true;
+	userPaymentModeModalReqModal.setPaymentMode(PaymentMode.UPI_DEBIT);
+	userPaymentModeModalReqModal.setFee(Double.valueOf(debitfeePercent));
+	userPaymentModeModalReqModal.setActive(flag_0);
+	userPaymentModeModalReqModal.setPaymentModeFeeType(EnumUtils.getEnum(PaymentModeFeeType.class, billChargeType));
+	 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
+	
+	String Credit=request.getParameter("Credit");
+	String billChargeType1=request.getParameter("billChargeType1");
+	String CreditfeePercent=request.getParameter("CreditfeePercent");
+	String creditstatus=request.getParameter("creditstatus");
+	boolean flag_1=false;
+	
+	if(creditstatus!=null && creditstatus.equalsIgnoreCase("Active"))flag_1=true;
+	userPaymentModeModalReqModal.setPaymentMode(PaymentMode.UPI_CREDIT);
+	userPaymentModeModalReqModal.setFee(Double.valueOf(CreditfeePercent));
+	userPaymentModeModalReqModal.setActive(flag_1);
+	userPaymentModeModalReqModal.setPaymentModeFeeType(EnumUtils.getEnum(PaymentModeFeeType.class, billChargeType1));
+	 userController.saveOrUpdateUserPaymentMode(userPaymentModeModalReqModal);
+	 
+	 model.addAttribute("msg", "Payment mode Has been updated");
+		
+		User user = userservice.getUserByUserUuid(userUuid);
+		model.addAttribute("user",user);
+		List<UserPaymentMode> paylist=userController.getUserAllPaymentModeDetails(userPaymentModeModalReqModal.getAdminUuid(), userUuid);
+		model.addAttribute("paylist",paylist);
+		
+		Map<String, Object> modelMap = new HashMap<>();
+		for (UserPaymentMode userPaymentMode : paylist) 
+		{
+			if(userPaymentMode.getPaymentMode()==PaymentMode.UPI_DEBIT)
+			{
+				model.addAttribute("debitfeePercent",userPaymentMode.getFee());
+				model.addAttribute("debitstatus",userPaymentMode.getIsActive());
+				model.addAttribute("billChargeType",userPaymentMode.getPaymentModeFeeType());
+				modelMap.put("debitfeePercent", userPaymentMode.getFee());
+				modelMap.put("debitbillChargeType",userPaymentMode.getPaymentModeFeeType());
+				modelMap.put("debitstatus", userPaymentMode.getIsActive() == null ? Boolean.FALSE : userPaymentMode.getIsActive());
+			}
+			if(userPaymentMode.getPaymentMode()==PaymentMode.UPI_CREDIT)
+			{
+				model.addAttribute("creditfeePercent",userPaymentMode.getFee());
+				model.addAttribute("creditstatus",userPaymentMode.getIsActive());
+				model.addAttribute("billChargeType1",userPaymentMode.getPaymentModeFeeType());
+				modelMap.put("creditfeePercent", userPaymentMode.getFee());
+				modelMap.put("creditbillChargeType", userPaymentMode.getPaymentModeFeeType());
+				modelMap.put("creditStatus", userPaymentMode.getIsActive() == null ? Boolean.FALSE : userPaymentMode.getIsActive());
+
+			}
+		}
+		triggerBillingChargesNotifications(user, modelMap);
+		return new ModelAndView("upiCharges");
+	
+}
+
 }
