@@ -1181,7 +1181,11 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		if (wallet != null)  {
 			return "upi address already takken";
 		}
-		String message = userservice.onBoardSubMerchant(wallet, indsIndRequestModal);
+		UserWallet existingWallet = userWalletService.findByUserId(user.getUserId());
+		if (existingWallet == null || BooleanUtils.isFalse(existingWallet.getIsActive()) || existingWallet.getMerchantId() == null) {
+			return "user wallet not found or in-active";
+		}
+		String message = userservice.onBoardSubMerchant(existingWallet, indsIndRequestModal);
 		if (StringUtils.isBlank(message)) {
 			return "error occured";
 		}
