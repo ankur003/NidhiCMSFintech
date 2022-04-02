@@ -274,7 +274,7 @@
 											<div class="col-md-6">
 												<p class="comment-form-author">
 													<label for="author">Merchant Type</label>
-													<input type="text" required="required" size="30" value="AGG MER" 
+													<input type="text" required="required" size="30" value="AGGMER" 
 														name="merchantType" id="merchantType" maxlength="6" readonly="readonly">
 												</p>
 											</div>

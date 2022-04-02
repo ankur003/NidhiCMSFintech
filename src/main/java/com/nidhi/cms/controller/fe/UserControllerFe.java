@@ -1701,7 +1701,13 @@ public ModelAndView onbaordMerchantUPI(Model model,HttpServletRequest request,@M
 	String adminUuid = request.getParameter("adminUuid");
 
 	String message=userController.onBoardSubMerchant(indsIndRequestModal, userUuid, adminUuid);
-	model.addAttribute("message", message);
+	if (message == null) {
+		model.addAttribute("msgs", "Something Went Wrong");
+	} else if (message.contains("Success")) {
+		model.addAttribute("msg", message);
+	} else {
+		model.addAttribute("msgs", message);
+	}
 	return new ModelAndView("upiOnboard");
 }
 

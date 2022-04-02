@@ -194,6 +194,10 @@ public class Utility {
 		Gson gson = new Gson();
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("pgMerchantId", pgMerchantId);
+		indsIndRequestModal.setRequestUrl1(indsIndRequestModal.getRequestUrl1());
+		indsIndRequestModal.setRequestUrl2(indsIndRequestModal.getRequestUrl1());
+		indsIndRequestModal.setExtMID(null);
+		indsIndRequestModal.setExtTID(null);
 		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(indsIndRequestModal), indBankKey));
 		return jsonObject.toString();
 	}
