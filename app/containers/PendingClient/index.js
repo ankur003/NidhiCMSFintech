@@ -30,12 +30,18 @@ export function PendingClient() {
   useInjectReducer({ key: 'pendingClient', reducer });
   useInjectSaga({ key: 'pendingClient', saga });
 
-  let user = localStorage.getItem('user-info');
+  // let user = localStorage.getItem('user-info');
 
 
   const [slidingPane, setSlidingPane] = useState(false);
   const [pendingList, setPendingList] = useState();
   const [noDataList, setNoDataList] = useState(false);
+  const [fullName, setFullName] = useState();
+  const [mobileNumber, setMobileNumber] = useState();
+  const [password, setPassword] = useState();
+  const [referralCode, setReferralCode] = useState();
+  const [userEmail, setUserEmail] = useState();
+  const [isCreatedByAdmin, setIsCreatedByAdmin] = useState(true);
 
   function refreshPage() {
     window.location.reload(false);
@@ -56,10 +62,8 @@ export function PendingClient() {
         });
         if (result.status === 204) {
           setNoDataList(true)
-          localStorage.setItem('user-info');
         }
         else if (result.status === 200) {
-          localStorage.setItem('user-info');
           setNoDataList(false)
           const response = await result.json();
           setPendingList(response.data);
@@ -73,6 +77,35 @@ export function PendingClient() {
     };
     fetchData();
   }, []);
+
+  async function createClientHandler() {
+    let item = { fullName, userEmail, mobileNumber, password, referralCode, isCreatedByAdmin }
+    try {
+      const result = await fetch('http://localhost:1234/api/v1/admin/create-client-by-admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item),
+      }).then(response =>
+        response.json().then(data => ({
+          data: data,
+          status: response.status,
+        }))
+          .then(res => {
+            if (res.status === 201) {
+              toast.success(res.data.message)
+            } else {
+
+              toast.error(res.data.error);
+              toast.error(res.data.message)
+            }
+          }),
+      );
+    } catch (error) {
+      toast.error(error);
+    }
+  }
 
 
 
@@ -162,37 +195,41 @@ export function PendingClient() {
         width="400px"
         onRequestClose={() => setSlidingPane(false)}
       >
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Add Client</h5>
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Add Client</h5>
             <button type="button" className="btn" onClick={() => setSlidingPane(false)}><i className="fas fa-chevron-left"></i></button>
           </div>
-          <div class="modal-body">
+          <div className="modal-body">
             <div className="form-group">
               <label className="form-group-label">Full Name : <i className="fas fa-asterisk"></i></label>
-              <input type="text" className="form-control" placeholder="Enter full name" />
+              <input type="text" className="form-control" placeholder="Enter full name" onChange={(e) => setFullName(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Email : <i className="fas fa-asterisk"></i></label>
-              <input type="email" className="form-control" placeholder="Enter email" />
+              <input type="email" className="form-control" placeholder="Enter email" onChange={(e) => setUserEmail(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Contact Number : <i className="fas fa-asterisk"></i></label>
-              <input type="number" className="form-control" placeholder="Enter number" />
+              <input type="number" className="form-control" placeholder="Enter number" onChange={(e) => setMobileNumber(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label className="form-group-label">Refferal Code : <i className="fas fa-asterisk"></i></label>
+              <input type="number" className="form-control" placeholder="Enter Refferal Code" onChange={(e) => setReferralCode(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Password : <i className="fas fa-asterisk"></i></label>
-              <input type="password" className="form-control" placeholder="Enter password" />
+              <input type="password" className="form-control" placeholder="Enter password" onChange={(e) => setPassword(e.target.value)} />
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onClick={() => setSlidingPane(false)}>Cancel</button>
-            <button type="button" class="btn btn-primary">Save</button>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={() => setSlidingPane(false)}>Cancel</button>
+            <button type="button" className="btn btn-primary" onClick={createClientHandler}>Save</button>
           </div>
         </div>
       </SlidingPane>
 
-      <ToastContainer />
+      <ToastContainer position="bottom-left" />
     </React.Fragment>
   );
 }

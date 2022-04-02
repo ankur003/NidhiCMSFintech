@@ -28,7 +28,7 @@ export function ManageClient() {
   useInjectReducer({ key: 'manageClient', reducer });
   useInjectSaga({ key: 'manageClient', saga });
 
-  let user = localStorage.getItem('user-info');
+  // let user = localStorage.getItem('user-info');
 
 
   const [filter, setFilter] = useState(true);
@@ -66,7 +66,6 @@ export function ManageClient() {
     }).then(response => {
       if (response.status == 204) {
         setNoDataList(true)
-        localStorage.setItem('user-info');
       }
       else {
         response.json().then(data => ({
@@ -75,7 +74,6 @@ export function ManageClient() {
         }))
           .then(res => {
             if (res.status === 200) {
-              localStorage.setItem('user-info');
               setNoDataList(false)
               setManageList(res.data);
             } else {
@@ -510,7 +508,7 @@ export function ManageClient() {
         </div>
       }
 
-      <ToastContainer />
+      <ToastContainer position="bottom-left" />
     </React.Fragment>
   );
 }
