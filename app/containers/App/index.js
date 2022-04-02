@@ -17,7 +17,7 @@ import SignUp from 'containers/SignUp/Loadable';
 import ForgetPassword from 'containers/ForgetPassword/Loadable';
 import WebiteLandingPage from 'containers/WebiteLandingPage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
-
+import UserVerification from 'containers/UserVerification/Loadable';
 
 
 export default function App() {
@@ -34,6 +34,7 @@ export default function App() {
         <Route path="/LoginPage" component={LoginPage} />
         <Route path="/SignUp" component={SignUp} />
         <Route path="/ForgetPassword" component={ForgetPassword} />
+        <Route path="/UserVerification" component={UserVerification} />
         
         <Route path="/" render={props => <HomePage {...props} />} />
       </Switch>
