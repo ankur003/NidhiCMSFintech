@@ -64,7 +64,7 @@ public class OtpReactController extends AbstractController {
 	}
 	
 	@PostMapping(value = "/trigger-otp")
-	public ResponseEntity<Object> clientSignUp(@Valid @RequestBody TriggerOtpModel triggerOtpModel) throws Exception {
+	public ResponseEntity<Object> triggerOtp(@Valid @RequestBody TriggerOtpModel triggerOtpModel) throws Exception {
 		final User user = userService.findByUserEmail(triggerOtpModel.getEmail());
 		if (user == null || user.getMobileNumber() == null || !user.getMobileNumber().equals(triggerOtpModel.getMobile()) 
 				|| BooleanUtils.isFalse(user.getIsActive())) {

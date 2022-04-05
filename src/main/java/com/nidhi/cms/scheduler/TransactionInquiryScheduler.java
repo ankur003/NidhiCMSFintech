@@ -42,7 +42,7 @@ public class TransactionInquiryScheduler {
 	@Autowired
 	private UserRepository userRepository;
 
-	// @Scheduled(cron = "0 0/15 * * * ?")
+	@Scheduled(cron = "0 0/15 * * * ?")
 	public void transactionInquiryScheduler() {
 		LOGGER.info("transaction Inquiry Scheduler has been started at '{}'", LocalDateTime.now());
 		try {
@@ -75,7 +75,7 @@ public class TransactionInquiryScheduler {
 			transaction.setUtrNumber(jsonObject.getString("UTRNUMBER"));
 			transaction.setSchedulerCustomInfo(SchedulerCustomInfo.SUCCESS_NO_CHECK_AGAIN.name());
 			txService.save(transaction);
-		} else {
+		} else if (jsonObject.getString("STATUS").equalsIgnoreCase("FAILURE")) {
 			transaction.setStatus(jsonObject.getString("STATUS"));
 			transaction.setResponse(jsonObject.getString("RESPONSE"));
 			transaction.setSchedulerCustomInfo(SchedulerCustomInfo.BALANCE_REVERSED_NO_CHECK_AGAIN.name());
