@@ -38,7 +38,6 @@ import ChargesReport from 'containers/ChargesReport/Loadable';
 import TransactionInquiry from 'containers/TransactionInquiry/Loadable';
 import AccountStatement from 'containers/AccountStatement/Loadable';
 import AddPrivileges from 'containers/AddPrivileges/Loadable';
-import UserVerification from 'containers/UserVerification/Loadable';
 
 import history from "../../utils/history";
 
@@ -87,8 +86,6 @@ export function HomePage({
         return <SignUp />
       case '/ForgetPassword':
         return <ForgetPassword />
-      case '/UserVerification':
-        return <UserVerification />
       case '/landingPage':
         return <LandingPage />
       case '/pendingClient':

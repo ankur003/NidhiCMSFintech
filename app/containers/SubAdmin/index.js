@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -21,6 +21,8 @@ import messages from './messages';
 
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function SubAdmin() {
   useInjectReducer({ key: 'subAdmin', reducer });
@@ -28,9 +30,102 @@ export function SubAdmin() {
 
   const [filter, setFilter] = useState(false);
   const [slidingPane, setSlidingPane] = useState(false);
+  const [previllageList, setPrevillageList] = useState();
+
+  const [fullName, setFullName] = useState();
+  const [mobileNumber, setMobileNumber] = useState();
+  const [password, setPassword] = useState();
+  const [privilageNames, setPrivilageNames] = useState([]);
+  const [referralCode, setReferralCode] = useState();
+  const [userEmail, setUserEmail] = useState();
+  const [subAdminListMapping, setSubAdminListMapping] = useState([]);
 
   function refreshPage() {
     window.location.reload(false);
+  }
+
+  useEffect(() => {
+    async function subAdminList() {
+      let result = await fetch('http://localhost:1234/api/v1/admin/get-all-user?page=1&limit=150&isSubAdmin=true', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }).then(response => response.json().then(data => ({
+        data,
+        status: response.status,
+      }))).then(res => {
+        if (res.status === 200) {
+          setSubAdminListMapping(res.data.data)
+        }
+        else {
+          toast.error("something went wrong");
+        }
+      })
+    }
+    subAdminList();
+  }, [])
+
+  async function setSlidingPaneHandeler() {
+    setSlidingPane(true)
+    let result = await fetch('http://localhost:1234/api/v1/admin/system-privileges', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    }).then(response => {
+      response.json().then(data => ({
+        data,
+        status: response.status,
+      }))
+        .then(res => {
+          if (res.status === 200) {
+            setPrevillageList(res.data)
+          } else {
+            toast.error("something went wrong");
+          }
+        })
+    }
+    );
+  }
+
+  function privilageNamesFun(privilegeName, index) {
+    if (privilageNames.includes(privilegeName)) {
+      let localArray = [...privilageNames];
+      localArray.splice(index, 1);
+      setPrivilageNames(localArray);
+    }
+    else {
+      setPrivilageNames([...privilageNames, privilegeName])
+    }
+  }
+
+  async function createSubAdmin() {
+    let item = { fullName, userEmail, mobileNumber, referralCode, privilageNames, password }
+    let result = await fetch('http://localhost:1234/api/v1/admin/create-sub-admin', {
+      method: 'Post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(item),
+    }).then(response => {
+      if (response.status === 201) {
+        toast.success("Sub Admin Created Successfully");
+      }
+      else {
+        response.json().then(data => ({
+          data,
+          status: response.status,
+        })).then(res => {
+          if (res.status != 201) {
+            toast.error(res.data.error);
+            toast.error(res.data.message)
+          }
+        })
+      }
+    })
   }
 
   return (
@@ -53,7 +148,7 @@ export function SubAdmin() {
                 <button className="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Filter" onClick={() => setFilter(true)}>
                   <i className="fas fa-filter"></i>
                 </button>
-                <button className="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Add Client" onClick={() => setSlidingPane(true)}>
+                <button className="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Add Client" onClick={setSlidingPaneHandeler}>
                   <i className="fas fa-plus"></i>
                 </button>
               </div>
@@ -75,22 +170,28 @@ export function SubAdmin() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Shakher Chauhan</td>
-                <td>Shakher.Chauhan@gmail.com</td>
-                <td>9717806435</td>
-                <td><span className="badge badge-primary">Onboarding</span></td>
-                <td>
-                  <div className="button-group">
-                    <button className="btn btn-outline-primary">
-                      <i className="fas fa-pen"></i>
-                    </button>
-                    <button className="btn btn-outline-danger">
-                      <i className="fas fa-trash-alt"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              {subAdminListMapping && subAdminListMapping.map((data, i) =>
+                <tr key={i}>
+                  <td>{data.fullName}</td>
+                  <td>{data.userEmail}</td>
+                  <td>{data.mobileNumber}</td>
+                  <td>
+                    {data.privilageNames.split(",").map((foo, index) =>
+                      <span key={index} className="badge badge-primary">{foo}</span>
+                    )}
+                  </td>
+                  <td>
+                    <div className="button-group">
+                      <button className="btn btn-outline-primary" disabled>
+                        <i className="fas fa-pen"></i>
+                      </button>
+                      <button className="btn btn-outline-danger" disabled>
+                        <i className="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -134,57 +235,53 @@ export function SubAdmin() {
         isOpen={slidingPane || false}
         from="right"
         width="400px"
-
+        onRequestClose={() => { }}
       >
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Add Sub Admin</h5>
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Add Sub Admin</h5>
             <button type="button" className="btn" onClick={() => setSlidingPane(false)}><i className="fas fa-chevron-left"></i></button>
           </div>
-          <div class="modal-body">
+          <div className="modal-body">
             <div className="form-group">
               <label className="form-group-label">Full Name : <i className="fas fa-asterisk"></i></label>
-              <input type="text" className="form-control" placeholder="Enter Full Name" />
+              <input type="text" className="form-control" placeholder="Enter Full Name" onChange={(e) => setFullName(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Email : <i className="fas fa-asterisk"></i></label>
-              <input type="email" className="form-control" placeholder="Enter Email" />
+              <input type="email" className="form-control" placeholder="Enter Email" onChange={(e) => setUserEmail(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Contact Number : <i className="fas fa-asterisk"></i></label>
-              <input type="number" className="form-control" placeholder="Enter Contact Number" />
+              <input type="number" className="form-control" placeholder="Enter Contact Number" onChange={(e) => setMobileNumber(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label className="form-group-label">Referral Code : <i className="fas fa-asterisk"></i></label>
+              <input type="number" className="form-control" placeholder="Enter Referral Code" onChange={(e) => setReferralCode(e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-group-label">Password : <i className="fas fa-asterisk"></i></label>
-              <input type="password" className="form-control" placeholder="Enter Password" />
+              <input type="password" className="form-control" placeholder="Enter Password" onChange={(e) => setPassword(e.target.value)} />
             </div>
             <div className="form-group m-0">
               <label className="form-group-label">Select Privilege :</label>
               <ul className="privailage-item">
-                <li>
-                  <p>Onboarding</p>
-                </li>
-                <li>
-                  <p>Create New</p>
-                </li>
-                <li>
-                  <p>Pending Client</p>
-                </li>
-                <li>
-                  <p>Manage Client</p>
-                </li>
-                <li>
-                  <p>Product Featuring</p>
-                </li>
+                {previllageList && previllageList.map((data, index) =>
+                  <li className={privilageNames.includes(data.privilegeName) ? "active" : ""} key={index} onClick={() => privilageNamesFun(data.privilegeName, index)}>
+                    <p>{data.privilegeName}</p>
+                  </li>
+                )}
               </ul>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onClick={() => setSlidingPane(false)}>Cancel</button>
-          <button type="button" class="btn btn-primary">Save</button>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setSlidingPane(false)}>Cancel</button>
+          <button type="button" className="btn btn-primary" onClick={createSubAdmin}>Save</button>
         </div>
       </SlidingPane>
+
+      <ToastContainer position="bottom-left" />
     </React.Fragment >
   );
 }

@@ -22,7 +22,6 @@ import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 import SignUp from '../SignUp/Loadable';
-import UserVerification from '../UserVerification/Loadable';
 
 export function LoginPage(props) {
   useInjectReducer({ key: 'loginPage', reducer });
@@ -38,7 +37,7 @@ export function LoginPage(props) {
   const [requiredOtp, setRequiredOtp] = useState();
   const [userEmailOtp, setUserEmailOtp] = useState();
   const [userPhoneOtp, setUserPhoneOtp] = useState();
-  const [otpUuid,setOtpUuid] = useState();
+  const [otpUuid, setOtpUuid] = useState();
 
 
   useEffect(() => {
@@ -105,7 +104,7 @@ export function LoginPage(props) {
           }
           else {
             toast.error(res.data.message)
-            // setOtpUuid(res.data.otpUuid);
+            setOtpUuid(res.data.otpUuid);
             setRequiredOtp(true)
           }
         })
@@ -113,7 +112,7 @@ export function LoginPage(props) {
   }
 
   async function verifyOtp() {
-    let item = { emailOtp:userEmailOtp, mobileOtp:userPhoneOtp, otpUuid:otpUuid };
+    let item = { emailOtp: userEmailOtp, mobileOtp: userPhoneOtp, otpUuid: otpUuid };
     console.log(item)
     let result = await fetch('http://localhost:1234/api/v1/user/otp',
       {
@@ -128,11 +127,11 @@ export function LoginPage(props) {
           status: response.status,
         })).then(res => {
           if (res.status === 200) {
-            toast.success(res.data.message);
-            setUserRequired(false);
+            toast.success("succfully verfied now you can login");
+            window.location.reload(false);
           }
           else {
-            toast.error(res.data.message)
+            toast.error(res.data.message);
           }
         })
       );
