@@ -19,6 +19,7 @@ import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
+import com.nidhi.cms.react.request.UserBusnessKycRequestModel;
 import com.nidhi.cms.repository.UserBusnessKycRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.UserBusnessKycService;
@@ -73,6 +74,36 @@ public class UserBusnessKycServiceImpl implements UserBusnessKycService {
 	@Override
 	public UserBusinessKyc getUserBusnessKycByPan(String pan) {
 		return userBusnessKycRepo.findByIndividualPan(pan);
+	}
+
+	@Override
+	public void saveOrUpdateUserBusnessKyc(User user, UserBusinessKyc userBusnessKycDetail, UserBusnessKycRequestModel userBusnessKycRequestModel) {
+		if (userBusnessKycDetail == null) {
+			userBusnessKycDetail = new UserBusinessKyc();
+		} 
+		if (StringUtils.isNotBlank(userBusnessKycRequestModel.getEntityType())) {
+			userBusnessKycDetail.setEntityType(userBusnessKycRequestModel.getEntityType());
+		}
+		if (StringUtils.isNotBlank(userBusnessKycRequestModel.getIndustry())) {
+			userBusnessKycDetail.setIndustry(userBusnessKycRequestModel.getIndustry());
+		}
+		if (StringUtils.isNotBlank(userBusnessKycRequestModel.getCompnayName())) {
+			userBusnessKycDetail.setCompnayName(userBusnessKycRequestModel.getCompnayName());
+		}
+		if (StringUtils.isNotBlank(userBusnessKycRequestModel.getNoOfEmp())) {
+			userBusnessKycDetail.setNoOfEmp(userBusnessKycRequestModel.getNoOfEmp());
+		}
+		if (StringUtils.isNotBlank(userBusnessKycRequestModel.getIndividualPan())) {
+			userBusnessKycDetail.setIndividualPan(userBusnessKycRequestModel.getIndividualPan());
+		}
+		if (StringUtils.isNotBlank(userBusnessKycRequestModel.getGstNo())) {
+			userBusnessKycDetail.setGstNo(userBusnessKycRequestModel.getGstNo());
+		}
+		if (StringUtils.isNotBlank(userBusnessKycRequestModel.getWebsiteLink())) {
+			userBusnessKycDetail.setWebsiteLink(userBusnessKycRequestModel.getWebsiteLink());
+		}
+		userBusnessKycDetail.setUserId(user.getUserId());
+		userBusnessKycRepo.save(userBusnessKycDetail);
 	}
 
 }

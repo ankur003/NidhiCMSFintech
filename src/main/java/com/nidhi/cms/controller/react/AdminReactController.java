@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,18 +37,26 @@ import com.nidhi.cms.controller.AbstractController;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserBankDetails;
+import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.SystemPrivilegesModel;
+import com.nidhi.cms.modal.response.UserBankDetailModel;
+import com.nidhi.cms.modal.response.UserBusinessKycModel;
 import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.modal.response.UserModel;
+import com.nidhi.cms.react.request.UserBusnessKycRequestModel;
 import com.nidhi.cms.react.request.UserFilterModel;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
+import com.nidhi.cms.service.UserBankService;
+import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
+import com.nidhi.cms.utils.ResponseMapper;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -65,6 +74,12 @@ public class AdminReactController extends AbstractController{
 	
 	@Autowired
 	private OtpService otpService;
+	
+	@Autowired
+	private UserBusnessKycService userBusnessKycService;
+	
+	@Autowired
+	private UserBankService userBankService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminReactController.class);
 	
@@ -190,6 +205,37 @@ public class AdminReactController extends AbstractController{
 		return ResponseHandler.getDocumentResponse(imageAsByte, userDoc.getFileName());
 	}
 	
+	@GetMapping(value = "/get/document/user/{userUuid}")
+	public ResponseEntity<Object> getDocument(@PathVariable("userUuid") final String userUuid,
+			@RequestParam("docType") DocType docType) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		UserDoc doc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
+		if (doc == null || doc.getData() == null) {
+			return ResponseHandler.get204Response();
+		}
+		byte[] imageAsByte = Base64.decodeBase64(doc.getData());
+		return ResponseHandler.getDocumentResponse(imageAsByte, doc.getFileName());
+	}
+	
+	@PostMapping("/upload/document-by-doc-type")
+	public ResponseEntity<Object> uploadDocumentByDocType(@RequestParam("file") final MultipartFile multipartFile,
+			@RequestParam("userUuid") final String userUuid, @RequestParam("docType") DocType docType) throws IOException {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null || BooleanUtils.isFalse(user.getIsActive())) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		String documentUuid = userservice.saveOrUpdateUserDoc(user, multipartFile, docType);
+		if (StringUtils.isBlank(documentUuid)) {
+			return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "document not saved", HttpStatus.NOT_MODIFIED);
+		}
+		final Map<String, Object> responseMap = new HashMap<>();
+		responseMap.put("documentUuid", documentUuid);
+		return ResponseEntity.status(HttpStatus.CREATED).body(responseMap);
+	}
+	
     @PostMapping("/upload/document")
     public ResponseEntity<Object> uploadDocument(
     		@RequestParam("pan") final MultipartFile multipartFilePan,
@@ -212,5 +258,57 @@ public class AdminReactController extends AbstractController{
 		responseMap.put("adharUuid", adharUuid);
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseMap);
     }
+    
+    @ApiResponses(value = { @ApiResponse(code = 200, response = UserBusinessKycModel.class, message = "") })
+	@GetMapping(value = "/get/business-detail/user/{userUuid}")
+	public ResponseEntity<Object> getUserbusinessDetail(@PathVariable("userUuid") final String userUuid) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		UserBusinessKyc userBusnessKycDetail = userBusnessKycService.getUserBusnessKyc(user.getUserId());
+		if (userBusnessKycDetail == null) {
+			return ResponseHandler.get204Response();
+		}
+		return ResponseMapper.mapUserBusinessKyc(userBusnessKycDetail);
+	}
+	
+	@PutMapping(value = "/business-detail/user/{userUuid}")
+	public ResponseEntity<Object> saveOrUpdateUserbusinessDetail(@PathVariable("userUuid") final String userUuid,
+			@Valid @RequestBody UserBusnessKycRequestModel userBusnessKycRequestModel) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		UserBusinessKyc userBusnessKycDetail = userBusnessKycService.getUserBusnessKyc(user.getUserId());
+		userBusnessKycService.saveOrUpdateUserBusnessKyc(user, userBusnessKycDetail, userBusnessKycRequestModel);
+		return ResponseHandler.getOkResponse();
+	}
+	
+	@ApiResponses(value = { @ApiResponse(code = 200, response = UserBankDetailModel.class, message = "") })
+	@GetMapping(value = "/get/bank/user/{userUuid}")
+	public ResponseEntity<Object> getUserBankDetail(@PathVariable("userUuid") final String userUuid) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		UserBankDetails userBankDetail = userBankService.getUserById(user.getUserId());
+		if (userBankDetail == null) {
+			return ResponseHandler.get204Response();
+		}
+		return ResponseMapper.mapUserBankDetail(userBankDetail);
+	}
+	
+	@PutMapping(value = "/bank-detail/user/{userUuid}")
+	public ResponseEntity<Object> saveOrUpdateUserbankDetail(@PathVariable("userUuid") final String userUuid,
+			@Valid @RequestBody UserBankDetailModel userBankDetailModel) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		UserBankDetails userBankDetail = userBankService.getUserById(user.getUserId());
+		userBankService.saveOrUpdateUserBankDetails(user, userBankDetail, userBankDetailModel);
+		return ResponseHandler.getOkResponse();
+	}
 	
 }

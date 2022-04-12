@@ -115,7 +115,7 @@ public class ResponseHandler {
 		try {
 			Path tempFile = Files.createTempFile(FilenameUtils.removeExtension(fileName), "." + FilenameUtils.getExtension(fileName));
 			File file = Files.write(tempFile, imageAsByte).toFile();
-	        return ResponseHandler.getDocumentResponse(file);
+	        return getDocumentResponse(file);
         } catch (IOException e) {
 			return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
         }

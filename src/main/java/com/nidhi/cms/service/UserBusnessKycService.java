@@ -5,6 +5,7 @@ import org.dozer.Mapper;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBusinessKyc;
+import com.nidhi.cms.react.request.UserBusnessKycRequestModel;
 
 public interface UserBusnessKycService {
 
@@ -15,5 +16,7 @@ public interface UserBusnessKycService {
 	void updateKycStatus(User user, KycStatus kycStatus);
 
 	UserBusinessKyc getUserBusnessKycByPan(String pan);
+
+	void saveOrUpdateUserBusnessKyc(User user, UserBusinessKyc userBusnessKycDetail, UserBusnessKycRequestModel userBusnessKycRequestModel);
 
 }
