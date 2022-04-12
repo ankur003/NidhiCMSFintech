@@ -21,6 +21,8 @@ public interface DocRepository extends JpaRepository<UserDoc, Long> , PagingAndS
 
 	UserDoc findByUserIdAndDocType(Long userId, DocType docType);
 	
+	UserDoc findByDocUuid(String documentUuid);
+	
 	List<UserDoc> findByUserId(Long userId);
 
 	List<UserDoc> findByUserIdAndIsVerifiedByAdmin(Long userId, Boolean isVerified);

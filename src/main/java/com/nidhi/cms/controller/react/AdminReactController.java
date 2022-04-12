@@ -1,5 +1,7 @@
 package com.nidhi.cms.controller.react;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -10,6 +12,7 @@ import javax.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +22,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nidhi.cms.constants.ApiConstants;
 import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.controller.AbstractController;
+import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.SystemPrivilege;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserDoc;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
@@ -36,6 +44,7 @@ import com.nidhi.cms.modal.response.SystemPrivilegesModel;
 import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.modal.response.UserModel;
 import com.nidhi.cms.react.request.UserFilterModel;
+import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
@@ -50,6 +59,9 @@ public class AdminReactController extends AbstractController{
 	
 	@Autowired
 	private UserService userservice;
+	
+	@Autowired
+	private DocService docService;
 	
 	@Autowired
 	private OtpService otpService;
@@ -164,5 +176,41 @@ public class AdminReactController extends AbstractController{
 		List<SystemPrivilegesModel> systemPrivilegesModels = list.stream().map(SystemPrivilegesModel::new).collect(Collectors.toList());
 		return ResponseHandler.getContentResponse(systemPrivilegesModels);
 	}
+	
+	@GetMapping(value = "/get/document/{documentUuid}")
+	public ResponseEntity<Object> getDocument(@PathVariable("documentUuid") final String documentUuid) throws Exception {
+		UserDoc userDoc = docService.getUserDocByDocumentUuid(documentUuid);
+		if (userDoc == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		if (userDoc.getData() == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect file data", HttpStatus.BAD_REQUEST);
+		}
+		byte[] imageAsByte = Base64.decodeBase64(userDoc.getData());
+		return ResponseHandler.getDocumentResponse(imageAsByte, userDoc.getFileName());
+	}
+	
+    @PostMapping("/upload/document")
+    public ResponseEntity<Object> uploadDocument(
+    		@RequestParam("pan") final MultipartFile multipartFilePan,
+    		@RequestParam("adhar") final MultipartFile multipartFileAdhar,
+    		@RequestParam("userUuid") final String userUuid) throws IOException {
+    	User user = userservice.getUserByUserUuid(userUuid);
+    	if (user == null || BooleanUtils.isFalse(user.getIsActive())) {
+    		return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+    	}
+    	String panUuid = userservice.saveOrUpdateUserDoc(user, multipartFilePan, DocType.DOCUMENT_PAN);
+    	if (StringUtils.isBlank(panUuid)) {
+			return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "document not saved", HttpStatus.NOT_MODIFIED);
+    	}
+    	String adharUuid = userservice.saveOrUpdateUserDoc(user, multipartFileAdhar, DocType.DOCUMENT_AADHAR);
+    	if (StringUtils.isBlank(adharUuid)) {
+			return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "document not saved", HttpStatus.NOT_MODIFIED);
+    	}
+		final Map<String, Object> responseMap = new HashMap<>();
+		responseMap.put("panUuid", panUuid);
+		responseMap.put("adharUuid", adharUuid);
+		return ResponseEntity.status(HttpStatus.CREATED).body(responseMap);
+    }
 	
 }

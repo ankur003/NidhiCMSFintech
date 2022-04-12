@@ -220,8 +220,8 @@ public class UserController extends AbstractController {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
-		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
-		if (BooleanUtils.isTrue(isSaved)) {
+		String uuid = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
+		if (StringUtils.isNotBlank(uuid)) {
 			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
 			return ResponseHandler.getMapResponse(MESSAGE, "file saved successfully");
 		}
@@ -867,8 +867,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
-		Boolean isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
-		if (BooleanUtils.isTrue(isSaved)) {
+		String uuid = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
+		if (StringUtils.isNotBlank(uuid)) {
 			return ResponseHandler.getMapResponse(MESSAGE, "file saved successfully");
 		}
 		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,

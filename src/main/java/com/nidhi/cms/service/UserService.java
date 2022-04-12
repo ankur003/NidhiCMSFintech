@@ -44,7 +44,7 @@ public interface UserService {
 	
 	void updateUserIsVerified(Otp otp);
 	
-	Boolean saveOrUpdateUserDoc(User user, MultipartFile multiipartFile, DocType docType) throws IOException;
+	String saveOrUpdateUserDoc(User user, MultipartFile multiipartFile, DocType docType) throws IOException;
 
 	Boolean changeEmailOrPassword(User user, String emailToChange, String passwordToChange) throws Exception;
 

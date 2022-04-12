@@ -36,7 +36,7 @@ public class DocServiceImpl implements DocService {
 	}
 
 	@Override
-	public Boolean saveOrUpdateUserDoc(UserDoc userDoc, Long userId, MultipartFile multiipartFile, DocType docType) throws IOException {
+	public String saveOrUpdateUserDoc(UserDoc userDoc, Long userId, MultipartFile multiipartFile, DocType docType) throws IOException {
 		if (userDoc == null) {
 			userDoc = new UserDoc();
 			userDoc.setUserId(userId);
@@ -48,8 +48,8 @@ public class DocServiceImpl implements DocService {
 		userDoc.setFileName(StringUtils.cleanPath(multiipartFile.getOriginalFilename()));
 		String base64EncodedImage = new String(Base64.encodeBase64(multiipartFile.getBytes()), StandardCharsets.US_ASCII);
 		userDoc.setData(base64EncodedImage);
-		docRepository.save(userDoc);
-		return Boolean.TRUE;
+		userDoc = docRepository.save(userDoc);
+		return userDoc.getDocUuid();
 	}
 
 	@Override
@@ -69,6 +69,11 @@ public class DocServiceImpl implements DocService {
 		doc.setIsVerifiedByAdmin(kycResponse);
 		docRepository.save(doc);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public UserDoc getUserDocByDocumentUuid(String documentUuid) {
+		return docRepository.findByDocUuid(documentUuid);
 	}
 
 }

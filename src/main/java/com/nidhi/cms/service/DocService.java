@@ -18,8 +18,10 @@ import com.nidhi.cms.domain.UserDoc;
 public interface DocService {
 
 	UserDoc getUserDocByUserIdAndDocType(Long userId, DocType docType);
+	
+	UserDoc getUserDocByDocumentUuid(String documentUuid);
 
-	Boolean saveOrUpdateUserDoc(UserDoc userDoc, Long userId, MultipartFile multiipartFile, DocType docType) throws IOException;
+	String saveOrUpdateUserDoc(UserDoc userDoc, Long userId, MultipartFile multiipartFile, DocType docType) throws IOException;
 
 	List<UserDoc> getUserAllKyc(Long userId);
 

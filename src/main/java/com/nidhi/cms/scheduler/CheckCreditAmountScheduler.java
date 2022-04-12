@@ -55,7 +55,7 @@ public class CheckCreditAmountScheduler {
     @Autowired
     private  CreditAmountTransactionsService creditAmountTransactionsService;
 
-    @Scheduled(cron = "0 0/10 * * * ?")
+    //@Scheduled(cron = "0 0/10 * * * ?")
     public void checkCreditAmountScheduler() {
         LOGGER.info("check Credit Amount Scheduler has been started at '{}'", LocalDateTime.now());
         OkHttpClient client = new OkHttpClient().newBuilder().build();

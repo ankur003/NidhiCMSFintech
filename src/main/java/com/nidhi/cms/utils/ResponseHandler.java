@@ -1,15 +1,22 @@
 package com.nidhi.cms.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import com.nidhi.cms.constants.enums.ErrorCode;
@@ -75,6 +82,43 @@ public class ResponseHandler {
 	
 	public static ResponseEntity<Object> get201Response() {
 		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
+
+	public static ResponseEntity<Object> getDocumentResponse(File document) {
+		if (document == null) {
+            return get204Response();
+        }
+        CleanupInputStreamResource resource = null;
+        try {
+            resource = new CleanupInputStreamResource(document);
+        } catch (final IOException e) {
+            return getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        final String mediaType = probeContentType(document.getAbsolutePath());
+        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=\"" + document.getName() + "\"")
+            .contentLength(document.length()).contentType(MediaType.parseMediaType(mediaType)).body(resource);
+	}
+	
+	 public static String probeContentType(final String filePath) {
+	        String mediaType = null;
+	        try {
+	            mediaType = Files.probeContentType(Paths.get(filePath));
+	        } catch (final IOException ioe) {
+	        }
+	        if (StringUtils.isBlank(mediaType)) {
+	            mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+	        }
+	        return mediaType;
+	    }
+
+	public static ResponseEntity<Object> getDocumentResponse(byte[] imageAsByte, String fileName) {
+		try {
+			Path tempFile = Files.createTempFile(FilenameUtils.removeExtension(fileName), "." + FilenameUtils.getExtension(fileName));
+			File file = Files.write(tempFile, imageAsByte).toFile();
+	        return ResponseHandler.getDocumentResponse(file);
+        } catch (IOException e) {
+			return ResponseHandler.getResponseEntity(ErrorCode.GENERIC_SERVER_ERROR, "something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 	}
 
 }

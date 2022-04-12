@@ -265,7 +265,7 @@ public class UserServiceImpl extends AbstractDataSourceDao implements UserDetail
 	}
 
 	@Override
-	public Boolean saveOrUpdateUserDoc(User user, MultipartFile multiipartFile, DocType docType) throws IOException {
+	public String saveOrUpdateUserDoc(User user, MultipartFile multiipartFile, DocType docType) throws IOException {
 		UserDoc userDoc = docService.getUserDocByUserIdAndDocType(user.getUserId(), docType);
 		return docService.saveOrUpdateUserDoc(userDoc, user.getUserId(), multiipartFile, docType);
 	}
