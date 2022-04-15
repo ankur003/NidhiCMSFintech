@@ -40,20 +40,25 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
 import com.nidhi.cms.domain.UserDoc;
+import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.UserCreateModal;
+import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.SystemPrivilegesModel;
 import com.nidhi.cms.modal.response.UserBankDetailModel;
 import com.nidhi.cms.modal.response.UserBusinessKycModel;
 import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.modal.response.UserModel;
+import com.nidhi.cms.react.request.UserActivateOrDeActivateReqModel;
 import com.nidhi.cms.react.request.UserBusnessKycRequestModel;
+import com.nidhi.cms.react.request.UserChargesRequestModel;
 import com.nidhi.cms.react.request.UserFilterModel;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserBankService;
 import com.nidhi.cms.service.UserBusnessKycService;
+import com.nidhi.cms.service.UserPaymentModeService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.ResponseMapper;
@@ -80,6 +85,9 @@ public class AdminReactController extends AbstractController{
 	
 	@Autowired
 	private UserBankService userBankService;
+	
+	@Autowired
+	private UserPaymentModeService userPaymentModeService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminReactController.class);
 	
@@ -307,7 +315,59 @@ public class AdminReactController extends AbstractController{
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
 		}
 		UserBankDetails userBankDetail = userBankService.getUserById(user.getUserId());
+		if (userBankDetail == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User.", HttpStatus.BAD_REQUEST);
+		}
 		userBankService.saveOrUpdateUserBankDetails(user, userBankDetail, userBankDetailModel);
+		return ResponseHandler.getOkResponse();
+	}
+	
+	@PutMapping(value = "/activate-or-deActivate/user/{userUuid}")
+	public ResponseEntity<Object> saveOrUpdateUserbankDetail(@PathVariable("userUuid") final String userUuid,
+			@Valid @RequestBody UserActivateOrDeActivateReqModel actOrDeActModel) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		if (BooleanUtils.isFalse(actOrDeActModel.getIsActivate()) && StringUtils.isBlank(actOrDeActModel.getReason())) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "reason mandatory in case of user de-activation", HttpStatus.BAD_REQUEST);
+		}
+		userservice.userReactActivateOrDeactivate(user, actOrDeActModel.getIsActivate());
+		return ResponseHandler.getOkResponse();
+	}
+	
+	@ApiResponses(value = { @ApiResponse(code = 200, response = UserPaymentMode.class, message = "", responseContainer = "List") })
+	@GetMapping(value = "/get-charges/user/{userUuid}")
+	public ResponseEntity<Object> getUserCharges(@PathVariable("userUuid") final String userUuid) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		List<UserPaymentMode> details = userPaymentModeService.getUserAllPaymentMode(user);
+		if (CollectionUtils.isEmpty(details)) {
+			return ResponseHandler.get204Response();
+		}
+		return ResponseHandler.getContentResponse(details);
+	}
+	
+	@PutMapping(value = "/set-charges/user/{userUuid}")
+	public ResponseEntity<Object> setUserCharges(@PathVariable("userUuid") final String userUuid,
+			@Valid @RequestBody List<UserChargesRequestModel> userChargesRequestModels) throws Exception {
+		if (userChargesRequestModels == null || userChargesRequestModels.size() <= 0) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect Request Data", HttpStatus.BAD_REQUEST);
+		}
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		for (UserChargesRequestModel userChargesRequestModel : userChargesRequestModels) {
+			UserPaymentModeModalReqModal userPaymentModeModalReqModal = new UserPaymentModeModalReqModal();
+			userPaymentModeModalReqModal.setActive(userChargesRequestModel.isActive());
+			userPaymentModeModalReqModal.setPaymentMode(userPaymentModeModalReqModal.getPaymentMode());
+			userPaymentModeModalReqModal.setFee(userPaymentModeModalReqModal.getFee());
+			userPaymentModeModalReqModal.setPaymentModeFeeType(userChargesRequestModel.getPaymentModeFeeType());
+			userPaymentModeService.saveOrUpdateUserPaymentMode(user, userPaymentModeModalReqModal);
+		}
 		return ResponseHandler.getOkResponse();
 	}
 	

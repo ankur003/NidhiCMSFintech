@@ -100,6 +100,8 @@ public interface UserService {
 
 	List<UserModel> getfilterUsers(@Valid UserFilterModel userFilterModel);
 
+	Boolean userReactActivateOrDeactivate(User user, Boolean isActivate);
+
 }
 
 

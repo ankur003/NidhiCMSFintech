@@ -403,6 +403,30 @@ public class UserServiceImpl extends AbstractDataSourceDao implements UserDetail
 		triggerUserDeactivateNotifications(user, isActivate);
 		return Boolean.TRUE;
 	}
+	
+	@Override
+	public Boolean userReactActivateOrDeactivate(User user, Boolean isActivate) {
+		user.setIsActive(isActivate);
+		userRepository.save(user);
+		triggerUserReactDeactivateNotifications(user, isActivate);
+		return Boolean.TRUE;
+	}
+	
+	private void triggerUserReactDeactivateNotifications(User user, Boolean isActivate) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerUserDeactivateNotifications] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		if (BooleanUtils.isFalse(isActivate)) {
+			MailRequest request = new MailRequest();
+			request.setName(user.getFullName());
+			request.setSubject("Your NidhiCMS Account Suspended");
+			request.setTo(new String[] { user.getUserEmail() });
+			Map<String, Object> model = new HashMap<>();
+			model.put("name", user.getFullName());
+			emailService.sendEmail(request, model, null, EmailTemplateConstants.TERMINATE_ACCOUNT);
+		}
+	}
 
 	private void triggerUserDeactivateNotifications(User user, Boolean isActivate) {
 		if (StringUtils.isBlank(user.getUserEmail())) {

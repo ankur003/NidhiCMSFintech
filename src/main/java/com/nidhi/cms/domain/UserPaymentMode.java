@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 
@@ -17,6 +18,7 @@ public class UserPaymentMode extends BaseDomain {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@JsonIgnore
 	private Long userPaymentModeId;
 
 	private Long userId;
