@@ -323,7 +323,7 @@ public class AdminReactController extends AbstractController{
 	}
 	
 	@PutMapping(value = "/activate-or-deActivate/user/{userUuid}")
-	public ResponseEntity<Object> saveOrUpdateUserbankDetail(@PathVariable("userUuid") final String userUuid,
+	public ResponseEntity<Object> activateORdeActivateUser(@PathVariable("userUuid") final String userUuid,
 			@Valid @RequestBody UserActivateOrDeActivateReqModel actOrDeActModel) throws Exception {
 		User user = userservice.getUserByUserUuid(userUuid);
 		if (user == null) {

@@ -90,8 +90,6 @@ public class SwaggerConfig {
     
     private List<ResponseMessage> getCustomizedResponseMessages() {
         final List<ResponseMessage> responseMessages = new ArrayList<>();
-        responseMessages.add(new ResponseMessageBuilder().code(500).message("Internal Server Error").responseModel(new ModelRef("ErrorResponse")).build());
-        responseMessages.add(new ResponseMessageBuilder().code(403).message("Forbidden").build());
         return responseMessages;
     }
 
