@@ -371,4 +371,26 @@ public class AdminReactController extends AbstractController{
 		return ResponseHandler.getOkResponse();
 	}
 	
+	@GetMapping(value = "/get-ip/user/{userUuid}")
+	public ResponseEntity<Object> getUserIp(@PathVariable("userUuid") final String userUuid) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		String ip = user.getWhiteListIp();
+		final Map<String, Object> responseMap = new HashMap<>();
+		responseMap.put("ip", ip);
+		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+	}
+	
+	@PutMapping(value = "/set-ip/user/{userUuid}/{ip}")
+	public ResponseEntity<Object> setUserIp(@PathVariable("userUuid") final String userUuid, @PathVariable("ip") final String ip) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		userservice.apiWhiteListing(user, ip);
+		return ResponseHandler.getOkResponse();
+	}
+	
 }
