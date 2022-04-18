@@ -40,7 +40,9 @@ export function ManageClient() {
   const [noDataList, setNoDataList] = useState(true);
   const [panImageData, setPanImageData] = useState('');
   const [adharImageData, setAdharImageData] = useState('');
-  
+  const [isfetchPanImage, setIsfetchPanImage] = useState(true);
+  const [isfetchAdharImage,setIsfetchAdharImage] =  useState(true);
+
   function refreshPage() {
     window.location.reload(false);
   }
@@ -117,6 +119,18 @@ export function ManageClient() {
     }
     );
   }
+
+  const onImageChange = (e) => {
+    setIsfetchPanImage(false);
+    const [file] = e.target.files;
+    setPanImageData(URL.createObjectURL(file));
+  };
+
+  const onImageAdaharChange = (e) => {
+    setIsfetchAdharImage(false);
+    const [file] = e.target.files;
+    setAdharImageData(URL.createObjectURL(file));
+  };
 
   return (
     <React.Fragment>
@@ -219,12 +233,12 @@ export function ManageClient() {
                       <div className="form-group">
                         <label className="form-group-label">Upload PAN : <i className="fas fa-asterisk"></i></label>
                         <div className="uplaod-image">
-                          <input type="file" className="form-control" />
+                          <input type="file" className="form-control" onChange={onImageChange} />
                           <p>Click to Upload Image</p>
                           <div className="uploaded-image">
-                            <img src={`data:image/jpeg;base64,${panImageData}`} />                            
+                            <img src={isfetchPanImage ? `data:image/jpeg;base64,${panImageData}` : panImageData} />
                             <button className="btn">
-                              <input type="file" />
+                              <input type="file" onChange={onImageChange} />
                               <span><i className="fas fa-pen"></i></span>
                             </button>
                           </div>
@@ -235,12 +249,12 @@ export function ManageClient() {
                       <div className="form-group">
                         <label className="form-group-label">Upload Aadhar card : <i className="fas fa-asterisk"></i></label>
                         <div className="uplaod-image">
-                          <input type="file" className="form-control" />
+                          <input type="file" className="form-control" onChange={onImageAdaharChange}/>
                           <p>Click to Upload Image</p>
                           <div className="uploaded-image">
-                            <img src={`data:image/jpeg;base64,${adharImageData}`} />
+                            <img src={isfetchAdharImage ? `data:image/jpeg;base64,${adharImageData}` : adharImageData} />
                             <button className="btn">
-                              <input type="file" />
+                              <input type="file" onChange={onImageAdaharChange}/>
                               <span><i className="fas fa-pen"></i></span>
                             </button>
                           </div>
