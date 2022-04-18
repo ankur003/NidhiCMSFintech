@@ -36,6 +36,7 @@ import com.nidhi.cms.constants.enums.ErrorCode;
 import com.nidhi.cms.controller.AbstractController;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.SystemPrivilege;
+import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
@@ -46,22 +47,27 @@ import com.nidhi.cms.modal.request.UserCreateModal;
 import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.response.SystemPrivilegesModel;
+import com.nidhi.cms.modal.response.TransactionResponseModel;
 import com.nidhi.cms.modal.response.UserBankDetailModel;
 import com.nidhi.cms.modal.response.UserBusinessKycModel;
 import com.nidhi.cms.modal.response.UserDetailModal;
 import com.nidhi.cms.modal.response.UserModel;
+import com.nidhi.cms.react.request.ReportRequestModel;
 import com.nidhi.cms.react.request.UserActivateOrDeActivateReqModel;
 import com.nidhi.cms.react.request.UserBusnessKycRequestModel;
 import com.nidhi.cms.react.request.UserChargesRequestModel;
 import com.nidhi.cms.react.request.UserFilterModel;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.OtpService;
+import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserBankService;
 import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserPaymentModeService;
 import com.nidhi.cms.service.UserService;
+import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.ResponseMapper;
+import com.nidhi.cms.utils.Utility;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -88,6 +94,12 @@ public class AdminReactController extends AbstractController{
 	
 	@Autowired
 	private UserPaymentModeService userPaymentModeService;
+	
+	@Autowired
+	private TransactionService transactionService;
+	
+	@Autowired
+	private UserWalletService userWalletService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminReactController.class);
 	
@@ -209,8 +221,9 @@ public class AdminReactController extends AbstractController{
 		if (userDoc.getData() == null) {
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect file data", HttpStatus.BAD_REQUEST);
 		}
-		byte[] imageAsByte = Base64.decodeBase64(userDoc.getData());
-		return ResponseHandler.getDocumentResponse(imageAsByte, userDoc.getFileName());
+		final Map<String, Object> responseMap = new HashMap<>();
+		responseMap.put("document", userDoc.getData());
+		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
 	}
 	
 	@GetMapping(value = "/get/document/user/{userUuid}")
@@ -224,8 +237,26 @@ public class AdminReactController extends AbstractController{
 		if (doc == null || doc.getData() == null) {
 			return ResponseHandler.get204Response();
 		}
-		byte[] imageAsByte = Base64.decodeBase64(doc.getData());
-		return ResponseHandler.getDocumentResponse(imageAsByte, doc.getFileName());
+		final Map<String, Object> responseMap = new HashMap<>();
+		responseMap.put("document", doc.getData());
+		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+	}
+	
+	@GetMapping(value = "/get/all-documents/user/{userUuid}")
+	public ResponseEntity<Object> getUserAllDocuments(@PathVariable("userUuid") final String userUuid) throws Exception {
+		User user = userservice.getUserByUserUuid(userUuid);
+		if (user == null) {
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Incorrect User", HttpStatus.BAD_REQUEST);
+		}
+		List<UserDoc> docs = docService.getUserAllKyc(user.getUserId());
+		if (CollectionUtils.isEmpty(docs)) {
+			return ResponseHandler.get204Response();
+		}
+		final Map<String, Object> responseMap = new HashMap<>();
+		docs.forEach(doc -> {
+			responseMap.put(doc.getDocType().name(), doc.getData());
+		});
+		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
 	}
 	
 	@PostMapping("/upload/document-by-doc-type")
@@ -391,6 +422,25 @@ public class AdminReactController extends AbstractController{
 		}
 		userservice.apiWhiteListing(user, ip);
 		return ResponseHandler.getOkResponse();
+	}
+	
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+	@GetMapping(value = "/get/client-suggestions/")
+	public ResponseEntity<Object> getClientNameSuggestions(@RequestParam ("name") String name) throws Exception {
+		final List<String> merchantIdAndName = userWalletService.getUserNameByMarchantId(name);
+		return ResponseHandler.getContentResponse(merchantIdAndName);
+	}
+	
+	@ApiResponses(value = { @ApiResponse(code = 200, response = TransactionResponseModel.class, message = "", responseContainer = "List") })
+	@GetMapping(value = "/transaction-report/")
+	public ResponseEntity<Object> getTransactionReport(@Valid @RequestBody ReportRequestModel reportRequestModel) throws Exception {
+		List<Transaction> transactions = transactionService.findByMerchantIdAndTxDateBetween(reportRequestModel.getMid(), Utility.stringToLocalDate(reportRequestModel.getStartDate()),
+				 Utility.stringToLocalDate(reportRequestModel.getEndDate()));
+		if (CollectionUtils.isEmpty(transactions)) {
+			return ResponseHandler.get204Response();
+		}
+		List<TransactionResponseModel>  transactionResponseModel = ResponseMapper.mapTransactionReport(transactions);
+		return ResponseHandler.getContentResponse(transactionResponseModel);
 	}
 	
 }

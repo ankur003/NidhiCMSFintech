@@ -1,9 +1,14 @@
 package com.nidhi.cms.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 
+import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.UserBankDetails;
 import com.nidhi.cms.domain.UserBusinessKyc;
+import com.nidhi.cms.modal.response.TransactionResponseModel;
 import com.nidhi.cms.modal.response.UserBankDetailModel;
 import com.nidhi.cms.modal.response.UserBusinessKycModel;
 
@@ -35,6 +40,21 @@ public class ResponseMapper {
 		UserBankDetailModel.setBankName(userBankDetail.getBankName());
 		UserBankDetailModel.setIfsc(userBankDetail.getIfsc());
 		return ResponseHandler.getContentResponse(UserBankDetailModel);
+	}
+
+	public static List<TransactionResponseModel>  mapTransactionReport(List<Transaction> transactions) {
+		List<TransactionResponseModel> transactionResponseModelList = new ArrayList<>();
+		for (Transaction transaction : transactions) {
+			TransactionResponseModel transactionResponseModel = new TransactionResponseModel();
+			transactionResponseModel.setTxDate(transaction.getTxDate());
+			transactionResponseModel.setAmount(transaction.getAmount());
+			transactionResponseModel.setCurrency(transaction.getCurrency());
+			transactionResponseModel.setFee(transaction.getFee());
+			transactionResponseModel.setTxType(transaction.getTxType());
+			transactionResponseModel.setUniqueId(transaction.getUniqueId());
+			transactionResponseModelList.add(transactionResponseModel);
+		}
+		return transactionResponseModelList;
 	}
 
 }
