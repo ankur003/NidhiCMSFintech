@@ -1008,7 +1008,7 @@ public class UserServiceImpl extends AbstractDataSourceDao implements UserDetail
 
 	@Override
 	public List<User> getAllUsers() {
-		return userRepository.findByIsSubAdminAndIsAdminAndKycStatusIn(false, false, Arrays.asList(KycStatus.UNDER_REVIEW,KycStatus.VERIFIED, KycStatus.REJECTED));
+		return userRepository.findByIsSubAdminAndIsAdminAndKycStatusIn(false, false, Arrays.asList(KycStatus.UNDER_REVIEW, KycStatus.VERIFIED, KycStatus.REJECTED));
 	}
 
 	@Override
