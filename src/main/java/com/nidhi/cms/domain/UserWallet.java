@@ -30,6 +30,8 @@ public class UserWallet extends BaseDomain {
 
 	private String merchantId;
 	
+	private String merchantCallBackUrl;
+	
 	private Boolean isUpiActive = false;
 
 	public Long getUserWalletId() {
@@ -87,5 +89,14 @@ public class UserWallet extends BaseDomain {
 	public void setIsUpiActive(Boolean isUpiActive) {
 		this.isUpiActive = isUpiActive;
 	}
+
+	public String getMerchantCallBackUrl() {
+		return merchantCallBackUrl;
+	}
+
+	public void setMerchantCallBackUrl(String merchantCallBackUrl) {
+		this.merchantCallBackUrl = merchantCallBackUrl;
+	}
+	
 	
 }

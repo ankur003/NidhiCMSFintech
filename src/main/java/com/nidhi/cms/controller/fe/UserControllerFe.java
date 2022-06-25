@@ -1249,6 +1249,37 @@ public class UserControllerFe {
 		return new ModelAndView("UserUpdateAdmin");
 	}
 	
+	@PostMapping(value = "/admin-callbackurl-update")
+	public ModelAndView admincallbackurlupdate(Model model, HttpServletRequest request) {
+		String userUuid = request.getParameter("userUuid");
+		String adminUuid = request.getParameter("adminUuid");
+		String merchantCallBackUrl = request.getParameter("merchantCallBackUrl");
+		boolean flag = false;
+			flag = userController.updateCallbackUrl(merchantCallBackUrl,userUuid, adminUuid);
+		if (flag) {
+			model.addAttribute("msg", "Call Back Url has been updated.");
+			
+			model.addAttribute("id",8);
+			
+			User user = userservice.getUserByUserUuid(userUuid);
+			UserDoc	pan = userController.getUserDocbyUserId(DocType.DOCUMENT_PAN, userUuid);
+			UserDoc	aadhar = userController.getUserDocbyUserId(DocType.DOCUMENT_AADHAR, userUuid);
+			UserDoc	gst = userController.getUserDocbyUserId(DocType.DOCUMENT_GST, userUuid);
+			UserBankDetails bank= userController.getUserBankDetails(userUuid);	
+			UserBusinessKycModal business=userController.getUserBusnessKybyid(userUuid);
+			UserWallet userWallet=userController.getUserWallet(userUuid);
+			model.addAttribute("pan",pan);
+			model.addAttribute("aadhar",aadhar);
+			model.addAttribute("gst",gst);
+			model.addAttribute("bank",bank);
+			model.addAttribute("bkyc",business);
+			model.addAttribute("user",user);
+			model.addAttribute("userWallet",userWallet);
+		} else
+			model.addAttribute("msgs", "Call Back Url didn't add. ");
+		return new ModelAndView("UserUpdateAdmin");
+	}
+	
 	
 	@GetMapping(value = "/generateApiKey")
 	public ModelAndView generateApiKey(@RequestParam("userUuid") String userUuid, Model model,HttpServletRequest request) {

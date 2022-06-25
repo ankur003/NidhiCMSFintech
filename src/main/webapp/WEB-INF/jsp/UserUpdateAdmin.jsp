@@ -151,7 +151,7 @@ function hideMessage(divId){
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=5"><button type="button" class="btn btn-warning">Billing Charges</button></a>
 					<a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=6"><button type="button" class="btn btn-info">White List IP</button></a>
 				    <a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=7"><button type="button" class="btn btn-primary">UPI Address</button></a>
-				
+				    <a href="/api/v1/get-div-kyc?userUuid=${user.userUuid }&adminUuid=${userLoginDetails.userUuid}&id=8"><button type="button" class="btn btn-success">call Back Url</button></a>
 				</div>
 					
 						            
@@ -904,6 +904,46 @@ function hideMessage(divId){
 					</div>
 					</div>
 					</c:if> --%>
+					<!-- ------------------------------------------------------------- -->
+					<!-- ------------------------------------------------------------ -->
+					<c:if test="${id eq 8 }">
+					<div id="4">
+					<div class="mu-contact-area" >
+						<div class="mu-contact-content">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="mu-contact-right">
+										<form class="contactform" action="/api/v1/admin-callbackurl-update"	method="post">
+                                    
+                                     <input type="hidden" id="userUuid" name="userUuid" value="${user.userUuid }" >
+										<input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
+										
+										
+										
+												<div class="col-lg-6">
+										<p class="comment-form-url">
+											<label for="subject">call Back Url<span class="mandate">*</span></label>
+											<input type="text" name="merchantCallBackUrl" id="merchantCallBackUrl"
+												minlength="3" aria-required="true" required="required"
+												maxlength="250" value="${userWallet.merchantCallBackUrl}">
+										</p>
+										</div>
+												<div class="col-lg-6"><br></div>
+												<div class="col-lg-12">
+											<p class="form-submit">
+											<input type="submit" value="Update" class="btn btn-success"
+												name="Update"> <input type="button" value="Cancel"
+												class="btn btn-info" name="cancel">
+										</p>
+										</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					</div>
+					</c:if>
 					<!-- ------------------------------------------------------------- -->
 			</c:if>
 		</div>

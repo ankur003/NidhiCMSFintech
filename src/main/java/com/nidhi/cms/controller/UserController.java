@@ -220,8 +220,8 @@ public class UserController extends AbstractController {
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
-		String uuid = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
-		if (StringUtils.isNotBlank(uuid)) {
+		String isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
+		if (isSaved!=null)  {
 			userBusnessKycService.updateKycStatus(user, KycStatus.UNDER_REVIEW);
 			return ResponseHandler.getMapResponse(MESSAGE, "file saved successfully");
 		}
@@ -733,6 +733,25 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return userservice.updateUserDetails(user, userUpdateModal);
 	}
 	
+	
+	public Boolean updateCallbackUrl(String merchantCallBackUrl,String userUuid, String adminUuid) {
+		User admin = userservice.getUserDetailByUserUuid(adminUuid);
+		if (BooleanUtils.isNotTrue(admin.getIsAdmin())) {
+			return false;
+		}
+		User user = userservice.getUserDetailByUserUuid(userUuid);
+		if (user == null) {
+			return false;
+		}
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		if (userWallet == null) {
+			return false;
+		}
+		userWallet.setMerchantCallBackUrl(merchantCallBackUrl);
+		userWalletService.save(userWallet);
+		return true;
+	}
+	
 	public User updateSubadminuser(User user,UserUpdateModal userUpdateModal)  {
 		return userservice.updateUserDetails(user, userUpdateModal);
 	}
@@ -867,8 +886,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "file is blank");
 			return new ResponseEntity<>(errorResponse, HttpStatus.PRECONDITION_FAILED);
 		}
-		String uuid = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
-		if (StringUtils.isNotBlank(uuid)) {
+		String isSaved = userservice.saveOrUpdateUserDoc(user, multiipartFile, docType);
+		if (isSaved!=null) {
 			return ResponseHandler.getMapResponse(MESSAGE, "file saved successfully");
 		}
 		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR,
