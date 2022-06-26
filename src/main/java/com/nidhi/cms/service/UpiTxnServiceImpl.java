@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
@@ -49,9 +50,6 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 	
 	@Autowired
 	private UPIHelper upiHelper;
-	
-	@Autowired
-	RestTemplate restTemplate;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpiTxnServiceImpl.class);
 
@@ -124,16 +122,27 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		
 		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);
 		
-		User user = userRepository.findByUserId(wallet.getUserId());
+		callbackInitaite(upiTxn, wallet);
 		
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("apiKey", user.getApiKey());      
+	}
 
-		HttpEntity<UpiTxn> request = new HttpEntity<>(upiTxn, headers);
-		
-		Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
-		System.out.println(map.toString());
-		
+	private void callbackInitaite(UpiTxn upiTxn, UserWallet wallet) {
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			
+			User user = userRepository.findByUserId(wallet.getUserId());
+			
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("apiKey", user.getApiKey());      
+
+			HttpEntity<UpiTxn> request = new HttpEntity<>(upiTxn, headers);
+			
+			Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
+			System.out.println(map.toString());
+		} catch (RestClientException e) {
+			e.printStackTrace();
+			System.out.println(e);
+		}
 	}
 
 	private void triggerCreditMail(Long userId, JSONObject decryptedJson, UserWallet savedWallet) {
