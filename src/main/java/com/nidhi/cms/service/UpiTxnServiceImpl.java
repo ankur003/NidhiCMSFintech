@@ -12,7 +12,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.domain.Transaction;
@@ -46,6 +49,9 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 	
 	@Autowired
 	private UPIHelper upiHelper;
+	
+	@Autowired
+	RestTemplate restTemplate;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpiTxnServiceImpl.class);
 
@@ -117,6 +123,16 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		UserWallet savedWallet = userWalletService.save(wallet);
 		
 		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);
+		
+		User user = userRepository.findByUserId(wallet.getUserId());
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("apiKey", user.getApiKey());      
+
+		HttpEntity<UpiTxn> request = new HttpEntity<>(upiTxn, headers);
+		
+		Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
+		System.out.println(map.toString());
 		
 	}
 
