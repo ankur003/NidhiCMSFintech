@@ -54,6 +54,8 @@ public class UpiTxn extends BaseDomain {
 	private String refUrl;
 	
 	private Long userId;
+	
+	private Boolean doesCallbackSuccess = Boolean.FALSE;
 
 	public String getPspRefNo() {
 		return pspRefNo;
@@ -221,6 +223,25 @@ public class UpiTxn extends BaseDomain {
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	public Boolean getDoesCallbackSuccess() {
+		return doesCallbackSuccess;
+	}
+
+	public void setDoesCallbackSuccess(Boolean doesCallbackSuccess) {
+		this.doesCallbackSuccess = doesCallbackSuccess;
+	}
+
+	@Override
+	public String toString() {
+		return "UpiTxn [upiTxnId=" + upiTxnId + ", pspRefNo=" + pspRefNo + ", upiTransRefNo=" + upiTransRefNo
+				+ ", npciTransId=" + npciTransId + ", orderNo=" + orderNo + ", custRefNo=" + custRefNo + ", amount="
+				+ amount + ", txnAuthDate=" + txnAuthDate + ", responseCode=" + responseCode + ", approvalNumber="
+				+ approvalNumber + ", status=" + status + ", addInfo1=" + addInfo1 + ", addInfo2=" + addInfo2
+				+ ", addInfo3=" + addInfo3 + ", payerVPA=" + payerVPA + ", payeeVPA=" + payeeVPA
+				+ ", currentStatusDesc=" + currentStatusDesc + ", txnNote=" + txnNote + ", txnType=" + txnType
+				+ ", refUrl=" + refUrl + ", userId=" + userId + "]";
 	}
 	
 }

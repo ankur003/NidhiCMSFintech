@@ -15,5 +15,7 @@ public interface UpiTxnRepo extends JpaRepository<UpiTxn, Long> , PagingAndSorti
 	UpiTxn findByOrderNoOrNpciTransId(String orderNo, String ncpiTransId);
 	
 	List<UpiTxn> findByTxnAuthDate(String date);
+	
+	List<UpiTxn> findByUserIdIsNotNullAndDoesCallbackSuccess(Boolean doesCallBackSuccess);
 
 }

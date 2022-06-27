@@ -115,7 +115,7 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		savedUpiTxn.setUserId(wallet.getUserId());
 		upiTxnRepo.save(savedUpiTxn);
 		
-		saveTransaction(decryptedJsonResp, wallet);
+		saveTransaction(decryptedJsonResp, wallet, wallet.getAmount() + decryptedJsonResp.getDouble("amount"));
 		
 		wallet.setAmount(wallet.getAmount() + decryptedJsonResp.getDouble("amount"));
 		UserWallet savedWallet = userWalletService.save(wallet);
@@ -137,12 +137,36 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 
 			HttpEntity<UpiTxn> request = new HttpEntity<>(upiTxn, headers);
 			
-			Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
-			System.out.println(map.toString());
+			LOGGER.info("callback request {}, with apikey {} and user id {} ", upiTxn, user.getApiKey(), user.getUserId());
+			
+			//Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
+			Object map = restTemplate.postForObject("http://localhost:1234/somme-test", request, Object.class);
+			LOGGER.info("callback response {}", map);
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> responseMap =  (HashMap<String, Object>) map;
+			if (responseMap.get("isSuccess") != null && BooleanUtils.isTrue((Boolean) responseMap.get("isSuccess"))) {
+				LOGGER.info("callback recieved");
+				upiTxn.setDoesCallbackSuccess(Boolean.TRUE);
+				upiTxnRepo.save(upiTxn);
+			}
+
 		} catch (RestClientException e) {
 			e.printStackTrace();
-			System.out.println(e);
+			LOGGER.error("An error occured while callback {} ", e);
 		}
+	}
+	
+	@Override
+	public void callBackScheduler() {
+		List<UpiTxn> upiTxns = upiTxnRepo.findByUserIdIsNotNullAndDoesCallbackSuccess(Boolean.FALSE);
+		if (CollectionUtils.isEmpty(upiTxns)) {
+			LOGGER.info("*****************No data to callBack again*************************");
+		}
+		for (UpiTxn upiTxn : upiTxns) {
+			UserWallet userWallet = userWalletService.findByUserId(upiTxn.getUserId());
+			callbackInitaite(upiTxn, userWallet);
+		}
+		
 	}
 
 	private void triggerCreditMail(Long userId, JSONObject decryptedJson, UserWallet savedWallet) {
@@ -155,13 +179,13 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
 		model.put("txAmt", decryptedJson.getDouble("amount"));
-		model.put("vAcc", savedWallet.getUpiVirtualAddress());
+		model.put("vAcc", savedWallet.getWalletUuid());
 		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
 		model.put("amt", savedWallet.getAmount());
 		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.CREDIT_ACC);
 	}
 
-	private void saveTransaction(JSONObject decryptedJson, UserWallet wallet) {
+	private void saveTransaction(JSONObject decryptedJson, UserWallet wallet, Double amt) {
 		Transaction transaction = new Transaction();
 		transaction.setAmount(decryptedJson.getDouble("amount"));
 		transaction.setAmountPlusfee(decryptedJson.getDouble("amount"));
@@ -180,6 +204,7 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		transaction.setUserId(wallet.getUserId());
 		transaction.setUtrNumber(decryptedJson.getString("npciTransId"));
 		transaction.setPayeeName(decryptedJson.getString("payeeVPA"));
+		transaction.setAmt(amt);
 		transactionService.save(transaction);
 	}
 
