@@ -140,7 +140,7 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 			LOGGER.info("callback request {}, with apikey {} and user id {} ", upiTxn, user.getApiKey(), user.getUserId());
 			
 			//Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
-			Object map = restTemplate.postForObject("http://localhost:1234/somme-test", request, Object.class);
+			Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
 			LOGGER.info("callback response {}", map);
 			@SuppressWarnings("unchecked")
 			HashMap<String, Object> responseMap =  (HashMap<String, Object>) map;
