@@ -6,4 +6,6 @@ public interface UpiTxnService {
 
 	void saveUpiTxn(JSONObject decryptedJson);
 
+	void callBackScheduler();
+
 }

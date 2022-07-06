@@ -12,7 +12,11 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.domain.Transaction;
@@ -111,12 +115,57 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		savedUpiTxn.setUserId(wallet.getUserId());
 		upiTxnRepo.save(savedUpiTxn);
 		
-		saveTransaction(decryptedJsonResp, wallet);
+		saveTransaction(decryptedJsonResp, wallet, wallet.getAmount() + decryptedJsonResp.getDouble("amount"));
 		
 		wallet.setAmount(wallet.getAmount() + decryptedJsonResp.getDouble("amount"));
 		UserWallet savedWallet = userWalletService.save(wallet);
 		
 		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);
+		
+		callbackInitaite(upiTxn, wallet);
+		
+	}
+
+	private void callbackInitaite(UpiTxn upiTxn, UserWallet wallet) {
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			
+			User user = userRepository.findByUserId(wallet.getUserId());
+			
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("apiKey", user.getApiKey());      
+
+			HttpEntity<UpiTxn> request = new HttpEntity<>(upiTxn, headers);
+			
+			LOGGER.info("callback request {}, with apikey {} and user id {} ", upiTxn, user.getApiKey(), user.getUserId());
+			
+			//Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
+			Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
+			LOGGER.info("callback response {}", map);
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> responseMap =  (HashMap<String, Object>) map;
+			if (responseMap.get("isSuccess") != null && BooleanUtils.isTrue((Boolean) responseMap.get("isSuccess"))) {
+				LOGGER.info("callback recieved");
+				upiTxn.setDoesCallbackSuccess(Boolean.TRUE);
+				upiTxnRepo.save(upiTxn);
+			}
+
+		} catch (RestClientException e) {
+			e.printStackTrace();
+			LOGGER.error("An error occured while callback {} ", e);
+		}
+	}
+	
+	@Override
+	public void callBackScheduler() {
+		List<UpiTxn> upiTxns = upiTxnRepo.findByUserIdIsNotNullAndDoesCallbackSuccess(Boolean.FALSE);
+		if (CollectionUtils.isEmpty(upiTxns)) {
+			LOGGER.info("*****************No data to callBack again*************************");
+		}
+		for (UpiTxn upiTxn : upiTxns) {
+			UserWallet userWallet = userWalletService.findByUserId(upiTxn.getUserId());
+			callbackInitaite(upiTxn, userWallet);
+		}
 		
 	}
 
@@ -130,13 +179,13 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
 		model.put("txAmt", decryptedJson.getDouble("amount"));
-		model.put("vAcc", savedWallet.getUpiVirtualAddress());
+		model.put("vAcc", savedWallet.getWalletUuid());
 		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
 		model.put("amt", savedWallet.getAmount());
 		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.CREDIT_ACC);
 	}
 
-	private void saveTransaction(JSONObject decryptedJson, UserWallet wallet) {
+	private void saveTransaction(JSONObject decryptedJson, UserWallet wallet, Double amt) {
 		Transaction transaction = new Transaction();
 		transaction.setAmount(decryptedJson.getDouble("amount"));
 		transaction.setAmountPlusfee(decryptedJson.getDouble("amount"));
@@ -155,6 +204,7 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		transaction.setUserId(wallet.getUserId());
 		transaction.setUtrNumber(decryptedJson.getString("npciTransId"));
 		transaction.setPayeeName(decryptedJson.getString("payeeVPA"));
+		transaction.setAmt(amt);
 		transactionService.save(transaction);
 	}
 

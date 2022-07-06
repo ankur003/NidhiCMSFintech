@@ -9,25 +9,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.nidhi.cms.utils.indsind.UPIHelper;
+import com.nidhi.cms.service.UpiTxnService;
 
 @Component
-public class UpiListScheduler {
+public class CallBackScheduler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpiListScheduler.class);
 
 	@Autowired
-	private UPIHelper upiHelper;
+	private UpiTxnService upiTxnService;
 	
-	@Scheduled(cron = "0 0/15 * * * ?")
-	public void upiListScheduler() {
-		LOGGER.info("UPI list Scheduler has been started at '{}'", LocalDateTime.now());
+	@Scheduled(cron = "0 0/120 * * * ?")
+	public void callBackScheduler() {
+		LOGGER.info("Call Back Scheduler has been started at '{}'", LocalDateTime.now());
 		try {
-			upiHelper.upiListApi();
+			upiTxnService.callBackScheduler();
 		} catch (final Exception exception) {
-			LOGGER.error(" UPI list Scheduler An error occurred ", exception);
+			exception.printStackTrace();
+			LOGGER.error(" Call Back Scheduler An error occurred ", exception);
 		} finally {
-			LOGGER.info("UPI list Scheduler Scheduler has been has been completed at '{}'", LocalDateTime.now());
+			LOGGER.info("Call Back Scheduler has been has been completed at '{}'", LocalDateTime.now());
 		}
 	}
 
