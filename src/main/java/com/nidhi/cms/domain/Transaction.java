@@ -305,4 +305,16 @@ public class Transaction extends BaseDomain {
 		this.schedulerCustomInfo = schedulerCustomInfo;
 	}
 
+	@Override
+	public String toString() {
+		return "Transaction [transactionId=" + transactionId + ", aggrId=" + aggrId + ", aggrName=" + aggrName
+				+ ", corpId=" + corpId + ", userId=" + userId + ", urn=" + urn + ", uniqueId=" + uniqueId
+				+ ", debitAcc=" + debitAcc + ", creditAcc=" + creditAcc + ", ifsc=" + ifsc + ", amount=" + amount
+				+ ", fee=" + fee + ", amountPlusfee=" + amountPlusfee + ", currency=" + currency + ", txnType="
+				+ txnType + ", payeeName=" + payeeName + ", merchantId=" + merchantId + ", reqId=" + reqId + ", status="
+				+ status + ", utrNumber=" + utrNumber + ", response=" + response + ", txDate=" + txDate + ", txType="
+				+ txType + ", amt=" + amt + ", remarks=" + remarks + ", virtualTxId=" + virtualTxId + ", creditTime="
+				+ creditTime + ", isFeeTx=" + isFeeTx + ", schedulerCustomInfo=" + schedulerCustomInfo + "]";
+	}
+
 }
