@@ -61,7 +61,7 @@ public class UPIHelper {
 		try {
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
 			Request request = new Request.Builder()
-					.url("https://apig.indusind.com/ibl/prod/upijson/validateVPAWeb").method("POST", body)
+					.url("https://apig.indusind.com/ibl/prod/upi/validateVPAWeb").method("POST", body)
 					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientId())
 					.addHeader("X-IBM-Client-Secret", applicationConfig.getxIBMClientSecret())
 					.addHeader("Accept", APPLICATION_JSON)
@@ -147,8 +147,8 @@ public class UPIHelper {
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(encyptedReqBody,  MediaType.parse(APPLICATION_JSON));
 			Request request = new Request.Builder()
 					.url(url).method(method, body)
-					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientIdUAT())
-					.addHeader("X-IBM-Client-Secret", applicationConfig.getxIBMClientSecretUAT())
+					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientId())
+					.addHeader("X-IBM-Client-Secret", applicationConfig.getxIBMClientSecret())
 					.addHeader("Accept", APPLICATION_JSON).addHeader("Content-Type", APPLICATION_JSON).build();
 			response = client.newCall(request).execute();
 			return response.body().string();
