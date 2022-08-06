@@ -135,6 +135,7 @@
           <li><a href="/api/v1/fe/upiOnboard"> Merchant On-boarding</a></li>
           <li><a href="/api/v1/fe/upimerchantDeact"> Merchant De-Activation</a></li>
           <li><a href="/api/v1/fe/upiValidation"> Merchant UPI Validation</a></li>
+          <li><a href="/api/v1/fe/TransStatusInq"> Transaction Status Inq</a></li>
           <li><a href="/api/v1/fe/upiCharges"> UPI Charges</a></li>
         </ul>
       </li>

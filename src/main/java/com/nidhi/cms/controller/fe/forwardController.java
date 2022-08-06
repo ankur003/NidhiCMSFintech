@@ -228,5 +228,9 @@ public class forwardController {
 		return new ModelAndView("upiCharges");
 	}
 	
+	@GetMapping(value = "/TransStatusInq")
+	public ModelAndView TransStatusInq(Model model) {
+		return new ModelAndView("TransStatusInq");
+	}
 }
 

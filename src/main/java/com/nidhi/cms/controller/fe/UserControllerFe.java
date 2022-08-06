@@ -73,6 +73,7 @@ import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
+import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.UserService;
@@ -1936,6 +1937,29 @@ public ModelAndView activateDeActivateUpi(Model model,HttpServletRequest request
 	}
 	return new ModelAndView("upimerchantDeact");
 }
+
+
+
+@PostMapping(value = "/checkTrnsStatusInq")
+public ModelAndView checkTrnsStatusInq(Model model,HttpServletRequest request)  {
+	String userUuid=request.getParameter("userUuid");
+	String typeTrans = request.getParameter("typeTrans");
+	String transid = request.getParameter("transid");//deactivate //active
+	model.addAttribute("init", true);
+	
+	UpiTransactionStatusResponse upitransresp=null;
+	
+	  upitransresp = userController.getUpiTransactionStatus(userUuid, typeTrans, transid);
+		
+	if (upitransresp == null) {
+		model.addAttribute("init", false);
+	} 
+	
+	
+	model.addAttribute("upitransresp", upitransresp);
+	return new ModelAndView("TransStatusInq");
+}
+
 
 
 }
