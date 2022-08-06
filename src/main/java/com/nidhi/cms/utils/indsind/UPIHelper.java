@@ -177,9 +177,9 @@ public class UPIHelper {
 		return upiDeActivateModel;
 	}
 
-	public String getUpiTransactionStatus(String custRefNo) {
+	public String getUpiTransactionStatus(String txVpaType, String txId) {
 		try {
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(custRefNo, applicationConfig.getPgMerchantId()), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(txVpaType, txId,  applicationConfig.getPgMerchantId()), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/meTranStatusQueryWeb", "POST");
 			LOGGER.info("encryptedResponseBody getUpiTransactionStatus {} ", encryptedResponseBody);
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
@@ -193,9 +193,14 @@ public class UPIHelper {
 		return "failed";
 	}
 
-	private UpiTransactionStatusModel getUpiTransactionStatusModel(String custRefNo, String pgMerchantId) {
+	private UpiTransactionStatusModel getUpiTransactionStatusModel(String txVpaType, String txId, String pgMerchantId) {
 		UpiTransactionStatusModel upiTransactionStatusModel = new UpiTransactionStatusModel();
-		upiTransactionStatusModel.setCustRefNo(custRefNo);
+		if (txVpaType.equals("Cust_Ref_No")) {
+			upiTransactionStatusModel.setCustRefNo(txId);
+		}
+		if (txVpaType.equals("npci_Tran_Id")) {
+			upiTransactionStatusModel.setNpciTranId(txId);
+		}
 		upiTransactionStatusModel.setRequestInfo(new RequestInfo(pgMerchantId, RandomStringUtils.random(30, true, false)));
 		return upiTransactionStatusModel;
 	}

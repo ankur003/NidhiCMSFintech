@@ -73,6 +73,7 @@ import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
+import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusResponse;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.TimeOutResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
@@ -1350,19 +1351,23 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	
 	@GetMapping("/transaction-status/upi")
-	public String getUpiTransactionStatus(@RequestParam("userUuid") String userUuid, @RequestParam("custRefNo") String custRefNo) {
-		User user = userservice.getUserDetailByUserUuid(userUuid);
-		if (user == null) {
-			return "incorrect user";
-		}
-		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
-		if (userWallet == null) {
-			return "incorrect user wallet";
-		} else if (userWallet.getUpiVirtualAddress() == null || BooleanUtils.isFalse(userWallet.getIsUpiActive())) {
-			return "upi details not found or upi de-activated";
-		}
-		String statusDetails = upiService.getUpiTransactionStatus(custRefNo);
-		return statusDetails;
+	public UpiTransactionStatusResponse getUpiTransactionStatus(
+			/* @RequestParam("userUuid") String userUuid, */ @RequestParam("txVpaType") String txVpaType, @RequestParam("txId") String txId ) {
+		/*
+		 * User user = userservice.getUserDetailByUserUuid(userUuid); if (user == null)
+		 * { return "incorrect user"; } UserWallet userWallet =
+		 * userWalletService.findByUserId(user.getUserId()); if (userWallet == null) {
+		 * return "incorrect user wallet"; } else if (userWallet.getUpiVirtualAddress()
+		 * == null || BooleanUtils.isFalse(userWallet.getIsUpiActive())) { return
+		 * "upi details not found or upi de-activated"; }
+		 */
+		String statusDetails = upiService.getUpiTransactionStatus(txVpaType, txId);
+		
+		JSONObject jsonObject = new JSONObject(statusDetails);
+		JSONObject apiResp = jsonObject.getJSONObject("apiResp");
+		
+		return Utility.getJavaObject(apiResp.toString(), UpiTransactionStatusResponse.class);
+		
 		
 	}
 

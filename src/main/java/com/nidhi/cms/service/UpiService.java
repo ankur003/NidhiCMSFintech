@@ -9,6 +9,6 @@ public interface UpiService {
 
 	String activateDeActivateUpi(UserWallet usrWallet, boolean isUpiActive);
 
-	String getUpiTransactionStatus(String custRefNo);
+	String getUpiTransactionStatus(String txVpaType, String txId);
 
 }

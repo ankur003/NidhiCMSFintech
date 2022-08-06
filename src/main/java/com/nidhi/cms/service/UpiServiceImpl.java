@@ -31,8 +31,8 @@ public class UpiServiceImpl implements UpiService {
 
 
 	@Override
-	public String getUpiTransactionStatus(String custRefNo) {
-		return upiHelper.getUpiTransactionStatus(custRefNo);
+	public String getUpiTransactionStatus(String txVpaType, String txId) {
+		return upiHelper.getUpiTransactionStatus(txVpaType, txId);
 	}
 
 }
