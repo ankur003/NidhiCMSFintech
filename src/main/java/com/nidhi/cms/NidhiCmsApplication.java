@@ -78,7 +78,7 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 		createAdmin();
 		createSystemPrivilages();
 		//testEmails();
-		test();
+		//test();
 	}
 	
 	private void test() {
@@ -318,4 +318,5 @@ public class NidhiCmsApplication extends SpringBootServletInitializer {
 			}
 		});		
 	}
+	
 }

@@ -1028,16 +1028,31 @@ public class UserServiceImpl extends AbstractDataSourceDao implements UserDetail
 
 	@Override
 	public String onBoardSubMerchant(UserWallet wallet, IndsIndRequestModal indsIndRequestModal) {
-		String jsonObjectAsString = upiHelper.onBoardSubMerchant(indsIndRequestModal);
-		if (jsonObjectAsString == null) {
-			return null;
-		}
-		JSONObject json = Utility.getJsonFromString(jsonObjectAsString);
-		if (json.has("status") && json.getString("status").equalsIgnoreCase("FAILED")) {
-			LOGGER.error("[UserServiceImpl.onBoardSubMerchant] failed on sub merchant{} - ", json);
-			return json.getString("statusDesc");
-		}
-		UpiRegistrationDetail upiRegistrationDetail = Utility.getJavaObject(jsonObjectAsString, UpiRegistrationDetail.class);
+//		String jsonObjectAsString = upiHelper.onBoardSubMerchant(indsIndRequestModal);
+//		if (jsonObjectAsString == null) {
+//			return null;
+//		}
+//		JSONObject json = Utility.getJsonFromString(jsonObjectAsString);
+//		if (json.has("status") && json.getString("status").equalsIgnoreCase("FAILED")) {
+//			LOGGER.error("[UserServiceImpl.onBoardSubMerchant] failed on sub merchant{} - ", json);
+//			return json.getString("statusDesc");
+//		}
+		UpiRegistrationDetail upiRegistrationDetail = new UpiRegistrationDetail();
+		upiRegistrationDetail.setAccNO(indsIndRequestModal.getAccNo());
+		upiRegistrationDetail.setCreatedAt(LocalDateTime.now());
+		upiRegistrationDetail.setExtMID(indsIndRequestModal.getExtMID());
+		upiRegistrationDetail.setExtTID(indsIndRequestModal.getExtTID());
+		upiRegistrationDetail.setIntegrationType(indsIndRequestModal.getIntegrationType());
+		upiRegistrationDetail.setIsActive(true);
+		upiRegistrationDetail.setLegalStrName(indsIndRequestModal.getLegalStrName());
+		upiRegistrationDetail.setMebussname(indsIndRequestModal.getMebussname());
+		upiRegistrationDetail.setMeEmailID(indsIndRequestModal.getMeEmailID());
+		upiRegistrationDetail.setMerchantKey(null);
+		upiRegistrationDetail.setStatusDesc(null);
+		upiRegistrationDetail.setCrtDate(null);
+		upiRegistrationDetail.setMerVirtualAdd(indsIndRequestModal.getMerVirtualAdd());
+		upiRegistrationDetail.setPgMerchantID(indsIndRequestModal.getPgMerchantId());
+		upiRegistrationDetail.setUpdatedAt(LocalDateTime.now());
 		LOGGER.info("[UserServiceImpl.onBoardSubMerchant] upiRegistrationDetail  {} - ", upiRegistrationDetail);
 		upiRegistrationDetail.setUserId(wallet.getUserId());
 		upiRegistrationDetailService.save(upiRegistrationDetail);
