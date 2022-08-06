@@ -264,14 +264,14 @@ public class Utility {
 		return user;
 	}
 
-	public static String getEncyptedReqBodyForUpiAddressValidation(String upiAddress, String indBankKey, String pgMerchantId) throws Exception {
+	public static String getEncyptedReqBodyForUpiAddressValidation(String vpaType, String upiAddress, String indBankKey, String pgMerchantId) throws Exception {
 		UPISecurity uPISecurity = new UPISecurity();
 		Gson gson = new Gson();
 		JSONObject jsonObject = new JSONObject();
 		
 		UpiAddressValidateReqModel upiAddressValidateReqModel = new UpiAddressValidateReqModel();
 		upiAddressValidateReqModel.setPayeeType(new PayeeType(upiAddress.toLowerCase()));
-		upiAddressValidateReqModel.setvAReqType("R");
+		upiAddressValidateReqModel.setvAReqType(vpaType);
 		upiAddressValidateReqModel.setRequestInfo(new RequestInfo(pgMerchantId, RandomStringUtils.random(30, true, false)));
 		
 		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(upiAddressValidateReqModel), indBankKey));

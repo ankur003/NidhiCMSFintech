@@ -51,10 +51,10 @@ public class UPIHelper {
 		String upiAddress = UPI_PREFIX + compName.trim() + merchantId.split("_")[1] + UPI_POSTFIX;
 		LOGGER.info("upiAddress {}", upiAddress.toLowerCase());
 		
-		return getAndValidateUpiAddress(upiAddress);
+		return getAndValidateUpiAddress(upiAddress, "R");
 	}
 
-	public String getAndValidateUpiAddress(String upiAddress) {
+	public String getAndValidateUpiAddress(String upiAddress, String vpaType) {
 		OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(2, TimeUnit.MINUTES).build();
 		MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 		Response response = null;
@@ -62,7 +62,7 @@ public class UPIHelper {
 			//c0ff5a0e2000a62951400b3489fc41f2
 		//	okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
 		
-			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, "c0ff5a0e2000a62951400b3489fc41f2", applicationConfig.getPgMerchantId()), mediaType);
+			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(vpaType, upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
 
 			Request request = new Request.Builder()
 					.url("https://apig.indusind.com/ibl/prod/upi/validateVPAWeb").method("POST", body)
@@ -73,7 +73,7 @@ public class UPIHelper {
 			 response = client.newCall(request).execute();
 			String responseBody = response.body().string();
 			LOGGER.info("getAndValidateUpiAddress responseBody {} ", responseBody);
-			String decryptedResponse = Utility.decryptResponse(responseBody, "resp","c0ff5a0e2000a62951400b3489fc41f2");
+			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info("decryptedResponse {} ", decryptedResponse);
 			if (decryptedResponse != null) {
 				String status = getJsonFromString(decryptedResponse).getString("status");
@@ -224,8 +224,8 @@ public class UPIHelper {
 
 	public void refundJsonApi() {
 		try {
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getRefundApiModel(), applicationConfig.getIndBankKey(), "INDB000000003150");
-			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/meRefundJsonService", "POST");
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getRefundApiModel(), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upirfd/meRefundJsonService", "POST");
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", applicationConfig.getIndBankKey());
 			LOGGER.info(" refundJsonApi decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
@@ -238,16 +238,20 @@ public class UPIHelper {
 
 	private UpiRefundApiRequestModel getRefundApiModel() {
 		UpiRefundApiRequestModel upiRefundApiRequestModel = new UpiRefundApiRequestModel();
-		upiRefundApiRequestModel.setCurrencyCode("");
-		upiRefundApiRequestModel.setOrderNo("");
-		upiRefundApiRequestModel.setOrgCustRefNo("");
-		upiRefundApiRequestModel.setOrgINDrefNo("");
-		upiRefundApiRequestModel.setOrgOrderNo("");
-		upiRefundApiRequestModel.setPayType("");
-		upiRefundApiRequestModel.setPgMerchantId("");
-		upiRefundApiRequestModel.setTxnAmount("");
-		upiRefundApiRequestModel.setTxnNote("");
-		upiRefundApiRequestModel.setTxnType("");
+		upiRefundApiRequestModel.setCurrencyCode("INR");
+		// apiKey also sent by devendra
+		
+		// debit transaction also made
+		
+		upiRefundApiRequestModel.setOrderNo(""); // devendra
+		upiRefundApiRequestModel.setOrgCustRefNo(""); // // devendra
+		upiRefundApiRequestModel.setOrgINDrefNo(""); // devendra
+		upiRefundApiRequestModel.setOrgOrderNo("");// devendra
+		upiRefundApiRequestModel.setPayType("P2P");
+		upiRefundApiRequestModel.setPgMerchantId(applicationConfig.getPgMerchantId());
+		upiRefundApiRequestModel.setTxnAmount("");// devendra
+		upiRefundApiRequestModel.setTxnNote("");// devendra
+		upiRefundApiRequestModel.setTxnType("PAY");
 		
 		return upiRefundApiRequestModel;
 	}

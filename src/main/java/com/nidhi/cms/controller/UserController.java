@@ -1306,13 +1306,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	//@GetMapping("/indsind/validate-upi-address")
-	public String validateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("upiAddress") String upiAddress) {
+	public String validateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("upiAddress") String upiAddress, @RequestParam("vpaType") String vpaType) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
 		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
 //			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
 			return "incorrect admin";
 		}
-		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(upiAddress);
+		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(upiAddress, vpaType);
 		if (StringUtils.isBlank(upiAddressValidated)) {
 //			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid UPI Address");
 			return "invalid UPI Address";

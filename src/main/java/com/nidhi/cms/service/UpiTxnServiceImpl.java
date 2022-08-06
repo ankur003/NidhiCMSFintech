@@ -100,11 +100,11 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		
 		UpiTxn savedUpiTxn = upiTxnRepo.save(upiTxn);
 		
-		if (BooleanUtils.isFalse(decryptedJsonResp.has("orderNo")) || StringUtils.isBlank(decryptedJsonResp.getString("orderNo"))) {
-			LOGGER.warn("orderNo not Found refund api started against payeeVPA {} ", decryptedJsonResp.getString("payeeVPA"));
-			upiHelper.refundJsonApi();
-			return;
-		}
+//		if (BooleanUtils.isFalse(decryptedJsonResp.has("orderNo")) || StringUtils.isBlank(decryptedJsonResp.getString("orderNo"))) {
+//			LOGGER.warn("orderNo not Found refund api started against payeeVPA {} ", decryptedJsonResp.getString("payeeVPA"));
+//			upiHelper.refundJsonApi();
+//			return;
+//		}
 		
 		UserWallet wallet = userWalletService.findByUpiVirtualAddress(decryptedJsonResp.getString("payeeVPA"));
 		if (wallet == null || BooleanUtils.isFalse(wallet.getIsUpiActive())) {
@@ -142,18 +142,17 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 			//Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
 			Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
 			LOGGER.info("callback response {}", map);
-			@SuppressWarnings("unchecked")
-			HashMap<String, Object> responseMap =  (HashMap<String, Object>) map;
-			LOGGER.info("callback response Map {}", responseMap);
-			if (responseMap.get("isSuccess") != null && BooleanUtils.isTrue((Boolean) responseMap.get("isSuccess"))) {
-				LOGGER.info("callback recieved");
-				upiTxn.setDoesCallbackSuccess(Boolean.TRUE);
-				upiTxnRepo.save(upiTxn);
-			}
-
-		} catch (RestClientException e) {
+			
+			LOGGER.info("callback recieved");
+			upiTxn.setDoesCallbackSuccess(Boolean.TRUE);
+			upiTxnRepo.save(upiTxn);
+			LOGGER.info("Does Call back Success -- TRUE Updated");
+		} catch (Exception e) {
 			e.printStackTrace();
 			LOGGER.error("An error occured while callback {} ", e);
+			upiTxn.setDoesCallbackSuccess(Boolean.FALSE);
+			upiTxnRepo.save(upiTxn);
+			LOGGER.info("Does Call back failed -- FALSE Updated");
 		}
 	}
 	
