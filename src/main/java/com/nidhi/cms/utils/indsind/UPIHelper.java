@@ -184,13 +184,16 @@ public class UPIHelper {
 			LOGGER.info("encryptedResponseBody getUpiTransactionStatus {} ", encryptedResponseBody);
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info("decryptedResponse getUpiTransactionStatus {} ", decryptedResponse);
+			if (decryptedResponse == null) {
+				return null;
+			}
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
 			System.out.println(json);
 			return json.toString();
 		} catch (Exception e) {
 			LOGGER.error("activateDeActivateUpi api failed {}", e);
 		}
-		return "failed";
+		return null;
 	}
 
 	private UpiTransactionStatusModel getUpiTransactionStatusModel(String txVpaType, String txId, String pgMerchantId) {

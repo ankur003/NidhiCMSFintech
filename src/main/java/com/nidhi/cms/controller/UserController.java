@@ -1368,7 +1368,10 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return null;
 		}
 		String statusDetails = upiService.getUpiTransactionStatus(txVpaType, txId);
-		
+		if (statusDetails == null) {
+			LOGGER.error("no data found");
+			return null;
+		}
 		JSONObject jsonObject = new JSONObject(statusDetails);
 		JSONObject apiResp = jsonObject.getJSONObject("apiResp");
 		
