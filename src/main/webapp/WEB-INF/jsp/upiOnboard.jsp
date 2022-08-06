@@ -108,7 +108,6 @@
 										</c:choose>
 										
 									<input type="hidden" id="userUuid" name="userUuid" value="${userLoginDetails.userUuid}">
-										
 									<div class="col-lg-6">
 											<p class="comment-form-author">
 												<label for="author">Merchant Id</label> <input type="text"

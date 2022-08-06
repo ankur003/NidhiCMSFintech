@@ -120,6 +120,15 @@
                                      
                                         <input type="hidden" name="adminUuid" value="${userLoginDetails.userUuid}">
 									<div class="col-lg-12">
+									<div class="col-lg-6">
+										<p class="comment-form-url">
+											<label for="subject">Choose<span class="mandate">*</span></label><br>
+											<select id="vpaType" name="vpaType" style="height: 32px;width: 400px;">
+  											<option value="R">Registration</option>
+  											<option value="T">Transaction</option>
+											</select>
+										</p>
+										</div>
 										<div class="col-lg-6">
 										<p class="comment-form-url">
 											<label for="subject">Enter UPI Address<span class="mandate">*</span></label>
@@ -142,7 +151,7 @@
 												
 												<div class="col-lg-12">
 											<p class="form-submit">
-											<input type="submit" value="Update" class="btn btn-success" id="upiadd" 
+											<input type="submit" value="Check" class="btn btn-success" id="upiadd" 
 												name="Submit"> <input type="button" value="Cancel"
 												class="btn btn-info" name="cancel">
 										</p>

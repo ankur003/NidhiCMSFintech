@@ -1577,13 +1577,14 @@ public @ResponseBody String getStatus(HttpServletRequest request) {
 public ModelAndView validateUpi(HttpServletRequest request,Model model) {
 	String userUuid = request.getParameter("userUuid");
 	String adminUuid = request.getParameter("adminUuid");
+	String vpaType = request.getParameter("vpaType");
 	String upiVirtualAddress = request.getParameter("upiVirtualAddress");
 	String response = null;
 
-	if (upiVirtualAddress == null || !upiVirtualAddress.contains("@indus")) {
+	if (upiVirtualAddress == null ) {
 		model.addAttribute("msgs","Upi is in-valid.");
 	}
-	response=userController.validateUPIAddress(adminUuid, upiVirtualAddress);
+	response=userController.validateUPIAddress(adminUuid, upiVirtualAddress,vpaType);
 	if(response.equalsIgnoreCase(upiVirtualAddress))
 	{
 		model.addAttribute("msg","Upi is Available. You can use");
@@ -1770,7 +1771,7 @@ public ModelAndView getUserforSetCharge(Model model, HttpServletRequest request)
 	}
 	
 	
-	List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, userUuid);
+	List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, adminUuid);
 		list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, userUuid));
 	if (CollectionUtils.isNotEmpty(list)) {
        model.addAttribute("init", true);
