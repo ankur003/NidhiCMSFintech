@@ -6,7 +6,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +72,7 @@ import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
+import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusResponse;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.TimeOutResponse;
@@ -1377,7 +1377,27 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 		return Utility.getJavaObject(apiResp.toString(), UpiTransactionStatusResponse.class);
 		
-		
 	}
+	
+	@PostMapping(value = "/refund/json/upi")
+	public ResponseEntity<Object> refundJsonApi(@RequestBody UpiRefundApiRequestModel upiRefundApiRequestModel, @RequestParam("apiKey") String apiKey) {
+		if (StringUtils.isEmpty(apiKey)) {
+			LOGGER.error("apiKey is  - {} ", apiKey);
+			return ResponseEntity.badRequest().build();
+		}
+		User user = userRepo.findByApiKey(apiKey);
+		if (user == null ) {
+			LOGGER.error("apiKey incorrect {}", apiKey);
+			return ResponseEntity.badRequest().build();
+		}
+		
+		UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
+		if (usrWallet == null ) {
+			LOGGER.error("usrWallet incorrect {} ", user.getUserId());
+			return ResponseEntity.badRequest().build();
+		}
+		new UPIHelper().refundJsonApi(upiRefundApiRequestModel, usrWallet);
+		return ResponseEntity.ok().build();
+	} 
 
 }

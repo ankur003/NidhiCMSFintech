@@ -1,5 +1,7 @@
 package com.nidhi.cms.utils.indsind;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nidhi.cms.config.ApplicationConfig;
+import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
@@ -20,6 +23,8 @@ import com.nidhi.cms.modal.request.indusind.UpiDeActivateModel;
 import com.nidhi.cms.modal.request.indusind.UpiListApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusModel;
+import com.nidhi.cms.service.TransactionService;
+import com.nidhi.cms.service.UserWalletService;
 import com.nidhi.cms.utils.Utility;
 
 import okhttp3.MediaType;
@@ -40,6 +45,12 @@ public class UPIHelper {
 	
 	@Autowired
 	private ApplicationConfig applicationConfig;
+	
+	@Autowired
+	private UserWalletService userWalletService;
+	
+	@Autowired
+	private TransactionService transactionService;
 
 	public String generateUPIAddress(String merchantId, String companyName) {
 		LOGGER.info("merchant id {}", merchantId);
@@ -230,23 +241,62 @@ public class UPIHelper {
 		return upiListApiRequestModel;
 	}
 
-	public void refundJsonApi() {
+	public void refundJsonApi(UpiRefundApiRequestModel upiRefundApiRequestModel, UserWallet usrWallet) {
 		try {
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getRefundApiModel(), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
+			upiRefundApiRequestModel.setPayType("P2P");
+			upiRefundApiRequestModel.setPgMerchantId(applicationConfig.getPgMerchantId());
+			upiRefundApiRequestModel.setTxnType("PAY");
+			upiRefundApiRequestModel.setCurrencyCode("INR");
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiRefundApiRequestModel, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upirfd/meRefundJsonService", "POST");
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", applicationConfig.getIndBankKey());
 			LOGGER.info(" refundJsonApi decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
-			System.out.println(json);
+			LOGGER.info(" refund json {} ", json);
+			if (json.getString("status").equals("S")) {
+				debitTransaction(upiRefundApiRequestModel, usrWallet, json.getString("txnId"));
+				updateWallet(usrWallet, upiRefundApiRequestModel.getTxnAmount());
+			}
 		} catch (Exception e) {
-			LOGGER.error("activateDeActivateUpi api failed {}", e);
+			e.printStackTrace();
+			LOGGER.error("refundJsonApi api failed {}", e);
 		}
 		
 	}
+	
+	private void updateWallet(UserWallet usrWallet, String txnAmount) {
+		usrWallet.setAmount(usrWallet.getAmount() - Double.valueOf(txnAmount));
+		userWalletService.save(usrWallet);
+	}
+
+	private void debitTransaction(UpiRefundApiRequestModel upiRefundApiRequestModel, UserWallet wallet, String txnId) {
+		Transaction transaction = new Transaction();
+		transaction.setAmount(Double.valueOf(upiRefundApiRequestModel.getTxnAmount()));
+		transaction.setAmountPlusfee(Double.valueOf(upiRefundApiRequestModel.getTxnAmount()));
+		transaction.setCreatedAt(LocalDateTime.now());
+		transaction.setCreditTime(LocalDateTime.now());
+		transaction.setCurrency("INR");
+		transaction.setFee(0.0);
+		transaction.setIsFeeTx(false);
+		transaction.setMerchantId(wallet.getMerchantId());
+		transaction.setStatus("S");
+		transaction.setRemarks("Refund transaction");
+		transaction.setTxDate(LocalDate.now());
+		transaction.setTxnType(upiRefundApiRequestModel.getTxnType());
+		transaction.setTxType("Dr.");
+		transaction.setUserId(wallet.getUserId());
+		transaction.setUniqueId(txnId);
+		transaction.setUtrNumber(null);
+		transaction.setPayeeName(null);
+		transaction.setAmt(wallet.getAmount());
+		transactionService.save(transaction);
+		
+	}
+
+	
 
 	private UpiRefundApiRequestModel getRefundApiModel() {
 		UpiRefundApiRequestModel upiRefundApiRequestModel = new UpiRefundApiRequestModel();
-		upiRefundApiRequestModel.setCurrencyCode("INR");
 		// apiKey also sent by devendra
 		
 		// debit transaction also made
@@ -255,11 +305,8 @@ public class UPIHelper {
 		upiRefundApiRequestModel.setOrgCustRefNo(""); // // devendra
 		upiRefundApiRequestModel.setOrgINDrefNo(""); // devendra
 		upiRefundApiRequestModel.setOrgOrderNo("");// devendra
-		upiRefundApiRequestModel.setPayType("P2P");
-		upiRefundApiRequestModel.setPgMerchantId(applicationConfig.getPgMerchantId());
 		upiRefundApiRequestModel.setTxnAmount("");// devendra
 		upiRefundApiRequestModel.setTxnNote("");// devendra
-		upiRefundApiRequestModel.setTxnType("PAY");
 		
 		return upiRefundApiRequestModel;
 	}
