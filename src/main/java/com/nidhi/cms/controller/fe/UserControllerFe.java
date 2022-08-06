@@ -7,6 +7,7 @@ import static com.nidhi.cms.constants.JwtConstants.AUTH_TOKEN;
 
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1630,7 +1631,10 @@ public ModelAndView getUserForUPI(Model model, HttpServletRequest request) {
 	
 	
 	List<Object> list = userController.getUserByPanAndMarchantId(pancard, merchantId, userUuid);
-		list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, userUuid));
+	if (CollectionUtils.isEmpty(list)) {
+		list = new ArrayList<Object>();
+	}
+	list.addAll(userController.getUserByUserEmailAndContactNumber(userEmail, contactNumber, userUuid));
 	if (CollectionUtils.isNotEmpty(list)) {
        model.addAttribute("init", true);
 		
