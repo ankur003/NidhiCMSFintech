@@ -1351,7 +1351,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	
 	@GetMapping("/transaction-status/upi")
-	public UpiTransactionStatusResponse getUpiTransactionStatus(
+	public UpiTransactionStatusResponse getUpiTransactionStatus( @RequestParam("adminUuid") String adminUuid,
 			/* @RequestParam("userUuid") String userUuid, */ @RequestParam("txVpaType") String txVpaType, @RequestParam("txId") String txId ) {
 		/*
 		 * User user = userservice.getUserDetailByUserUuid(userUuid); if (user == null)
@@ -1361,6 +1361,12 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		 * == null || BooleanUtils.isFalse(userWallet.getIsUpiActive())) { return
 		 * "upi details not found or upi de-activated"; }
 		 */
+		
+		User user = userservice.getUserDetailByUserUuid(adminUuid);
+		if (BooleanUtils.isFalse(user.getIsAdmin())) {
+			LOGGER.error("incorrect request - please try with admin");
+			return null;
+		}
 		String statusDetails = upiService.getUpiTransactionStatus(txVpaType, txId);
 		
 		JSONObject jsonObject = new JSONObject(statusDetails);
