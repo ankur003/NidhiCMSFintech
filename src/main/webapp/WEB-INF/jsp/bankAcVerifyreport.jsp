@@ -117,10 +117,10 @@
 												class="btn btn-info" name="cancel">
 										</p>
 
-                                         <div align="right">
+                                    <!--      <div align="right">
                                         <a href=""> <img src="/assets/img/exl.png" style="height: 50px; width: 90px; " alt="logo"></a>
                                           <a href="">  <img src="/assets/img/pdf.png" style="height: 40px; width: 40px; " alt="logo"></a>
-                                          </div>
+                                          </div> -->
 
 										<table class="table">
 											<thead class="thead-dark">

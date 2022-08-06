@@ -160,11 +160,13 @@
 												<tbody>
 													<c:forEach items="${trans}" var="us"
 														varStatus="counter">
+														
 														<tr>
 															<th scope="row">${counter.count}</th>
 															<td><fmt:parseDate value="${us.txDate}"
 																	pattern="yyyy-MM-dd" var="disbDate" /> <fmt:formatDate
 																	value="${disbDate}" pattern="dd-MM-yyyy" /></td>
+																	<td>${us.payeeName}</td>
 																	<td>${us.ifsc}</td>
 																	<td>${us.amount}</td>
 																	<td>${us.fee}</td>
@@ -184,9 +186,9 @@
 												</tbody>
 											</table>
 										</c:if>
-<c:if test="${!init }">
+<%-- <c:if test="${!init }">
 <p><font color="red">No Data Found</font></p>
-</c:if>
+</c:if> --%>
 
 									</form>
 								</div>
