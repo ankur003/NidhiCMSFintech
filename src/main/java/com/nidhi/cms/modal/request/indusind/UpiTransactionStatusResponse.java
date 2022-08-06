@@ -91,6 +91,18 @@ public class UpiTransactionStatusResponse {
 	public void setAmount(String amount) {
 		this.amount = amount;
 	}
+
+	@Override
+	public String toString() {
+		return "UpiTransactionStatusResponse [statusDesc=" + statusDesc + ", amount=" + amount + ", txnAuthDate="
+				+ txnAuthDate + ", payeeVPA=" + payeeVPA + ", npciTransId=" + npciTransId + ", payerVPA=" + payerVPA
+				+ ", responseCode=" + responseCode + ", upiTransRefNo=" + upiTransRefNo + ", custRefNo=" + custRefNo
+				+ ", getStatusDesc()=" + getStatusDesc() + ", getTxnAuthDate()=" + getTxnAuthDate() + ", getPayeeVPA()="
+				+ getPayeeVPA() + ", getNpciTransId()=" + getNpciTransId() + ", getPayerVPA()=" + getPayerVPA()
+				+ ", getResponseCode()=" + getResponseCode() + ", getUpiTransRefNo()=" + getUpiTransRefNo()
+				+ ", getCustRefNo()=" + getCustRefNo() + ", getAmount()=" + getAmount() + ", getClass()=" + getClass()
+				+ ", hashCode()=" + hashCode() + ", toString()=" + super.toString() + "]";
+	}
 	
 
 }
