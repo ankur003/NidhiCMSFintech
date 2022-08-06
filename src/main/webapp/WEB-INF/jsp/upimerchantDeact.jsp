@@ -129,11 +129,25 @@
 															<td>${ul.fullName}</td>
 															<td>${ul.userEmail}</td>
 															<td>${ul.mobileNumber}</td>
+															<td><c:if test="${ul.isUserVerified}">
+															<a href="/api/v1/activateDeActivateUpi?userUuid=${ul.userUuid}&adminUuid=${userLoginDetails.userUuid}&opr=deactivate">
+															<input type="Button" value="Deactivate" class="btn btn-danger" name="Deactivate"></a>
+															<input type="Button" value="Active" class="btn btn-success" name="Active" disabled="disabled">
+															</c:if>
+															
+															<c:if test="${!ul.isUserVerified}">
+															<a href="/api/v1/activateDeActivateUpi?userUuid=${ul.userUuid}&adminUuid=${userLoginDetails.userUuid}&opr=active">
+															<input type="Button" value="Active" class="btn btn-success" name="Active">
+															</a>
+															<input type="Button" value="Deactivate" class="btn btn-danger" name="Deactivate" disabled="disabled">
+															</c:if>
+															</td>
+															
  															<%-- <td><a href="/api/v1/kyc-auth?userUuid=${ul.userUuid}&kycResponse=true">
 															<input type="Button" value="Select" class="btn btn-success" name="Approve"></a></td> --%>
-															<td><a href="/api/v1/get-div-kyc?userUuid=${ul.userUuid}&adminUuid=${userLoginDetails.userUuid}&id=1" target="_blank">
+															<%-- <td><a href="/api/v1/get-div-kyc?userUuid=${ul.userUuid}&adminUuid=${userLoginDetails.userUuid}&id=1" target="_blank">
 															<input type="Button" value="Select" class="btn btn-success" name="Approve"	onclick="javascript:copyUuid('${ul.userUuid}')"></a></td>
-														</tr>
+ --%>														</tr>
 													</c:forEach>
 												</tbody>
 											</table>

@@ -92,13 +92,13 @@
 	                                       <c:choose>
 											<c:when test="${msg!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: green;">
+													>
 													<font color="green"> ${msg} </font>
 												</p>
 											</c:when>
 											<c:when test="${msgs!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: red;">
+													>
 													<font color="red"> ${msgs} </font>
 												</p>
 											</c:when>
@@ -191,19 +191,19 @@
 											</c:when>
 											<c:when test="${msgs!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: red;">
+													>
 													<font color="red"> ${msgs} </font>
 												</p>
 											</c:when>
 											<c:when test="${msgss!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: red;">
+													>
 													<font color="red"> ${msgss} </font>
 												</p>
 											</c:when>
 											<c:when test="${message!=null}">
 												<p align='center'
-													style="border-style: solid; border-color: orange;">
+													>
 													<font color="red"> ${message} </font>
 												</p>
 											</c:when>

@@ -277,4 +277,17 @@ public class User extends BaseDomain {
 		this.rawp = rawp;
 	}
 
+	@Override
+	public String toString() {
+		return "User [userId=" + userId + ", userEmail=" + userEmail + ", mobileNumber=" + mobileNumber + ", fullName="
+				+ fullName + ", referralCode=" + referralCode + ", firstName=" + firstName + ", middleName="
+				+ middleName + ", lastName=" + lastName + ", password=" + password + ", dob=" + dob + ", isAdmin="
+				+ isAdmin + ", isSubAdmin=" + isSubAdmin + ", isUserVerified=" + isUserVerified + ", userUuid="
+				+ userUuid + ", roles=" + roles + ", kycStatus=" + kycStatus + ", whiteListIp=" + whiteListIp
+				+ ", isUserCreatedByAdmin=" + isUserCreatedByAdmin + ", privilageNames=" + privilageNames
+				+ ", deactivateReason=" + deactivateReason + ", token=" + token + ", apiKey=" + apiKey + ", rawp="
+				+ rawp + "]";
+	}
+
+	
 }

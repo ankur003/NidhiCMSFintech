@@ -59,7 +59,11 @@ public class UPIHelper {
 		MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 		Response response = null;
 		try {
-			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
+			//c0ff5a0e2000a62951400b3489fc41f2
+		//	okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
+		
+			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, "c0ff5a0e2000a62951400b3489fc41f2", applicationConfig.getPgMerchantId()), mediaType);
+
 			Request request = new Request.Builder()
 					.url("https://apig.indusind.com/ibl/prod/upi/validateVPAWeb").method("POST", body)
 					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientId())
@@ -69,7 +73,7 @@ public class UPIHelper {
 			 response = client.newCall(request).execute();
 			String responseBody = response.body().string();
 			LOGGER.info("getAndValidateUpiAddress responseBody {} ", responseBody);
-			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", applicationConfig.getIndBankKey());
+			String decryptedResponse = Utility.decryptResponse(responseBody, "resp","c0ff5a0e2000a62951400b3489fc41f2");
 			LOGGER.info("decryptedResponse {} ", decryptedResponse);
 			if (decryptedResponse != null) {
 				String status = getJsonFromString(decryptedResponse).getString("status");

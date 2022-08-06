@@ -1321,7 +1321,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return upiAddress;
 	}
 	
-	@PostMapping(value = "/activate-de-activate/upi")
+	//@PostMapping(value = "/activate-de-activate/upi")
 	public String activateDeActivateUpi(@RequestParam("userUuid") String userUuid, @RequestParam("adminUuid") String adminUuid, 
 			@RequestParam("isUpiActive") boolean isUpiActive) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
