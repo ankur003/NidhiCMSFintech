@@ -1685,10 +1685,8 @@ public ModelAndView forUPIDeact(Model model, HttpServletRequest request) {
 	String userUuid=request.getParameter("userUuid");
 	String merchantId = request.getParameter("merchantId");
 	String pancard = request.getParameter("pancard");
-	
 	String userEmail = request.getParameter("userEmail");
 	String contactNumber = request.getParameter("contactNumber");
-	
 	
 	if (StringUtils.isAllBlank(merchantId, pancard, userEmail, contactNumber)) {
 		List<User> list = userController.getAllUsers(userUuid);
@@ -1909,5 +1907,30 @@ public ModelAndView  addpaymentmodes(Model model,HttpServletRequest request,@Mod
 		return new ModelAndView("upiCharges");
 	
 }
+
+
+@GetMapping(value = "/activateDeActivateUpi")
+public ModelAndView activateDeActivateUpi(Model model,HttpServletRequest request)  {
+	String userUuid=request.getParameter("userUuid");
+	String adminUuid = request.getParameter("adminUuid");
+	String status = request.getParameter("opr");//deactivate //active
+
+	String message=null;
+	
+	if(status.equalsIgnoreCase("deactivate"))		
+		message=userController.activateDeActivateUpi(userUuid,adminUuid,false);
+	else
+		message=userController.activateDeActivateUpi(userUuid,adminUuid,true);
+		
+	if (message == null) {
+		model.addAttribute("msgs", "Something Went Wrong");
+	} else if (message.contains("success")) {
+		model.addAttribute("msg", message);
+	} else {
+		model.addAttribute("msgs", message);
+	}
+	return new ModelAndView("upimerchantDeact");
+}
+
 
 }
