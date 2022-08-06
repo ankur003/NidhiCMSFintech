@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1233,7 +1234,56 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return ResponseHandler.getOkResponse();
 	}
 	
-	//@GetMapping("/indsind/generate-upi-address")
+	@PostMapping(value = "/api/V1/upi-prevalid")
+	public ResponseEntity<Object> upiPrevalid(@RequestParam(required = false, name = "meRes") String meRes) {
+		LOGGER.info("meRes --- {}", meRes);
+		JSONObject json = Utility.getJsonFromString(meRes);
+		LOGGER.info("[upiCallback] recieved data {} ", json);
+		
+		String resp = json.getString("resp");
+		LOGGER.info("resp --- {}", resp);
+		UPISecurity uPISecurity = new UPISecurity();
+		final Map<String, Object> responseMap = new HashMap<>();
+		try {
+			String decrypted = uPISecurity.decrypt(resp, applicationConfig.getIndBankKey());
+			LOGGER.info("decrypted resp --- {}", decrypted);
+			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
+			
+			UserWallet wallet = userWalletService.findByUpiVirtualAddress(decryptedJson.getString("payeeVPA"));
+			LOGGER.info("payeeVPA wallet --- {}", wallet);
+			;
+			if (wallet == null) {
+				LOGGER.info("payeeVPA address NOT found in our DB  --- {}", decryptedJson.getString("payeeVPA"));
+				responseMap.put("responseCode", "412");
+				responseMap.put("responseMessage", "Request denied");
+				responseMap.put("status", "F");
+				responseMap.put("merchantName", decryptedJson.getString("payeeName"));
+				responseMap.put("mcc", decryptedJson.getString("payerMcc"));
+				responseMap.put("txnApproval,", decryptedJson.getString("NO"));
+				responseMap.put("orderId,", decryptedJson.getString("orderNo"));
+				
+			} else {
+				LOGGER.info("payeeVPA address exist in our DB  --- {}", decryptedJson.getString("payeeVPA"));
+				responseMap.put("responseCode", "0");
+				responseMap.put("responseMessage", "Request Accepted");
+				responseMap.put("status", "S");
+				responseMap.put("merchantName", decryptedJson.getString("payeeName"));
+				responseMap.put("mcc", decryptedJson.getString("payerMcc"));
+				responseMap.put("txnApproval,", decryptedJson.getString("YES"));
+				responseMap.put("orderId,", decryptedJson.getString("orderNo"));
+				
+			}
+			
+		} catch (Exception e) {
+			LOGGER.info("Exception --- {}", e);
+			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "resp is invalid or cant'be de-crypted", HttpStatus.BAD_REQUEST);
+		}
+		
+		//return ResponseEntity.status(HttpStatus.CREATED).body(responseMap);
+		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+	}
+	
+	@GetMapping("/indsind/generate-upi-address")
 	public String generateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("userUuid") String userUuid) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
 		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {

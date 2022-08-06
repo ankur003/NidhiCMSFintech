@@ -144,6 +144,7 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 			LOGGER.info("callback response {}", map);
 			@SuppressWarnings("unchecked")
 			HashMap<String, Object> responseMap =  (HashMap<String, Object>) map;
+			LOGGER.info("callback response Map {}", responseMap);
 			if (responseMap.get("isSuccess") != null && BooleanUtils.isTrue((Boolean) responseMap.get("isSuccess"))) {
 				LOGGER.info("callback recieved");
 				upiTxn.setDoesCallbackSuccess(Boolean.TRUE);

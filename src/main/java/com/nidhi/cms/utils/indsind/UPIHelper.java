@@ -30,7 +30,7 @@ import okhttp3.Response;
 @Component
 public class UPIHelper {
 	
-	private static String UPI_PREFIX = "NIDHICMS";
+	private static String UPI_PREFIX = "NIDHICMS.";
 	
 	private static String UPI_POSTFIX = "@indus";
 	
@@ -48,7 +48,7 @@ public class UPIHelper {
 			LOGGER.error("compName is null here against {}", compName);
 			return null;
 		}
-		String upiAddress = UPI_PREFIX + merchantId.split("_")[1] + compName.trim() + UPI_POSTFIX;
+		String upiAddress = UPI_PREFIX + compName.trim() + merchantId.split("_")[1] + UPI_POSTFIX;
 		LOGGER.info("upiAddress {}", upiAddress.toLowerCase());
 		
 		return getAndValidateUpiAddress(upiAddress);
@@ -61,9 +61,9 @@ public class UPIHelper {
 		try {
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
 			Request request = new Request.Builder()
-					.url("https://ibluatapig.indusind.com/app/uat/web/validateVPAWeb").method("POST", body)
-					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientIdUAT())
-					.addHeader("X-IBM-Client-Secret", applicationConfig.getxIBMClientSecretUAT())
+					.url("https://apig.indusind.com/ibl/prod/upijson/validateVPAWeb").method("POST", body)
+					.addHeader("X-IBM-Client-Id", applicationConfig.getxIBMClientId())
+					.addHeader("X-IBM-Client-Secret", applicationConfig.getxIBMClientSecret())
 					.addHeader("Accept", APPLICATION_JSON)
 					.addHeader("Content-Type", APPLICATION_JSON).build();
 			 response = client.newCall(request).execute();
@@ -124,8 +124,8 @@ public class UPIHelper {
 	public String activateDeActivateUpi(UserWallet usrWallet, boolean isUpiActive) {
 		if (BooleanUtils.isFalse(isUpiActive)) {
 			try {
-				String encyptedReqBody = Utility.getGenericEncyptedReqBody(getDeactivateModel(usrWallet), applicationConfig.getIndBankKey(), "INDB000000003196");
-				String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://indusupiuat.indusind.com:9043/upi/web/deActivateMerchant", "POST");
+				String encyptedReqBody = Utility.getGenericEncyptedReqBody(getDeactivateModel(usrWallet), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
+				String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/api/deActivateMerchant", "POST");
 				String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, null, applicationConfig.getIndBankKey());
 				LOGGER.info("decryptedResponse activateDeActivateUpi {} ", decryptedResponse);
 				JSONObject json = Utility.getJsonFromString(decryptedResponse);
@@ -164,8 +164,8 @@ public class UPIHelper {
 
 	private UpiDeActivateModel getDeactivateModel(UserWallet usrWallet) {
 		UpiDeActivateModel upiDeActivateModel = new UpiDeActivateModel();
-		upiDeActivateModel.setPgMerchantId("INDB000000003196");
-		upiDeActivateModel.setSubMerchantId("INDB000000003197");
+		upiDeActivateModel.setPgMerchantId(applicationConfig.getPgMerchantId());
+		upiDeActivateModel.setSubMerchantId(usrWallet.getMerchantId());
 		upiDeActivateModel.setSubMerVirtualAdd(usrWallet.getUpiVirtualAddress());
 		upiDeActivateModel.setAction("D");
 		upiDeActivateModel.setMerchantType("DIRMER");
@@ -176,12 +176,13 @@ public class UPIHelper {
 	public String getUpiTransactionStatus(String custRefNo) {
 		try {
 			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(custRefNo, applicationConfig.getPgMerchantId()), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
-			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://ibluatapig.indusind.com/app/uat/web/meTranStatusQueryWeb", "POST");
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/meTranStatusQueryWeb", "POST");
 			LOGGER.info("encryptedResponseBody getUpiTransactionStatus {} ", encryptedResponseBody);
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info("decryptedResponse getUpiTransactionStatus {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
 			System.out.println(json);
+			return json.toString();
 		} catch (Exception e) {
 			LOGGER.error("activateDeActivateUpi api failed {}", e);
 		}
@@ -198,7 +199,7 @@ public class UPIHelper {
 	public void upiListApi() { 
 		try {
 			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiListApiModel(applicationConfig.getPgMerchantId()), applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
-			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://ibluatapig.indusind.com/app/uat/web/meTransactionHistoryWeb", "POST");
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/metransactionhistoryweb", "POST");
 			LOGGER.info(" upiListApi encryptedResponseBody  {} ", encryptedResponseBody);
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
