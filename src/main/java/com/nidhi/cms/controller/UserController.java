@@ -1258,28 +1258,33 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			LOGGER.info("decrypted resp --- {}", decrypted);
 			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
 			
-			UserWallet wallet = userWalletService.findByUpiVirtualAddress(decryptedJson.getString("payeeVPA"));
+			JSONObject apiResp = decryptedJson.getJSONObject("apiResp");
+			LOGGER.info("apiResp --- {}", apiResp);
+			
+			
+			
+			UserWallet wallet = userWalletService.findByUpiVirtualAddress(apiResp.getString("payeeVPA"));
 			LOGGER.info("payeeVPA wallet --- {}", wallet);
 			;
 			if (wallet == null) {
-				LOGGER.info("payeeVPA address NOT found in our DB  --- {}", decryptedJson.getString("payeeVPA"));
+				LOGGER.info("payeeVPA address NOT found in our DB  --- {}", apiResp.getString("payeeVPA"));
 				responseMap.put("responseCode", "412");
 				responseMap.put("responseMessage", "Request denied");
 				responseMap.put("status", "F");
-				responseMap.put("merchantName", decryptedJson.getString("payeeName"));
-				responseMap.put("mcc", decryptedJson.getString("payerMcc"));
-				responseMap.put("txnApproval,", decryptedJson.getString("NO"));
-				responseMap.put("orderId,", decryptedJson.getString("orderNo"));
+				responseMap.put("merchantName", apiResp.getString("payeeName"));
+				responseMap.put("mcc", apiResp.getString("payerMcc"));
+				responseMap.put("txnApproval,", "NO");
+				responseMap.put("orderId,", apiResp.getString("orderNo"));
 				
 			} else {
-				LOGGER.info("payeeVPA address exist in our DB  --- {}", decryptedJson.getString("payeeVPA"));
+				LOGGER.info("payeeVPA address exist in our DB  --- {}", apiResp.getString("payeeVPA"));
 				responseMap.put("responseCode", "0");
 				responseMap.put("responseMessage", "Request Accepted");
 				responseMap.put("status", "S");
-				responseMap.put("merchantName", decryptedJson.getString("payeeName"));
-				responseMap.put("mcc", decryptedJson.getString("payerMcc"));
-				responseMap.put("txnApproval,", decryptedJson.getString("YES"));
-				responseMap.put("orderId,", decryptedJson.getString("orderNo"));
+				responseMap.put("merchantName", apiResp.getString("payeeName"));
+				responseMap.put("mcc", apiResp.getString("payerMcc"));
+				responseMap.put("txnApproval,", "YES");
+				responseMap.put("orderId,", apiResp.getString("orderNo"));
 				
 			}
 			
