@@ -1236,17 +1236,25 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	@PostMapping(value = "/api/V1/upi-prevalid")
-	public ResponseEntity<Object> upiPrevalid(@RequestParam(required = false, name = "meRes") String meRes) {
-		LOGGER.info("meRes --- {}", meRes);
-		JSONObject json = Utility.getJsonFromString(meRes);
-		LOGGER.info("[upiCallback] recieved data {} ", json);
+	public ResponseEntity<Object> upiPrevalid(@RequestBody Map<String, String> body, HttpServletRequest httpServletRequest) {
+		LOGGER.info("requestMsg --- {}", body);
 		
-		String resp = json.getString("resp");
-		LOGGER.info("resp --- {}", resp);
+		for(String params : Collections.list(httpServletRequest.getParameterNames())) {
+			System.out.println( "param name -- "+ params);
+			System.out.println( "param value -- "+ httpServletRequest.getParameter(params));
+		}
+		
+		JSONObject json = new JSONObject(body);
+		LOGGER.info("[upiCallback] recieved data {} ", json);
+		String pgMerchantId = json.getString("pgMerchantId");
+		LOGGER.info("pgMerchantId --- {}", pgMerchantId);
+		String requestMsg = json.getString("requestMsg");
+		
+		LOGGER.info("requestMsg --- {}", requestMsg);
 		UPISecurity uPISecurity = new UPISecurity();
 		final Map<String, Object> responseMap = new HashMap<>();
 		try {
-			String decrypted = uPISecurity.decrypt(resp, applicationConfig.getIndBankKey());
+			String decrypted = uPISecurity.decrypt(requestMsg, applicationConfig.getIndBankKey());
 			LOGGER.info("decrypted resp --- {}", decrypted);
 			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
 			
@@ -1276,6 +1284,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			}
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			LOGGER.info("Exception --- {}", e);
 			return ResponseHandler.getResponseEntity(ErrorCode.PARAMETER_MISSING_OR_INVALID, "resp is invalid or cant'be de-crypted", HttpStatus.BAD_REQUEST);
 		}
