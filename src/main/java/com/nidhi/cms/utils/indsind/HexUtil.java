@@ -33,7 +33,6 @@ public class HexUtil {
 	 * @return int
 	 */
 	public static int HexfromDigit(char c) {
-		System.out.println(c);
 		if (c >= '0' && c <= '9')
 			return c - 48;
 		if (c >= 'A' && c <= 'F')

@@ -61,6 +61,7 @@ import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
+import com.nidhi.cms.modal.request.PreAuthPayRequestModel;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
@@ -75,6 +76,7 @@ import com.nidhi.cms.modal.request.UserUpdateModal;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusResponse;
 import com.nidhi.cms.modal.response.ErrorResponse;
+import com.nidhi.cms.modal.response.PreAuthPayResponseModel;
 import com.nidhi.cms.modal.response.TimeOutResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
@@ -1410,8 +1412,38 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			LOGGER.error("usrWallet incorrect {} ", user.getUserId());
 			return ResponseEntity.badRequest().build();
 		}
-		new UPIHelper().refundJsonApi(upiRefundApiRequestModel, usrWallet);
+		upiHelper.refundJsonApi(upiRefundApiRequestModel, usrWallet);
 		return ResponseEntity.ok().build();
 	} 
+	
+	
+	@PostMapping(value = "/pre-auth-pay")
+	public ResponseEntity<Object> preAuthApy(@RequestBody PreAuthPayRequestModel preAuthPayRequestModel) {
+		LOGGER.info("preAuthPayRequestModel --- {}", preAuthPayRequestModel);
+		try {
+			if (StringUtils.isEmpty(preAuthPayRequestModel.getApiKey())) {
+				LOGGER.error("apiKey is  - {} ", preAuthPayRequestModel.getApiKey());
+				return ResponseEntity.badRequest().build();
+			}
+			User user = userRepo.findByApiKey(preAuthPayRequestModel.getApiKey());
+			if (user == null ) {
+				LOGGER.error("apiKey incorrect {}", preAuthPayRequestModel.getApiKey());
+				return ResponseEntity.badRequest().build();
+			}
+			UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
+			if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
+				LOGGER.error("usrWallet incorrect or upi is not active{} ", user.getUserId());
+				return ResponseEntity.badRequest().build();
+			}
+			PreAuthPayResponseModel preAuthPayResponseModel = upiHelper.preAuthApy(preAuthPayRequestModel, usrWallet);
+			if (preAuthPayResponseModel == null) {
+				return ResponseEntity.badRequest().build();
+			}
+			return ResponseHandler.getContentResponse(preAuthPayResponseModel);
+		} catch (Exception e) {
+			LOGGER.error("preAuth pay api failed", e);
+		}
+		return ResponseEntity.badRequest().build();
+	}
 
 }

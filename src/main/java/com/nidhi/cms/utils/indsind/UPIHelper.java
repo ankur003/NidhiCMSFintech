@@ -32,12 +32,14 @@ import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
+import com.nidhi.cms.modal.request.PreAuthPayRequestModel;
 import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
 import com.nidhi.cms.modal.request.indusind.RequestInfo;
 import com.nidhi.cms.modal.request.indusind.UpiDeActivateModel;
 import com.nidhi.cms.modal.request.indusind.UpiListApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusModel;
+import com.nidhi.cms.modal.response.PreAuthPayResponseModel;
 import com.nidhi.cms.repository.SystemConfigRepo;
 import com.nidhi.cms.repository.UpiTxnRepo;
 import com.nidhi.cms.repository.UserRepository;
@@ -199,7 +201,7 @@ public class UPIHelper {
 			response = client.newCall(request).execute();
 			return response.body().string();
 		} catch (Exception e) {
-			LOGGER.error("upiAddress validate api failed {}", e);
+			LOGGER.error("api failed ", e);
 		} finally {
 			if (response != null) {
 				response.close();
@@ -494,6 +496,25 @@ public class UPIHelper {
 		upiRefundApiRequestModel.setTxnNote("");// devendra
 		
 		return upiRefundApiRequestModel;
+	}
+
+	public PreAuthPayResponseModel preAuthApy(PreAuthPayRequestModel preAuthPayRequestModel, UserWallet usrWallet) throws Exception {
+			preAuthPayRequestModel.setPaymentType("P2P");
+			preAuthPayRequestModel.setPgMerchantId(applicationConfig.getPgMerchantId());
+			preAuthPayRequestModel.setTxnType("PAY");
+			preAuthPayRequestModel.setCurrencyCode("INR");
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthPayRequestModel, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId());
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/mePayServerApi", "POST");
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, null, applicationConfig.getIndBankKey());
+			LOGGER.info(" pre auth Api decryptedResponse  {} ", decryptedResponse);
+			JSONObject json = Utility.getJsonFromString(decryptedResponse);
+			if (json.getString("status").equals("S")) {
+				PreAuthPayResponseModel preAuthPayResponseModel = Utility.getJavaObject(json.toString(), PreAuthPayResponseModel.class);
+				return preAuthPayResponseModel;
+			} else {
+				LOGGER.warn("pre auth Api failed  {} ", decryptedResponse);
+			}
+		return null;
 	}
 
 }
