@@ -16,11 +16,13 @@ import org.springframework.stereotype.Service;
 import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.ForgotPassType;
+import com.nidhi.cms.constants.enums.SystemKey;
 import com.nidhi.cms.domain.Otp;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.VerifyOtpRequestModal;
 import com.nidhi.cms.repository.OtpRepository;
+import com.nidhi.cms.repository.SystemConfigRepo;
 import com.nidhi.cms.service.OtpService;
 import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
@@ -46,6 +48,9 @@ public class OtpServiceImpl implements OtpService {
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 	
+	@Autowired
+	private SystemConfigRepo systemConfigRepo;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtpServiceImpl.class);
 	
 	@Override
@@ -54,8 +59,9 @@ public class OtpServiceImpl implements OtpService {
 		if (BooleanUtils.isFalse(doesOtpExpired(otp))) {
 			return null;
 		}
-		String expireMin = StringUtils.defaultIfBlank(applicationConfig.getOtpExpireMinutes(),"5");
-		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), expireMin, existingUser.getMobileNumber());
+		String expireMin = StringUtils.defaultIfBlank(systemConfigRepo.findBySystemKey(SystemKey.OTP_EXPIRE_MINUTES.name()).getValue(),"5");
+		String mobileOtp = Utility.sendAndGetMobileOTP(systemConfigRepo.findBySystemKey(SystemKey.TEXT_LOCAL_API_KEY.name()).getValue(), 
+				systemConfigRepo.findBySystemKey(SystemKey.TEXT_LOCAL_API_SENDER.name()).getValue(), expireMin, existingUser.getMobileNumber());
 									 
 		if (StringUtils.isBlank(mobileOtp)) {
 			return mobileOtp;
@@ -77,7 +83,9 @@ public class OtpServiceImpl implements OtpService {
 		}
 		String emailOtp = Utility.getRandomNumberString();
 		sendOtpOnEmail(user, emailOtp);
-		String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), applicationConfig.getOtpExpireMinutes(), user.getMobileNumber());
+		String mobileOtp = Utility.sendAndGetMobileOTP(systemConfigRepo.findBySystemKey(SystemKey.TEXT_LOCAL_API_KEY.name()).getValue(), 
+				systemConfigRepo.findBySystemKey(SystemKey.TEXT_LOCAL_API_SENDER.name()).getValue(), 
+				systemConfigRepo.findBySystemKey(SystemKey.OTP_EXPIRE_MINUTES.name()).getValue(), user.getMobileNumber());
 		return saveOtpDetails(mobileOtp, emailOtp, user, otp);
 	}
 	
@@ -172,7 +180,7 @@ public class OtpServiceImpl implements OtpService {
 		if (otp == null) {
 			return Boolean.TRUE;
 		}
-		String expireMin = applicationConfig.getOtpExpireMinutes();
+		String expireMin = systemConfigRepo.findBySystemKey(SystemKey.OTP_EXPIRE_MINUTES.name()).getValue();
 		if (StringUtils.isBlank(expireMin)) {
 			expireMin = "05";
 		}
@@ -208,8 +216,9 @@ public class OtpServiceImpl implements OtpService {
 			sendOtpOnEmail(user, emailOtp);
 			return saveOtpDetails(null, emailOtp, user, otp);
 		} else if (forgotPassType.equals(ForgotPassType.PHONE)) {
-			String mobileOtp = Utility.sendAndGetMobileOTP(applicationConfig.getTextLocalApiKey(), applicationConfig.getTextLocalApiSender(), 
-					applicationConfig.getOtpExpireMinutes(), user.getMobileNumber());
+			String mobileOtp = Utility.sendAndGetMobileOTP(systemConfigRepo.findBySystemKey(SystemKey.TEXT_LOCAL_API_KEY.name()).getValue(), 
+					systemConfigRepo.findBySystemKey(SystemKey.TEXT_LOCAL_API_SENDER.name()).getValue(), 
+					systemConfigRepo.findBySystemKey(SystemKey.OTP_EXPIRE_MINUTES.name()).getValue(), user.getMobileNumber());
 			return saveOtpDetails(mobileOtp, null, user, otp);
 		}
 		return null;

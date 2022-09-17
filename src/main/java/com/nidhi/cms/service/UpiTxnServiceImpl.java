@@ -1,5 +1,8 @@
 package com.nidhi.cms.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +22,12 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
+import com.nidhi.cms.constants.enums.PaymentMode;
+import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.UpiTxn;
 import com.nidhi.cms.domain.User;
+import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.repository.UpiTxnRepo;
@@ -50,6 +56,9 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 	
 	@Autowired
 	private UPIHelper upiHelper;
+	
+	@Autowired
+	private UserPaymentModeService userPaymentModeService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpiTxnServiceImpl.class);
 
@@ -119,13 +128,78 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		
 		wallet.setAmount(wallet.getAmount() + decryptedJsonResp.getDouble("amount"));
 		UserWallet savedWallet = userWalletService.save(wallet);
+
+		User user = userRepository.findByUserId(wallet.getUserId());
+		
+		Double fee = null;
+		
+		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, PaymentMode.UPI_CREDIT);
+		if (userPaymentMode != null) {
+			if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
+				fee = getFee(userPaymentMode.getFee(), decryptedJsonResp.getDouble("amount"));
+				savedWallet.setAmount(savedWallet.getAmount() - fee);
+				savedWallet = userWalletService.save(savedWallet);
+				
+			} 
+			if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
+				fee = userPaymentMode.getFee();
+				savedWallet.setAmount(savedWallet.getAmount() - fee);
+				savedWallet = userWalletService.save(savedWallet);
+				
+			}
+			Transaction transaction = new Transaction();
+			transaction.setAmount(fee);
+			transaction.setAmountPlusfee(fee);
+			transaction.setCreatedAt(LocalDateTime.now());
+			transaction.setCreditTime(Utility.getDateTime(decryptedJson.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss"));
+			transaction.setCurrency("INR");
+			transaction.setFee(fee);
+			transaction.setIsFeeTx(true);
+			transaction.setMerchantId(wallet.getMerchantId());
+			transaction.setStatus(decryptedJson.getString("status"));
+			transaction.setRemarks(decryptedJson.getString("txnNote"));
+			transaction.setTxDate(Utility.getDateTime(decryptedJson.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss").toLocalDate());
+			transaction.setTxnType(decryptedJson.getString("txnType"));
+			transaction.setTxType("Dr.");
+			transaction.setUniqueId(decryptedJson.getString("npciTransId"));
+			transaction.setUserId(wallet.getUserId());
+			transaction.setUtrNumber(decryptedJson.getString("npciTransId"));
+			transaction.setPayeeName(decryptedJson.getString("payeeVPA"));
+			transaction.setAmt(savedWallet.getAmount());
+			transactionService.save(transaction);
+			
+			triggerDebitAccountNotification(user, fee, savedWallet);
+		} 
 		
 		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);
 		if (StringUtils.isNotBlank(wallet.getMerchantCallBackUrl())) {
 			callbackInitaite(upiTxn, wallet);
 		}
+	}
+	
+	private void triggerDebitAccountNotification(User user, Double txnAmount, UserWallet userWallet) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerDebitAccountNotification] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Your NidhiCMS Account Debited with Rs." +txnAmount);
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		model.put("txAmt", txnAmount);
+		model.put("accNo", userWallet.getWalletUuid());
+		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
+		model.put("amt", userWallet.getAmount());
+		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.DEBIT_ACC);
 		
-		
+	}
+	
+	private Double getFee(Double feePercent, Double amount) {
+		BigDecimal amt = new BigDecimal(amount).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal feePer = new BigDecimal(feePercent).setScale(2, RoundingMode.HALF_DOWN);
+		return new BigDecimal((amt.doubleValue() * feePer.doubleValue()) / 100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
 	}
 
 	private void callbackInitaite(UpiTxn upiTxn, UserWallet wallet) {

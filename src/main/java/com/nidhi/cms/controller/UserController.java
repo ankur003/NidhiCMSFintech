@@ -47,6 +47,7 @@ import com.nidhi.cms.constants.enums.ForgotPassType;
 import com.nidhi.cms.constants.enums.KycStatus;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
+import com.nidhi.cms.constants.enums.SystemKey;
 import com.nidhi.cms.domain.DocType;
 import com.nidhi.cms.domain.MerchantUniqueDetails;
 import com.nidhi.cms.domain.Otp;
@@ -80,6 +81,7 @@ import com.nidhi.cms.modal.response.PreAuthPayResponseModel;
 import com.nidhi.cms.modal.response.TimeOutResponse;
 import com.nidhi.cms.modal.response.UserBusinessKycModal;
 import com.nidhi.cms.modal.response.UserDetailModal;
+import com.nidhi.cms.repository.SystemConfigRepo;
 import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.DocService;
 import com.nidhi.cms.service.MerchantUniqueDetailsService;
@@ -156,6 +158,9 @@ public class UserController extends AbstractController {
 	
 	@Autowired
 	private UpiService upiService;
+	
+	@Autowired
+	private SystemConfigRepo systemConfigRepo;
 	
 	private static final String APPLICATION_JSON  = "application/json";
 	private static final String MESSAGE  = "message";
@@ -1225,7 +1230,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		LOGGER.info("resp --- {}", resp);
 		UPISecurity uPISecurity = new UPISecurity();
 		try {
-			String decrypted = uPISecurity.decrypt(resp, applicationConfig.getIndBankKey());
+			String decrypted = uPISecurity.decrypt(resp, systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
 			LOGGER.info("decrypted resp --- {}", decrypted);
 			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
 			LOGGER.info("decrypted Json --- {}", decryptedJson);
@@ -1256,7 +1261,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		UPISecurity uPISecurity = new UPISecurity();
 		final Map<String, Object> responseMap = new HashMap<>();
 		try {
-			String decrypted = uPISecurity.decrypt(requestMsg, applicationConfig.getIndBankKey());
+			String decrypted = uPISecurity.decrypt(requestMsg, systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
 			LOGGER.info("decrypted resp --- {}", decrypted);
 			JSONObject decryptedJson = Utility.getJsonFromString(decrypted);
 			
@@ -1402,13 +1407,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return ResponseEntity.badRequest().build();
 		}
 		User user = userRepo.findByApiKey(apiKey);
-		if (user == null ) {
+		if (user == null || user.getKycStatus() == null || !KycStatus.VERIFIED.name().equals(user.getKycStatus().name()) ) {
 			LOGGER.error("apiKey incorrect {}", apiKey);
 			return ResponseEntity.badRequest().build();
 		}
 		
 		UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
-		if (usrWallet == null ) {
+		if (usrWallet == null) {
 			LOGGER.error("usrWallet incorrect {} ", user.getUserId());
 			return ResponseEntity.badRequest().build();
 		}
@@ -1435,7 +1440,37 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				LOGGER.error("usrWallet incorrect or upi is not active{} ", user.getUserId());
 				return ResponseEntity.badRequest().build();
 			}
-			PreAuthPayResponseModel preAuthPayResponseModel = upiHelper.preAuthApy(preAuthPayRequestModel, usrWallet);
+			
+			Double fee = null;
+			
+			UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, PaymentMode.UPI_DEBIT);
+			if (userPaymentMode == null) {
+				if (usrWallet.getAmount() < Double.valueOf(preAuthPayRequestModel.getTxnAmount())) {
+					LOGGER.error("usrWallet not having enough money {} ", usrWallet.getAmount());
+					return ResponseEntity.badRequest().build();
+				}
+			} else {
+				if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
+					fee = getFee(userPaymentMode.getFee(), Double.valueOf(preAuthPayRequestModel.getTxnAmount()));
+					BigDecimal userTxAmount = new BigDecimal(preAuthPayRequestModel.getTxnAmount()).setScale(2, RoundingMode.HALF_DOWN);
+					if (usrWallet.getAmount() < (fee + userTxAmount.doubleValue())) {
+						final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
+						errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+			            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+					}
+				} 
+				if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
+					fee = userPaymentMode.getFee();
+					if ((usrWallet.getAmount()) < (Double.parseDouble(preAuthPayRequestModel.getTxnAmount()) + fee)) {
+						final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
+						errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+			            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+					}
+				}
+			}
+			
+			
+			PreAuthPayResponseModel preAuthPayResponseModel = upiHelper.preAuthApy(preAuthPayRequestModel, usrWallet, fee, user);
 			if (preAuthPayResponseModel == null) {
 				return ResponseEntity.badRequest().build();
 			}

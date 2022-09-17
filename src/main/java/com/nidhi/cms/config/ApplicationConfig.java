@@ -1,16 +1,25 @@
 package com.nidhi.cms.config;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import com.nidhi.cms.constants.enums.SystemKey;
+import com.nidhi.cms.domain.SystemConfig;
+import com.nidhi.cms.repository.SystemConfigRepo;
+
 @Configuration
 public class ApplicationConfig {
-
-	@Value("${otp.expire.minutes}")
-	private String otpExpireMinutes;
+	
+	@Autowired
+	private SystemConfigRepo systemConfigRepo;
 
 	@Value("${token.secret.key}")
 	private String tokenSecretKey;
@@ -18,39 +27,8 @@ public class ApplicationConfig {
 	@Value("${token.validity.seconds}")
 	private String tokenValiditySeconds;
 
-	@Value("${text.local.api.key}")
-	private String textLocalApiKey;
-
-	@Value("${text.local.api.sender}")
-	private String textLocalApiSender;
-
-	@Value("${inds.ind.bank.key}")
-	private String indBankKey;
-
-	@Value("${X-IBM-CLIENT-ID}")
-	private String xIBMClientId;
-
-	@Value("${X-IBM-CLIENT-SECRET}")
-	private String xIBMClientSecret;
-	
-	@Value("${X-IBM-CLIENT-ID-UAT}")
-	private String xIBMClientIdUAT;
-
-	@Value("${X-IBM-CLIENT-SECRET-UAT}")
-	private String xIBMClientSecretUAT;
-	
-	@Value("${indus.pgMerchantId}")
-	private String pgMerchantId;
-
 	public static Map<String, String> loggedInUsers = new ConcurrentHashMap<>();
 
-	public String getOtpExpireMinutes() {
-		return otpExpireMinutes;
-	}
-
-	public void setOtpExpireMinutes(String otpExpireMinutes) {
-		this.otpExpireMinutes = otpExpireMinutes;
-	}
 
 	public String getTokenSecretKey() {
 		return tokenSecretKey;
@@ -68,44 +46,49 @@ public class ApplicationConfig {
 		this.tokenValiditySeconds = tokenValiditySeconds;
 	}
 
-	public String getTextLocalApiKey() {
-		return textLocalApiKey;
+	@PostConstruct
+	public void addSystemKeys() {
+		
+		List<SystemConfig> systemConfigs = systemConfigRepo.findAll();
+		if (CollectionUtils.isEmpty(systemConfigs)) {
+			saveSystemProperties();
+		} 
 	}
 
-	public void setTextLocalApiKey(String textLocalApiKey) {
-		this.textLocalApiKey = textLocalApiKey;
-	}
-
-	public String getTextLocalApiSender() {
-		return textLocalApiSender;
-	}
-
-	public void setTextLocalApiSender(String textLocalApiSender) {
-		this.textLocalApiSender = textLocalApiSender;
-	}
-
-	public String getIndBankKey() {
-		return indBankKey;
-	}
-
-	public String getxIBMClientId() {
-		return xIBMClientId;
-	}
-
-	public String getxIBMClientSecret() {
-		return xIBMClientSecret;
-	}
-
-	public String getxIBMClientIdUAT() {
-		return xIBMClientIdUAT;
-	}
-
-	public String getxIBMClientSecretUAT() {
-		return xIBMClientSecretUAT;
-	}
-
-	public String getPgMerchantId() {
-		return pgMerchantId;
+	private void saveSystemProperties() {
+		for (SystemKey systemKey : SystemKey.values()) { 
+			SystemConfig systemConfig = new SystemConfig();
+			systemConfig.setSystemKey(systemKey.name());
+			
+			if (systemKey.equals(SystemKey.LIST_API_LAST_RUN_TIME)) {
+				continue;
+			}
+			
+			if (systemKey.equals(SystemKey.INDS_IND_BANK_KEY)) {
+				systemConfig.setValue("c0ff5a0e2000a62951400b3489fc41f2");
+			}
+			
+			if (systemKey.equals(SystemKey.OTP_EXPIRE_MINUTES)) {
+				systemConfig.setValue("5");
+			}
+			if (systemKey.equals(SystemKey.TEXT_LOCAL_API_KEY)) {
+				systemConfig.setValue("U78FiH4n8Z0-bK7Q0sR5WE6m0zIkF0yslVExmFac8d");
+			}
+			if (systemKey.equals(SystemKey.TEXT_LOCAL_API_SENDER)) {
+				systemConfig.setValue("NIDCMS");
+			}
+			if (systemKey.equals(SystemKey.X_IBM_CLIENT_ID)) {
+				systemConfig.setValue("8d7a4330-57fb-4d66-853d-32fd27a8f32f");
+			}
+			if (systemKey.equals(SystemKey.X_IBM_CLIENT_SECRET)) {
+				systemConfig.setValue("Q2kJ6hQ6gO8cC0xR1eY6uN4xC2aC5oW5bC4oB4lH3qP5vY7sJ0");
+			}
+			if (systemKey.equals(SystemKey.INDUS_PGMERCHANTID)) {
+				systemConfig.setValue("INDB000001862820");
+			}
+			systemConfigRepo.save(systemConfig);
+		}
+		
 	}
 	
 }

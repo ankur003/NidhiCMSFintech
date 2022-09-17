@@ -20,9 +20,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.nidhi.cms.config.ApplicationConfig;
+import com.nidhi.cms.constants.enums.SystemKey;
 import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.domain.VirtualTxn;
+import com.nidhi.cms.repository.SystemConfigRepo;
 import com.nidhi.cms.service.CreditAmountTransactionsService;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserService;
@@ -54,6 +56,9 @@ public class CheckCreditAmountScheduler {
     
     @Autowired
     private  CreditAmountTransactionsService creditAmountTransactionsService;
+    
+    @Autowired
+    private SystemConfigRepo systemConfigRepo;
 
     @Scheduled(cron = "0 0/10 * * * ?")
     public void checkCreditAmountScheduler() {
@@ -71,8 +76,8 @@ public class CheckCreditAmountScheduler {
     				mediaType);
     		Request request = new Request.Builder().url("https://apig.indusind.com/ibl/prod/IBLeTender")
     				.method("POST", body)
-					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
-					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
+					.addHeader("X-IBM-CLIENT-ID", systemConfigRepo.findBySystemKey(SystemKey.X_IBM_CLIENT_ID.name()).getValue())
+					.addHeader("X-IBM-CLIENT-SECRET", systemConfigRepo.findBySystemKey(SystemKey.X_IBM_CLIENT_SECRET.name()).getValue())
     				.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/FetchIecData")
     				.addHeader("Content-Type", "text/xml").build();
     		response = client.newCall(request).execute();
@@ -165,8 +170,8 @@ public class CheckCreditAmountScheduler {
 					mediaType);
 			Request request = new Request.Builder().url("https://apig.indusind.com/ibl/prod/IBLeTender")
 					.method("POST", body).addHeader("Content-Type", "text/xml")
-					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
-					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
+					.addHeader("X-IBM-CLIENT-ID", systemConfigRepo.findBySystemKey(SystemKey.X_IBM_CLIENT_ID.name()).getValue())
+					.addHeader("X-IBM-CLIENT-SECRET", systemConfigRepo.findBySystemKey(SystemKey.X_IBM_CLIENT_SECRET.name()).getValue())
 					.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/UpdateClientResponse").build();
 			response = client.newCall(request).execute();
 			 LOGGER.info("successfully update for reqId ............................   =  {} ", reqId);
@@ -199,8 +204,8 @@ public class CheckCreditAmountScheduler {
 					mediaType);
 			Request request = new Request.Builder().url("https://apig.indusind.com/ibl/prod/IBLeTender")
 					.method("POST", body).addHeader("Content-Type", "text/xml")
-					.addHeader("X-IBM-CLIENT-ID", applicationConfig.getxIBMClientId())
-					.addHeader("X-IBM-CLIENT-SECRET", applicationConfig.getxIBMClientSecret())
+					.addHeader("X-IBM-CLIENT-ID", systemConfigRepo.findBySystemKey(SystemKey.X_IBM_CLIENT_ID.name()).getValue())
+					.addHeader("X-IBM-CLIENT-SECRET", systemConfigRepo.findBySystemKey(SystemKey.X_IBM_CLIENT_SECRET.name()).getValue())
 					.addHeader("SOAPAction", "http://tempuri.org/IIBLeTender/UpdateClientResponse").build();
 			response = client.newCall(request).execute();
 			 LOGGER.info("successfully update for reqId ............................   =  {} ", reqId);

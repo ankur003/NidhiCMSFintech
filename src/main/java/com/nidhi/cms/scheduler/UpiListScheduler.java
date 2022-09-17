@@ -19,7 +19,7 @@ public class UpiListScheduler {
 	@Autowired
 	private UPIHelper upiHelper;
 	
-	@Scheduled(cron = "0 0/30 * * * ?")
+	@Scheduled(cron = "0 0/15 * * * ?")
 	public void upiListScheduler() {
 		LOGGER.info("UPI list Scheduler has been started at '{}'", LocalDateTime.now());
 		try {

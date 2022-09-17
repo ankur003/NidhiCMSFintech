@@ -16,8 +16,8 @@ public class SystemConfig extends BaseDomain {
 	
 	private String systemKey;
 	
-	private String lastListApiStartTime;
-
+	private String value;
+	
 	public Long getSystemConfigId() {
 		return systemConfigId;
 	}
@@ -34,12 +34,12 @@ public class SystemConfig extends BaseDomain {
 		this.systemKey = systemKey;
 	}
 
-	public String getLastListApiStartTime() {
-		return lastListApiStartTime;
+	public String getValue() {
+		return value;
 	}
 
-	public void setLastListApiStartTime(String lastListApiStartTime) {
-		this.lastListApiStartTime = lastListApiStartTime;
+	public void setValue(String value) {
+		this.value = value;
 	}
-
+	
 }
