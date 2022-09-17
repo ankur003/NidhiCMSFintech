@@ -6,7 +6,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.nidhi.cms.domain.Otp;
-import com.nidhi.cms.domain.User;
 
 /**
  * 
@@ -15,7 +14,7 @@ import com.nidhi.cms.domain.User;
  */
 
 @Repository
-public interface OtpRepository extends JpaRepository<Otp, Long> , PagingAndSortingRepository<Otp, Long>, JpaSpecificationExecutor<User> {
+public interface OtpRepository extends JpaRepository<Otp, Long> , PagingAndSortingRepository<Otp, Long>, JpaSpecificationExecutor<Otp> {
 
 	Otp findByUserId(Long userId);
 	

@@ -2,20 +2,35 @@ package com.nidhi.cms.utils.indsind;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import com.nidhi.cms.config.ApplicationConfig;
+import com.nidhi.cms.constants.EmailTemplateConstants;
+import com.nidhi.cms.constants.enums.SystemKey;
+import com.nidhi.cms.domain.SystemConfig;
 import com.nidhi.cms.domain.Transaction;
+import com.nidhi.cms.domain.UpiTxn;
+import com.nidhi.cms.domain.User;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
 import com.nidhi.cms.modal.request.indusind.RequestInfo;
@@ -23,8 +38,12 @@ import com.nidhi.cms.modal.request.indusind.UpiDeActivateModel;
 import com.nidhi.cms.modal.request.indusind.UpiListApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusModel;
+import com.nidhi.cms.repository.SystemConfigRepo;
+import com.nidhi.cms.repository.UpiTxnRepo;
+import com.nidhi.cms.repository.UserRepository;
 import com.nidhi.cms.service.TransactionService;
 import com.nidhi.cms.service.UserWalletService;
+import com.nidhi.cms.service.email.EmailService;
 import com.nidhi.cms.utils.Utility;
 
 import okhttp3.MediaType;
@@ -51,6 +70,18 @@ public class UPIHelper {
 	
 	@Autowired
 	private TransactionService transactionService;
+	
+	@Autowired
+	private SystemConfigRepo systemConfigRepo;
+	
+	@Autowired
+	private UpiTxnRepo upiTxnRepo;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private EmailService emailService;
 
 	public String generateUPIAddress(String merchantId, String companyName) {
 		LOGGER.info("merchant id {}", merchantId);
@@ -227,17 +258,171 @@ public class UPIHelper {
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", applicationConfig.getIndBankKey());
 			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse); 
-			System.out.println(json);
+			updateListAPiStartTime();
+			JSONArray transDetails = json.getJSONArray("transDetails");
+			for (int i = 0; i < transDetails.length(); i++) {
+				JSONObject transDetail = transDetails.getJSONObject(i);
+				processUpiListApi(transDetail);
+			}    
+			
+			// callback passed
+			// 
 		} catch (Exception e) {
 			LOGGER.error("activateDeActivateUpi api failed {}", e); 
 		}
 		
 	}
+	
+	private void processUpiListApi(JSONObject transDetail) {
+		List<Transaction> transaction = transactionService.getTransactionsByUniqueId(transDetail.getString("txnId"));
+		if (CollectionUtils.isNotEmpty(transaction)) {
+			LOGGER.warn("upiListApi transaction already found in transaction table against  uniqueId {}", transDetail.getString("txnId")); 
+			return;
+		}
+		saveUpiTransaction(transDetail);
+		
+	}
+
+	private void saveUpiTransaction(JSONObject transDetail) {
+		UpiTxn upiTxn = new UpiTxn();
+		upiTxn.setAmount(transDetail.getDouble("txnAmount"));
+		//upiTxn.setApprovalNumber(transDetail.getString("approvalNumber"));
+		upiTxn.setCurrentStatusDesc(transDetail.getString("reason_desc"));
+		upiTxn.setCustRefNo(transDetail.getString("custRefNo"));
+		//upiTxn.setNpciTransId(transDetail.getString("npciTransId"));
+		//upiTxn.setOrderNo(transDetail.getString("orderNo"));
+		upiTxn.setPayeeVPA(transDetail.getString("payeeVirtualAddress"));
+		upiTxn.setPayerVPA(transDetail.getString("payerVirtualAddress"));
+		//upiTxn.setPspRefNo(transDetail.has("pspRefNo") ? transDetail.getString("pspRefNo") : null);
+		//upiTxn.setRefUrl(transDetail.has("refUrl") ? transDetail.getString("refUrl") : null);
+		upiTxn.setResponseCode(transDetail.getString("response_code"));
+		upiTxn.setStatus(transDetail.getString("txnStatus"));
+		upiTxn.setTxnAuthDate(transDetail.getString("trnDate"));
+		upiTxn.setTxnNote(transDetail.getString("txnNote"));
+		upiTxn.setTxnType(transDetail.getString("txnType"));
+		upiTxn.setUpiTransRefNo(transDetail.has("trnRefNo") ? transDetail.get("trnRefNo").toString() : null);
+		
+		
+		upiTxn.setAddInfo2(transDetail.getString("addiInfo2"));
+		upiTxn.setAddInfo3(transDetail.getString("addiInfo3"));
+		
+		UpiTxn savedUpiTxn = upiTxnRepo.save(upiTxn);
+		
+		UserWallet wallet = userWalletService.findByUpiVirtualAddress(transDetail.getString("payeeVirtualAddress"));
+		if (wallet == null || BooleanUtils.isFalse(wallet.getIsUpiActive())) {
+			LOGGER.error("payeeVPA {} not found on our DB or upi not active", transDetail.getString("payeeVirtualAddress"));
+			return;
+		}
+		
+		savedUpiTxn.setUserId(wallet.getUserId());
+		upiTxnRepo.save(savedUpiTxn);
+		
+		saveTransaction(transDetail, wallet, wallet.getAmount() + transDetail.getDouble("txnAmount"));
+		
+		wallet.setAmount(wallet.getAmount() + transDetail.getDouble("txnAmount"));
+		UserWallet savedWallet = userWalletService.save(wallet);
+		
+		triggerCreditMail(wallet.getUserId(), transDetail, savedWallet);
+		
+		if (StringUtils.isNotBlank(wallet.getMerchantCallBackUrl())) {
+			callbackInitaite(upiTxn, wallet);
+		}
+		
+	}
+	
+	private void saveTransaction(JSONObject transDetail, UserWallet wallet, Double amt) {
+		Transaction transaction = new Transaction();
+		transaction.setAmount(transDetail.getDouble("txnAmount"));
+		transaction.setAmountPlusfee(transDetail.getDouble("txnAmount"));
+		transaction.setCreatedAt(LocalDateTime.now());
+		transaction.setCreditTime(Utility.getDateTime(transDetail.getString("trnDate"), "yyyy:MM:dd HH:mm:ss"));
+		transaction.setCurrency("INR");
+		transaction.setFee(0.0);
+		transaction.setIsFeeTx(false);
+		transaction.setMerchantId(wallet.getMerchantId());
+		transaction.setStatus(transDetail.getString("txnStatus"));
+		transaction.setRemarks(transDetail.getString("txnNote"));
+		transaction.setTxDate(Utility.getDateTime(transDetail.getString("trnDate"), "yyyy:MM:dd HH:mm:ss").toLocalDate());
+		transaction.setTxnType(transDetail.getString("txnType"));
+		transaction.setTxType("Cr.");
+		transaction.setUniqueId(transDetail.getString("txnId"));
+		transaction.setUserId(wallet.getUserId());
+		//transaction.setUtrNumber(transDetail.getString("npciTransId"));
+		transaction.setPayeeName(transDetail.getString("payeeVirtualAddress"));
+		transaction.setAmt(amt);
+		transactionService.save(transaction);
+	}
+	
+	private void triggerCreditMail(Long userId, JSONObject decryptedJson, UserWallet savedWallet) {
+		
+		User user = userRepository.findByUserId(userId);
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Your NidhiCMS Account credited with Rs." +decryptedJson.getString("txnAmount"));
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		model.put("txAmt", decryptedJson.getString("txnAmount"));
+		model.put("vAcc", savedWallet.getWalletUuid());
+		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
+		model.put("amt", savedWallet.getAmount());
+		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.CREDIT_ACC);
+	}
+	
+	private void callbackInitaite(UpiTxn upiTxn, UserWallet wallet) {
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			
+			User user = userRepository.findByUserId(wallet.getUserId());
+			
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("apiKey", user.getApiKey());      
+
+			HttpEntity<UpiTxn> request = new HttpEntity<>(upiTxn, headers);
+			
+			LOGGER.info("callback request {}, with apikey {} and user id {} ", upiTxn, user.getApiKey(), user.getUserId());
+			
+			//Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
+			Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
+			LOGGER.info("callback response {}", map);
+			
+			LOGGER.info("callback recieved");
+			upiTxn.setDoesCallbackSuccess(Boolean.TRUE);
+			upiTxnRepo.save(upiTxn);
+			LOGGER.info("Does Call back Success -- TRUE Updated");
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("An error occured while callback {} ", e);
+			upiTxn.setDoesCallbackSuccess(Boolean.FALSE);
+			upiTxnRepo.save(upiTxn);
+			LOGGER.info("Does Call back failed -- FALSE Updated");
+		}
+	}
+
+	private String getListAPiStartTime() {
+		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
+		if (systemConfig == null) {
+			return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " ");
+		}
+		return systemConfig.getLastListApiStartTime();
+	}
+
+	private void updateListAPiStartTime() {
+		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
+		if (systemConfig == null) {
+			systemConfig = new SystemConfig();
+			systemConfig.setSystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
+		}
+		systemConfig.setLastListApiStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " "));
+		systemConfigRepo.save(systemConfig);
+	}
 
 	private UpiListApiRequestModel getUpiListApiModel(String pgMerchantId) {
+		String fromDate = getListAPiStartTime();
 		UpiListApiRequestModel upiListApiRequestModel = new UpiListApiRequestModel();
 		upiListApiRequestModel.setPgMerchantId(pgMerchantId);
-		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel("01-01-2005 11:01:01", "01-01-2019 11:01:01", "1", "3"));
+		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel(fromDate, 
+				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " "), "1", "100000"));
 		return upiListApiRequestModel;
 	}
 

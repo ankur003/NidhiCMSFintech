@@ -121,8 +121,10 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		UserWallet savedWallet = userWalletService.save(wallet);
 		
 		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);
+		if (StringUtils.isNotBlank(wallet.getMerchantCallBackUrl())) {
+			callbackInitaite(upiTxn, wallet);
+		}
 		
-		callbackInitaite(upiTxn, wallet);
 		
 	}
 
