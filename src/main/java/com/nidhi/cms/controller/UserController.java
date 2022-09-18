@@ -1426,21 +1426,25 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	public ResponseEntity<Object> preAuthApy(@RequestBody PreAuthPayRequestModel preAuthPayRequestModel) {
 		LOGGER.info("preAuthPayRequestModel --- {}", preAuthPayRequestModel);
 		try {
-			if (StringUtils.isEmpty(preAuthPayRequestModel.getApiKey())) {
-				LOGGER.error("apiKey is  - {} ", preAuthPayRequestModel.getApiKey());
-				return ResponseEntity.badRequest().build();
-			}
-			User user = userRepo.findByApiKey(preAuthPayRequestModel.getApiKey());
-			if (user == null ) {
-				LOGGER.error("apiKey incorrect {}", preAuthPayRequestModel.getApiKey());
-				return ResponseEntity.badRequest().build();
-			}
-			UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
-			if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
-				LOGGER.error("usrWallet incorrect or upi is not active{} ", user.getUserId());
+			if (!(preAuthPayRequestModel.getPayeeVPAType().equals("BANK")
+					&& preAuthPayRequestModel.getPayeeVPAType().equals("UPI"))) {
+				LOGGER.error("PayeeVPAType is invalid --- {}", preAuthPayRequestModel.getPayeeVPAType());
 				return ResponseEntity.badRequest().build();
 			}
 			
+			if (preAuthPayRequestModel.getPayeeVPAType().equals("BANK")) {
+				preAuthPayRequestModel.setPayeeVPAType("IFSC");
+			}
+			if (preAuthPayRequestModel.getPayeeVPAType().equals("UPI")) {
+				preAuthPayRequestModel.setPayeeVPAType("VPA");
+			}
+			
+			UserWallet usrWallet = userWalletService.findByMerchantId(preAuthPayRequestModel.getMerchantId());
+			if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
+				LOGGER.error("usrWallet incorrect or upi is not active{} ", preAuthPayRequestModel.getMerchantId());
+				return ResponseEntity.badRequest().build();
+			}
+			User user = userRepo.findByUserId(usrWallet.getUserId());
 			Double fee = null;
 			
 			UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, PaymentMode.UPI_DEBIT);
@@ -1468,7 +1472,6 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 					}
 				}
 			}
-			
 			
 			PreAuthPayResponseModel preAuthPayResponseModel = upiHelper.preAuthApy(preAuthPayRequestModel, usrWallet, fee, user);
 			if (preAuthPayResponseModel == null) {

@@ -535,10 +535,12 @@ public class UPIHelper {
 	}
 
 	public PreAuthPayResponseModel preAuthApy(PreAuthPayRequestModel preAuthPayRequestModel, UserWallet usrWallet, Double fee, User user) throws Exception {
-			preAuthPayRequestModel.setPaymentType("P2P");
 			preAuthPayRequestModel.setPgMerchantId(systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
 			preAuthPayRequestModel.setTxnType("PAY");
 			preAuthPayRequestModel.setCurrencyCode("INR");
+			preAuthPayRequestModel.setMcc("7392");
+			preAuthPayRequestModel.setPayerAccNo("201015240719");
+			preAuthPayRequestModel.setPayerIfsc("INDB0000824");
 			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthPayRequestModel, systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
 					systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/mePayServerApi", "POST");

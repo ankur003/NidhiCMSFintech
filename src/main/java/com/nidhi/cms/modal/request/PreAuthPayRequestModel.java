@@ -10,28 +10,43 @@ public class PreAuthPayRequestModel {
 	private String orderNo;
 	
 	@NotBlank
+	private String merchantId;
+	
+	@NotBlank
 	private String txnNote;
 	
 	@NotBlank
 	private String txnAmount;
 	
-	@NotBlank
+	@JsonIgnore
 	private String mcc;
 	
-	@NotBlank
 	private String payeeName;
 	
-	@NotBlank
+	@JsonIgnore
 	private String payerAccNo;
 
 	@NotBlank
 	private String payeeVPAType;
 	
-	@NotBlank
-	private String apiKey;
+	private String paymentType;
 	
 	@JsonIgnore
-	private String paymentType;
+	private String payerIfsc;
+	
+	private String payeeIfsc;
+	
+	private String payeeMobNo;
+	
+	private String payeeEmail;
+	
+	private String payeeVPA;
+	
+	private String addInfo2;
+	
+	private String addInfo3;
+	
+	private String payeeAccNo;
 	
 	@JsonIgnore
 	private String pgMerchantId;
@@ -130,20 +145,76 @@ public class PreAuthPayRequestModel {
 		this.payeeVPAType = payeeVPAType;
 	}
 
-	public String getApiKey() {
-		return apiKey;
+	public String getMerchantId() {
+		return merchantId;
 	}
 
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
 	}
 
-	@Override
-	public String toString() {
-		return "PreAuthPayRequestModel [pgMerchantId=" + pgMerchantId + ", orderNo=" + orderNo + ", txnNote=" + txnNote
-				+ ", txnAmount=" + txnAmount + ", currencyCode=" + currencyCode + ", paymentType=" + paymentType
-				+ ", txnType=" + txnType + ", mcc=" + mcc + ", payeeName=" + payeeName + ", payerAccNo=" + payerAccNo
-				+ ", payeeVPAType=" + payeeVPAType + ", apiKey=" + apiKey + "]";
+	public String getPayerIfsc() {
+		return payerIfsc;
 	}
 
+	public void setPayerIfsc(String payerIfsc) {
+		this.payerIfsc = payerIfsc;
+	}
+
+	public String getPayeeIfsc() {
+		return payeeIfsc;
+	}
+
+	public void setPayeeIfsc(String payeeIfsc) {
+		this.payeeIfsc = payeeIfsc;
+	}
+
+	public String getPayeeMobNo() {
+		return payeeMobNo;
+	}
+
+	public void setPayeeMobNo(String payeeMobNo) {
+		this.payeeMobNo = payeeMobNo;
+	}
+
+	public String getPayeeEmail() {
+		return payeeEmail;
+	}
+
+	public void setPayeeEmail(String payeeEmail) {
+		this.payeeEmail = payeeEmail;
+	}
+
+	public String getPayeeVPA() {
+		return payeeVPA;
+	}
+
+	public void setPayeeVPA(String payeeVPA) {
+		this.payeeVPA = payeeVPA;
+	}
+
+	public String getAddInfo2() {
+		return addInfo2;
+	}
+
+	public void setAddInfo2(String addInfo2) {
+		this.addInfo2 = addInfo2;
+	}
+
+	public String getAddInfo3() {
+		return addInfo3;
+	}
+
+	public void setAddInfo3(String addInfo3) {
+		this.addInfo3 = addInfo3;
+	}
+
+	public String getPayeeAccNo() {
+		return payeeAccNo;
+	}
+
+	public void setPayeeAccNo(String payeeAccNo) {
+		this.payeeAccNo = payeeAccNo;
+	}
+	
 }
