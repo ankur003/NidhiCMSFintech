@@ -74,6 +74,7 @@ import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
+import com.nidhi.cms.modal.request.indusind.UpiCollectTxRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusResponse;
 import com.nidhi.cms.modal.response.ErrorResponse;
@@ -1424,10 +1425,10 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	
 	@PostMapping(value = "/pre-auth-pay")
 	public ResponseEntity<Object> preAuthApy(@RequestBody PreAuthPayRequestModel preAuthPayRequestModel) {
-		LOGGER.info("preAuthPayRequestModel --- {}", preAuthPayRequestModel);
+		LOGGER.info("preAuthPayRequestModel --- {} ", preAuthPayRequestModel);
 		try {
-			if (!(preAuthPayRequestModel.getPayeeVPAType().equals("BANK")
-					&& preAuthPayRequestModel.getPayeeVPAType().equals("UPI"))) {
+			if (BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("BANK")) 
+					&& BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("UPI"))) {
 				LOGGER.error("PayeeVPAType is invalid --- {}", preAuthPayRequestModel.getPayeeVPAType());
 				return ResponseEntity.badRequest().build();
 			}
@@ -1441,7 +1442,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			
 			UserWallet usrWallet = userWalletService.findByMerchantId(preAuthPayRequestModel.getMerchantId());
 			if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
-				LOGGER.error("usrWallet incorrect or upi is not active{} ", preAuthPayRequestModel.getMerchantId());
+				LOGGER.error("usrWallet incorrect or upi is not active {} ", preAuthPayRequestModel.getMerchantId());
 				return ResponseEntity.badRequest().build();
 			}
 			User user = userRepo.findByUserId(usrWallet.getUserId());
@@ -1479,9 +1480,16 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			}
 			return ResponseHandler.getContentResponse(preAuthPayResponseModel);
 		} catch (Exception e) {
-			LOGGER.error("preAuth pay api failed", e);
+			LOGGER.error("preAuth pay api failed ", e);
 		}
 		return ResponseEntity.badRequest().build();
+	}
+	
+	@PostMapping(value = "/upi/collect-tx")
+	public ResponseEntity<Object> upiCollectTxRequestModel(@RequestBody UpiCollectTxRequestModel upiCollectTxRequestModel) {
+		LOGGER.info("upiCollectTxRequestModel --- {}", upiCollectTxRequestModel);
+		return null;
+		
 	}
 
 }
