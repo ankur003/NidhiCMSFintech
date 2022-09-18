@@ -1486,8 +1486,19 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	@PostMapping(value = "/upi/collect-tx")
-	public ResponseEntity<Object> upiCollectTxRequestModel(@RequestBody UpiCollectTxRequestModel upiCollectTxRequestModel) {
+	public ResponseEntity<Object> upiCollectTx(@RequestBody UpiCollectTxRequestModel upiCollectTxRequestModel) {
 		LOGGER.info("upiCollectTxRequestModel --- {}", upiCollectTxRequestModel);
+		try {
+			UserWallet usrWallet = userWalletService.findByMerchantId(upiCollectTxRequestModel.getMerchantId());
+			if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
+				LOGGER.error("usrWallet incorrect or upi is not active {} ", upiCollectTxRequestModel.getMerchantId());
+				return ResponseEntity.badRequest().build();
+			}
+			User user = userRepo.findByUserId(usrWallet.getUserId());
+			upiHelper.upiCollectTx(upiCollectTxRequestModel, usrWallet, user);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return null;
 		
 	}

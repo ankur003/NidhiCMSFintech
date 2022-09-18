@@ -219,7 +219,7 @@ public class PreAuthPayRequestModel {
 
 	@Override
 	public String toString() {
-		return "PreAuthPayRequestModel [orderNo=" + orderNo + ", merchantId=" + merchantId + ", txnNote=" + txnNote
+		return "PreAuthPayRequestModel [orderNo=" + orderNo + ", txnNote=" + txnNote
 				+ ", txnAmount=" + txnAmount + ", mcc=" + mcc + ", payeeName=" + payeeName + ", payerAccNo="
 				+ payerAccNo + ", payeeVPAType=" + payeeVPAType + ", paymentType=" + paymentType + ", payerIfsc="
 				+ payerIfsc + ", payeeIfsc=" + payeeIfsc + ", payeeMobNo=" + payeeMobNo + ", payeeEmail=" + payeeEmail

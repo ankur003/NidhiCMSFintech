@@ -39,6 +39,7 @@ import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.PreAuthPayRequestModel;
 import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
 import com.nidhi.cms.modal.request.indusind.RequestInfo;
+import com.nidhi.cms.modal.request.indusind.UpiCollectTxRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiDeActivateModel;
 import com.nidhi.cms.modal.request.indusind.UpiListApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
@@ -468,7 +469,7 @@ public class UPIHelper {
 			systemConfig = new SystemConfig();
 			systemConfig.setSystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
 		}
-		systemConfig.setValue(LocalDateTime.now().toString().replace("T", " "));
+		systemConfig.setValue(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " "));
 		systemConfigRepo.save(systemConfig);
 	}
 
@@ -625,6 +626,18 @@ public class UPIHelper {
 		transaction.setPayeeName(preAuthPayResponseModel.getPayeeAccName());
 		transaction.setAmt(usrWallet.getAmount());
 		transactionService.save(transaction);
+	}
+
+	public void upiCollectTx(UpiCollectTxRequestModel upiCollectTxRequestModel, UserWallet usrWallet, User user) throws Exception {
+		String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiCollectTxRequestModel, 
+				systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
+				systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+		String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/meCollectInitiateWeb", "POST");
+		LOGGER.info("encryptedResponseBody  {} ", encryptedResponseBody);
+		String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+		LOGGER.info(" upiCollectTx decryptedResponse  {} ", decryptedResponse);
+		JSONObject json = Utility.getJsonFromString(decryptedResponse);
+			
 	}
 
 }
