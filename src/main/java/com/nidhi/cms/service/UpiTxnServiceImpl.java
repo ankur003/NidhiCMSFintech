@@ -151,20 +151,20 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 			transaction.setAmount(fee);
 			transaction.setAmountPlusfee(fee);
 			transaction.setCreatedAt(LocalDateTime.now());
-			transaction.setCreditTime(Utility.getDateTime(decryptedJson.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss"));
+			transaction.setCreditTime(Utility.getDateTime(decryptedJsonResp.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss"));
 			transaction.setCurrency("INR");
 			transaction.setFee(fee);
 			transaction.setIsFeeTx(true);
 			transaction.setMerchantId(wallet.getMerchantId());
-			transaction.setStatus(decryptedJson.getString("status"));
-			transaction.setRemarks(decryptedJson.getString("txnNote"));
-			transaction.setTxDate(Utility.getDateTime(decryptedJson.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss").toLocalDate());
-			transaction.setTxnType(decryptedJson.getString("txnType"));
+			transaction.setStatus(decryptedJsonResp.getString("status"));
+			transaction.setRemarks(decryptedJsonResp.getString("txnNote"));
+			transaction.setTxDate(Utility.getDateTime(decryptedJsonResp.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss").toLocalDate());
+			transaction.setTxnType(decryptedJsonResp.getString("txnType"));
 			transaction.setTxType("Dr.");
-			transaction.setUniqueId(decryptedJson.getString("npciTransId"));
+			transaction.setUniqueId(decryptedJsonResp.getString("npciTransId"));
 			transaction.setUserId(wallet.getUserId());
-			transaction.setUtrNumber(decryptedJson.getString("npciTransId"));
-			transaction.setPayeeName(decryptedJson.getString("payeeVPA"));
+			transaction.setUtrNumber(decryptedJsonResp.getString("npciTransId"));
+			transaction.setPayeeName(decryptedJsonResp.getString("payeeVPA"));
 			transaction.setAmt(savedWallet.getAmount());
 			transactionService.save(transaction);
 			

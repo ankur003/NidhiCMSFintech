@@ -275,6 +275,11 @@ public class UPIHelper {
 			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse); 
 			updateListAPiStartTime();
+			
+			if (!json.has("transDetails")) {
+				LOGGER.info(" upiListApi no data available  ");
+			}
+			
 			JSONArray transDetails = json.getJSONArray("transDetails");
 			for (int i = 0; i < transDetails.length(); i++) {
 				JSONObject transDetail = transDetails.getJSONObject(i);
@@ -457,7 +462,7 @@ public class UPIHelper {
 	private String getListAPiStartTime() {
 		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
 		if (systemConfig == null) {
-			return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " ");
+			return LocalDateTime.now().toString().replace("T", " ");
 		}
 		return systemConfig.getValue();
 	}
@@ -468,7 +473,7 @@ public class UPIHelper {
 			systemConfig = new SystemConfig();
 			systemConfig.setSystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
 		}
-		systemConfig.setValue(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " "));
+		systemConfig.setValue(LocalDateTime.now().toString().replace("T", " "));
 		systemConfigRepo.save(systemConfig);
 	}
 
