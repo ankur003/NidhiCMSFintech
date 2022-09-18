@@ -275,6 +275,7 @@ public class UPIHelper {
 			
 			if (!json.has("transDetails")) {
 				LOGGER.info(" upiListApi no data available  ");
+				return;
 			}
 			
 			JSONArray transDetails = json.getJSONArray("transDetails");

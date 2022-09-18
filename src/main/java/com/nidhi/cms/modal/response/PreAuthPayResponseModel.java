@@ -37,6 +37,26 @@ public class PreAuthPayResponseModel {
 	private String payeeIfsc;
 	
 	private String payeeAccName;
+	
+	private String addiInfo1;
+	
+	private String addiInfo2;
+	
+	private String addiInfo3;
+	
+	private String addiInfo4;
+	
+	private String addiInfo5;
+	
+	private String addiInfo6;
+	
+	private String addiInfo7;
+	
+	private String addiInfo8;
+	
+	private String addiInfo9;
+	
+	private String addiInfo10;
 
 	public String getOrderNo() {
 		return orderNo;
@@ -180,6 +200,86 @@ public class PreAuthPayResponseModel {
 
 	public void setPayeeAccName(String payeeAccName) {
 		this.payeeAccName = payeeAccName;
+	}
+
+	public String getAddiInfo1() {
+		return addiInfo1;
+	}
+
+	public void setAddiInfo1(String addiInfo1) {
+		this.addiInfo1 = addiInfo1;
+	}
+
+	public String getAddiInfo2() {
+		return addiInfo2;
+	}
+
+	public void setAddiInfo2(String addiInfo2) {
+		this.addiInfo2 = addiInfo2;
+	}
+
+	public String getAddiInfo3() {
+		return addiInfo3;
+	}
+
+	public void setAddiInfo3(String addiInfo3) {
+		this.addiInfo3 = addiInfo3;
+	}
+
+	public String getAddiInfo4() {
+		return addiInfo4;
+	}
+
+	public void setAddiInfo4(String addiInfo4) {
+		this.addiInfo4 = addiInfo4;
+	}
+
+	public String getAddiInfo5() {
+		return addiInfo5;
+	}
+
+	public void setAddiInfo5(String addiInfo5) {
+		this.addiInfo5 = addiInfo5;
+	}
+
+	public String getAddiInfo6() {
+		return addiInfo6;
+	}
+
+	public void setAddiInfo6(String addiInfo6) {
+		this.addiInfo6 = addiInfo6;
+	}
+
+	public String getAddiInfo7() {
+		return addiInfo7;
+	}
+
+	public void setAddiInfo7(String addiInfo7) {
+		this.addiInfo7 = addiInfo7;
+	}
+
+	public String getAddiInfo8() {
+		return addiInfo8;
+	}
+
+	public void setAddiInfo8(String addiInfo8) {
+		this.addiInfo8 = addiInfo8;
+	}
+
+	public String getAddiInfo9() {
+		return addiInfo9;
+	}
+
+	public void setAddiInfo9(String addiInfo9) {
+		this.addiInfo9 = addiInfo9;
+	}
+
+	public String getAddiInfo10() {
+		return addiInfo10;
+	}
+
+	public void setAddiInfo10(String addiInfo10) {
+		this.addiInfo10 = addiInfo10;
 	}
 	
 }
