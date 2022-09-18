@@ -1,27 +1,17 @@
 package com.nidhi.cms.modal.request;
 
-import javax.validation.constraints.NotBlank;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-public class PreAuthPayRequestModel {
+public class PreAuthPayModel {
 	
-	@NotBlank
 	private String orderNo;
 	
-	@NotBlank
 	private String merchantId;
 	
-	@NotBlank
 	private String txnNote;
 	
-	@NotBlank
 	private String txnAmount;
 	
-	@NotBlank
 	private String payeeVPAType;
 	
-	@JsonIgnore
 	private String pgMerchantId;
 	
 	private String paymentType;
@@ -40,12 +30,32 @@ public class PreAuthPayRequestModel {
 	
 	private String payeeAccNo;
 	
+	private String mcc;
+	
+	private String payeeName;
+	
+	private String payerAccNo;
+
+	private String payerIfsc;
+
+	private String txnType;
+	
+	private String currencyCode = "INR";
+
 	public String getOrderNo() {
 		return orderNo;
 	}
 
 	public void setOrderNo(String orderNo) {
 		this.orderNo = orderNo;
+	}
+
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
 	}
 
 	public String getTxnNote() {
@@ -64,14 +74,6 @@ public class PreAuthPayRequestModel {
 		this.txnAmount = txnAmount;
 	}
 
-	public String getPaymentType() {
-		return paymentType;
-	}
-
-	public void setPaymentType(String paymentType) {
-		this.paymentType = paymentType;
-	}
-
 	public String getPayeeVPAType() {
 		return payeeVPAType;
 	}
@@ -80,12 +82,20 @@ public class PreAuthPayRequestModel {
 		this.payeeVPAType = payeeVPAType;
 	}
 
-	public String getMerchantId() {
-		return merchantId;
+	public String getPgMerchantId() {
+		return pgMerchantId;
 	}
 
-	public void setMerchantId(String merchantId) {
-		this.merchantId = merchantId;
+	public void setPgMerchantId(String pgMerchantId) {
+		this.pgMerchantId = pgMerchantId;
+	}
+
+	public String getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(String paymentType) {
+		this.paymentType = paymentType;
 	}
 
 	public String getPayeeIfsc() {
@@ -144,12 +154,52 @@ public class PreAuthPayRequestModel {
 		this.payeeAccNo = payeeAccNo;
 	}
 
-	public String getPgMerchantId() {
-		return pgMerchantId;
+	public String getMcc() {
+		return mcc;
 	}
 
-	public void setPgMerchantId(String pgMerchantId) {
-		this.pgMerchantId = pgMerchantId;
+	public void setMcc(String mcc) {
+		this.mcc = mcc;
 	}
-	
+
+	public String getPayeeName() {
+		return payeeName;
+	}
+
+	public void setPayeeName(String payeeName) {
+		this.payeeName = payeeName;
+	}
+
+	public String getPayerAccNo() {
+		return payerAccNo;
+	}
+
+	public void setPayerAccNo(String payerAccNo) {
+		this.payerAccNo = payerAccNo;
+	}
+
+	public String getPayerIfsc() {
+		return payerIfsc;
+	}
+
+	public void setPayerIfsc(String payerIfsc) {
+		this.payerIfsc = payerIfsc;
+	}
+
+	public String getTxnType() {
+		return txnType;
+	}
+
+	public void setTxnType(String txnType) {
+		this.txnType = txnType;
+	}
+
+	public String getCurrencyCode() {
+		return currencyCode;
+	}
+
+	public void setCurrencyCode(String currencyCode) {
+		this.currencyCode = currencyCode;
+	}
+
 }

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +36,7 @@ import com.nidhi.cms.domain.UserPaymentMode;
 import com.nidhi.cms.domain.UserWallet;
 import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
+import com.nidhi.cms.modal.request.PreAuthPayModel;
 import com.nidhi.cms.modal.request.PreAuthPayRequestModel;
 import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
 import com.nidhi.cms.modal.request.indusind.RequestInfo;
@@ -459,7 +460,7 @@ public class UPIHelper {
 	private String getListAPiStartTime() {
 		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
 		if (systemConfig == null) {
-			return LocalDateTime.now().toString().replace("T", " ");
+			return LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
 		}
 		return systemConfig.getValue();
 	}
@@ -470,7 +471,7 @@ public class UPIHelper {
 			systemConfig = new SystemConfig();
 			systemConfig.setSystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
 		}
-		systemConfig.setValue(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " "));
+		systemConfig.setValue(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
 		systemConfigRepo.save(systemConfig);
 	}
 
@@ -479,7 +480,7 @@ public class UPIHelper {
 		UpiListApiRequestModel upiListApiRequestModel = new UpiListApiRequestModel();
 		upiListApiRequestModel.setPgMerchantId(pgMerchantId);
 		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel(fromDate, 
-				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T", " "), "1", "100000"));
+				LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), "1", "100000"));
 		return upiListApiRequestModel;
 	}
 
@@ -537,16 +538,30 @@ public class UPIHelper {
 	}
 
 	public PreAuthPayResponseModel preAuthApy(PreAuthPayRequestModel preAuthPayRequestModel, UserWallet usrWallet, Double fee, User user) throws Exception {
-			preAuthPayRequestModel.setPgMerchantId(systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
-			preAuthPayRequestModel.setTxnType("PAY");
-			preAuthPayRequestModel.setCurrencyCode("INR");
-			preAuthPayRequestModel.setMcc("7392");
-			preAuthPayRequestModel.setPayerAccNo("201015240719");
-			preAuthPayRequestModel.setPayerIfsc("INDB0000824");
+			PreAuthPayModel preAuthModel = new PreAuthPayModel();
+			preAuthModel.setPgMerchantId(systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+			preAuthModel.setTxnType("PAY");
+			preAuthModel.setCurrencyCode("INR");
+			preAuthModel.setMcc("7392");
+			preAuthModel.setPayerAccNo("201015240719");
+			preAuthModel.setPayerIfsc("INDB0000824");
 			
-			LOGGER.info(" pre auth Api response to bank  {} ", preAuthPayRequestModel);
+			preAuthModel.setAddInfo2(preAuthPayRequestModel.getAddInfo2());
+			preAuthModel.setAddInfo3(preAuthPayRequestModel.getAddInfo3());
+			preAuthModel.setOrderNo(preAuthPayRequestModel.getOrderNo());
+			preAuthModel.setPayeeAccNo(preAuthPayRequestModel.getPayeeAccNo());
+			preAuthModel.setPayeeEmail(preAuthPayRequestModel.getPayeeEmail());
+			preAuthModel.setPayeeIfsc(preAuthPayRequestModel.getPayeeIfsc());
+			preAuthModel.setPayeeMobNo(preAuthPayRequestModel.getPayeeMobNo());
+			preAuthModel.setPayeeVPA(preAuthPayRequestModel.getPayeeVPA());
+			preAuthModel.setPayeeVPAType(preAuthPayRequestModel.getPayeeVPAType());
+			preAuthModel.setPaymentType(preAuthPayRequestModel.getPaymentType());
+			preAuthModel.setTxnAmount(preAuthPayRequestModel.getTxnAmount());
+			preAuthModel.setTxnNote(preAuthPayRequestModel.getTxnNote());
 			
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthPayRequestModel, 
+			LOGGER.info(" pre auth Api response to bank  {} ", preAuthModel);
+			
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthModel, 
 					systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
 					systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/mePayServerApi", "POST");
@@ -557,7 +572,7 @@ public class UPIHelper {
 			if (json.getString("status").equals("S")) {
 				PreAuthPayResponseModel preAuthPayResponseModel = Utility.getJavaObject(json.toString(), PreAuthPayResponseModel.class);
 				
-				processPreAuthPay(preAuthPayRequestModel, preAuthPayResponseModel, usrWallet, fee, user);
+				processPreAuthPay(preAuthModel, preAuthPayResponseModel, usrWallet, fee, user);
 				
 				return preAuthPayResponseModel;
 			} else {
@@ -566,12 +581,33 @@ public class UPIHelper {
 			}
 	}
 
-	private void processPreAuthPay(PreAuthPayRequestModel preAuthPayRequestModel, PreAuthPayResponseModel preAuthPayResponseModel, UserWallet usrWallet, Double fee, User user) {
+	private void processPreAuthPay(PreAuthPayModel preAuthPayRequestModel, PreAuthPayResponseModel preAuthPayResponseModel, UserWallet usrWallet, Double fee, User user) {
 		debitTransactionForPreAuth(preAuthPayRequestModel, preAuthPayResponseModel, usrWallet);
 		UserWallet updatedWallet = updateWalletForPreAuth(usrWallet, preAuthPayResponseModel.getTxnAmount(), fee);
 		if (fee != null) {
 			feeTransactionForPreAuth(preAuthPayResponseModel, usrWallet, fee, updatedWallet.getAmount());
-		} 
+		} else {
+			triggerDebitAccountNotification(user, Double.valueOf(preAuthPayRequestModel.getTxnAmount()), updatedWallet);
+		}
+	}
+	
+	private void triggerDebitAccountNotification(User user, Double txnAmount, UserWallet userWallet) {
+		if (StringUtils.isBlank(user.getUserEmail())) {
+			LOGGER.error("[UserServiceImpl.triggerDebitAccountNotification] user email is blank - {}", user.getUserEmail());
+			return;
+		}
+		MailRequest request = new MailRequest();
+		request.setName(user.getFullName());
+		request.setSubject("Your NidhiCMS Account Debited with Rs." +txnAmount);
+		request.setTo(new String[] { user.getUserEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put("name", user.getFullName());
+		model.put("txAmt", txnAmount);
+		model.put("accNo", userWallet.getWalletUuid());
+		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
+		model.put("amt", userWallet.getAmount());
+		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.DEBIT_ACC);
+		
 	}
 	
 	private void feeTransactionForPreAuth(
@@ -608,7 +644,7 @@ public class UPIHelper {
 		
 	}
 
-	private void debitTransactionForPreAuth(PreAuthPayRequestModel preAuthPayRequestModel, PreAuthPayResponseModel preAuthPayResponseModel, UserWallet usrWallet) {
+	private void debitTransactionForPreAuth(PreAuthPayModel preAuthPayRequestModel, PreAuthPayResponseModel preAuthPayResponseModel, UserWallet usrWallet) {
 		Transaction transaction = new Transaction();
 		transaction.setAmount(Double.valueOf(preAuthPayRequestModel.getTxnAmount()));
 		transaction.setAmountPlusfee(Double.valueOf(preAuthPayRequestModel.getTxnAmount()));
