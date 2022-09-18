@@ -284,7 +284,7 @@ public class Utility {
 			ObjectMapper mapper = new ObjectMapper();
 			return mapper.readValue(jsonObjectAsString, clazz);
 		} catch (Exception e) {
-			LOGGER.error("Error ocurred during getJavaObject --- {}", e);
+			LOGGER.error("Error ocurred during getJavaObject --- ", e);
 		}
 		return null;
 	}

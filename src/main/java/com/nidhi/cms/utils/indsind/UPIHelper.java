@@ -549,7 +549,8 @@ public class UPIHelper {
 			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthPayRequestModel, systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
 					systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/mePayServerApi", "POST");
-			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, null, systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+			LOGGER.info("encryptedResponseBody  {} ", encryptedResponseBody);
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
 			LOGGER.info(" pre auth Api decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
 			if (json.getString("status").equals("S")) {
