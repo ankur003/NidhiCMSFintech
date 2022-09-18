@@ -392,14 +392,14 @@ public class UPIHelper {
 		transaction.setAmount(transDetail.getDouble("txnAmount"));
 		transaction.setAmountPlusfee(transDetail.getDouble("txnAmount"));
 		transaction.setCreatedAt(LocalDateTime.now());
-		transaction.setCreditTime(Utility.getDateTime(transDetail.getString("trnDate"), "yyyy:MM:dd HH:mm:ss"));
+		transaction.setCreditTime(Utility.getDateTime(transDetail.getString("trnDate"), "dd:MM:yyyy HH:mm:ss"));
 		transaction.setCurrency("INR");
 		transaction.setFee(0.0);
 		transaction.setIsFeeTx(false);
 		transaction.setMerchantId(wallet.getMerchantId());
 		transaction.setStatus(transDetail.getString("txnStatus"));
 		transaction.setRemarks(transDetail.getString("txnNote"));
-		transaction.setTxDate(Utility.getDateTime(transDetail.getString("trnDate"), "yyyy:MM:dd HH:mm:ss").toLocalDate());
+		transaction.setTxDate(Utility.getDateTime(transDetail.getString("trnDate"), "dd:MM:yyyy HH:mm:ss").toLocalDate());
 		transaction.setTxnType(transDetail.getString("txnType"));
 		transaction.setTxType("Cr.");
 		transaction.setUniqueId(transDetail.getString("txnId"));
