@@ -2,11 +2,16 @@ package com.nidhi.cms.modal.request.indusind;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
+
 public class UpiRefundApiRequestModel implements Serializable {
 
 	private static final long serialVersionUID = 3585143933840310036L;
 
 	private String pgMerchantId;
+	
+	@NotBlank
+	private String merchantId;
 	
 	private String orderNo;
 	
@@ -106,4 +111,12 @@ public class UpiRefundApiRequestModel implements Serializable {
 		this.txnType = txnType;
 	}
 
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
+	}
+	
 }

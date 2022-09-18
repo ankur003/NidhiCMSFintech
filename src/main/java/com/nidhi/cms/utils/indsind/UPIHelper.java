@@ -484,7 +484,7 @@ public class UPIHelper {
 		return upiListApiRequestModel;
 	}
 
-	public void refundJsonApi(UpiRefundApiRequestModel upiRefundApiRequestModel, UserWallet usrWallet) {
+	public JSONObject refundJsonApi(UpiRefundApiRequestModel upiRefundApiRequestModel, UserWallet usrWallet, User user) {
 		try {
 			upiRefundApiRequestModel.setPayType("P2P");
 			upiRefundApiRequestModel.setPgMerchantId(systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
@@ -499,18 +499,23 @@ public class UPIHelper {
 			LOGGER.info(" refund json {} ", json);
 			if (json.getString("status").equals("S")) {
 				debitTransaction(upiRefundApiRequestModel, usrWallet, json.getString("txnId"));
-				updateWallet(usrWallet, upiRefundApiRequestModel.getTxnAmount());
+				UserWallet updatedWallet = updateWallet(usrWallet, upiRefundApiRequestModel.getTxnAmount());
+				triggerDebitAccountNotification(user, Double.valueOf(upiRefundApiRequestModel.getTxnAmount()), updatedWallet);
 			}
+			
+			return json;
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOGGER.error("refundJsonApi api failed ", e);
 		}
 		
+		return null;
+		
 	}
 	
-	private void updateWallet(UserWallet usrWallet, String txnAmount) {
+	private UserWallet updateWallet(UserWallet usrWallet, String txnAmount) {
 		usrWallet.setAmount(usrWallet.getAmount() - Double.valueOf(txnAmount));
-		userWalletService.save(usrWallet);
+		return userWalletService.save(usrWallet);
 	}
 
 	private void debitTransaction(UpiRefundApiRequestModel upiRefundApiRequestModel, UserWallet wallet, String txnId) {

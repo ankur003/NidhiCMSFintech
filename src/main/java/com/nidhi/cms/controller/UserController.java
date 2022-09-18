@@ -1402,24 +1402,20 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	@PostMapping(value = "/refund/json/upi")
-	public ResponseEntity<Object> refundJsonApi(@RequestBody UpiRefundApiRequestModel upiRefundApiRequestModel, @RequestParam("apiKey") String apiKey) {
-		if (StringUtils.isEmpty(apiKey)) {
-			LOGGER.error("apiKey is  - {} ", apiKey);
+	public ResponseEntity<Object> refundJsonApi(@RequestBody UpiRefundApiRequestModel upiRefundApiRequestModel) {
+		UserWallet usrWallet = userWalletService.findByMerchantId(upiRefundApiRequestModel.getMerchantId());
+		if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
+			LOGGER.error("usrWallet incorrect or upi is not active  {} ", upiRefundApiRequestModel.getMerchantId());
 			return ResponseEntity.badRequest().build();
 		}
-		User user = userRepo.findByApiKey(apiKey);
+		User user = userRepo.findByUserId(usrWallet.getUserId());
 		if (user == null || user.getKycStatus() == null || !KycStatus.VERIFIED.name().equals(user.getKycStatus().name()) ) {
-			LOGGER.error("apiKey incorrect {}", apiKey);
+			LOGGER.error("user  incorrect }");
 			return ResponseEntity.badRequest().build();
 		}
 		
-		UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
-		if (usrWallet == null) {
-			LOGGER.error("usrWallet incorrect {} ", user.getUserId());
-			return ResponseEntity.badRequest().build();
-		}
-		upiHelper.refundJsonApi(upiRefundApiRequestModel, usrWallet);
-		return ResponseEntity.ok().build();
+		JSONObject value = upiHelper.refundJsonApi(upiRefundApiRequestModel, usrWallet, user);
+		return ResponseEntity.ok(value);
 	} 
 	
 	
