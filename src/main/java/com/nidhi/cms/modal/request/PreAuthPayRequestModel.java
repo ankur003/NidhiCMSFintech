@@ -216,5 +216,16 @@ public class PreAuthPayRequestModel {
 	public void setPayeeAccNo(String payeeAccNo) {
 		this.payeeAccNo = payeeAccNo;
 	}
+
+	@Override
+	public String toString() {
+		return "PreAuthPayRequestModel [orderNo=" + orderNo + ", merchantId=" + merchantId + ", txnNote=" + txnNote
+				+ ", txnAmount=" + txnAmount + ", mcc=" + mcc + ", payeeName=" + payeeName + ", payerAccNo="
+				+ payerAccNo + ", payeeVPAType=" + payeeVPAType + ", paymentType=" + paymentType + ", payerIfsc="
+				+ payerIfsc + ", payeeIfsc=" + payeeIfsc + ", payeeMobNo=" + payeeMobNo + ", payeeEmail=" + payeeEmail
+				+ ", payeeVPA=" + payeeVPA + ", addInfo2=" + addInfo2 + ", addInfo3=" + addInfo3 + ", payeeAccNo="
+				+ payeeAccNo + ", pgMerchantId=" + pgMerchantId + ", txnType=" + txnType + ", currencyCode="
+				+ currencyCode + "]";
+	}
 	
 }

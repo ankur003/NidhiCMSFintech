@@ -2,7 +2,6 @@ package com.nidhi.cms.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.nidhi.cms.constants.EmailTemplateConstants;
@@ -53,9 +51,6 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 	
 	@Autowired
 	private EmailService emailService;
-	
-	@Autowired
-	private UPIHelper upiHelper;
 	
 	@Autowired
 	private UserPaymentModeService userPaymentModeService;
@@ -167,8 +162,6 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 			transaction.setPayeeName(decryptedJsonResp.getString("payeeVPA"));
 			transaction.setAmt(savedWallet.getAmount());
 			transactionService.save(transaction);
-			
-			triggerDebitAccountNotification(user, fee, savedWallet);
 		} 
 		
 		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);
@@ -177,29 +170,10 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 		}
 	}
 	
-	private void triggerDebitAccountNotification(User user, Double txnAmount, UserWallet userWallet) {
-		if (StringUtils.isBlank(user.getUserEmail())) {
-			LOGGER.error("[UserServiceImpl.triggerDebitAccountNotification] user email is blank - {}", user.getUserEmail());
-			return;
-		}
-		MailRequest request = new MailRequest();
-		request.setName(user.getFullName());
-		request.setSubject("Your NidhiCMS Account Debited with Rs." +txnAmount);
-		request.setTo(new String[] { user.getUserEmail() });
-		Map<String, Object> model = new HashMap<>();
-		model.put("name", user.getFullName());
-		model.put("txAmt", txnAmount);
-		model.put("accNo", userWallet.getWalletUuid());
-		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
-		model.put("amt", userWallet.getAmount());
-		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.DEBIT_ACC);
-		
-	}
-	
 	private Double getFee(Double feePercent, Double amount) {
-		BigDecimal amt = new BigDecimal(amount).setScale(2, RoundingMode.HALF_DOWN);
-		BigDecimal feePer = new BigDecimal(feePercent).setScale(2, RoundingMode.HALF_DOWN);
-		return new BigDecimal((amt.doubleValue() * feePer.doubleValue()) / 100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+		BigDecimal amt = BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal feePer = BigDecimal.valueOf(feePercent).setScale(2, RoundingMode.HALF_DOWN);
+		return BigDecimal.valueOf((amt.doubleValue() * feePer.doubleValue()) / 100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
 	}
 
 	private void callbackInitaite(UpiTxn upiTxn, UserWallet wallet) {

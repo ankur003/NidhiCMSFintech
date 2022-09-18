@@ -24,7 +24,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.nidhi.cms.config.ApplicationConfig;
 import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
@@ -69,9 +68,6 @@ public class UPIHelper {
 	private static final String APPLICATION_JSON  = "application/json";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UPIHelper.class);
-	
-	@Autowired
-	private ApplicationConfig applicationConfig;
 	
 	@Autowired
 	private UserWalletService userWalletService;
@@ -375,7 +371,6 @@ public class UPIHelper {
 			transaction.setAmt(savedWallet.getAmount());
 			transactionService.save(transaction);
 			
-			triggerDebitAccountNotification(user, fee, savedWallet);
 		} 
 		
 		triggerCreditMail(wallet.getUserId(), transDetail, savedWallet);
@@ -546,7 +541,11 @@ public class UPIHelper {
 			preAuthPayRequestModel.setMcc("7392");
 			preAuthPayRequestModel.setPayerAccNo("201015240719");
 			preAuthPayRequestModel.setPayerIfsc("INDB0000824");
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthPayRequestModel, systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
+			
+			LOGGER.info(" pre auth Api response to bank  {} ", preAuthPayRequestModel);
+			
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthPayRequestModel, 
+					systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
 					systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/mePayServerApi", "POST");
 			LOGGER.info("encryptedResponseBody  {} ", encryptedResponseBody);
@@ -561,8 +560,8 @@ public class UPIHelper {
 				return preAuthPayResponseModel;
 			} else {
 				LOGGER.warn("pre auth Api failed  {} ", decryptedResponse);
+				return Utility.getJavaObject(json.toString(), PreAuthPayResponseModel.class);
 			}
-		return null;
 	}
 
 	private void processPreAuthPay(PreAuthPayRequestModel preAuthPayRequestModel, PreAuthPayResponseModel preAuthPayResponseModel, UserWallet usrWallet, Double fee, User user) {
@@ -570,32 +569,9 @@ public class UPIHelper {
 		UserWallet updatedWallet = updateWalletForPreAuth(usrWallet, preAuthPayResponseModel.getTxnAmount(), fee);
 		if (fee != null) {
 			feeTransactionForPreAuth(preAuthPayResponseModel, usrWallet, fee, updatedWallet.getAmount());
-			triggerDebitAccountNotification(user, Double.valueOf(preAuthPayRequestModel.getTxnAmount()) + fee, updatedWallet);
-		} else {
-			triggerDebitAccountNotification(user, Double.valueOf(preAuthPayRequestModel.getTxnAmount()), updatedWallet);
-		}
+		} 
 	}
 	
-	
-	private void triggerDebitAccountNotification(User user, Double txnAmount, UserWallet userWallet) {
-		if (StringUtils.isBlank(user.getUserEmail())) {
-			LOGGER.error("[UserServiceImpl.triggerDebitAccountNotification] user email is blank - {}", user.getUserEmail());
-			return;
-		}
-		MailRequest request = new MailRequest();
-		request.setName(user.getFullName());
-		request.setSubject("Your NidhiCMS Account Debited with Rs." +txnAmount);
-		request.setTo(new String[] { user.getUserEmail() });
-		Map<String, Object> model = new HashMap<>();
-		model.put("name", user.getFullName());
-		model.put("txAmt", txnAmount);
-		model.put("accNo", userWallet.getWalletUuid());
-		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
-		model.put("amt", userWallet.getAmount());
-		emailService.sendMailAsync(request, model, null, EmailTemplateConstants.DEBIT_ACC);
-		
-	}
-
 	private void feeTransactionForPreAuth(
 			PreAuthPayResponseModel preAuthPayResponseModel, UserWallet usrWallet, Double fee, Double amt) {
 		Transaction transaction = new Transaction();
