@@ -558,7 +558,7 @@ public class UPIHelper {
 			preAuthModel.setPayeeEmail(preAuthPayRequestModel.getPayeeEmail());
 			preAuthModel.setPayeeIfsc(preAuthPayRequestModel.getPayeeIfsc());
 			preAuthModel.setPayeeMobNo(preAuthPayRequestModel.getPayeeMobNo());
-			preAuthModel.setPayeeVPA(preAuthPayRequestModel.getPayeeVPA());
+			preAuthModel.setPayeeVpa(preAuthPayRequestModel.getPayeeVpa());
 			preAuthModel.setPayeeVPAType(preAuthPayRequestModel.getPayeeVPAType());
 			preAuthModel.setPaymentType(preAuthPayRequestModel.getPaymentType());
 			preAuthModel.setTxnAmount(preAuthPayRequestModel.getTxnAmount());

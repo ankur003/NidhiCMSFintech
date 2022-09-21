@@ -22,7 +22,7 @@ public class PreAuthPayModel {
 	
 	private String payeeEmail;
 	
-	private String payeeVPA;
+	private String payeeVpa;
 	
 	private String addInfo2;
 	
@@ -122,12 +122,12 @@ public class PreAuthPayModel {
 		this.payeeEmail = payeeEmail;
 	}
 
-	public String getPayeeVPA() {
-		return payeeVPA;
+	public String getPayeeVpa() {
+		return payeeVpa;
 	}
 
-	public void setPayeeVPA(String payeeVPA) {
-		this.payeeVPA = payeeVPA;
+	public void setPayeeVpa(String payeeVpa) {
+		this.payeeVpa = payeeVpa;
 	}
 
 	public String getAddInfo2() {
