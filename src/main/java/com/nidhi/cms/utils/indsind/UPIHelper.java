@@ -294,6 +294,21 @@ public class UPIHelper {
 	}
 	
 	private void processUpiListApi(JSONObject transDetail) {
+		
+		List<UpiTxn> upiDetails = upiTxnRepo.findByTxnAuthDate(transDetail.getString("txnAuthDate"));
+		if (CollectionUtils.isNotEmpty(upiDetails)) {
+			for (UpiTxn upiTrans : upiDetails) {
+				if (upiTrans.getNpciTransId() != null
+						&& upiTrans.getNpciTransId().equals(transDetail.getString("npciTransId"))
+						&& upiTrans.getCustRefNo() != null
+						&& upiTrans.getCustRefNo().equals(transDetail.getString("custRefNo"))) {
+					LOGGER.error("Upi transaction data already exist [List API].");
+					return;
+				}
+			}
+		}
+		
+		
 		List<Transaction> transaction = transactionService.getTransactionsByUniqueId(transDetail.getString("txnId"));
 		if (CollectionUtils.isNotEmpty(transaction)) {
 			LOGGER.warn("upiListApi transaction already found in transaction table against  uniqueId {}", transDetail.getString("txnId")); 
@@ -480,7 +495,7 @@ public class UPIHelper {
 		UpiListApiRequestModel upiListApiRequestModel = new UpiListApiRequestModel();
 		upiListApiRequestModel.setPgMerchantId(pgMerchantId);
 		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel(fromDate, 
-				LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), "1", "100000"));
+				LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), "1", "50"));
 		return upiListApiRequestModel;
 	}
 
