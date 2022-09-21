@@ -40,6 +40,8 @@ public class PreAuthPayRequestModel {
 	
 	private String payeeAccNo;
 	
+	private String payeeName;
+	
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -150,6 +152,14 @@ public class PreAuthPayRequestModel {
 
 	public void setPgMerchantId(String pgMerchantId) {
 		this.pgMerchantId = pgMerchantId;
+	}
+
+	public String getPayeeName() {
+		return payeeName;
+	}
+
+	public void setPayeeName(String payeeName) {
+		this.payeeName = payeeName;
 	}
 	
 }

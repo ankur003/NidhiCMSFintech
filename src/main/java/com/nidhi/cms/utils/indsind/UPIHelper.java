@@ -563,6 +563,7 @@ public class UPIHelper {
 			preAuthModel.setPaymentType(preAuthPayRequestModel.getPaymentType());
 			preAuthModel.setTxnAmount(preAuthPayRequestModel.getTxnAmount());
 			preAuthModel.setTxnNote(preAuthPayRequestModel.getTxnNote());
+			preAuthModel.setPayeeName(preAuthPayRequestModel.getPayeeName());
 			
 			LOGGER.info(" pre auth Api response to bank  {} ", preAuthModel);
 			

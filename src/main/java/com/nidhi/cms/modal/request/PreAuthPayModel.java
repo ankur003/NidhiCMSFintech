@@ -202,4 +202,15 @@ public class PreAuthPayModel {
 		this.currencyCode = currencyCode;
 	}
 
+	@Override
+	public String toString() {
+		return "PreAuthPayModel [orderNo=" + orderNo + ", merchantId=" + merchantId + ", txnNote=" + txnNote
+				+ ", txnAmount=" + txnAmount + ", payeeVPAType=" + payeeVPAType + ", pgMerchantId=" + pgMerchantId
+				+ ", paymentType=" + paymentType + ", payeeIfsc=" + payeeIfsc + ", payeeMobNo=" + payeeMobNo
+				+ ", payeeEmail=" + payeeEmail + ", payeeVpa=" + payeeVpa + ", addInfo2=" + addInfo2 + ", addInfo3="
+				+ addInfo3 + ", payeeAccNo=" + payeeAccNo + ", mcc=" + mcc + ", payeeName=" + payeeName
+				+ ", payerAccNo=" + payerAccNo + ", payerIfsc=" + payerIfsc + ", txnType=" + txnType + ", currencyCode="
+				+ currencyCode + "]";
+	}
+
 }
