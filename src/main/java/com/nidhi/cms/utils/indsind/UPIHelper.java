@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -266,24 +267,40 @@ public class UPIHelper {
 
 	public void upiListApi() { 
 		try {
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiListApiModel(systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue()), systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
-					systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
-			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/metransactionhistoryweb", "POST");
-			LOGGER.info(" upiListApi encryptedResponseBody  {} ", encryptedResponseBody);
-			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
-			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
-			JSONObject json = Utility.getJsonFromString(decryptedResponse); 
+			String pgMerchantId = systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue();
+			
+			JSONObject json = getUpiListResult(pgMerchantId, "1", "50"); 
 			
 			if (!json.has("transDetails")) {
 				LOGGER.info(" upiListApi no data available  ");
 				return;
 			}
+			if (Long.valueOf(json.getString("total_records")) > 50) {
+				
+				int noOfRecords = Integer.parseInt(json.getString("total_records"));
+				int recordPerPage = 50;
+				int fromIndex = 0;
+				int toIndex = 0;
+				
+				
+		        int noOfPages = (int)Math.ceil(noOfRecords * 1.0 / recordPerPage);
+		        for(int i = 1 ; i<= noOfPages; i++) {
+		        	if (i == 1) {
+		        		fromIndex = 0;
+		        	} else {
+		        		fromIndex = toIndex;
+		        	}
+		        	toIndex = recordPerPage * i;
+		        	
+		        	getUpiListResult(pgMerchantId, String.valueOf(fromIndex), String.valueOf(toIndex)); 
+		        	
+		        }
+				
+			} else {
+				processUPIData(json);   
+			}
 			
-			JSONArray transDetails = json.getJSONArray("transDetails");
-			for (int i = 0; i < transDetails.length(); i++) {
-				JSONObject transDetail = transDetails.getJSONObject(i);
-				processUpiListApi(transDetail);
-			}    
+			 
 			
 			// callback passed
 			// 
@@ -292,45 +309,67 @@ public class UPIHelper {
 		}
 		
 	}
+
+	private void processUPIData(JSONObject json) {
+		JSONArray transDetails = json.getJSONArray("transDetails");
+		for (int i = 0; i < transDetails.length(); i++) {
+			JSONObject transDetail = transDetails.getJSONObject(i);
+			processUpiListApi(transDetail);
+		}
+	}
+
+	private JSONObject getUpiListResult(String pgMerchantId, String fromIndex, String toIndex) throws Exception {
+		String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiListApiModel(pgMerchantId, fromIndex, toIndex), systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
+				systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+		String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/metransactionhistoryweb", "POST");
+		LOGGER.info(" upiListApi encryptedResponseBody  {} ", encryptedResponseBody);
+		String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+		LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
+		return Utility.getJsonFromString(decryptedResponse);
+	}
 	
 	private void processUpiListApi(JSONObject transDetail) {
 		
-		List<UpiTxn> upiDetails = upiTxnRepo.findByTxnAuthDate(transDetail.getString("txnAuthDate"));
-		if (CollectionUtils.isNotEmpty(upiDetails)) {
-			for (UpiTxn upiTrans : upiDetails) {
-				if (upiTrans.getNpciTransId() != null
-						&& upiTrans.getNpciTransId().equals(transDetail.getString("npciTransId"))
-						&& upiTrans.getCustRefNo() != null
-						&& upiTrans.getCustRefNo().equals(transDetail.getString("custRefNo"))) {
-					LOGGER.error("Upi transaction data already exist [List API].");
-					return;
+		if (transDetail.has("txnAuthDate") && transDetail.has("npciTransId") && transDetail.has("custRefNo")) {
+			List<UpiTxn> upiDetails = upiTxnRepo.findByTxnAuthDate(transDetail.getString("txnAuthDate"));
+			if (CollectionUtils.isNotEmpty(upiDetails)) {
+				for (UpiTxn upiTrans : upiDetails) {
+					if (upiTrans.getNpciTransId() != null
+							&& upiTrans.getNpciTransId().equals(transDetail.getString("npciTransId"))
+							&& upiTrans.getCustRefNo() != null
+							&& upiTrans.getCustRefNo().equals(transDetail.getString("custRefNo"))) {
+						LOGGER.error("Upi transaction data already exist [List API].");
+						return;
+					}
 				}
 			}
 		}
 		
-		
-		List<Transaction> transaction = transactionService.getTransactionsByUniqueId(transDetail.getString("txnId"));
-		if (CollectionUtils.isNotEmpty(transaction)) {
-			LOGGER.warn("upiListApi transaction already found in transaction table against  uniqueId {}", transDetail.getString("txnId")); 
-			return;
+		if (transDetail.has("txnId")) {
+			List<Transaction> transaction = transactionService.getTransactionsByUniqueId(transDetail.getString("txnId"));
+			if (CollectionUtils.isNotEmpty(transaction)) {
+				LOGGER.warn("upiListApi transaction already found in transaction table against  uniqueId {}", transDetail.getString("txnId")); 
+				return;
+			}
 		}
+		
 		saveUpiTransaction(transDetail);
 		
 	}
 
 	private void saveUpiTransaction(JSONObject transDetail) {
 		UpiTxn upiTxn = new UpiTxn();
-		upiTxn.setAmount(transDetail.getDouble("txnAmount"));
-		upiTxn.setCurrentStatusDesc(transDetail.getString("reason_desc"));
+		upiTxn.setAmount(transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount"));
+		upiTxn.setCurrentStatusDesc((transDetail.has("reason_desc") ? transDetail.getString("reason_desc") : transDetail.getString("currentStatusDesc")));
 		upiTxn.setCustRefNo(transDetail.getString("custRefNo"));
-		upiTxn.setPayeeVPA(transDetail.getString("payeeVirtualAddress"));
-		upiTxn.setPayerVPA(transDetail.getString("payerVirtualAddress"));
-		upiTxn.setResponseCode(transDetail.getString("response_code"));
-		upiTxn.setStatus(transDetail.getString("txnStatus"));
-		upiTxn.setTxnAuthDate(transDetail.getString("trnDate"));
+		upiTxn.setPayeeVPA(transDetail.has("payeeVirtualAddress") ? transDetail.getString("payeeVirtualAddress") : transDetail.getString("payeeVPA"));
+		upiTxn.setPayerVPA(transDetail.has("payerVirtualAddress") ? transDetail.getString("payerVirtualAddress") : transDetail.getString("payerVPA"));
+		upiTxn.setResponseCode(transDetail.has("response_code") ? transDetail.getString("response_code") : transDetail.getString("responseCode"));
+		upiTxn.setStatus(transDetail.has("txnStatus") ? transDetail.getString("txnStatus") : transDetail.getString("status"));
+		upiTxn.setTxnAuthDate(transDetail.has("trnDate") ? transDetail.getString("trnDate") : transDetail.getString("txnAuthDate"));
 		upiTxn.setTxnNote(transDetail.getString("txnNote"));
 		upiTxn.setTxnType(transDetail.getString("txnType"));
-		upiTxn.setUpiTransRefNo(transDetail.has("trnRefNo") ? transDetail.get("trnRefNo").toString() : null);
+		upiTxn.setUpiTransRefNo(transDetail.has("trnRefNo") ? transDetail.get("trnRefNo").toString() : transDetail.get("upiTransRefNo").toString());
 		
 		
 		upiTxn.setAddInfo2(transDetail.getString("addiInfo2"));
@@ -338,18 +377,18 @@ public class UPIHelper {
 		
 		UpiTxn savedUpiTxn = upiTxnRepo.save(upiTxn);
 		
-		UserWallet wallet = userWalletService.findByUpiVirtualAddress(transDetail.getString("payeeVirtualAddress"));
+		UserWallet wallet = userWalletService.findByUpiVirtualAddress(transDetail.has("payeeVirtualAddress") ? transDetail.getString("payeeVirtualAddress") : transDetail.getString("payeeVPA"));
 		if (wallet == null || BooleanUtils.isFalse(wallet.getIsUpiActive())) {
-			LOGGER.error("payeeVPA {} not found on our DB or upi not active", transDetail.getString("payeeVirtualAddress"));
+			LOGGER.error("payeeVPA {} not found on our DB or upi not active", transDetail.has("payeeVirtualAddress") ? transDetail.getString("payeeVirtualAddress") : transDetail.getString("payeeVPA"));
 			return;
 		}
 		
 		savedUpiTxn.setUserId(wallet.getUserId());
 		upiTxnRepo.save(savedUpiTxn);
 		
-		saveTransaction(transDetail, wallet, wallet.getAmount() + transDetail.getDouble("txnAmount"));
+		saveTransaction(transDetail, wallet, wallet.getAmount() + (transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount")));
 		
-		wallet.setAmount(wallet.getAmount() + transDetail.getDouble("txnAmount"));
+		wallet.setAmount(wallet.getAmount() + (transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount")));
 		UserWallet savedWallet = userWalletService.save(wallet);
 		
 		User user = userRepository.findByUserId(wallet.getUserId());
@@ -359,7 +398,7 @@ public class UPIHelper {
 		UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, PaymentMode.UPI_CREDIT);
 		if (userPaymentMode != null) {
 			if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
-				fee = getFee(userPaymentMode.getFee(), transDetail.getDouble("txnAmount"));
+				fee = getFee(userPaymentMode.getFee(), transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount"));
 				savedWallet.setAmount(savedWallet.getAmount() - fee);
 				savedWallet = userWalletService.save(savedWallet);
 				
@@ -379,13 +418,13 @@ public class UPIHelper {
 			transaction.setFee(fee);
 			transaction.setIsFeeTx(true);
 			transaction.setMerchantId(savedWallet.getMerchantId());
-			transaction.setStatus(transDetail.getString("txnStatus"));
-			transaction.setRemarks(transDetail.getString("reason_desc"));
+			transaction.setStatus(transDetail.has("txnStatus") ? transDetail.getString("txnStatus") : transDetail.getString("status"));
+			transaction.setRemarks(transDetail.has("reason_desc") ? transDetail.getString("reason_desc") : transDetail.getString("currentStatusDesc"));
 			transaction.setTxDate(LocalDate.now());
 			transaction.setTxType("Dr.");
-			transaction.setUserId(savedWallet.getUserId());
-			transaction.setUniqueId(transDetail.getString("txnId"));
-			transaction.setPayeeName(transDetail.getString("payeeName"));
+			transaction.setUserId(savedWallet.getUserId());//
+			transaction.setUniqueId(transDetail.has("txnId") ? transDetail.getString("txnId") : transDetail.getString("npciTransId"));
+			transaction.setPayeeName(transDetail.has("payeeName") ? transDetail.getString("payeeName") : null);
 			transaction.setAmt(savedWallet.getAmount());
 			transactionService.save(transaction);
 			
@@ -407,22 +446,22 @@ public class UPIHelper {
 	
 	private void saveTransaction(JSONObject transDetail, UserWallet wallet, Double amt) {
 		Transaction transaction = new Transaction();
-		transaction.setAmount(transDetail.getDouble("txnAmount"));
-		transaction.setAmountPlusfee(transDetail.getDouble("txnAmount"));
+		transaction.setAmount(transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount"));
+		transaction.setAmountPlusfee(transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount"));
 		transaction.setCreatedAt(LocalDateTime.now());
-		transaction.setCreditTime(Utility.getDateTime(transDetail.getString("trnDate"), "dd:MM:yyyy HH:mm:ss"));
+		transaction.setCreditTime(Utility.getDateTime(transDetail.has("trnDate") ? transDetail.getString("trnDate") : transDetail.getString("txnAuthDate"), "dd:MM:yyyy HH:mm:ss"));
 		transaction.setCurrency("INR");
 		transaction.setFee(0.0);
 		transaction.setIsFeeTx(false);
 		transaction.setMerchantId(wallet.getMerchantId());
-		transaction.setStatus(transDetail.getString("txnStatus"));
-		transaction.setRemarks(transDetail.getString("txnNote"));
-		transaction.setTxDate(Utility.getDateTime(transDetail.getString("trnDate"), "dd:MM:yyyy HH:mm:ss").toLocalDate());
+		transaction.setStatus(transDetail.has("txnStatus") ? transDetail.getString("txnStatus") : transDetail.getString("status"));
+		transaction.setRemarks(transDetail.getString("txnNote"));//
+		transaction.setTxDate(Utility.getDateTime(transDetail.has("trnDate") ? transDetail.getString("trnDate") : transDetail.getString("txnAuthDate"), "dd:MM:yyyy HH:mm:ss").toLocalDate());
 		transaction.setTxnType(transDetail.getString("txnType"));
 		transaction.setTxType("Cr.");
-		transaction.setUniqueId(transDetail.getString("txnId"));
+		transaction.setUniqueId(transDetail.has("txnId") ? transDetail.getString("txnId") : transDetail.getString("npciTransId"));
 		transaction.setUserId(wallet.getUserId());
-		transaction.setPayeeName(transDetail.getString("payeeName"));
+		transaction.setPayeeName(transDetail.has("payeeName") ? transDetail.getString("payeeName") : null);
 		transaction.setAmt(amt);
 		transactionService.save(transaction);
 	}
@@ -432,11 +471,11 @@ public class UPIHelper {
 		User user = userRepository.findByUserId(userId);
 		MailRequest request = new MailRequest();
 		request.setName(user.getFullName());
-		request.setSubject("Your NidhiCMS Account credited with Rs." +decryptedJson.getString("txnAmount"));
+		request.setSubject("Your NidhiCMS Account credited with Rs." + (decryptedJson.has("txnAmount") ? decryptedJson.getDouble("txnAmount") : decryptedJson.getDouble("amount")));
 		request.setTo(new String[] { user.getUserEmail() });
 		Map<String, Object> model = new HashMap<>();
 		model.put("name", user.getFullName());
-		model.put("txAmt", decryptedJson.getString("txnAmount"));
+		model.put("txAmt", decryptedJson.has("txnAmount") ? decryptedJson.getDouble("txnAmount") : decryptedJson.getDouble("amount"));
 		model.put("vAcc", savedWallet.getWalletUuid());
 		model.put("createdAt", LocalDateTime.now().toString().replace("T", " "));
 		model.put("amt", savedWallet.getAmount());
@@ -490,11 +529,12 @@ public class UPIHelper {
 //		systemConfigRepo.save(systemConfig);
 //	}
 
-	private UpiListApiRequestModel getUpiListApiModel(String pgMerchantId) {
+	private UpiListApiRequestModel getUpiListApiModel(String pgMerchantId, String fromIndex, String toIndex) {
 		UpiListApiRequestModel upiListApiRequestModel = new UpiListApiRequestModel();
 		upiListApiRequestModel.setPgMerchantId(pgMerchantId);
-		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel(LocalDateTime.now().minusMinutes(15).format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), 
-				LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), "1", "50"));
+		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel(
+				LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT).plusSeconds(1).format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), 
+				LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), fromIndex, toIndex));
 		return upiListApiRequestModel;
 	}
 

@@ -189,7 +189,6 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 			
 			LOGGER.info("callback request {}, with apikey {} and user id {} ", upiTxn, user.getApiKey(), user.getUserId());
 			
-			//Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
 			Object map = restTemplate.postForObject(wallet.getMerchantCallBackUrl(), request, Object.class);
 			LOGGER.info("callback response {}", map);
 			
@@ -199,7 +198,7 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 			LOGGER.info("Does Call back Success -- TRUE Updated");
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error("An error occured while callback {} ", e);
+			LOGGER.error("An error occured while callback ", e);
 			upiTxn.setDoesCallbackSuccess(Boolean.FALSE);
 			upiTxnRepo.save(upiTxn);
 			LOGGER.info("Does Call back failed -- FALSE Updated");
