@@ -103,9 +103,9 @@ public class EmailService {
 	}
 	
 	public void sendMailAsync(MailRequest request, Map<String, Object> modal, String attach, String templateName) {
-		CompletableFuture.runAsync(() -> 
-			CompletableFuture.runAsync(() -> sendEmail(request, modal, attach, templateName))
-		 );
+		
+			CompletableFuture.runAsync(() -> sendEmail(request, modal, attach, templateName));
+		 
 	}
 	
 	

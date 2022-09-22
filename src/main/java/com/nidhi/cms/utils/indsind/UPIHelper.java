@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -557,7 +558,8 @@ public class UPIHelper {
 
 	public PreAuthPayResponseModel preAuthApy(PreAuthPayRequestModel preAuthPayRequestModel, UserWallet usrWallet, Double fee, User user) throws Exception {
 			PreAuthPayModel preAuthModel = new PreAuthPayModel();
-			preAuthModel.setPgMerchantId(systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+			String pgMerchantId = systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue();
+			preAuthModel.setPgMerchantId(pgMerchantId);
 			preAuthModel.setTxnType("PAY");
 			preAuthModel.setCurrencyCode("INR");
 			preAuthModel.setMcc("7392");
@@ -580,15 +582,23 @@ public class UPIHelper {
 			preAuthModel.setPayeeAadhar(preAuthPayRequestModel.getPayeeAadhar());
 			
 			LOGGER.info(" pre auth Api response to bank  {} ", preAuthModel);
+			SystemConfig bankKey = systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name());
 			
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthModel, 
-					systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
-					systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+			LocalDateTime beforCall = LocalDateTime.now();
+			LOGGER.info(" befor call  {} ", beforCall);
+			
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(preAuthModel, bankKey.getValue(), pgMerchantId);
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/mePayServerApi", "POST");
 			LOGGER.info("encryptedResponseBody  {} ", encryptedResponseBody);
-			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", bankKey.getValue());
 			LOGGER.info(" pre auth Api decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
+			
+			LocalDateTime afterCall = LocalDateTime.now();
+			LOGGER.info(" afterCall  {} ", afterCall);
+			
+			LOGGER.info(" time taken  {} ", ChronoUnit.SECONDS.between(beforCall, afterCall));
+			
 			if (json.getString("status").equals("S")) {
 				PreAuthPayResponseModel preAuthPayResponseModel = Utility.getJavaObject(json.toString(), PreAuthPayResponseModel.class);
 				
