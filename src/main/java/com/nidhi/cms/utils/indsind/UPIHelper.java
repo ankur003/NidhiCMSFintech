@@ -272,7 +272,6 @@ public class UPIHelper {
 			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
 			LOGGER.info(" upiListApi decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse); 
-			updateListAPiStartTime();
 			
 			if (!json.has("transDetails")) {
 				LOGGER.info(" upiListApi no data available  ");
@@ -472,29 +471,28 @@ public class UPIHelper {
 		}
 	}
 
-	private String getListAPiStartTime() {
-		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
-		if (systemConfig == null) {
-			return LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
-		}
-		return systemConfig.getValue();
-	}
+//	private String getListAPiStartTime() {
+//		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
+//		if (systemConfig == null) {
+//			return LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+//		}
+//		return systemConfig.getValue();
+//	}
 
-	private void updateListAPiStartTime() {
-		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
-		if (systemConfig == null) {
-			systemConfig = new SystemConfig();
-			systemConfig.setSystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
-		}
-		systemConfig.setValue(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
-		systemConfigRepo.save(systemConfig);
-	}
+//	private void updateListAPiStartTime() {
+//		SystemConfig systemConfig = systemConfigRepo.findBySystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
+//		if (systemConfig == null) {
+//			systemConfig = new SystemConfig();
+//			systemConfig.setSystemKey(SystemKey.LIST_API_LAST_RUN_TIME.name());
+//		}
+//		systemConfig.setValue(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
+//		systemConfigRepo.save(systemConfig);
+//	}
 
 	private UpiListApiRequestModel getUpiListApiModel(String pgMerchantId) {
-		String fromDate = getListAPiStartTime();
 		UpiListApiRequestModel upiListApiRequestModel = new UpiListApiRequestModel();
 		upiListApiRequestModel.setPgMerchantId(pgMerchantId);
-		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel(fromDate, 
+		upiListApiRequestModel.setPaginationConfig(new PaginationConfigModel(LocalDateTime.now().minusMinutes(15).format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), 
 				LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")), "1", "50"));
 		return upiListApiRequestModel;
 	}

@@ -542,7 +542,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 		}
-		BigDecimal userTxWoAmount = new BigDecimal(userTxWoOtpReqModal.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal userTxWoAmount = BigDecimal.valueOf(userTxWoOtpReqModal.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
 		if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
 			if ((userPaymentMode.getFee() == null)) {
 			final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance");
@@ -594,15 +594,15 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			Double fee = getFee(userPaymentMode.getFee(), userTxWoOtpReqModal.getAmount());
 			userTxWoOtpReqModal.setFee(fee);
 		} else if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
-			BigDecimal fee = new BigDecimal(userPaymentMode.getFee()).setScale(2, RoundingMode.HALF_DOWN);
+			BigDecimal fee = BigDecimal.valueOf(userPaymentMode.getFee()).setScale(2, RoundingMode.HALF_DOWN);
 			userTxWoOtpReqModal.setFee(fee.doubleValue());
 		}
 	}
 		
 	private Double getFee(Double feePercent, Double amount) {
-		BigDecimal amt = new BigDecimal(amount).setScale(2, RoundingMode.HALF_DOWN);
-		BigDecimal feePer = new BigDecimal(feePercent).setScale(2, RoundingMode.HALF_DOWN);
-		return new BigDecimal((amt.doubleValue() * feePer.doubleValue()) / 100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
+		BigDecimal amt = BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal feePer = BigDecimal.valueOf(feePercent).setScale(2, RoundingMode.HALF_DOWN);
+		return BigDecimal.valueOf((amt.doubleValue() * feePer.doubleValue()) / 100).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
 	}
 
 	@PostMapping(value = "/transaction/inquiry", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
