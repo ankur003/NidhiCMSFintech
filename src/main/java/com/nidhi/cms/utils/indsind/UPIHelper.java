@@ -577,6 +577,7 @@ public class UPIHelper {
 			preAuthModel.setTxnAmount(preAuthPayRequestModel.getTxnAmount());
 			preAuthModel.setTxnNote(preAuthPayRequestModel.getTxnNote());
 			preAuthModel.setPayeeName(preAuthPayRequestModel.getPayeeName());
+			preAuthModel.setPayeeAadhar(preAuthPayRequestModel.getPayeeAadhar());
 			
 			LOGGER.info(" pre auth Api response to bank  {} ", preAuthModel);
 			
@@ -605,9 +606,8 @@ public class UPIHelper {
 		UserWallet updatedWallet = updateWalletForPreAuth(usrWallet, preAuthPayResponseModel.getTxnAmount(), fee);
 		if (fee != null) {
 			feeTransactionForPreAuth(preAuthPayResponseModel, usrWallet, fee, updatedWallet.getAmount());
-		} else {
-			triggerDebitAccountNotification(user, Double.valueOf(preAuthPayRequestModel.getTxnAmount()), updatedWallet);
-		}
+		} 
+		triggerDebitAccountNotification(user, Double.valueOf(preAuthPayRequestModel.getTxnAmount()), updatedWallet);
 	}
 	
 	private void triggerDebitAccountNotification(User user, Double txnAmount, UserWallet userWallet) {

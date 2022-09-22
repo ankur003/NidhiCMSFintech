@@ -6,6 +6,8 @@ public class PreAuthPayModel {
 	
 	private String merchantId;
 	
+	private String payeeAadhar;
+	
 	private String txnNote;
 	
 	private String txnAmount;
@@ -201,16 +203,25 @@ public class PreAuthPayModel {
 	public void setCurrencyCode(String currencyCode) {
 		this.currencyCode = currencyCode;
 	}
+	
+	public String getPayeeAadhar() {
+		return payeeAadhar;
+	}
+
+	public void setPayeeAadhar(String payeeAadhar) {
+		this.payeeAadhar = payeeAadhar;
+	}
 
 	@Override
 	public String toString() {
-		return "PreAuthPayModel [orderNo=" + orderNo + ", merchantId=" + merchantId + ", txnNote=" + txnNote
-				+ ", txnAmount=" + txnAmount + ", payeeVPAType=" + payeeVPAType + ", pgMerchantId=" + pgMerchantId
-				+ ", paymentType=" + paymentType + ", payeeIfsc=" + payeeIfsc + ", payeeMobNo=" + payeeMobNo
-				+ ", payeeEmail=" + payeeEmail + ", payeeVpa=" + payeeVpa + ", addInfo2=" + addInfo2 + ", addInfo3="
-				+ addInfo3 + ", payeeAccNo=" + payeeAccNo + ", mcc=" + mcc + ", payeeName=" + payeeName
-				+ ", payerAccNo=" + payerAccNo + ", payerIfsc=" + payerIfsc + ", txnType=" + txnType + ", currencyCode="
-				+ currencyCode + "]";
+		return "PreAuthPayModel [orderNo=" + orderNo + ", payeeAadhar=" + payeeAadhar
+				+ ", txnNote=" + txnNote + ", txnAmount=" + txnAmount + ", payeeVPAType=" + payeeVPAType
+				+ ", pgMerchantId=" + pgMerchantId + ", paymentType=" + paymentType + ", payeeIfsc=" + payeeIfsc
+				+ ", payeeMobNo=" + payeeMobNo + ", payeeEmail=" + payeeEmail + ", payeeVpa=" + payeeVpa + ", addInfo2="
+				+ addInfo2 + ", addInfo3=" + addInfo3 + ", payeeAccNo=" + payeeAccNo + ", mcc=" + mcc + ", payeeName="
+				+ payeeName + ", payerAccNo=" + payerAccNo + ", payerIfsc=" + payerIfsc + ", txnType=" + txnType
+				+ ", currencyCode=" + currencyCode + "]";
 	}
+
 
 }

@@ -21,6 +21,8 @@ public class PreAuthPayRequestModel {
 	@NotBlank
 	private String payeeVPAType;
 	
+	private String payeeAadhar;
+	
 	@JsonIgnore
 	private String pgMerchantId;
 	
@@ -161,5 +163,14 @@ public class PreAuthPayRequestModel {
 	public void setPayeeName(String payeeName) {
 		this.payeeName = payeeName;
 	}
+
+	public String getPayeeAadhar() {
+		return payeeAadhar;
+	}
+
+	public void setPayeeAadhar(String payeeAadhar) {
+		this.payeeAadhar = payeeAadhar;
+	}
+	
 	
 }

@@ -1424,13 +1424,14 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		LOGGER.info("preAuthPayRequestModel --- {} ", preAuthPayRequestModel);
 		try {
 			if (BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("BANK")) 
-					&& BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("UPI"))) {
+					&& BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("UPI")
+					&& BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("AADHAR")))) {
 				LOGGER.error("PayeeVPAType is invalid --- {}", preAuthPayRequestModel.getPayeeVPAType());
 				return ResponseEntity.badRequest().build();
 			}
 			
 			if (preAuthPayRequestModel.getPayeeVPAType().equals("BANK")) {
-				preAuthPayRequestModel.setPayeeVPAType("IFSC");
+				preAuthPayRequestModel.setPayeeVPAType("ACCOUNT");
 			}
 			if (preAuthPayRequestModel.getPayeeVPAType().equals("UPI")) {
 				preAuthPayRequestModel.setPayeeVPAType("VPA");
