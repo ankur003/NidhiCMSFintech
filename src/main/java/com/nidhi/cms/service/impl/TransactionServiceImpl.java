@@ -64,7 +64,7 @@ public class TransactionServiceImpl implements TransactionService{
 	public List<Transaction> findByMerchantIdAndTxDateBetween(String marchantId, LocalDate startDate,
 			LocalDate endDate) {
 		// List<Long> userIds = new ArrayList<>();
-		List<Transaction> txns = txRepository.findByMerchantIdAndTxDateBetween(marchantId, startDate, endDate);
+		List<Transaction> txns = txRepository.findByMerchantIdAndTxDateBetweenOrderByTxDateDesc(marchantId, startDate, endDate);
 		if (CollectionUtils.isEmpty(txns)) {
 			return Collections.emptyList();
 		}
