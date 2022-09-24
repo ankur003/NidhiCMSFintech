@@ -34,6 +34,9 @@ import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.Utility;
 
+import springfox.documentation.annotations.ApiIgnore;
+
+@ApiIgnore
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping(value = ApiConstants.API_VERSION + "/user")

@@ -71,7 +71,9 @@ import com.nidhi.cms.utils.Utility;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import springfox.documentation.annotations.ApiIgnore;
 
+@ApiIgnore
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping(value = ApiConstants.API_VERSION + "/admin")
