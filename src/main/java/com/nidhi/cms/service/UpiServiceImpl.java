@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.nidhi.cms.domain.UpiRegistrationDetail;
 import com.nidhi.cms.domain.UserWallet;
+import com.nidhi.cms.modal.request.UpiTransactionStatusReqModel;
 import com.nidhi.cms.repository.UpiRegistrationDetailRepo;
 import com.nidhi.cms.utils.indsind.UPIHelper;
 
@@ -33,6 +34,12 @@ public class UpiServiceImpl implements UpiService {
 	@Override
 	public String getUpiTransactionStatus(String txVpaType, String txId) {
 		return upiHelper.getUpiTransactionStatus(txVpaType, txId);
+	}
+
+
+	@Override
+	public String getUpiTransactionStatus(UpiTransactionStatusReqModel upiTransactionStatusReqModel) {
+		return upiHelper.getUpiTransactionStatus(upiTransactionStatusReqModel);
 	}
 
 }

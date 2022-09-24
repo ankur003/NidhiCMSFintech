@@ -4,30 +4,14 @@ import javax.validation.constraints.NotBlank;
 
 public class UpiTransactionStatusReqModel {
 	
-	@NotBlank
-	private String txVpaType;
+	private String pspRefNo;
 	
-	@NotBlank
-	private String txId;
+	private String custRefNo;
+	
+	private String npciTranId;
 	
 	@NotBlank
 	private String merchantId;
-
-	public String getTxVpaType() {
-		return txVpaType;
-	}
-
-	public void setTxVpaType(String txVpaType) {
-		this.txVpaType = txVpaType;
-	}
-
-	public String getTxId() {
-		return txId;
-	}
-
-	public void setTxId(String txId) {
-		this.txId = txId;
-	}
 
 	public String getMerchantId() {
 		return merchantId;
@@ -35,6 +19,30 @@ public class UpiTransactionStatusReqModel {
 
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
+	}
+
+	public String getPspRefNo() {
+		return pspRefNo;
+	}
+
+	public void setPspRefNo(String pspRefNo) {
+		this.pspRefNo = pspRefNo;
+	}
+
+	public String getCustRefNo() {
+		return custRefNo;
+	}
+
+	public void setCustRefNo(String custRefNo) {
+		this.custRefNo = custRefNo;
+	}
+
+	public String getNpciTranId() {
+		return npciTranId;
+	}
+
+	public void setNpciTranId(String npciTranId) {
+		this.npciTranId = npciTranId;
 	}
 
 }

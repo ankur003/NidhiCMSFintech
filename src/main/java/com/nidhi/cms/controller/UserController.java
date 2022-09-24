@@ -1456,7 +1456,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
 		
-		String statusDetails = upiService.getUpiTransactionStatus(upiTransactionStatusReqModel.getTxVpaType(), upiTransactionStatusReqModel.getTxId());
+		if (StringUtils.isAllBlank(upiTransactionStatusReqModel.getCustRefNo(), upiTransactionStatusReqModel.getNpciTranId(), upiTransactionStatusReqModel.getPspRefNo())) {
+			errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "At least one of pspRefNo, custRefNo and npciTranId is mandatory.");
+			errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+		}
+		
+		String statusDetails = upiService.getUpiTransactionStatus(upiTransactionStatusReqModel);
 		if (statusDetails == null) {
 			LOGGER.error("no data found");
 			return null;

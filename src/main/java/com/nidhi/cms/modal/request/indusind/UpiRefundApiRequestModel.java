@@ -4,10 +4,13 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class UpiRefundApiRequestModel implements Serializable {
 
 	private static final long serialVersionUID = 3585143933840310036L;
 
+	@JsonIgnore
 	private String pgMerchantId;
 	
 	@NotBlank

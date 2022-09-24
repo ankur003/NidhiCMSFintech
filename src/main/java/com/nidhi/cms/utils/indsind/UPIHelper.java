@@ -40,6 +40,7 @@ import com.nidhi.cms.domain.email.MailRequest;
 import com.nidhi.cms.modal.request.IndsIndRequestModal;
 import com.nidhi.cms.modal.request.PreAuthPayModel;
 import com.nidhi.cms.modal.request.PreAuthPayRequestModel;
+import com.nidhi.cms.modal.request.UpiTransactionStatusReqModel;
 import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
 import com.nidhi.cms.modal.request.indusind.RequestInfo;
 import com.nidhi.cms.modal.request.indusind.UpiCollectTxRequestModel;
@@ -235,11 +236,13 @@ public class UPIHelper {
 
 	public String getUpiTransactionStatus(String txVpaType, String txId) {
 		try {
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(txVpaType, txId,  systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue()), 
-					systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+			String indusPgmerchantid = systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue();
+			String bankId = systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue();
+			
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(getUpiTransactionStatusModel(txVpaType, txId,  indusPgmerchantid), bankId, indusPgmerchantid);
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/meTranStatusQueryWeb", "POST");
 			LOGGER.info("encryptedResponseBody getUpiTransactionStatus {} ", encryptedResponseBody);
-			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", bankId);
 			LOGGER.info("decryptedResponse getUpiTransactionStatus {} ", decryptedResponse);
 			if (decryptedResponse == null) {
 				return null;
@@ -744,6 +747,33 @@ public class UPIHelper {
 		LOGGER.info(" upiCollectTx decryptedResponse  {} ", decryptedResponse);
 		return Utility.getJsonFromString(decryptedResponse);
 		
+	}
+
+	public String getUpiTransactionStatus(UpiTransactionStatusReqModel upiTransactionStatusReqModel) {
+		
+		try {
+			String indusPgmerchantid = systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue();
+			String bankId = systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue();
+			UpiTransactionStatusModel upiTransactionStatusModel = new UpiTransactionStatusModel();
+			upiTransactionStatusModel.setCustRefNo(upiTransactionStatusReqModel.getCustRefNo());
+			upiTransactionStatusModel.setNpciTranId(upiTransactionStatusReqModel.getNpciTranId());
+			upiTransactionStatusModel.setRequestInfo(new RequestInfo(indusPgmerchantid, upiTransactionStatusReqModel.getPspRefNo()));
+			
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiTransactionStatusModel, bankId, indusPgmerchantid);
+			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/meTranStatusQueryWeb", "POST");
+			LOGGER.info("encryptedResponseBody getUpiTransactionStatus {} ", encryptedResponseBody);
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", bankId);
+			LOGGER.info("decryptedResponse getUpiTransactionStatus {} ", decryptedResponse);
+			if (decryptedResponse == null) {
+				return null;
+			}
+			JSONObject json = Utility.getJsonFromString(decryptedResponse);
+			System.out.println(json);
+			return json.toString();
+		} catch (Exception e) {
+			LOGGER.error("Get Upi TransactionStatus api failed ", e);
+		}
+		return null;
 	}
 
 	
