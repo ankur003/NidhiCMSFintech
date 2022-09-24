@@ -65,6 +65,7 @@ import com.nidhi.cms.modal.request.NEFTIncrementalStatusReqModal;
 import com.nidhi.cms.modal.request.PreAuthPayRequestModel;
 import com.nidhi.cms.modal.request.SubAdminCreateModal;
 import com.nidhi.cms.modal.request.TxStatusInquiry;
+import com.nidhi.cms.modal.request.UpiTransactionStatusReqModel;
 import com.nidhi.cms.modal.request.UserAccountActivateModal;
 import com.nidhi.cms.modal.request.UserAllocateFundModal;
 import com.nidhi.cms.modal.request.UserBankModal;
@@ -74,6 +75,7 @@ import com.nidhi.cms.modal.request.UserPaymentModeModalReqModal;
 import com.nidhi.cms.modal.request.UserRequestFilterModel;
 import com.nidhi.cms.modal.request.UserTxWoOtpReqModal;
 import com.nidhi.cms.modal.request.UserUpdateModal;
+import com.nidhi.cms.modal.request.ValidateUPIAddressReqModel;
 import com.nidhi.cms.modal.request.indusind.UpiCollectTxRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusResponse;
@@ -1345,6 +1347,36 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return upiAddress;
 	}
 	
+	@PostMapping("/api/validate-upi-address")
+	public ResponseEntity<Object> apiValidateUPIAddress(@RequestBody ValidateUPIAddressReqModel validateUPIAddressReqModel, final HttpServletRequest httpServletRequest) {
+		String apiKey = httpServletRequest.getHeader("apiKey");
+		String authorizationToken = httpServletRequest.getHeader("Authorization");
+		ErrorResponse errorResponse = ApiAuthValidator.validateApiRequestHeader(apiKey, authorizationToken);
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		User user = userservice.findByApiKey(apiKey);
+		errorResponse = ApiAuthValidator.validateUser(httpServletRequest, authorizationToken, user);
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+		errorResponse = ApiAuthValidator.validateUserWallet(userWallet, validateUPIAddressReqModel.getMerchantId());
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(validateUPIAddressReqModel.getUpiAddress(), validateUPIAddressReqModel.getVpaType());
+		if (StringUtils.isBlank(upiAddressValidated)) {
+			errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "invalid UPI Address");
+			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+		}
+		return ResponseHandler.getMapResponse("upiAddress", upiAddressValidated);
+	}
+	
 	//@PostMapping(value = "/activate-de-activate/upi")
 	public String activateDeActivateUpi(@RequestParam("userUuid") String userUuid, @RequestParam("adminUuid") String adminUuid, 
 			@RequestParam("isUpiActive") boolean isUpiActive) {
@@ -1373,7 +1405,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	} 
 	
 	
-	//@GetMapping("/transaction-status/upi")
+	@GetMapping("/transaction-status/upi")
 	public UpiTransactionStatusResponse getUpiTransactionStatus( @RequestParam("adminUuid") String adminUuid,
 			/* @RequestParam("userUuid") String userUuid, */ @RequestParam("txVpaType") String txVpaType, @RequestParam("txId") String txId ) {
 		/*
@@ -1399,6 +1431,42 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		JSONObject apiResp = jsonObject.getJSONObject("apiResp");
 		
 		return Utility.getJavaObject(apiResp.toString(), UpiTransactionStatusResponse.class);
+		
+	}
+	
+	
+	@PostMapping("/api/transaction-status/upi")
+	public ResponseEntity<Object> getApiUpiTransactionStatus(@RequestBody UpiTransactionStatusReqModel upiTransactionStatusReqModel, final HttpServletRequest httpServletRequest) {
+		String apiKey = httpServletRequest.getHeader("apiKey");
+		String authorizationToken = httpServletRequest.getHeader("Authorization");
+		ErrorResponse errorResponse = ApiAuthValidator.validateApiRequestHeader(apiKey, authorizationToken);
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		User user = userservice.findByApiKey(apiKey);
+		errorResponse = ApiAuthValidator.validateUser(httpServletRequest, authorizationToken, user);
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
+		errorResponse = ApiAuthValidator.validateUserWallet(usrWallet, upiTransactionStatusReqModel.getMerchantId());
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		String statusDetails = upiService.getUpiTransactionStatus(upiTransactionStatusReqModel.getTxVpaType(), upiTransactionStatusReqModel.getTxId());
+		if (statusDetails == null) {
+			LOGGER.error("no data found");
+			return null;
+		}
+		JSONObject jsonObject = new JSONObject(statusDetails);
+		JSONObject apiResp = jsonObject.getJSONObject("apiResp");
+		
+		UpiTransactionStatusResponse response = Utility.getJavaObject(apiResp.toString(), UpiTransactionStatusResponse.class);
+		
+		return ResponseHandler.getContentResponse(response);
 		
 	}
 	
