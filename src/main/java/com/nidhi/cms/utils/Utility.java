@@ -208,6 +208,7 @@ public class Utility {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("pgMerchantId", pgMerchantId);
 		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(reqModel), indBankKey));
+		LOGGER.info("Request json to bank --- {}", gson.toJson(reqModel));
 		return jsonObject.toString();
 	}
 

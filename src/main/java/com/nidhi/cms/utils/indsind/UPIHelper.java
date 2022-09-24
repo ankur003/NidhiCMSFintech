@@ -48,6 +48,7 @@ import com.nidhi.cms.modal.request.indusind.UpiDeActivateModel;
 import com.nidhi.cms.modal.request.indusind.UpiListApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusModel;
+import com.nidhi.cms.modal.response.ApiRespResponseModel;
 import com.nidhi.cms.modal.response.PreAuthPayResponseModel;
 import com.nidhi.cms.repository.SystemConfigRepo;
 import com.nidhi.cms.repository.UpiTxnRepo;
@@ -738,18 +739,18 @@ public class UPIHelper {
 	}
 
 	public JSONObject upiCollectTx(UpiCollectTxRequestModel upiCollectTxRequestModel) throws Exception {
-		String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiCollectTxRequestModel, 
-				systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
+		String bankKey = systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue();
+		String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiCollectTxRequestModel, bankKey, 
 				systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
 		String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/meCollectInitiateWeb", "POST");
 		LOGGER.info("encryptedResponseBody  {} ", encryptedResponseBody);
-		String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+		String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "resp", bankKey);
 		LOGGER.info(" upiCollectTx decryptedResponse  {} ", decryptedResponse);
 		return Utility.getJsonFromString(decryptedResponse);
 		
 	}
 
-	public String getUpiTransactionStatus(UpiTransactionStatusReqModel upiTransactionStatusReqModel) {
+	public ApiRespResponseModel getUpiTransactionStatus(UpiTransactionStatusReqModel upiTransactionStatusReqModel) {
 		
 		try {
 			String indusPgmerchantid = systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue();
@@ -767,9 +768,8 @@ public class UPIHelper {
 			if (decryptedResponse == null) {
 				return null;
 			}
-			JSONObject json = Utility.getJsonFromString(decryptedResponse);
-			System.out.println(json);
-			return json.toString();
+			JSONObject apiRespJson = Utility.getJsonFromString(decryptedResponse).getJSONObject("apiResp");
+			return Utility.getJavaObject(apiRespJson.toString(), ApiRespResponseModel.class);
 		} catch (Exception e) {
 			LOGGER.error("Get Upi TransactionStatus api failed ", e);
 		}

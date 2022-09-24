@@ -79,6 +79,7 @@ import com.nidhi.cms.modal.request.ValidateUPIAddressReqModel;
 import com.nidhi.cms.modal.request.indusind.UpiCollectTxRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusResponse;
+import com.nidhi.cms.modal.response.ApiRespResponseModel;
 import com.nidhi.cms.modal.response.ErrorResponse;
 import com.nidhi.cms.modal.response.PreAuthPayResponseModel;
 import com.nidhi.cms.modal.response.TimeOutResponse;
@@ -1462,17 +1463,8 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 		}
 		
-		String statusDetails = upiService.getUpiTransactionStatus(upiTransactionStatusReqModel);
-		if (statusDetails == null) {
-			LOGGER.error("no data found");
-			return null;
-		}
-		JSONObject jsonObject = new JSONObject(statusDetails);
-		JSONObject apiResp = jsonObject.getJSONObject("apiResp");
-		
-		UpiTransactionStatusResponse response = Utility.getJavaObject(apiResp.toString(), UpiTransactionStatusResponse.class);
-		
-		return ResponseHandler.getContentResponse(response);
+		ApiRespResponseModel apiRespResponseModel = upiService.getUpiTransactionStatus(upiTransactionStatusReqModel);
+		return ResponseHandler.getContentResponse(apiRespResponseModel);
 		
 	}
 	
