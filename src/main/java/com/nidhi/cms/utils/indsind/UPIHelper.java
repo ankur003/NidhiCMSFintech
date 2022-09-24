@@ -734,7 +734,7 @@ public class UPIHelper {
 		transactionService.save(transaction);
 	}
 
-	public void upiCollectTx(UpiCollectTxRequestModel upiCollectTxRequestModel, UserWallet usrWallet, User user) throws Exception {
+	public JSONObject upiCollectTx(UpiCollectTxRequestModel upiCollectTxRequestModel) throws Exception {
 		String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiCollectTxRequestModel, 
 				systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
 				systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
@@ -742,8 +742,10 @@ public class UPIHelper {
 		LOGGER.info("encryptedResponseBody  {} ", encryptedResponseBody);
 		String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
 		LOGGER.info(" upiCollectTx decryptedResponse  {} ", decryptedResponse);
-		JSONObject json = Utility.getJsonFromString(decryptedResponse);
-			
+		return Utility.getJsonFromString(decryptedResponse);
+		
 	}
+
+	
 
 }

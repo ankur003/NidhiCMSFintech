@@ -95,6 +95,7 @@ import com.nidhi.cms.service.UserBusnessKycService;
 import com.nidhi.cms.service.UserPaymentModeService;
 import com.nidhi.cms.service.UserService;
 import com.nidhi.cms.service.UserWalletService;
+import com.nidhi.cms.utils.ApiAuthValidator;
 import com.nidhi.cms.utils.ResponseHandler;
 import com.nidhi.cms.utils.Utility;
 import com.nidhi.cms.utils.indsind.UPIHelper;
@@ -1306,7 +1307,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
 	}
 	
-	@GetMapping("/indsind/generate-upi-address")
+	//@GetMapping("/indsind/generate-upi-address")
 	public String generateUPIAddress(@RequestParam("adminUuid") String adminUuid, @RequestParam("userUuid") String userUuid) {
 		User admin = userservice.getUserDetailByUserUuid(adminUuid);
 		if (admin == null || BooleanUtils.isFalse(admin.getIsAdmin())) {
@@ -1372,7 +1373,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	} 
 	
 	
-	@GetMapping("/transaction-status/upi")
+	//@GetMapping("/transaction-status/upi")
 	public UpiTransactionStatusResponse getUpiTransactionStatus( @RequestParam("adminUuid") String adminUuid,
 			/* @RequestParam("userUuid") String userUuid, */ @RequestParam("txVpaType") String txVpaType, @RequestParam("txId") String txId ) {
 		/*
@@ -1402,32 +1403,62 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 	}
 	
 	@PostMapping(value = "/refund/json/upi")
-	public ResponseEntity<Object> refundJsonApi(@RequestBody UpiRefundApiRequestModel upiRefundApiRequestModel) {
-		UserWallet usrWallet = userWalletService.findByMerchantId(upiRefundApiRequestModel.getMerchantId());
-		if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
-			LOGGER.error("usrWallet incorrect or upi is not active  {} ", upiRefundApiRequestModel.getMerchantId());
-			return ResponseEntity.badRequest().build();
-		}
-		User user = userRepo.findByUserId(usrWallet.getUserId());
-		if (user == null || user.getKycStatus() == null || !KycStatus.VERIFIED.name().equals(user.getKycStatus().name()) ) {
-			LOGGER.error("user  incorrect }");
-			return ResponseEntity.badRequest().build();
+	public ResponseEntity<Object> refundJsonApi(@RequestBody UpiRefundApiRequestModel upiRefundApiRequestModel, final HttpServletRequest httpServletRequest) {
+		String apiKey = httpServletRequest.getHeader("apiKey");
+		String authorizationToken = httpServletRequest.getHeader("Authorization");
+		ErrorResponse errorResponse = ApiAuthValidator.validateApiRequestHeader(apiKey, authorizationToken);
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
 		
+		User user = userservice.findByApiKey(apiKey);
+		errorResponse = ApiAuthValidator.validateUser(httpServletRequest, authorizationToken, user);
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
+		
+		UserWallet usrWallet = userWalletService.findByUserId(user.getUserId());
+		errorResponse = ApiAuthValidator.validateUserWallet(usrWallet, upiRefundApiRequestModel.getMerchantId());
+		if (errorResponse != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+		}
 		JSONObject value = upiHelper.refundJsonApi(upiRefundApiRequestModel, usrWallet, user);
 		return ResponseEntity.ok(value);
 	} 
 	
 	
 	@PostMapping(value = "/pre-auth-pay")
-	public ResponseEntity<Object> preAuthApy(@RequestBody PreAuthPayRequestModel preAuthPayRequestModel) {
+	public ResponseEntity<Object> preAuthApy(@RequestBody PreAuthPayRequestModel preAuthPayRequestModel, final HttpServletRequest httpServletRequest) {
 		LOGGER.info("preAuthPayRequestModel --- {} ", preAuthPayRequestModel);
 		try {
+			
+			String apiKey = httpServletRequest.getHeader("apiKey");
+			String authorizationToken = httpServletRequest.getHeader("Authorization");
+			ErrorResponse errorResponse = ApiAuthValidator.validateApiRequestHeader(apiKey, authorizationToken);
+			if (errorResponse != null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			}
+			
+			User user = userservice.findByApiKey(apiKey);
+			errorResponse = ApiAuthValidator.validateUser(httpServletRequest, authorizationToken, user);
+			if (errorResponse != null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			}
+			
+			UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+			errorResponse = ApiAuthValidator.validateUserWallet(userWallet, preAuthPayRequestModel.getMerchantId());
+			if (errorResponse != null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			}
+			
+			
 			if (BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("BANK")) 
 					&& BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("UPI"))
 					&& BooleanUtils.isFalse(preAuthPayRequestModel.getPayeeVPAType().equals("AADHAR"))) {
 				LOGGER.error("PayeeVPAType is invalid --- {}", preAuthPayRequestModel.getPayeeVPAType());
-				return ResponseEntity.badRequest().build();
+				errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "PayeeVPAType is invalid.");
+				errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 			}
 			
 			if (preAuthPayRequestModel.getPayeeVPAType().equals("BANK")) {
@@ -1437,67 +1468,84 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 				preAuthPayRequestModel.setPayeeVPAType("VPA");
 			}
 			
-			UserWallet usrWallet = userWalletService.findByMerchantId(preAuthPayRequestModel.getMerchantId());
-			if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
-				LOGGER.error("usrWallet incorrect or upi is not active {} ", preAuthPayRequestModel.getMerchantId());
-				return ResponseEntity.badRequest().build();
-			}
-			User user = userRepo.findByUserId(usrWallet.getUserId());
+		
 			Double fee = null;
 			
 			UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, PaymentMode.UPI_DEBIT);
 			if (userPaymentMode == null) {
-				if (usrWallet.getAmount() < Double.valueOf(preAuthPayRequestModel.getTxnAmount())) {
-					LOGGER.error("usrWallet not having enough money {} ", usrWallet.getAmount());
-					return ResponseEntity.badRequest().build();
+				if (userWallet.getAmount() < Double.valueOf(preAuthPayRequestModel.getTxnAmount())) {
+					LOGGER.error("usrWallet not having enough money {} ", userWallet.getAmount());
+					errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Wallet not having enough money ");
+					errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+		            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 				}
 			} else {
 				if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
 					fee = getFee(userPaymentMode.getFee(), Double.valueOf(preAuthPayRequestModel.getTxnAmount()));
 					BigDecimal userTxAmount = new BigDecimal(preAuthPayRequestModel.getTxnAmount()).setScale(2, RoundingMode.HALF_DOWN);
-					if (usrWallet.getAmount() < (fee + userTxAmount.doubleValue())) {
-						final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
+					if (userWallet.getAmount() < (fee + userTxAmount.doubleValue())) {
+						errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
 						errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
 			            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 					}
 				} 
 				if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
 					fee = userPaymentMode.getFee();
-					if ((usrWallet.getAmount()) < (Double.parseDouble(preAuthPayRequestModel.getTxnAmount()) + fee)) {
-						final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
+					if ((userWallet.getAmount()) < (Double.parseDouble(preAuthPayRequestModel.getTxnAmount()) + fee)) {
+						errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
 						errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
 			            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 					}
 				}
 			}
 			
-			PreAuthPayResponseModel preAuthPayResponseModel = upiHelper.preAuthApy(preAuthPayRequestModel, usrWallet, fee, user);
+			PreAuthPayResponseModel preAuthPayResponseModel = upiHelper.preAuthApy(preAuthPayRequestModel, userWallet, fee, user);
 			if (preAuthPayResponseModel == null) {
-				return ResponseEntity.badRequest().build();
+				errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, "Something went wrong on the server");
+				errorResponse.addError("errorCode", "" + ErrorCode.GENERIC_SERVER_ERROR.value());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 			}
 			return ResponseHandler.getContentResponse(preAuthPayResponseModel);
 		} catch (Exception e) {
 			LOGGER.error("preAuth pay api failed ", e);
 		}
-		return ResponseEntity.badRequest().build();
+		final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, "Something went wrong");
+		errorResponse.addError("errorCode", "" + ErrorCode.GENERIC_SERVER_ERROR.value());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
 	
 	@PostMapping(value = "/upi/collect-tx")
-	public ResponseEntity<Object> upiCollectTx(@RequestBody UpiCollectTxRequestModel upiCollectTxRequestModel) {
+	public ResponseEntity<Object> upiCollectTx(@RequestBody UpiCollectTxRequestModel upiCollectTxRequestModel, final HttpServletRequest httpServletRequest) {
 		LOGGER.info("upiCollectTxRequestModel --- {}", upiCollectTxRequestModel);
 		try {
-			UserWallet usrWallet = userWalletService.findByMerchantId(upiCollectTxRequestModel.getMerchantId());
-			if (usrWallet == null || BooleanUtils.isFalse(usrWallet.getIsUpiActive()) ) {
-				LOGGER.error("usrWallet incorrect or upi is not active {} ", upiCollectTxRequestModel.getMerchantId());
-				return ResponseEntity.badRequest().build();
+			
+			String apiKey = httpServletRequest.getHeader("apiKey");
+			String authorizationToken = httpServletRequest.getHeader("Authorization");
+			ErrorResponse errorResponse = ApiAuthValidator.validateApiRequestHeader(apiKey, authorizationToken);
+			if (errorResponse != null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 			}
-			User user = userRepo.findByUserId(usrWallet.getUserId());
-			upiHelper.upiCollectTx(upiCollectTxRequestModel, usrWallet, user);
+			
+			User user = userservice.findByApiKey(apiKey);
+			errorResponse = ApiAuthValidator.validateUser(httpServletRequest, authorizationToken, user);
+			if (errorResponse != null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			}
+			
+			UserWallet userWallet = userWalletService.findByUserId(user.getUserId());
+			errorResponse = ApiAuthValidator.validateUserWallet(userWallet, upiCollectTxRequestModel.getMerchantId());
+			if (errorResponse != null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			}
+			
+			JSONObject response = upiHelper.upiCollectTx(upiCollectTxRequestModel);
+			return ResponseHandler.getContentResponse(response);
 		} catch (Exception e) {
-			// TODO: handle exception
+			LOGGER.error("upiCollectTx api failed ", e);
 		}
-		return null;
-		
+		final ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR, "Something went wrong");
+		errorResponse.addError("errorCode", "" + ErrorCode.GENERIC_SERVER_ERROR.value());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
 
 }
