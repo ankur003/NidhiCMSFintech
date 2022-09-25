@@ -299,8 +299,8 @@ public class UPIHelper extends AbstractController {
 		        	}
 		        	toIndex = recordPerPage * i;
 		        	
-		        	getUpiListResult(pgMerchantId, String.valueOf(fromIndex), String.valueOf(toIndex)); 
-		        	
+		        	JSONObject respJson = getUpiListResult(pgMerchantId, String.valueOf(fromIndex), String.valueOf(toIndex)); 
+		        	processUPIData(respJson);   
 		        }
 				
 			} else {
