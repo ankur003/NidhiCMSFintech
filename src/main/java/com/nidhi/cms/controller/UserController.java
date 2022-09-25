@@ -1536,13 +1536,19 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			Double fee = null;
 			
 			UserPaymentMode userPaymentMode = userPaymentModeService.getUserPaymentMode(user, PaymentMode.UPI_DEBIT);
-			if (userPaymentMode == null) {
-				if (userWallet.getAmount() < Double.valueOf(preAuthPayRequestModel.getTxnAmount())) {
-					LOGGER.error("usrWallet not having enough money {} ", userWallet.getAmount());
-					errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Wallet not having enough money ");
-					errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
-		            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
-				}
+			if (userPaymentMode == null || BooleanUtils.isFalse(userPaymentMode.getIsActive())
+					|| userPaymentMode.getFee() == null || userPaymentMode.getPaymentModeFeeType() == null) {
+				errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "permission not granted by admin for txntype - " + PaymentMode.UPI_DEBIT);
+				errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+	            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+			}
+			
+			
+			if (userWallet.getAmount() < Double.valueOf(preAuthPayRequestModel.getTxnAmount())) {
+				LOGGER.error("usrWallet not having enough money {} ", userWallet.getAmount());
+				errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "Wallet not having enough money ");
+				errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
+				return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 			} else {
 				if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.PERCENTAGE)) {
 					fee = getFee(userPaymentMode.getFee(), Double.valueOf(preAuthPayRequestModel.getTxnAmount()));
@@ -1550,15 +1556,15 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 					if (userWallet.getAmount() < (fee + userTxAmount.doubleValue())) {
 						errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
 						errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
-			            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+						return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 					}
-				} 
+				}
 				if (userPaymentMode.getPaymentModeFeeType().equals(PaymentModeFeeType.FLAT)) {
 					fee = userPaymentMode.getFee();
 					if ((userWallet.getAmount()) < (Double.parseDouble(preAuthPayRequestModel.getTxnAmount()) + fee)) {
 						errorResponse = new ErrorResponse(ErrorCode.PARAMETER_MISSING_OR_INVALID, "low balance.");
 						errorResponse.addError("errorCode", "" + ErrorCode.PARAMETER_MISSING_OR_INVALID.value());
-			            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
+						return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(errorResponse);
 					}
 				}
 			}
