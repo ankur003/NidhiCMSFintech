@@ -276,13 +276,15 @@ public class UPIHelper extends AbstractController {
 			
 			JSONObject json = getUpiListResult(pgMerchantId, "1", "50"); 
 			
+			String totalRecords = json.getJSONObject("paginationConfig").getString("total_records");
+			
 			if (!json.has("transDetails")) {
 				LOGGER.info(" upiListApi no data available  ");
 				return;
 			}
-			if (Long.valueOf(json.getString("total_records")) > 50) {
+			if (Long.valueOf(totalRecords) > 50) {
 				
-				int noOfRecords = Integer.parseInt(json.getString("total_records"));
+				int noOfRecords = Integer.parseInt(totalRecords);
 				int recordPerPage = 50;
 				int fromIndex = 0;
 				int toIndex = 0;
@@ -291,9 +293,9 @@ public class UPIHelper extends AbstractController {
 		        int noOfPages = (int)Math.ceil(noOfRecords * 1.0 / recordPerPage);
 		        for(int i = 1 ; i<= noOfPages; i++) {
 		        	if (i == 1) {
-		        		fromIndex = 0;
+		        		fromIndex = 1;
 		        	} else {
-		        		fromIndex = toIndex;
+		        		fromIndex = toIndex + 1;
 		        	}
 		        	toIndex = recordPerPage * i;
 		        	

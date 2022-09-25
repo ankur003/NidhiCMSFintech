@@ -1371,9 +1371,7 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 		
 		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(validateUPIAddressReqModel.getUpiAddress(), validateUPIAddressReqModel.getVpaType());
 		if (StringUtils.isBlank(upiAddressValidated)) {
-			errorResponse = new ErrorResponse(ErrorCode.AUTHENTICATION_REQUIRED, "invalid UPI Address");
-			errorResponse.addError("errorCode", "" + ErrorCode.AUTHENTICATION_REQUIRED.value());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+			return ResponseHandler.getMapResponse("upiAddress", "Provided UPI address is not available.");
 		}
 		return ResponseHandler.getMapResponse("upiAddress", upiAddressValidated);
 	}
