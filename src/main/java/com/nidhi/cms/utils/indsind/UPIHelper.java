@@ -321,7 +321,9 @@ public class UPIHelper extends AbstractController {
 		JSONArray transDetails = json.getJSONArray("transDetails");
 		for (int i = 0; i < transDetails.length(); i++) {
 			JSONObject transDetail = transDetails.getJSONObject(i);
-			processUpiListApi(transDetail);
+			if (transDetail.getString("txnStatus").equals("SUCCESS")) {
+				processUpiListApi(transDetail);
+			}
 		}
 	}
 
