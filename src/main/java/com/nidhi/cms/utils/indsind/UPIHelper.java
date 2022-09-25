@@ -458,14 +458,20 @@ public class UPIHelper extends AbstractController {
 		transaction.setAmount(transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount"));
 		transaction.setAmountPlusfee(transDetail.has("txnAmount") ? transDetail.getDouble("txnAmount") : transDetail.getDouble("amount"));
 		transaction.setCreatedAt(LocalDateTime.now());
-		transaction.setCreditTime(Utility.getDateTime(transDetail.has("trnDate") ? transDetail.getString("trnDate") : transDetail.getString("txnAuthDate"), "dd:MM:yyyy HH:mm:ss"));
+		if (transDetail.has("trnDate")) {
+			transaction.setCreditTime(Utility.getDateTime(transDetail.getString("trnDate"), "dd-MM-yyyy HH:mm:ss"));
+		}
+		if (transDetail.has("txnAuthDate")) {
+			transaction.setCreditTime(Utility.getDateTime(transDetail.getString("txnAuthDate"), "dd-MM-yyyy HH:mm:ss"));
+		}
+		
 		transaction.setCurrency("INR");
 		transaction.setFee(0.0);
 		transaction.setIsFeeTx(false);
 		transaction.setMerchantId(wallet.getMerchantId());
 		transaction.setStatus(transDetail.has("txnStatus") ? transDetail.getString("txnStatus") : transDetail.getString("status"));
 		transaction.setRemarks(transDetail.getString("txnNote"));//
-		transaction.setTxDate(Utility.getDateTime(transDetail.has("trnDate") ? transDetail.getString("trnDate") : transDetail.getString("txnAuthDate"), "dd:MM:yyyy HH:mm:ss").toLocalDate());
+		transaction.setTxDate(Utility.getDateTime(transDetail.has("trnDate") ? transDetail.getString("trnDate") : transDetail.getString("txnAuthDate"), "dd-MM-yyyy HH:mm:ss").toLocalDate());
 		transaction.setTxnType(transDetail.getString("txnType"));
 		transaction.setTxType("Cr.");
 		transaction.setUniqueId(transDetail.has("txnId") ? transDetail.getString("txnId") : transDetail.getString("npciTransId"));
