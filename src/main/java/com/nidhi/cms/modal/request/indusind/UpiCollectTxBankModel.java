@@ -1,12 +1,7 @@
 package com.nidhi.cms.modal.request.indusind;
 
-import javax.validation.constraints.NotBlank;
-
-public class UpiCollectTxRequestModel {
+public class UpiCollectTxBankModel {
 	
-	@NotBlank
-	private String merchantId;
-
 	private Double amount;
 	
 	private String transactionNote;
@@ -25,14 +20,6 @@ public class UpiCollectTxRequestModel {
 	
 	private GstDetails GST_details;
 	
-	public String getMerchantId() {
-		return merchantId;
-	}
-
-	public void setMerchantId(String merchantId) {
-		this.merchantId = merchantId;
-	}
-
 	public Double getAmount() {
 		return amount;
 	}

@@ -203,12 +203,14 @@ public class Utility {
 	}
 	
 	public static <T> String getGenericEncyptedReqBody(T reqModel, String indBankKey, String pgMerchantId) throws Exception {
-		UPISecurity uPISecurity = new UPISecurity();
 		Gson gson = new Gson();
+		String requestJson = gson.toJson(reqModel);
+		UPISecurity uPISecurity = new UPISecurity();
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("pgMerchantId", pgMerchantId);
-		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(reqModel), indBankKey));
-		LOGGER.info("Request json to bank --- {}", gson.toJson(reqModel));
+		jsonObject.put("requestMsg", uPISecurity.encrypt(requestJson, indBankKey));
+		LOGGER.info("Request json to bank --- {}", requestJson);
+		LOGGER.info("Complete encrypted Request json to bank --- {}", jsonObject);
 		return jsonObject.toString();
 	}
 
@@ -274,9 +276,13 @@ public class Utility {
 		upiAddressValidateReqModel.setPayeeType(new PayeeType(upiAddress.toLowerCase()));
 		upiAddressValidateReqModel.setvAReqType(vpaType);
 		upiAddressValidateReqModel.setRequestInfo(new RequestInfo(pgMerchantId, RandomStringUtils.random(30, true, false)));
-		
-		jsonObject.put("requestMsg", uPISecurity.encrypt(gson.toJson(upiAddressValidateReqModel), indBankKey));
+		String requestJson = gson.toJson(upiAddressValidateReqModel);
+		jsonObject.put("requestMsg", uPISecurity.encrypt(requestJson, indBankKey));
 		jsonObject.put("pgMerchantId", pgMerchantId);
+		
+		LOGGER.info("Request json to bank ->->- {}", requestJson);
+		LOGGER.info("Complete encrypted Request json to bank ->->-- {}", jsonObject);
+		
 		return jsonObject.toString();
 	}
 

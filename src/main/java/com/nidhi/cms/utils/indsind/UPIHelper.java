@@ -30,6 +30,7 @@ import com.nidhi.cms.constants.EmailTemplateConstants;
 import com.nidhi.cms.constants.enums.PaymentMode;
 import com.nidhi.cms.constants.enums.PaymentModeFeeType;
 import com.nidhi.cms.constants.enums.SystemKey;
+import com.nidhi.cms.controller.AbstractController;
 import com.nidhi.cms.domain.SystemConfig;
 import com.nidhi.cms.domain.Transaction;
 import com.nidhi.cms.domain.UpiTxn;
@@ -43,9 +44,11 @@ import com.nidhi.cms.modal.request.PreAuthPayRequestModel;
 import com.nidhi.cms.modal.request.UpiTransactionStatusReqModel;
 import com.nidhi.cms.modal.request.indusind.PaginationConfigModel;
 import com.nidhi.cms.modal.request.indusind.RequestInfo;
+import com.nidhi.cms.modal.request.indusind.UpiCollectTxBankModel;
 import com.nidhi.cms.modal.request.indusind.UpiCollectTxRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiDeActivateModel;
 import com.nidhi.cms.modal.request.indusind.UpiListApiRequestModel;
+import com.nidhi.cms.modal.request.indusind.UpiRefundApiBankModel;
 import com.nidhi.cms.modal.request.indusind.UpiRefundApiRequestModel;
 import com.nidhi.cms.modal.request.indusind.UpiTransactionStatusModel;
 import com.nidhi.cms.modal.response.ApiRespResponseModel;
@@ -65,7 +68,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 @Component
-public class UPIHelper {
+public class UPIHelper extends AbstractController {
 	
 	private static final String UPI_PREFIX = "NIDHICMS.";
 	
@@ -114,11 +117,9 @@ public class UPIHelper {
 		MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 		Response response = null;
 		try {
-			//c0ff5a0e2000a62951400b3489fc41f2
-		//	okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(upiAddress, applicationConfig.getIndBankKey(), applicationConfig.getPgMerchantId()), mediaType);
-		
+			String bankId = systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue();		
 			okhttp3.RequestBody body = okhttp3.RequestBody.create(Utility.getEncyptedReqBodyForUpiAddressValidation(vpaType, upiAddress, 
-					systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue()), mediaType);
+					bankId, systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue()), mediaType);
 
 			Request request = new Request.Builder()
 					.url("https://apig.indusind.com/ibl/prod/upi/validateVPAWeb").method("POST", body)
@@ -129,7 +130,7 @@ public class UPIHelper {
 			 response = client.newCall(request).execute();
 			String responseBody = response.body().string();
 			LOGGER.info("getAndValidateUpiAddress responseBody {} ", responseBody);
-			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", bankId);
 			LOGGER.info("decryptedResponse {} ", decryptedResponse);
 			if (decryptedResponse != null) {
 				String status = getJsonFromString(decryptedResponse).getString("status");
@@ -544,21 +545,23 @@ public class UPIHelper {
 
 	public JSONObject refundJsonApi(UpiRefundApiRequestModel upiRefundApiRequestModel, UserWallet usrWallet, User user) {
 		try {
+			String bankKey = systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue();
+			String pgmerchantId = systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue();
 			upiRefundApiRequestModel.setPayType("P2P");
-			upiRefundApiRequestModel.setPgMerchantId(systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+			upiRefundApiRequestModel.setPgMerchantId(pgmerchantId);
 			upiRefundApiRequestModel.setTxnType("PAY");
 			upiRefundApiRequestModel.setCurrencyCode("INR");
-			String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiRefundApiRequestModel, systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue(), 
-					systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
+			UpiRefundApiBankModel upiRefundApiBankModel = beanMapper.map(upiRefundApiRequestModel, UpiRefundApiBankModel.class);
+			String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiRefundApiBankModel, bankKey, pgmerchantId);
 			String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upirfd/meRefundJsonService", "POST");
-			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue());
+			String decryptedResponse = Utility.decryptResponse(encryptedResponseBody, "apiResp", bankKey);
 			LOGGER.info(" refundJsonApi decryptedResponse  {} ", decryptedResponse);
 			JSONObject json = Utility.getJsonFromString(decryptedResponse);
 			LOGGER.info(" refund json {} ", json);
 			if (json.getString("status").equals("S")) {
 				debitTransaction(upiRefundApiRequestModel, usrWallet, json.getString("txnId"));
-				UserWallet updatedWallet = updateWallet(usrWallet, upiRefundApiRequestModel.getTxnAmount());
-				triggerDebitAccountNotification(user, Double.valueOf(upiRefundApiRequestModel.getTxnAmount()), updatedWallet);
+				UserWallet updatedWallet = updateWallet(usrWallet, upiRefundApiBankModel.getTxnAmount());
+				triggerDebitAccountNotification(user, Double.valueOf(upiRefundApiBankModel.getTxnAmount()), updatedWallet);
 			}
 			
 			return json;
@@ -739,8 +742,9 @@ public class UPIHelper {
 	}
 
 	public JSONObject upiCollectTx(UpiCollectTxRequestModel upiCollectTxRequestModel) throws Exception {
+		UpiCollectTxBankModel upiCollectTxBankModel = beanMapper.map(upiCollectTxRequestModel, UpiCollectTxBankModel.class);
 		String bankKey = systemConfigRepo.findBySystemKey(SystemKey.INDS_IND_BANK_KEY.name()).getValue();
-		String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiCollectTxRequestModel, bankKey, 
+		String encyptedReqBody = Utility.getGenericEncyptedReqBody(upiCollectTxBankModel, bankKey, 
 				systemConfigRepo.findBySystemKey(SystemKey.INDUS_PGMERCHANTID.name()).getValue());
 		String encryptedResponseBody = callAndGetUpiEncryptedResponse(encyptedReqBody, "https://apig.indusind.com/ibl/prod/upijson/meCollectInitiateWeb", "POST");
 		LOGGER.info("encryptedResponseBody  {} ", encryptedResponseBody);
