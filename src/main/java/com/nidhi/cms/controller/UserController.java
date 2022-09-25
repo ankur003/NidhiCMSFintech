@@ -1339,13 +1339,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 //			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("incorrect admin");
 			return "incorrect admin";
 		}
-		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(upiAddress, vpaType);
-		if (StringUtils.isBlank(upiAddressValidated)) {
+		JSONObject upiAddressValidated = upiHelper.getAndValidateUpiAddress(upiAddress, vpaType);
+		if (upiAddressValidated == null) {
 //			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid UPI Address");
 			return "invalid UPI Address";
+		} else {
+			return upiAddress;
 		}
-	//	return ResponseEntity.status(HttpStatus.OK).body(upiAddress);
-		return upiAddress;
 	}
 	
 	@PostMapping("/api/validate-upi-address")
@@ -1369,11 +1369,13 @@ private static boolean getClientIpAddress(String ip2, HttpServletRequest request
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
 		
-		String upiAddressValidated = upiHelper.getAndValidateUpiAddress(validateUPIAddressReqModel.getUpiAddress(), validateUPIAddressReqModel.getVpaType());
-		if (StringUtils.isBlank(upiAddressValidated)) {
-			return ResponseHandler.getMapResponse("upiAddress", "Provided UPI address is not available.");
+		JSONObject upiAddressValidated = upiHelper.getAndValidateUpiAddress(validateUPIAddressReqModel.getUpiAddress(), validateUPIAddressReqModel.getVpaType());
+		if (upiAddressValidated == null) {
+			errorResponse = new ErrorResponse(ErrorCode.ENTITY_NOT_FOUND, "something went wrong");
+			errorResponse.addError("errorCode", "" + ErrorCode.ENTITY_NOT_FOUND.value());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 		}
-		return ResponseHandler.getMapResponse("upiAddress", upiAddressValidated);
+		return ResponseHandler.getContentResponse(upiAddressValidated);
 	}
 	
 	//@PostMapping(value = "/activate-de-activate/upi")

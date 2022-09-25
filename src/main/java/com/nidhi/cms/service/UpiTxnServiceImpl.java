@@ -142,26 +142,31 @@ public class UpiTxnServiceImpl implements UpiTxnService {
 				savedWallet = userWalletService.save(savedWallet);
 				
 			}
-			Transaction transaction = new Transaction();
-			transaction.setAmount(fee);
-			transaction.setAmountPlusfee(fee);
-			transaction.setCreatedAt(LocalDateTime.now());
-			transaction.setCreditTime(Utility.getDateTime(decryptedJsonResp.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss"));
-			transaction.setCurrency("INR");
-			transaction.setFee(fee);
-			transaction.setIsFeeTx(true);
-			transaction.setMerchantId(wallet.getMerchantId());
-			transaction.setStatus(decryptedJsonResp.getString("status"));
-			transaction.setRemarks(decryptedJsonResp.getString("txnNote"));
-			transaction.setTxDate(Utility.getDateTime(decryptedJsonResp.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss").toLocalDate());
-			transaction.setTxnType(decryptedJsonResp.getString("txnType"));
-			transaction.setTxType("Dr.");
-			transaction.setUniqueId(decryptedJsonResp.getString("npciTransId"));
-			transaction.setUserId(wallet.getUserId());
-			transaction.setUtrNumber(decryptedJsonResp.getString("npciTransId"));
-			transaction.setPayeeName(decryptedJsonResp.getString("payeeVPA"));
-			transaction.setAmt(savedWallet.getAmount());
-			transactionService.save(transaction);
+			if (fee > 0.00) {
+				Transaction transaction = new Transaction();
+				transaction.setAmount(fee);
+				transaction.setAmountPlusfee(fee);
+				transaction.setCreatedAt(LocalDateTime.now());
+				transaction.setCreditTime(Utility.getDateTime(decryptedJsonResp.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss"));
+				transaction.setCurrency("INR");
+				transaction.setFee(fee);
+				transaction.setIsFeeTx(true);
+				transaction.setMerchantId(wallet.getMerchantId());
+				transaction.setStatus(decryptedJsonResp.getString("status"));
+				transaction.setRemarks(decryptedJsonResp.getString("txnNote"));
+				transaction.setTxDate(Utility.getDateTime(decryptedJsonResp.getString("txnAuthDate"), "yyyy:MM:dd HH:mm:ss").toLocalDate());
+				transaction.setTxnType(decryptedJsonResp.getString("txnType"));
+				transaction.setTxType("Dr.");
+				transaction.setUniqueId(decryptedJsonResp.getString("npciTransId"));
+				transaction.setUserId(wallet.getUserId());
+				transaction.setUtrNumber(decryptedJsonResp.getString("npciTransId"));
+				transaction.setPayeeName(decryptedJsonResp.getString("payeeVPA"));
+				transaction.setAmt(savedWallet.getAmount());
+				transactionService.save(transaction);
+			} else {
+				LOGGER.info("fee skipped for upi txn for fee {} -> ", fee);
+			}
+			
 		} 
 		
 		triggerCreditMail(wallet.getUserId(), decryptedJsonResp, savedWallet);

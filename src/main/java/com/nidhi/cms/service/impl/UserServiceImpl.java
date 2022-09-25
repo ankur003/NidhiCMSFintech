@@ -626,7 +626,6 @@ public class UserServiceImpl extends AbstractDataSourceDao implements UserDetail
 
 	private Transaction saveFeeTransaction(User user, UserTxWoOtpReqModal userTxWoOtpReqModal,
 			UserWallet userWallet, String response) {
-	
 		Transaction txn = new Transaction();
 		txn.setAggrId(userTxWoOtpReqModal.getAggrid());
 		txn.setAggrName(userTxWoOtpReqModal.getAggrname());
@@ -659,7 +658,12 @@ public class UserServiceImpl extends AbstractDataSourceDao implements UserDetail
 		}
 		txn.setRemarks("Fee transaction");
 		txn.setIsFeeTx(true);
-		txRepository.save(txn);
+		if (userTxWoOtpReqModal.getFee() > 0.0) {
+			txRepository.save(txn);
+		} else {
+			LOGGER.info("[txn without otp] fee skipped for fee -> {}", userTxWoOtpReqModal.getFee());
+		}
+		
 		return txn;
 	}
 

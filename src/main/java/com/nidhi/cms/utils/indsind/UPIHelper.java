@@ -109,10 +109,14 @@ public class UPIHelper extends AbstractController {
 		String upiAddress = UPI_PREFIX + compName.trim() + merchantId.split("_")[1] + UPI_POSTFIX;
 		LOGGER.info("upiAddress {}", upiAddress.toLowerCase());
 		
-		return getAndValidateUpiAddress(upiAddress, "R");
+		JSONObject value = getAndValidateUpiAddress(upiAddress, "R");
+		if (value == null) {
+			return null;
+		}
+		return upiAddress;
 	}
 
-	public String getAndValidateUpiAddress(String upiAddress, String vpaType) {
+	public JSONObject getAndValidateUpiAddress(String upiAddress, String vpaType) {
 		OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(2, TimeUnit.MINUTES).build();
 		MediaType mediaType = MediaType.parse(APPLICATION_JSON);
 		Response response = null;
@@ -132,13 +136,14 @@ public class UPIHelper extends AbstractController {
 			LOGGER.info("getAndValidateUpiAddress responseBody {} ", responseBody);
 			String decryptedResponse = Utility.decryptResponse(responseBody, "resp", bankId);
 			LOGGER.info("decryptedResponse {} ", decryptedResponse);
-			if (decryptedResponse != null) {
-				String status = getJsonFromString(decryptedResponse).getString("status");
-				if (status.equals("VN")) {
-					return upiAddress; 
-				}
-				return null;
-			} 
+			return Utility.getJsonFromString(decryptedResponse);
+//			if (decryptedResponse != null) {
+//				String status = getJsonFromString(decryptedResponse).getString("status");
+//				if (status.equals("VN")) {
+//					return upiAddress; 
+//				}
+//				return null;
+//			} 
 		} catch (Exception e) {
 			LOGGER.error("upiAddress validate api  failed ", e);
 		} finally {
@@ -379,6 +384,7 @@ public class UPIHelper extends AbstractController {
 		upiTxn.setTxnNote(transDetail.getString("txnNote"));
 		upiTxn.setTxnType(transDetail.getString("txnType"));
 		upiTxn.setUpiTransRefNo(transDetail.has("trnRefNo") ? transDetail.get("trnRefNo").toString() : transDetail.get("upiTransRefNo").toString());
+		upiTxn.setNpciTransId(transDetail.has("txnId") ? transDetail.getString("txnId") : transDetail.getString("npciTransId"));
 		
 		
 		upiTxn.setAddInfo2(transDetail.getString("addiInfo2"));
@@ -428,13 +434,14 @@ public class UPIHelper extends AbstractController {
 			transaction.setIsFeeTx(true);
 			transaction.setMerchantId(savedWallet.getMerchantId());
 			transaction.setStatus(transDetail.has("txnStatus") ? transDetail.getString("txnStatus") : transDetail.getString("status"));
-			transaction.setRemarks(transDetail.has("reason_desc") ? transDetail.getString("reason_desc") : transDetail.getString("currentStatusDesc"));
+			transaction.setRemarks(transDetail.getString("txnNote"));
 			transaction.setTxDate(LocalDate.now());
 			transaction.setTxType("Dr.");
 			transaction.setUserId(savedWallet.getUserId());//
 			transaction.setUniqueId(transDetail.has("txnId") ? transDetail.getString("txnId") : transDetail.getString("npciTransId"));
 			transaction.setPayeeName(transDetail.has("payeeName") ? transDetail.getString("payeeName") : null);
 			transaction.setAmt(savedWallet.getAmount());
+			transaction.setUtrNumber(transDetail.has("custRefNo") ? transDetail.getString("custRefNo") : null);
 			transactionService.save(transaction);
 			
 		} 
@@ -478,6 +485,7 @@ public class UPIHelper extends AbstractController {
 		transaction.setUserId(wallet.getUserId());
 		transaction.setPayeeName(transDetail.has("payeeName") ? transDetail.getString("payeeName") : null);
 		transaction.setAmt(amt);
+		transaction.setUtrNumber(transDetail.has("custRefNo") ? transDetail.getString("custRefNo") : null);
 		transactionService.save(transaction);
 	}
 	
@@ -698,6 +706,10 @@ public class UPIHelper extends AbstractController {
 	
 	private void feeTransactionForPreAuth(
 			PreAuthPayResponseModel preAuthPayResponseModel, UserWallet usrWallet, Double fee, Double amt) {
+		if (fee <= 0.00) {
+			LOGGER.info("[fee Transaction For PreAuth] skipped for fee - {}", fee);
+			return;
+		}
 		Transaction transaction = new Transaction();
 		transaction.setAmount(fee);
 		transaction.setAmountPlusfee(fee);
